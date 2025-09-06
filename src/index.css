@@ -2,56 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Sports Betting & Casino Platform Design System */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700;900&display=swap');
+html {
+  font-family: "Inter", sans-serif;
+}
 
 @layer base {
   :root {
-    /* Dark Gaming Theme */
-    --background: 220 15% 8%;
-    --foreground: 210 40% 98%;
-
-    --card: 220 15% 12%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 220 15% 10%;
-    --popover-foreground: 210 40% 98%;
-
-    /* Electric Blue Primary */
-    --primary: 217 91% 60%;
-    --primary-foreground: 210 40% 98%;
-
-    /* Gaming Accent Colors */
-    --secondary: 220 15% 18%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 220 15% 15%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 142 76% 36%;
-    --accent-foreground: 210 40% 98%;
-
-    /* Success/Win Green */
-    --success: 142 76% 36%;
-    --success-foreground: 210 40% 98%;
-
-    /* Danger/Loss Red */
+    /* Dark betting platform theme */
+    --background: 0 0% 6%; /* #0F0F0F */
+    --foreground: 0 0% 98%; /* White text */
+    --card: 0 0% 8%; /* Slightly lighter than background */
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 15 100% 50%; /* Orange #FF4D00 */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 140 100% 39%; /* Green #00C853 */
+    --secondary-foreground: 0 0% 98%;
+    --success: 140 100% 39%; /* Green for wins */
+    --success-foreground: 0 0% 98%;
+    --muted: 0 0% 15%; /* Dark gray */
+    --muted-foreground: 0 0% 65%; /* Light gray text */
+    --accent: 15 100% 50%; /* Orange accent */
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    /* Gold for Premium */
-    --gold: 45 100% 51%;
-    --gold-foreground: 220 15% 8%;
-
-    /* Warning Orange */
-    --warning: 25 95% 53%;
-    --warning-foreground: 220 15% 8%;
-
-    --border: 220 15% 20%;
-    --input: 220 15% 18%;
-    --ring: 217 91% 60%;
-
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 20%; /* Dark borders */
+    --input: 0 0% 12%; /* Dark inputs */
+    --ring: 15 100% 50%; /* Orange focus ring */
+    --sidebar: 0 0% 4%; /* Even darker sidebar */
+    --sidebar-foreground: 0 0% 98%;
     --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(15, 100%, 50%), hsl(15, 100%, 45%));
+    --gradient-secondary: linear-gradient(135deg, hsl(140, 100%, 39%), hsl(140, 100%, 35%));
+    --gradient-dark: linear-gradient(135deg, hsl(0, 0%, 8%), hsl(0, 0%, 4%));
+    
+    /* Shadows */
+    --shadow-glow: 0 0 20px hsl(15, 100%, 50%, 0.3);
+    --shadow-card: 0 4px 12px hsl(0, 0%, 0%, 0.5);
+  }
+}
 
     /* Premium Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 45%));
@@ -161,90 +153,31 @@
 }
 
 @layer components {
-  /* Gaming Card Effects */
-  .gaming-card {
-    @apply bg-gradient-to-br from-card to-muted border border-border rounded-xl;
-    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/20;
-    @apply hover:border-primary/30;
+  .bet-card {
+    @apply bg-card border border-border rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02];
   }
-
-  .gaming-card-premium {
-    @apply gaming-card relative overflow-hidden;
-    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted)));
+  
+  .odds-button {
+    @apply bg-primary/10 border border-primary/30 rounded-lg px-3 py-2 text-primary font-semibold hover:bg-primary hover:text-primary-foreground transition-all duration-200;
   }
-
-  .gaming-card-premium::before {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5;
-    @apply opacity-0 transition-opacity duration-300;
+  
+  .nav-link {
+    @apply text-muted-foreground hover:text-foreground transition-colors duration-200 relative;
   }
-
-  .gaming-card-premium:hover::before {
-    @apply opacity-100;
+  
+  .nav-link.active {
+    @apply text-primary;
   }
-
-  /* Glowing Effects */
-  .glow-primary {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 text-sidebar-foreground hover:bg-muted/50 rounded-lg transition-all duration-200 cursor-pointer;
   }
-
-  .glow-success {
-    box-shadow: 0 0 20px hsl(var(--success) / 0.3);
+  
+  .sidebar-item.active {
+    @apply bg-primary text-primary-foreground;
   }
-
-  .glow-gold {
-    box-shadow: 0 0 20px hsl(var(--gold) / 0.3);
-  }
-
-  /* Betting Odds Styling */
-  .odds-positive {
-    @apply text-success font-semibold;
-  }
-
-  .odds-negative {
-    @apply text-destructive font-semibold;
-  }
-
-  .odds-neutral {
-    @apply text-primary font-semibold;
-  }
-
-  /* Live Indicator */
-  .live-indicator {
-    @apply animate-pulse;
-    animation: live-pulse 2s infinite;
-  }
-
-  @keyframes live-pulse {
-    0%, 100% { 
-      box-shadow: 0 0 0 0 hsl(var(--destructive) / 0.7);
-    }
-    70% {
-      box-shadow: 0 0 0 10px hsl(var(--destructive) / 0);
-    }
-  }
-
-  /* Gaming Animations */
-  .gaming-hover {
-    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg;
-  }
-
-  .gaming-hover:hover {
-    transform: translateY(-2px) scale(1.02);
-  }
-
-  /* Gradient Text */
-  .gradient-text-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .gradient-text-gold {
-    background: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--warning)));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  
+  .glow-effect {
+    box-shadow: var(--shadow-glow);
   }
 }
