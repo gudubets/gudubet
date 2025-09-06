@@ -296,34 +296,6 @@ const LiveBetting = () => {
           </div>
         </div>
 
-        {/* Sports Categories */}
-        <div className="border-t border-gray-800">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-12">
-              <div className="flex items-center space-x-8">
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-yellow-400">
-                  🔴 CANLI
-                </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  ⚽ FUTBOL
-                </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  🏀 BASKETBOL
-                </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  🎾 TENİS
-                </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  🎮 E-SPOR
-                </Button>
-              </div>
-              
-              <Button variant="ghost" className="text-gray-300 hover:text-yellow-400 text-xs">
-                🔍 ARA
-              </Button>
-            </div>
-          </div>
-        </div>
       </header>
       
       {/* Header */}
