@@ -4,7 +4,7 @@ import { RegistrationModal } from '@/components/auth/RegistrationModal';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   Menu, 
   X, 
@@ -14,7 +14,8 @@ import {
   Settings,
   LogIn,
   UserPlus,
-  LogOut
+  LogOut,
+  ChevronDown
 } from 'lucide-react';
 
 const Header = () => {
@@ -23,13 +24,14 @@ const Header = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const location = useLocation();
 
   const navItems = [
-    { name: 'Spor Bahisleri', href: '/sports-betting' },
-    { name: 'Canlı Bahisler', href: '/live-betting' },
+    { name: 'Ana Sayfa', href: '/' },
+    { name: 'Spor', href: '/sports-betting' },
+    { name: 'Canlı', href: '/live-betting' },
+    { name: 'Casino', href: '#casino' },
     { name: 'Canlı Casino', href: '/live-casino' },
-    { name: 'Slot Oyunları', href: '#slots' },
-    { name: 'Tombala', href: '#bingo' },
     { name: 'Promosyonlar', href: '#promotions' },
   ];
 
@@ -66,27 +68,31 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 bg-slate-800 border-b border-slate-700">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-14 items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <span 
-              className="text-xl font-gaming font-bold gradient-text-primary cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => window.location.href = '/'}
-            >
-              GUDUBET
-            </span>
+          <div className="flex items-center">
+            <Link to="/" className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition-colors">
+              <span className="text-white font-bold text-lg">GUDUBET</span>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-6">
-            {navItems.map((item) => (
-              item.href.startsWith('#') ? (
+          <nav className="hidden lg:flex items-center space-x-8">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.href || 
+                (item.href.startsWith('#') && location.hash === item.href);
+              
+              return item.href.startsWith('#') ? (
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                  className={`text-sm font-medium transition-colors duration-200 ${
+                    isActive 
+                      ? 'text-orange-500 border-b-2 border-orange-500 pb-1' 
+                      : 'text-gray-300 hover:text-white'
+                  }`}
                 >
                   {item.name}
                 </a>
@@ -94,71 +100,84 @@ const Header = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                  className={`text-sm font-medium transition-colors duration-200 ${
+                    isActive 
+                      ? 'text-orange-500 border-b-2 border-orange-500 pb-1' 
+                      : 'text-gray-300 hover:text-white'
+                  }`}
                 >
                   {item.name}
                 </Link>
-              )
-            ))}
+              );
+            })}
+            
+            {/* Daha Fazla Dropdown */}
+            <div className="relative group">
+              <button className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                Daha Fazla
+                <ChevronDown className="w-3 h-3" />
+              </button>
+              <div className="absolute top-full left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div className="py-2">
+                  <a href="#slots" className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-slate-700">
+                    Slot Oyunları
+                  </a>
+                  <a href="#bingo" className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-slate-700">
+                    Tombala
+                  </a>
+                  <a href="#virtual-sports" className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-slate-700">
+                    Sanal Sporlar
+                  </a>
+                </div>
+              </div>
+            </div>
           </nav>
 
           {/* Desktop User Actions */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-3">
             {user ? (
               <>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className="gap-2 border-slate-600 text-gray-300 hover:bg-slate-700">
                   <Wallet className="w-4 h-4" />
                   ₺1,250.00
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-slate-700">
                   <Bell className="w-4 h-4" />
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm"
+                  className="text-gray-300 hover:text-white hover:bg-slate-700"
                   onClick={() => window.location.href = '/profile'}
                 >
                   <UserIcon className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-slate-700">
                   <Settings className="w-4 h-4" />
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="gap-2"
+                  className="gap-2 border-slate-600 text-gray-300 hover:bg-slate-700"
                   onClick={handleLogout}
                 >
                   <LogOut className="w-4 h-4" />
                   Çıkış
                 </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => window.open('/admin', '_blank')}
-                >
-                  Admin Panel
-                </Button>
               </>
             ) : (
               <>
                 <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="gap-2"
+                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 text-sm font-medium"
                   onClick={() => setIsLoginModalOpen(true)}
                 >
-                  <LogIn className="w-4 h-4" />
                   Giriş Yap
                 </Button>
                 <Button 
-                  variant="default" 
-                  size="sm" 
-                  className="gap-2"
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 text-sm font-medium"
                   onClick={() => setIsRegistrationModalOpen(true)}
                 >
-                  <UserPlus className="w-4 h-4" />
-                  Kayıt Ol
+                  Üye Ol
                 </Button>
               </>
             )}
@@ -168,7 +187,7 @@ const Header = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="lg:hidden"
+            className="lg:hidden text-gray-300 hover:text-white"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -177,14 +196,19 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 space-y-4 border-t border-border">
+          <div className="lg:hidden py-4 space-y-4 border-t border-slate-700">
             <nav className="space-y-3">
-              {navItems.map((item) => (
-                item.href.startsWith('#') ? (
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.href || 
+                  (item.href.startsWith('#') && location.hash === item.href);
+                
+                return item.href.startsWith('#') ? (
                   <a
                     key={item.name}
                     href={item.href}
-                    className="block text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                    className={`block text-sm font-medium transition-colors duration-200 ${
+                      isActive ? 'text-orange-500' : 'text-gray-300 hover:text-white'
+                    }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
@@ -193,39 +217,41 @@ const Header = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className="block text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                    className={`block text-sm font-medium transition-colors duration-200 ${
+                      isActive ? 'text-orange-500' : 'text-gray-300 hover:text-white'
+                    }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
                   </Link>
-                )
-              ))}
+                );
+              })}
             </nav>
-            <div className="pt-4 border-t border-border space-y-3">
+            <div className="pt-4 border-t border-slate-700 space-y-3">
               {user ? (
                 <>
-                  <Button variant="outline" className="w-full gap-2">
+                  <Button variant="outline" className="w-full gap-2 border-slate-600 text-gray-300">
                     <Wallet className="w-4 h-4" />
                     Bakiye: ₺1,250.00
                   </Button>
                   <div className="flex space-x-2">
-                    <Button variant="ghost" className="flex-1">
+                    <Button variant="ghost" className="flex-1 text-gray-300">
                       <Bell className="w-4 h-4" />
                     </Button>
                     <Button 
                       variant="ghost" 
-                      className="flex-1"
+                      className="flex-1 text-gray-300"
                       onClick={() => window.location.href = '/profile'}
                     >
                       <UserIcon className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" className="flex-1">
+                    <Button variant="ghost" className="flex-1 text-gray-300">
                       <Settings className="w-4 h-4" />
                     </Button>
                   </div>
                   <Button 
                     variant="outline" 
-                    className="w-full gap-2"
+                    className="w-full gap-2 border-slate-600 text-gray-300"
                     onClick={handleLogout}
                   >
                     <LogOut className="w-4 h-4" />
@@ -235,20 +261,16 @@ const Header = () => {
               ) : (
                 <div className="space-y-2">
                   <Button 
-                    variant="outline" 
-                    className="w-full gap-2"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white"
                     onClick={() => setIsLoginModalOpen(true)}
                   >
-                    <LogIn className="w-4 h-4" />
                     Giriş Yap
                   </Button>
                   <Button 
-                    variant="default" 
-                    className="w-full gap-2"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
                     onClick={() => setIsRegistrationModalOpen(true)}
                   >
-                    <UserPlus className="w-4 h-4" />
-                    Kayıt Ol
+                    Üye Ol
                   </Button>
                 </div>
               )}
