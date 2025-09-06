@@ -14,7 +14,874 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      betslip_items: {
+        Row: {
+          betslip_id: string
+          created_at: string | null
+          id: string
+          market_name: string
+          market_type: string
+          match_id: string
+          odds_id: string
+          odds_value: number
+          selection: string
+          stake: number
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          betslip_id: string
+          created_at?: string | null
+          id?: string
+          market_name: string
+          market_type: string
+          match_id: string
+          odds_id: string
+          odds_value: number
+          selection: string
+          stake: number
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          betslip_id?: string
+          created_at?: string | null
+          id?: string
+          market_name?: string
+          market_type?: string
+          match_id?: string
+          odds_id?: string
+          odds_value?: number
+          selection?: string
+          stake?: number
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "betslip_items_betslip_id_fkey"
+            columns: ["betslip_id"]
+            isOneToOne: false
+            referencedRelation: "betslips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "betslip_items_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "betslip_items_odds_id_fkey"
+            columns: ["odds_id"]
+            isOneToOne: false
+            referencedRelation: "odds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      betslips: {
+        Row: {
+          created_at: string | null
+          id: string
+          potential_win: number
+          settled_at: string | null
+          slip_type: string | null
+          status: string | null
+          total_odds: number
+          total_stake: number
+          updated_at: string | null
+          user_id: string
+          win_amount: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          potential_win: number
+          settled_at?: string | null
+          slip_type?: string | null
+          status?: string | null
+          total_odds: number
+          total_stake: number
+          updated_at?: string | null
+          user_id: string
+          win_amount?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          potential_win?: number
+          settled_at?: string | null
+          slip_type?: string | null
+          status?: string | null
+          total_odds?: number
+          total_stake?: number
+          updated_at?: string | null
+          user_id?: string
+          win_amount?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "betslips_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bonus_campaigns: {
+        Row: {
+          amount_type: string
+          amount_value: number
+          bonus_type: string
+          created_at: string | null
+          current_uses: number | null
+          description: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          max_amount: number | null
+          max_uses_per_user: number | null
+          min_deposit: number | null
+          name: string
+          promotion_code: string | null
+          slug: string
+          start_date: string | null
+          total_max_uses: number | null
+          trigger_type: string
+          updated_at: string | null
+          valid_days: number | null
+          wagering_requirement: number | null
+        }
+        Insert: {
+          amount_type: string
+          amount_value: number
+          bonus_type: string
+          created_at?: string | null
+          current_uses?: number | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_amount?: number | null
+          max_uses_per_user?: number | null
+          min_deposit?: number | null
+          name: string
+          promotion_code?: string | null
+          slug: string
+          start_date?: string | null
+          total_max_uses?: number | null
+          trigger_type: string
+          updated_at?: string | null
+          valid_days?: number | null
+          wagering_requirement?: number | null
+        }
+        Update: {
+          amount_type?: string
+          amount_value?: number
+          bonus_type?: string
+          created_at?: string | null
+          current_uses?: number | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_amount?: number | null
+          max_uses_per_user?: number | null
+          min_deposit?: number | null
+          name?: string
+          promotion_code?: string | null
+          slug?: string
+          start_date?: string | null
+          total_max_uses?: number | null
+          trigger_type?: string
+          updated_at?: string | null
+          valid_days?: number | null
+          wagering_requirement?: number | null
+        }
+        Relationships: []
+      }
+      game_providers: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      game_rounds: {
+        Row: {
+          balance_after: number
+          balance_before: number
+          bet_amount: number
+          created_at: string | null
+          external_round_id: string | null
+          game_id: string
+          game_result: Json | null
+          id: string
+          played_at: string | null
+          round_number: number
+          session_id: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+          win_amount: number | null
+        }
+        Insert: {
+          balance_after: number
+          balance_before: number
+          bet_amount: number
+          created_at?: string | null
+          external_round_id?: string | null
+          game_id: string
+          game_result?: Json | null
+          id?: string
+          played_at?: string | null
+          round_number: number
+          session_id: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+          win_amount?: number | null
+        }
+        Update: {
+          balance_after?: number
+          balance_before?: number
+          bet_amount?: number
+          created_at?: string | null
+          external_round_id?: string | null
+          game_id?: string
+          game_result?: Json | null
+          id?: string
+          played_at?: string | null
+          round_number?: number
+          session_id?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          win_amount?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_rounds_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_rounds_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_rounds_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_sessions: {
+        Row: {
+          balance_end: number | null
+          balance_start: number
+          created_at: string | null
+          ended_at: string | null
+          game_id: string
+          id: string
+          ip_address: unknown | null
+          rounds_played: number | null
+          session_token: string
+          started_at: string | null
+          status: string | null
+          total_bet: number | null
+          total_win: number | null
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          balance_end?: number | null
+          balance_start: number
+          created_at?: string | null
+          ended_at?: string | null
+          game_id: string
+          id?: string
+          ip_address?: unknown | null
+          rounds_played?: number | null
+          session_token: string
+          started_at?: string | null
+          status?: string | null
+          total_bet?: number | null
+          total_win?: number | null
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          balance_end?: number | null
+          balance_start?: number
+          created_at?: string | null
+          ended_at?: string | null
+          game_id?: string
+          id?: string
+          ip_address?: unknown | null
+          rounds_played?: number | null
+          session_token?: string
+          started_at?: string | null
+          status?: string | null
+          total_bet?: number | null
+          total_win?: number | null
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_sessions_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      games: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          external_game_id: string | null
+          game_type: string
+          has_demo: boolean | null
+          id: string
+          is_active: boolean | null
+          is_featured: boolean | null
+          max_bet: number | null
+          min_bet: number | null
+          name: string
+          provider_id: string
+          rtp_percentage: number | null
+          slug: string
+          sort_order: number | null
+          thumbnail_url: string | null
+          updated_at: string | null
+          volatility: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          external_game_id?: string | null
+          game_type: string
+          has_demo?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          max_bet?: number | null
+          min_bet?: number | null
+          name: string
+          provider_id: string
+          rtp_percentage?: number | null
+          slug: string
+          sort_order?: number | null
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          volatility?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          external_game_id?: string | null
+          game_type?: string
+          has_demo?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          max_bet?: number | null
+          min_bet?: number | null
+          name?: string
+          provider_id?: string
+          rtp_percentage?: number | null
+          slug?: string
+          sort_order?: number | null
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          volatility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "games_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "game_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leagues: {
+        Row: {
+          country: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          slug: string
+          sort_order: number | null
+          sport_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          sport_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          sport_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leagues_sport_id_fkey"
+            columns: ["sport_id"]
+            isOneToOne: false
+            referencedRelation: "sports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matches: {
+        Row: {
+          away_score: number | null
+          away_team: string
+          away_team_logo: string | null
+          created_at: string | null
+          external_match_id: string | null
+          home_score: number | null
+          home_team: string
+          home_team_logo: string | null
+          id: string
+          is_featured: boolean | null
+          league_id: string
+          match_date: string
+          provider: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          away_score?: number | null
+          away_team: string
+          away_team_logo?: string | null
+          created_at?: string | null
+          external_match_id?: string | null
+          home_score?: number | null
+          home_team: string
+          home_team_logo?: string | null
+          id?: string
+          is_featured?: boolean | null
+          league_id: string
+          match_date: string
+          provider?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          away_score?: number | null
+          away_team?: string
+          away_team_logo?: string | null
+          created_at?: string | null
+          external_match_id?: string | null
+          home_score?: number | null
+          home_team?: string
+          home_team_logo?: string | null
+          id?: string
+          is_featured?: boolean | null
+          league_id?: string
+          match_date?: string
+          provider?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "leagues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      odds: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          market_name: string
+          market_type: string
+          match_id: string
+          odds_value: number
+          selection: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          market_name: string
+          market_type: string
+          match_id: string
+          odds_value: number
+          selection: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          market_name?: string
+          market_type?: string
+          match_id?: string
+          odds_value?: number
+          selection?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "odds_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sports: {
+        Row: {
+          created_at: string | null
+          icon_url: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          external_transaction_id: string | null
+          id: string
+          payment_method: string | null
+          payment_provider: string | null
+          processed_at: string | null
+          reference_id: string | null
+          reference_type: string | null
+          status: string | null
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          external_transaction_id?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_provider?: string | null
+          processed_at?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string | null
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          external_transaction_id?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_provider?: string | null
+          processed_at?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_bonuses: {
+        Row: {
+          awarded_at: string | null
+          bonus_amount: number
+          campaign_id: string
+          completed_at: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+          wagering_completed: number | null
+          wagering_requirement: number | null
+        }
+        Insert: {
+          awarded_at?: string | null
+          bonus_amount: number
+          campaign_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+          wagering_completed?: number | null
+          wagering_requirement?: number | null
+        }
+        Update: {
+          awarded_at?: string | null
+          bonus_amount?: number
+          campaign_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          wagering_completed?: number | null
+          wagering_requirement?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_bonuses_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "bonus_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_bonuses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_sessions: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          is_active: boolean | null
+          login_at: string | null
+          logout_at: string | null
+          session_token: string
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          login_at?: string | null
+          logout_at?: string | null
+          session_token: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          login_at?: string | null
+          logout_at?: string | null
+          session_token?: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          auth_user_id: string
+          balance: number | null
+          bonus_balance: number | null
+          country: string | null
+          created_at: string | null
+          currency: string | null
+          date_of_birth: string | null
+          email: string
+          email_verified: boolean | null
+          first_name: string | null
+          id: string
+          kyc_status: string | null
+          last_name: string | null
+          phone: string | null
+          phone_verified: boolean | null
+          status: string | null
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          auth_user_id: string
+          balance?: number | null
+          bonus_balance?: number | null
+          country?: string | null
+          created_at?: string | null
+          currency?: string | null
+          date_of_birth?: string | null
+          email: string
+          email_verified?: boolean | null
+          first_name?: string | null
+          id?: string
+          kyc_status?: string | null
+          last_name?: string | null
+          phone?: string | null
+          phone_verified?: boolean | null
+          status?: string | null
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          auth_user_id?: string
+          balance?: number | null
+          bonus_balance?: number | null
+          country?: string | null
+          created_at?: string | null
+          currency?: string | null
+          date_of_birth?: string | null
+          email?: string
+          email_verified?: boolean | null
+          first_name?: string | null
+          id?: string
+          kyc_status?: string | null
+          last_name?: string | null
+          phone?: string | null
+          phone_verified?: boolean | null
+          status?: string | null
+          updated_at?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
