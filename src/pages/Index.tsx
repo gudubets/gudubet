@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Star, Trophy, TrendingUp, Play, Zap, Gift, Menu, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import Header from '@/components/layout/Header';
 
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -13,114 +14,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header Navigation */}
-      <header className="bg-slate-900 border-b border-border">
-        {/* Main Navigation */}
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo and Mobile Menu Button */}
-            <div className="flex items-center space-x-4">
-              {isMobile && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  className="text-white hover:bg-white/10"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              )}
-              <a href="/" className="bg-destructive px-4 py-2 rounded hover:bg-destructive/90 transition-colors cursor-pointer">
-                <span className="text-destructive-foreground font-bold">GUDUBET</span>
-              </a>
-              
-              {/* Main Navigation Links - Desktop Only */}
-              <nav className="hidden lg:flex items-center space-x-6">
-                <a href="/" className="text-primary border-b-2 border-primary pb-1">Ana Sayfa</a>
-                <a href="/sports-betting" className="text-muted-foreground hover:text-white transition-colors">Spor</a>
-                <a href="/live-betting" className="text-muted-foreground hover:text-white transition-colors">Canlı</a>
-                <a href="/casino" className="text-muted-foreground hover:text-white transition-colors">Casino</a>
-                <a href="/live-casino" className="text-muted-foreground hover:text-white transition-colors">Canlı Casino</a>
-                <a href="/promotions" className="text-muted-foreground hover:text-white transition-colors">Promosyonlar</a>
-              </nav>
-            </div>
-
-            {/* Right Side Actions */}
-            <div className="flex items-center space-x-2 lg:space-x-4">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 hidden sm:flex">
-                <span className="text-lg">💬</span>
-              </Button>
-              <Button 
-                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs sm:text-sm px-2 sm:px-4"
-                size={isMobile ? "sm" : "default"}
-              >
-                Giriş Yap
-              </Button>
-              <Button 
-                className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-2 sm:px-4"
-                size={isMobile ? "sm" : "default"}
-              >
-                Üye Ol
-              </Button>
-              
-              {/* Mobile Menu Toggle */}
-              {isMobile && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="text-white hover:bg-white/10"
-                >
-                  {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Navigation Menu */}
-        {isMobileMenuOpen && isMobile && (
-          <div className="lg:hidden bg-slate-800 border-t border-slate-700">
-            <div className="px-4 py-2 space-y-2">
-              <a href="/" className="block py-2 text-primary border-l-2 border-primary pl-2">Ana Sayfa</a>
-              <a href="/sports-betting" className="block py-2 text-muted-foreground hover:text-white">Spor</a>
-              <a href="/live-betting" className="block py-2 text-muted-foreground hover:text-white">Canlı</a>
-              <a href="/casino" className="block py-2 text-muted-foreground hover:text-white">Casino</a>
-              <a href="/live-casino" className="block py-2 text-muted-foreground hover:text-white">Canlı Casino</a>
-              <a href="/promotions" className="block py-2 text-muted-foreground hover:text-white">Promosyonlar</a>
-            </div>
-          </div>
-        )}
-
-        {/* Game Categories - Desktop */}
-        <div className="border-t border-slate-700 hidden lg:block">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-12">
-              <div className="flex items-center space-x-8">
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🎰 Slot Oyunları
-                </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🃏 Masa Oyunları
-                </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🎲 Canlı Casino
-                </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🎯 Jackpot
-                </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🎮 Sanal Sporlar
-                </Button>
-              </div>
-              
-              <Button variant="ghost" className="text-muted-foreground hover:text-white text-sm">
-                🔍 Ara
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="container mx-auto flex gap-0 relative">
         {/* Mobile Sidebar Overlay */}
