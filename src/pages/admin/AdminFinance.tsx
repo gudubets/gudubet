@@ -65,11 +65,11 @@ const AdminFinance = () => {
         query = query.or(`users.username.ilike.%${searchTerm}%,users.email.ilike.%${searchTerm}%`);
       }
       
-      if (typeFilter) {
+      if (typeFilter && typeFilter !== 'all') {
         query = query.eq('type', typeFilter);
       }
       
-      if (statusFilter) {
+      if (statusFilter && statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
       
@@ -264,7 +264,7 @@ const AdminFinance = () => {
                 <SelectValue placeholder="İşlem türü" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tümü</SelectItem>
+                <SelectItem value="all">Tümü</SelectItem>
                 <SelectItem value="deposit">Para Yatırma</SelectItem>
                 <SelectItem value="withdraw">Para Çekme</SelectItem>
               </SelectContent>
@@ -275,7 +275,7 @@ const AdminFinance = () => {
                 <SelectValue placeholder="Durum" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tümü</SelectItem>
+                <SelectItem value="all">Tümü</SelectItem>
                 <SelectItem value="pending">Bekliyor</SelectItem>
                 <SelectItem value="approved">Onaylı</SelectItem>
                 <SelectItem value="rejected">Reddedildi</SelectItem>
