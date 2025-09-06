@@ -116,6 +116,13 @@ const Header = () => {
                   <LogOut className="w-4 h-4" />
                   Çıkış
                 </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => window.open('/admin', '_blank')}
+                >
+                  Admin Panel
+                </Button>
               </>
             ) : (
               <>

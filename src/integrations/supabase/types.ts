@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admins: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          password_hash: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          password_hash: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          password_hash?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       betslip_items: {
         Row: {
           betslip_id: string
@@ -143,6 +170,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           max_amount: number | null
+          max_bonus: number | null
           max_uses_per_user: number | null
           min_deposit: number | null
           name: string
@@ -166,6 +194,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           max_amount?: number | null
+          max_bonus?: number | null
           max_uses_per_user?: number | null
           min_deposit?: number | null
           name: string
@@ -189,6 +218,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           max_amount?: number | null
+          max_bonus?: number | null
           max_uses_per_user?: number | null
           min_deposit?: number | null
           name?: string
