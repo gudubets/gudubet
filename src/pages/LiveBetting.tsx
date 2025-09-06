@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import Header from '@/components/layout/Header';
 import { 
   Play, 
   Users, 
@@ -234,6 +235,8 @@ const LiveBetting = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
+      
       {/* Header */}
       <div className="bg-muted/30 border-b">
         <div className="container mx-auto px-4 py-6">
