@@ -199,6 +199,10 @@ const SportsBetting = () => {
       'Portugal': '🇵🇹',
       'Andorra': '🇦🇩',
       'Spain': '🇪🇸',
+      'France': '🇫🇷',
+      'Germany': '🇩🇪',
+      'Italy': '🇮🇹',
+      'Netherlands': '🇳🇱',
       
       // Turkish Teams
       'Galatasaray': '🇹🇷',
@@ -206,10 +210,61 @@ const SportsBetting = () => {
       'Beşiktaş': '🇹🇷',
       'Trabzonspor': '🇹🇷',
       
+      // English Teams (use England flag)
+      'Doncaster Rovers': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Bradford City': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Cheltenham Town': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Accrington Stanley': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Barrow': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Swindon Town': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Bolton Wanderers': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Wimbledon': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Walsall': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Chesterfield FC': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Colchester United': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Crewe Alexandra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Harrogate Town': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Crawley Town': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Rotherham United': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Exeter City': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Notts County': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Fleetwood Town': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Huddersfield Town': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Peterborough United': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Port Vale': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Leyton Orient': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Lincoln City': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Wigan Athletic': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Wycombe Wanderers': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Mansfield Town': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Plymouth Argyle': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Stockport County FC': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Salford City': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Tranmere Rovers': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Barnet': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Shrewsbury Town': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Cambridge United': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Oldham Athletic': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Milton Keynes Dons': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Grimsby Town': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Bromley FC': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Gillingham': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      
+      // Spanish Teams
+      'Deportivo La Coruña': '🇪🇸',
+      'Sporting Gijón': '🇪🇸',
+      'Zaragoza': '🇪🇸',
+      'Real Valladolid CF': '🇪🇸',
+      
+      // Brazilian Teams
+      'Botafogo': '🇧🇷',
+      'Atletico Paranaense': '🇧🇷',
+      
       // Default for other teams
       'default': '⚽'
     };
     
+    console.log('Getting flag for team:', teamName, '-> Flag:', flagMap[teamName] || flagMap['default']);
     return flagMap[teamName] || flagMap['default'];
   };
 
@@ -236,30 +291,39 @@ const SportsBetting = () => {
         console.log('Received matches:', data.matches.length, data.matches);
         
         // Transform API data to match UI format
-        const transformedMatches = data.matches.map((match: any) => ({
-          id: match.id,
-          league: match.league,
-          homeTeam: getTeamNameInTurkish(match.homeTeam),
-          awayTeam: getTeamNameInTurkish(match.awayTeam),
-          homeTeamFlag: getCountryFlag(match.homeTeam),
-          awayTeamFlag: getCountryFlag(match.awayTeam),
-          status: match.status === 'upcoming' ? 'Önce' : 'Canlı',
-          time: new Date(match.startTime).toLocaleTimeString('tr-TR', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }),
-          odds: {
-            home: match.odds.home,
-            draw: match.odds.draw,
-            away: match.odds.away,
-            special: [
-              { name: '1.5 Gol Üstü', odds: 1.85 },
-              { name: '8.5 Üstü Korner', odds: 2.15 }
-            ]
-          },
-          isLive: match.status === 'live',
-          isFeatured: false
-        }));
+        const transformedMatches = data.matches.map((match: any) => {
+          const homeFlag = getCountryFlag(match.homeTeam);
+          const awayFlag = getCountryFlag(match.awayTeam);
+          const homeTurkish = getTeamNameInTurkish(match.homeTeam);
+          const awayTurkish = getTeamNameInTurkish(match.awayTeam);
+          
+          console.log('Match:', match.homeTeam, '->', homeTurkish, homeFlag, '|', match.awayTeam, '->', awayTurkish, awayFlag);
+          
+          return {
+            id: match.id,
+            league: match.league,
+            homeTeam: homeTurkish,
+            awayTeam: awayTurkish,
+            homeTeamFlag: homeFlag,
+            awayTeamFlag: awayFlag,
+            status: match.status === 'upcoming' ? 'Önce' : 'Canlı',
+            time: new Date(match.startTime).toLocaleTimeString('tr-TR', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            }),
+            odds: {
+              home: match.odds.home,
+              draw: match.odds.draw,
+              away: match.odds.away,
+              special: [
+                { name: '1.5 Gol Üstü', odds: 1.85 },
+                { name: '8.5 Üstü Korner', odds: 2.15 }
+              ]
+            },
+            isLive: match.status === 'live',
+            isFeatured: false
+          };
+        });
         
         console.log('Transformed matches:', transformedMatches);
         setLiveMatches(transformedMatches);
