@@ -258,90 +258,151 @@ const SportsBetting = () => {
 
           {/* Betting Slip Sidebar */}
           <div className="lg:w-80">
-            <Card className="sticky top-4">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Bahis Kuponu
-                  <Badge variant="secondary">{betSlip.length}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {betSlip.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>Henüz bahis seçmediniz</p>
-                    <p className="text-sm">Maçlardaki oranları tıklayın</p>
+            <div className="sticky top-4 space-y-4">
+              {/* Bet Slip Card */}
+              <Card className="bg-muted/30">
+                {/* Header with tabs */}
+                <div className="flex">
+                  <div className="bg-destructive text-destructive-foreground px-4 py-3 rounded-t-lg flex items-center gap-2 font-semibold">
+                    Bahis kuponu
+                    <Badge variant="secondary" className="bg-white/20 text-white">
+                      {betSlip.length}
+                    </Badge>
                   </div>
-                ) : (
-                  <>
-                    {/* Selected Bets */}
-                    <div className="space-y-3">
-                      {betSlip.map((bet) => (
-                        <div key={bet.matchId} className="border rounded-lg p-3">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
-                              <p className="font-medium text-sm">{bet.matchName}</p>
-                              <p className="text-xs text-muted-foreground">{bet.selection}</p>
+                  <div className="bg-muted px-4 py-3 rounded-tr-lg flex-1 text-center text-muted-foreground font-medium">
+                    Bahislerim
+                  </div>
+                </div>
+
+                <CardContent className="p-4 space-y-4">
+                  {betSlip.length === 0 ? (
+                    <div className="text-center py-6">
+                      <p className="text-muted-foreground mb-2">
+                        Bahis kuponun bulunmamaktadir. Bahis yapmak için herhangi bir bahis oranina tikla.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Selected Bets */}
+                      <div className="space-y-3">
+                        {betSlip.map((bet) => (
+                          <div key={bet.matchId} className="bg-background/50 rounded-lg p-3 border">
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex-1">
+                                <p className="font-medium text-sm">{bet.matchName}</p>
+                                <p className="text-xs text-muted-foreground">{bet.selection}</p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeFromBetSlip(bet.matchId)}
+                                className="h-6 w-6 p-0 hover:bg-destructive/20"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeFromBetSlip(bet.matchId)}
-                              className="h-6 w-6 p-0"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-muted-foreground">Oran:</span>
+                              <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
+                                {bet.odds.toFixed(2)}
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Oran:</span>
-                            <span className="font-bold text-primary">{bet.odds.toFixed(2)}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <Separator />
-
-                    {/* Stake Input */}
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Bahis Miktarı (₺)
-                      </label>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        value={stakeAmount}
-                        onChange={(e) => setStakeAmount(e.target.value)}
-                      />
-                    </div>
-
-                    {/* Summary */}
-                    <div className="space-y-2 bg-muted/50 p-3 rounded-lg">
-                      <div className="flex justify-between text-sm">
-                        <span>Toplam Oran:</span>
-                        <span className="font-bold">{totalOdds.toFixed(2)}</span>
+                        ))}
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Bahis Miktarı:</span>
-                        <span>₺{parseFloat(stakeAmount) || 0}</span>
-                      </div>
+
                       <Separator />
-                      <div className="flex justify-between font-bold text-primary">
-                        <span>Olası Kazanç:</span>
-                        <span>₺{potentialWin.toFixed(2)}</span>
+
+                      {/* Stake Input */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          Bahis Miktarı (₺)
+                        </label>
+                        <Input
+                          type="number"
+                          placeholder="0.00"
+                          value={stakeAmount}
+                          onChange={(e) => setStakeAmount(e.target.value)}
+                          className="bg-background/50"
+                        />
+                      </div>
+
+                      {/* Summary */}
+                      <div className="space-y-2 bg-background/30 p-3 rounded-lg border">
+                        <div className="flex justify-between text-sm">
+                          <span>Toplam Oran:</span>
+                          <span className="font-bold">{totalOdds.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Bahis Miktarı:</span>
+                          <span>₺{parseFloat(stakeAmount) || 0}</span>
+                        </div>
+                        <Separator />
+                        <div className="flex justify-between font-bold text-primary">
+                          <span>Olası Kazanç:</span>
+                          <span>₺{potentialWin.toFixed(2)}</span>
+                        </div>
+                      </div>
+
+                      {/* Confirm Button */}
+                      <Button 
+                        className="w-full bg-destructive hover:bg-destructive/90" 
+                        disabled={!stakeAmount || parseFloat(stakeAmount) <= 0}
+                      >
+                        Bahsi Onayla
+                      </Button>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Popular Bets Section */}
+              <Card className="bg-muted/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <TrendingUp className="h-4 w-4 text-destructive" />
+                    Popüler Bahisler
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* Popular bet examples */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-2 bg-background/50 rounded border hover:bg-background/70 cursor-pointer transition-colors">
+                      <div>
+                        <p className="text-sm font-medium">Ermenistan v Portekiz</p>
+                        <p className="text-xs text-muted-foreground">Maç Kazananı</p>
+                        <p className="text-xs font-medium">Portekiz</p>
+                      </div>
+                      <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
+                        1.12
                       </div>
                     </div>
 
-                    {/* Confirm Button */}
-                    <Button 
-                      className="w-full" 
-                      disabled={!stakeAmount || parseFloat(stakeAmount) <= 0}
-                    >
-                      Bahsi Onayla
-                    </Button>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+                    <div className="flex items-center justify-between p-2 bg-background/50 rounded border hover:bg-background/70 cursor-pointer transition-colors">
+                      <div>
+                        <p className="text-sm font-medium">Gürcistan v Bulgaristan</p>
+                        <p className="text-xs text-muted-foreground">Maç Kazananı</p>
+                        <p className="text-xs font-medium">Gürcistan</p>
+                      </div>
+                      <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
+                        1.43
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2 bg-background/50 rounded border hover:bg-background/70 cursor-pointer transition-colors">
+                      <div>
+                        <p className="text-sm font-medium">Türkiye v İspanya</p>
+                        <p className="text-xs text-muted-foreground">Maç Kazananı</p>
+                        <p className="text-xs font-medium">İspanya</p>
+                      </div>
+                      <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
+                        1.55
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
