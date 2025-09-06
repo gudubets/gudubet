@@ -678,6 +678,116 @@ export type Database = {
           },
         ]
       }
+      live_matches: {
+        Row: {
+          away_score: number | null
+          away_team: string
+          away_team_logo: string | null
+          created_at: string | null
+          home_score: number | null
+          home_team: string
+          home_team_logo: string | null
+          id: string
+          is_featured: boolean | null
+          league: string | null
+          match_date: string | null
+          match_minute: number | null
+          match_time: string | null
+          period: string | null
+          sport_type: string
+          status: string | null
+          updated_at: string | null
+          viewers_count: number | null
+        }
+        Insert: {
+          away_score?: number | null
+          away_team: string
+          away_team_logo?: string | null
+          created_at?: string | null
+          home_score?: number | null
+          home_team: string
+          home_team_logo?: string | null
+          id?: string
+          is_featured?: boolean | null
+          league?: string | null
+          match_date?: string | null
+          match_minute?: number | null
+          match_time?: string | null
+          period?: string | null
+          sport_type?: string
+          status?: string | null
+          updated_at?: string | null
+          viewers_count?: number | null
+        }
+        Update: {
+          away_score?: number | null
+          away_team?: string
+          away_team_logo?: string | null
+          created_at?: string | null
+          home_score?: number | null
+          home_team?: string
+          home_team_logo?: string | null
+          id?: string
+          is_featured?: boolean | null
+          league?: string | null
+          match_date?: string | null
+          match_minute?: number | null
+          match_time?: string | null
+          period?: string | null
+          sport_type?: string
+          status?: string | null
+          updated_at?: string | null
+          viewers_count?: number | null
+        }
+        Relationships: []
+      }
+      live_odds: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          market_name: string
+          market_type: string
+          match_id: string
+          odds_value: number
+          selection: string
+          selection_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          market_name: string
+          market_type: string
+          match_id: string
+          odds_value: number
+          selection: string
+          selection_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          market_name?: string
+          market_type?: string
+          match_id?: string
+          odds_value?: number
+          selection?: string
+          selection_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_odds_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "live_matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matches: {
         Row: {
           away_score: number | null

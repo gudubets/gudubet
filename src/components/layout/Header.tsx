@@ -26,6 +26,7 @@ const Header = () => {
 
   const navItems = [
     { name: 'Spor Bahisleri', href: '/sports-betting' },
+    { name: 'Canlı Bahisler', href: '/live-betting' },
     { name: 'Canlı Casino', href: '/live-casino' },
     { name: 'Slot Oyunları', href: '#slots' },
     { name: 'Tombala', href: '#bingo' },
