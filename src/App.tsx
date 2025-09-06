@@ -11,6 +11,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminBets from "./pages/admin/AdminBets";
 import AdminGameSessions from "./pages/admin/AdminGameSessions";
 import AdminBonuses from "./pages/admin/AdminBonuses";
+import AdminFinance from "./pages/admin/AdminFinance";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="bets" element={<AdminBets />} />
             <Route path="game-sessions" element={<AdminGameSessions />} />
             <Route path="bonuses" element={<AdminBonuses />} />
+            <Route path="finance" element={<AdminFinance />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
