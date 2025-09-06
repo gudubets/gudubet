@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,7 +53,31 @@ const AdminManagement = () => {
     password: '',
     role_type: 'admin'
   });
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const queryClient = useQueryClient();
+
+  // Check if current user is super admin
+  useEffect(() => {
+    const checkSuperAdmin = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: adminData } = await supabase
+            .from('admins')
+            .select('role_type')
+            .eq('id', user.id)
+            .single();
+          
+          setIsSuperAdmin(adminData?.role_type === 'super_admin');
+        }
+      } catch (error) {
+        console.error('Error checking super admin status:', error);
+        setIsSuperAdmin(false);
+      }
+    };
+
+    checkSuperAdmin();
+  }, []);
 
   // Fetch all admins
   const { data: admins = [], isLoading } = useQuery({
@@ -198,6 +222,25 @@ const AdminManagement = () => {
       isGranted,
     });
   };
+
+  // Show access denied if not super admin
+  if (!isSuperAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Card className="w-full max-w-md">
+          <CardContent className="flex flex-col items-center space-y-4 pt-6">
+            <Shield className="h-16 w-16 text-muted-foreground" />
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-semibold">Erişim Reddedildi</h3>
+              <p className="text-sm text-muted-foreground">
+                Bu sayfayı görüntülemek için Süper Admin yetkisine sahip olmanız gerekir.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
