@@ -101,20 +101,22 @@ const LiveCasino = () => {
       <section className="relative bg-gradient-to-r from-primary to-primary/80 text-white py-20">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl">
+          <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
               Canlı Casino – Gerçek Krupiyerlerle Oyna
             </h1>
             <p className="text-xl mb-8 opacity-90">
               Blackjack, Rulet, Baccarat ve daha fazlası
             </p>
-            <Button 
-              size="lg" 
-              className="bg-[#FF4D00] hover:bg-[#FF4D00]/90 text-white px-8 py-3 text-lg"
-            >
-              <Play className="mr-2 h-5 w-5" />
-              Hemen Oyna
-            </Button>
+            <div className="flex justify-center">
+              <Button 
+                size="lg" 
+                className="bg-[#FF4D00] hover:bg-[#FF4D00]/90 text-white px-8 py-3 text-lg"
+              >
+                <Play className="mr-2 h-5 w-5" />
+                Hemen Oyna
+              </Button>
+            </div>
           </div>
         </div>
       </section>
