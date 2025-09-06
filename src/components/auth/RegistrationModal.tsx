@@ -16,6 +16,7 @@ interface FormData {
   // Step 1 - Personal Info
   firstName: string;
   lastName: string;
+  phone: string;
   birthDate: string;
   
   // Step 2 - Account Info
@@ -34,6 +35,7 @@ interface FormData {
 const initialFormData: FormData = {
   firstName: '',
   lastName: '',
+  phone: '',
   birthDate: '',
   email: '',
   password: '',
@@ -67,6 +69,11 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     if (step === 1) {
       if (!formData.firstName.trim()) newErrors.firstName = 'Ad zorunludur';
       if (!formData.lastName.trim()) newErrors.lastName = 'Soyad zorunludur';
+      if (!formData.phone.trim()) {
+        newErrors.phone = 'Telefon numarası zorunludur';
+      } else if (!/^(\+90|0)?[5][0-9]{9}$/.test(formData.phone.replace(/\s/g, ''))) {
+        newErrors.phone = 'Geçerli bir telefon numarası giriniz (örn: 05xx xxx xx xx)';
+      }
       if (!formData.birthDate) {
         newErrors.birthDate = 'Doğum tarihi zorunludur';
       } else {
@@ -182,6 +189,19 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
           />
           {errors.lastName && <p className="text-sm text-destructive">{errors.lastName}</p>}
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="phone">Telefon Numarası *</Label>
+        <Input
+          id="phone"
+          type="tel"
+          value={formData.phone}
+          onChange={(e) => updateFormData('phone', e.target.value)}
+          className={errors.phone ? 'border-destructive' : ''}
+          placeholder="05xx xxx xx xx"
+        />
+        {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
       </div>
 
       <div className="space-y-2">
