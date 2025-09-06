@@ -316,16 +316,6 @@ const Promotions = () => {
                 <a href="/casino" className="text-muted-foreground hover:text-white transition-colors">Casino</a>
                 <a href="/live-casino" className="text-muted-foreground hover:text-white transition-colors">Canlı Casino</a>
                 <a href="/promotions" className="text-primary border-b-2 border-primary pb-1">Promosyonlar</a>
-                <Select>
-                  <SelectTrigger className="w-32 bg-transparent border-none text-muted-foreground hover:text-white">
-                    <SelectValue placeholder="Daha Fazla" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="tournaments">Turnuvalar</SelectItem>
-                    <SelectItem value="statistics">İstatistikler</SelectItem>
-                    <SelectItem value="results">Sonuçlar</SelectItem>
-                  </SelectContent>
-                </Select>
               </nav>
             </div>
 

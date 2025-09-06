@@ -110,27 +110,6 @@ const Header = () => {
                 </Link>
               );
             })}
-            
-            {/* Daha Fazla Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center gap-1 text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                Daha Fazla
-                <ChevronDown className="w-3 h-3" />
-              </button>
-              <div className="absolute top-full left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <div className="py-2">
-                  <a href="#slots" className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-slate-700">
-                    Slot Oyunları
-                  </a>
-                  <a href="#bingo" className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-slate-700">
-                    Tombala
-                  </a>
-                  <a href="#virtual-sports" className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-slate-700">
-                    Sanal Sporlar
-                  </a>
-                </div>
-              </div>
-            </div>
           </nav>
 
           {/* Desktop User Actions */}
