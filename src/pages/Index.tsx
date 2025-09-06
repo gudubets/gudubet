@@ -22,7 +22,7 @@ const Index = () => {
               <nav className="hidden lg:flex items-center space-x-6">
                 <a href="/" className="text-primary border-b-2 border-primary pb-1">Ana Sayfa</a>
                 <a href="/sports-betting" className="text-muted-foreground hover:text-white transition-colors">Spor</a>
-                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Canlı</a>
+                <a href="/live-betting" className="text-muted-foreground hover:text-white transition-colors">Canlı</a>
                 <a href="#" className="text-muted-foreground hover:text-white transition-colors">Casino</a>
                 <a href="/live-casino" className="text-muted-foreground hover:text-white transition-colors">Canlı Casino</a>
                 <a href="#" className="text-muted-foreground hover:text-white transition-colors">Promosyonlar</a>
