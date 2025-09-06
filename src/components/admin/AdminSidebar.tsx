@@ -47,12 +47,6 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       active: location.pathname === '/admin/game-sessions'
     },
     {
-      title: 'Casino Oyunları',
-      icon: Gamepad2,
-      href: '/admin/games',
-      active: location.pathname === '/admin/games'
-    },
-    {
       title: 'Bonuslar',
       icon: Gift,
       href: '/admin/bonuses',
