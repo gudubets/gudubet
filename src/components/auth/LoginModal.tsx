@@ -166,14 +166,28 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
       }
 
       if (data.user) {
+        // Check if user is an admin
+        const { data: adminData } = await supabase
+          .from('admins')
+          .select('role_type')
+          .eq('email', data.user.email)
+          .single();
+
         toast({
           title: "Giriş Başarılı!",
-          description: "Hoş geldiniz!",
+          description: adminData ? "Admin paneline yönlendiriliyorsunuz..." : "Hoş geldiniz!",
         });
 
         // Reset form
         setFormData({ email: '', password: '', captcha: '' });
         setErrors({});
+        
+        // Redirect admin to admin panel
+        if (adminData) {
+          setTimeout(() => {
+            window.location.href = '/admin';
+          }, 1000);
+        }
         
         onLoginSuccess?.();
         onClose();
