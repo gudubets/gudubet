@@ -370,6 +370,138 @@ export type Database = {
         }
         Relationships: []
       }
+      casino_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon_url: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      casino_games: {
+        Row: {
+          background_url: string | null
+          category_id: string
+          created_at: string | null
+          description: string | null
+          external_game_id: string | null
+          game_url: string | null
+          has_demo: boolean | null
+          id: string
+          is_active: boolean | null
+          is_featured: boolean | null
+          is_new: boolean | null
+          is_popular: boolean | null
+          jackpot_amount: number | null
+          max_bet: number | null
+          min_bet: number | null
+          name: string
+          play_count: number | null
+          provider_id: string | null
+          rtp_percentage: number | null
+          slug: string
+          sort_order: number | null
+          thumbnail_url: string | null
+          updated_at: string | null
+          volatility: string | null
+        }
+        Insert: {
+          background_url?: string | null
+          category_id: string
+          created_at?: string | null
+          description?: string | null
+          external_game_id?: string | null
+          game_url?: string | null
+          has_demo?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          is_new?: boolean | null
+          is_popular?: boolean | null
+          jackpot_amount?: number | null
+          max_bet?: number | null
+          min_bet?: number | null
+          name: string
+          play_count?: number | null
+          provider_id?: string | null
+          rtp_percentage?: number | null
+          slug: string
+          sort_order?: number | null
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          volatility?: string | null
+        }
+        Update: {
+          background_url?: string | null
+          category_id?: string
+          created_at?: string | null
+          description?: string | null
+          external_game_id?: string | null
+          game_url?: string | null
+          has_demo?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          is_new?: boolean | null
+          is_popular?: boolean | null
+          jackpot_amount?: number | null
+          max_bet?: number | null
+          min_bet?: number | null
+          name?: string
+          play_count?: number | null
+          provider_id?: string | null
+          rtp_percentage?: number | null
+          slug?: string
+          sort_order?: number | null
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          volatility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "casino_games_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "casino_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "casino_games_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "game_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_providers: {
         Row: {
           created_at: string | null
@@ -1093,6 +1225,42 @@ export type Database = {
           },
           {
             foreignKeyName: "user_bonuses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_favorites: {
+        Row: {
+          created_at: string | null
+          game_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          game_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          game_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorites_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "casino_games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
