@@ -69,7 +69,10 @@ const Header = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <span className="text-xl font-gaming font-bold gradient-text-primary">
+            <span 
+              className="text-xl font-gaming font-bold gradient-text-primary cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => window.location.href = '/'}
+            >
               GUDUBET
             </span>
           </div>
