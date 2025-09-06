@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import Header from '@/components/layout/Header';
 import { 
   Play, 
   Users, 
@@ -260,7 +260,82 @@ const LiveBetting = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      {/* Header Navigation */}
+      <header className="bg-slate-900 border-b border-border">
+        {/* Main Navigation */}
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center space-x-8">
+              <a href="/" className="bg-destructive px-4 py-2 rounded hover:bg-destructive/90 transition-colors cursor-pointer">
+                <span className="text-destructive-foreground font-bold">GUDUBET</span>
+              </a>
+              
+              {/* Main Navigation Links */}
+              <nav className="hidden lg:flex items-center space-x-6">
+                <a href="/" className="text-muted-foreground hover:text-white transition-colors">Ana Sayfa</a>
+                <a href="/sports-betting" className="text-muted-foreground hover:text-white transition-colors">Spor</a>
+                <a href="/live-betting" className="text-primary border-b-2 border-primary pb-1">Canlı</a>
+                <a href="/casino" className="text-muted-foreground hover:text-white transition-colors">Casino</a>
+                <a href="/live-casino" className="text-muted-foreground hover:text-white transition-colors">Canlı Casino</a>
+                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Promosyonlar</a>
+                <Select>
+                  <SelectTrigger className="w-32 bg-transparent border-none text-muted-foreground hover:text-white">
+                    <SelectValue placeholder="Daha Fazla" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tournaments">Turnuvalar</SelectItem>
+                    <SelectItem value="statistics">İstatistikler</SelectItem>
+                    <SelectItem value="results">Sonuçlar</SelectItem>
+                  </SelectContent>
+                </Select>
+              </nav>
+            </div>
+
+            {/* Right Side Actions */}
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+                <span className="text-lg">💬</span>
+              </Button>
+              <Button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                Giriş Yap
+              </Button>
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                Üye Ol
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Game Categories */}
+        <div className="border-t border-slate-700">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-12">
+              <div className="flex items-center space-x-8">
+                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
+                  🎰 Slot Oyunları
+                </Button>
+                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
+                  🃏 Masa Oyunları
+                </Button>
+                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
+                  🎲 Canlı Casino
+                </Button>
+                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
+                  🎯 Jackpot
+                </Button>
+                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
+                  🎮 Sanal Sporlar
+                </Button>
+              </div>
+              
+              <Button variant="ghost" className="text-muted-foreground hover:text-white text-sm">
+                🔍 Ara
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
       
       {/* Header */}
       <div className="bg-muted/30 border-b">
