@@ -32,7 +32,7 @@ const Header = () => {
     { name: 'Canlı', href: '/live-betting' },
     { name: 'Casino', href: '/casino' },
     { name: 'Canlı Casino', href: '/live-casino' },
-    { name: 'Promosyonlar', href: '#promotions' },
+    { name: 'Promosyonlar', href: '/promotions' },
   ];
 
   // Authentication state management

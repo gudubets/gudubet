@@ -25,7 +25,7 @@ const Index = () => {
                 <a href="/live-betting" className="text-muted-foreground hover:text-white transition-colors">Canlı</a>
                 <a href="/casino" className="text-muted-foreground hover:text-white transition-colors">Casino</a>
                 <a href="/live-casino" className="text-muted-foreground hover:text-white transition-colors">Canlı Casino</a>
-                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Promosyonlar</a>
+                <a href="/promotions" className="text-muted-foreground hover:text-white transition-colors">Promosyonlar</a>
                 <Select>
                   <SelectTrigger className="w-32 bg-transparent border-none text-muted-foreground hover:text-white">
                     <SelectValue placeholder="Daha Fazla" />

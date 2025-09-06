@@ -18,7 +18,7 @@ const Footer = () => {
     { name: 'Canlı Casino', href: '#casino' },
     { name: 'Slot Oyunları', href: '#slots' },
     { name: 'Tombala', href: '#bingo' },
-    { name: 'Promosyonlar', href: '#promotions' },
+    { name: 'Promosyonlar', href: '/promotions' },
   ];
 
   const supportLinks = [

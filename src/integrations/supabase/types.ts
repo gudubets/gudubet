@@ -1074,6 +1074,75 @@ export type Database = {
         }
         Relationships: []
       }
+      promotions: {
+        Row: {
+          bonus_amount: number | null
+          bonus_percentage: number | null
+          category: string
+          created_at: string | null
+          current_participants: number | null
+          description: string | null
+          detailed_description: string | null
+          end_date: string
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          max_bonus: number | null
+          max_participants: number | null
+          min_deposit: number | null
+          promo_code: string | null
+          start_date: string
+          terms_conditions: string | null
+          title: string
+          updated_at: string | null
+          wagering_requirement: number | null
+        }
+        Insert: {
+          bonus_amount?: number | null
+          bonus_percentage?: number | null
+          category: string
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          detailed_description?: string | null
+          end_date: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          max_bonus?: number | null
+          max_participants?: number | null
+          min_deposit?: number | null
+          promo_code?: string | null
+          start_date: string
+          terms_conditions?: string | null
+          title: string
+          updated_at?: string | null
+          wagering_requirement?: number | null
+        }
+        Update: {
+          bonus_amount?: number | null
+          bonus_percentage?: number | null
+          category?: string
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          detailed_description?: string | null
+          end_date?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          max_bonus?: number | null
+          max_participants?: number | null
+          min_deposit?: number | null
+          promo_code?: string | null
+          start_date?: string
+          terms_conditions?: string | null
+          title?: string
+          updated_at?: string | null
+          wagering_requirement?: number | null
+        }
+        Relationships: []
+      }
       sports: {
         Row: {
           created_at: string | null
@@ -1264,6 +1333,59 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_promotions: {
+        Row: {
+          activated_at: string | null
+          bonus_amount: number | null
+          completed_at: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          participated_at: string | null
+          promotion_id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+          wagering_completed: number | null
+        }
+        Insert: {
+          activated_at?: string | null
+          bonus_amount?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          participated_at?: string | null
+          promotion_id: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+          wagering_completed?: number | null
+        }
+        Update: {
+          activated_at?: string | null
+          bonus_amount?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          participated_at?: string | null
+          promotion_id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+          wagering_completed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_promotions_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
             referencedColumns: ["id"]
           },
         ]

@@ -9,6 +9,7 @@ import Casino from "./pages/Casino";
 import LiveCasino from "./pages/LiveCasino";
 import SportsBetting from "./pages/SportsBetting";
 import LiveBetting from "./pages/LiveBetting";
+import Promotions from "./pages/Promotions";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/live-casino" element={<LiveCasino />} />
           <Route path="/sports-betting" element={<SportsBetting />} />
           <Route path="/live-betting" element={<LiveBetting />} />
+          <Route path="/promotions" element={<Promotions />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
