@@ -156,21 +156,21 @@ const Index = () => {
         {/* Main Content Area */}
         <div className="flex-1 bg-background min-h-screen">
           {/* Hero Carousel */}
-          <div className="relative h-80 overflow-hidden">
+          <div className="relative h-48 overflow-hidden">
             <Carousel className="h-full" opts={{ loop: true, duration: 30 }}>
               <CarouselContent className="h-full">
                 {/* Gates of Olympus */}
                 <CarouselItem>
-                  <div className="relative h-80 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 overflow-hidden">
+                  <div className="relative h-48 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
                     <div className="relative z-10 h-full flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-6xl mb-4">⚡</div>
-                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
                           Gates of Olympus
                         </h1>
-                        <p className="text-xl text-white mb-4">Zeus'un Gücüyle Kazanın</p>
-                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg">
+                        <p className="text-lg text-white mb-3">Zeus'un Gücüyle Kazanın</p>
+                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-6 py-2">
                           Hemen Oyna
                         </Button>
                       </div>
@@ -180,16 +180,16 @@ const Index = () => {
 
                 {/* Sweet Bonanza */}
                 <CarouselItem>
-                  <div className="relative h-80 bg-gradient-to-r from-pink-900 via-purple-900 to-red-900 overflow-hidden">
+                  <div className="relative h-48 bg-gradient-to-r from-pink-900 via-purple-900 to-red-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
                     <div className="relative z-10 h-full flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-6xl mb-4">🍭</div>
-                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-pink-400 to-red-500 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-pink-400 to-red-500 bg-clip-text text-transparent">
                           Sweet Bonanza
                         </h1>
-                        <p className="text-xl text-white mb-4">Tatlı Kazançlar Seni Bekliyor</p>
-                        <Button className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-8 py-3 text-lg">
+                        <p className="text-lg text-white mb-3">Tatlı Kazançlar Seni Bekliyor</p>
+                        <Button className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-2">
                           Şekerli Kazanç
                         </Button>
                       </div>
@@ -199,16 +199,16 @@ const Index = () => {
 
                 {/* Canlı Masa Oyunları */}
                 <CarouselItem>
-                  <div className="relative h-80 bg-gradient-to-r from-green-900 via-emerald-900 to-teal-900 overflow-hidden">
+                  <div className="relative h-48 bg-gradient-to-r from-green-900 via-emerald-900 to-teal-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
                     <div className="relative z-10 h-full flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-6xl mb-4">🃏</div>
-                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
                           Canlı Masa Oyunları
                         </h1>
-                        <p className="text-xl text-white mb-4">Gerçek Krupiyerlerle Oyna</p>
-                        <Button className="bg-green-500 hover:bg-green-600 text-white font-bold px-8 py-3 text-lg">
+                        <p className="text-lg text-white mb-3">Gerçek Krupiyerlerle Oyna</p>
+                        <Button className="bg-green-500 hover:bg-green-600 text-white font-bold px-6 py-2">
                           Masaya Otur
                         </Button>
                       </div>
@@ -218,16 +218,16 @@ const Index = () => {
 
                 {/* Crazy Time */}
                 <CarouselItem>
-                  <div className="relative h-80 bg-gradient-to-r from-orange-900 via-red-900 to-yellow-900 overflow-hidden">
+                  <div className="relative h-48 bg-gradient-to-r from-orange-900 via-red-900 to-yellow-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
                     <div className="relative z-10 h-full flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-6xl mb-4">🎡</div>
-                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-orange-400 to-yellow-500 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-orange-400 to-yellow-500 bg-clip-text text-transparent">
                           Crazy Time
                         </h1>
-                        <p className="text-xl text-white mb-4">Çılgın Kazançlar Burada</p>
-                        <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 text-lg">
+                        <p className="text-lg text-white mb-3">Çılgın Kazançlar Burada</p>
+                        <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2">
                           Çılgınlığa Katıl
                         </Button>
                       </div>
@@ -237,16 +237,16 @@ const Index = () => {
 
                 {/* Monopoly Live */}
                 <CarouselItem>
-                  <div className="relative h-80 bg-gradient-to-r from-blue-900 via-cyan-900 to-blue-900 overflow-hidden">
+                  <div className="relative h-48 bg-gradient-to-r from-blue-900 via-cyan-900 to-blue-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
                     <div className="relative z-10 h-full flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-6xl mb-4">🎩</div>
-                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">
                           Monopoly Live
                         </h1>
-                        <p className="text-xl text-white mb-4">Emlak İmparatorluğu Kur</p>
-                        <Button className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-8 py-3 text-lg">
+                        <p className="text-lg text-white mb-3">Emlak İmparatorluğu Kur</p>
+                        <Button className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-2">
                           Şansını Dene
                         </Button>
                       </div>
@@ -256,16 +256,16 @@ const Index = () => {
 
                 {/* Book of Ra */}
                 <CarouselItem>
-                  <div className="relative h-80 bg-gradient-to-r from-yellow-900 via-amber-900 to-orange-900 overflow-hidden">
+                  <div className="relative h-48 bg-gradient-to-r from-yellow-900 via-amber-900 to-orange-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
                     <div className="relative z-10 h-full flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-6xl mb-4">📖</div>
-                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
                           Book of Ra
                         </h1>
-                        <p className="text-xl text-white mb-4">Antik Hazineleri Keşfet</p>
-                        <Button className="bg-yellow-600 hover:bg-yellow-700 text-black font-bold px-8 py-3 text-lg">
+                        <p className="text-lg text-white mb-3">Antik Hazineleri Keşfet</p>
+                        <Button className="bg-yellow-600 hover:bg-yellow-700 text-black font-bold px-6 py-2">
                           Hazine Avı
                         </Button>
                       </div>
