@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { UserPlus, Shield, Settings, Users, Edit, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { logAdminActivity, ACTIVITY_TYPES } from '@/utils/adminActivityLogger';
 
 interface Admin {
   id: string;
@@ -136,8 +137,18 @@ const AdminManagement = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ['admins'] });
+      
+      // Log admin activity
+      await logAdminActivity({
+        action_type: ACTIVITY_TYPES.ADMIN_CREATED,
+        description: `Yeni admin oluşturuldu: ${newAdminData.email}`,
+        target_id: data.id,
+        target_type: 'admin',
+        metadata: { email: newAdminData.email, role_type: newAdminData.role_type }
+      });
+      
       setIsCreateModalOpen(false);
       setNewAdminData({ email: '', password: '', role_type: 'admin' });
       toast({
@@ -181,8 +192,21 @@ const AdminManagement = () => {
         if (error) throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['admin-permissions'] });
+      
+      // Log admin activity
+      await logAdminActivity({
+        action_type: ACTIVITY_TYPES.PERMISSION_UPDATED,
+        description: `Admin yetkisi güncellendi`,
+        target_id: selectedAdmin?.id,
+        target_type: 'admin_permission',
+        metadata: { 
+          admin_email: selectedAdmin?.email,
+          permission_updated: true
+        }
+      });
+      
       toast({
         title: "İzin güncellendi",
         description: "Admin izni başarıyla güncellendi.",

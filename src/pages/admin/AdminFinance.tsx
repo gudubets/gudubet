@@ -13,6 +13,7 @@ import { DollarSign, TrendingUp, TrendingDown, Clock, Shield, CalendarIcon } fro
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { toast } from '@/hooks/use-toast';
+import { logAdminActivity, ACTIVITY_TYPES } from '@/utils/adminActivityLogger';
 
 interface Transaction {
   id: string;
@@ -146,10 +147,21 @@ const AdminFinance = () => {
         .eq('id', id);
       
       if (error) throw error;
+      return { id, status };
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-transactions'] });
       queryClient.invalidateQueries({ queryKey: ['admin-finance-stats'] });
+      
+      // Log admin activity
+      await logAdminActivity({
+        action_type: data.status === 'approved' ? ACTIVITY_TYPES.TRANSACTION_APPROVED : ACTIVITY_TYPES.TRANSACTION_REJECTED,
+        description: `İşlem ${data.status === 'approved' ? 'onaylandı' : 'reddedildi'}`,
+        target_id: data.id,
+        target_type: 'transaction',
+        metadata: { new_status: data.status }
+      });
+      
       toast({
         title: "İşlem Güncellendi",
         description: "İşlem durumu başarıyla güncellendi.",

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Bell, User, LogOut } from 'lucide-react';
+import { Search, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { NotificationDropdown } from './NotificationDropdown';
 
 interface AdminHeaderProps {
   onLogout: () => void;
@@ -37,12 +38,7 @@ const AdminHeader = ({ onLogout }: AdminHeaderProps) => {
         {/* Right Side Actions */}
         <div className="flex items-center space-x-4">
           {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative">
-            <Bell className="w-4 h-4" />
-            <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full text-xs flex items-center justify-center text-white">
-              3
-            </span>
-          </Button>
+          <NotificationDropdown />
 
           {/* Admin Profile */}
           <DropdownMenu>
