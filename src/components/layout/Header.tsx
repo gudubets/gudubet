@@ -30,7 +30,7 @@ const Header = () => {
     { name: 'Ana Sayfa', href: '/' },
     { name: 'Spor', href: '/sports-betting' },
     { name: 'Canlı', href: '/live-betting' },
-    { name: 'Casino', href: '#casino' },
+    { name: 'Casino', href: '/casino' },
     { name: 'Canlı Casino', href: '/live-casino' },
     { name: 'Promosyonlar', href: '#promotions' },
   ];
