@@ -30,7 +30,7 @@ const Footer = () => {
             Casibom™ | Önde Gelen Casino ve Bahis Platformu
           </strong>
           <br />
-          Casibom ile en iyi casino ve bahis deneyimini yaşayın! 2000 TL hoş geldin bonusuyla hemen kazanmaya başlayın.
+          Gudubet ile en iyi casino ve bahis deneyimini yaşayın! 2000 TL hoş geldin bonusuyla hemen kazanmaya başlayın.
         </div>
       </div>
 
