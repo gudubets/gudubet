@@ -13,7 +13,7 @@ const Footer = () => {
           <strong style={{
           color: '#fbb204'
         }}>
-            Casibom™ | Önde Gelen Casino ve Bahis Platformu
+            GuduBet™ | Önde Gelen Casino ve Bahis Platformu
           </strong>
           <br />
           Gudubet ile en iyi casino ve bahis deneyimini yaşayın! 2000 TL hoş geldin bonusuyla hemen kazanmaya başlayın.
@@ -26,7 +26,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Email */}
           <div>
-            <div className="text-orange-400 text-sm mb-2">EMAIL</div>
+            <div className="text-orange-400 text-sm mb-2">E-MAIL</div>
             <div className="text-orange-400">support@gudubet.com</div>
           </div>
 
@@ -48,7 +48,7 @@ const Footer = () => {
             <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">Hakkımızda</h3>
             <div className="space-y-2 text-sm">
               <div>Bize ulaşın</div>
-              <div>Gudubet Yardım Merkezi</div>
+              <div>GuduBet Yardım Merkezi</div>
               <div>Bahis Kuralları</div>
             </div>
             
@@ -105,14 +105,14 @@ const Footer = () => {
 
         {/* Legal Text */}
         <div className="text-xs text-gray-400 mb-4">
-          gudubet.com Kıbrıs yasalarına göre kayıtlı ve 153142 şirket numarasına sahip Seguro N.V. tarafından işletilmektedir. Site GCB tarafından verilen geçerli bir lisansa sahiptir.
+          casibom.com Curaçao yasalarına göre kayıtlı ve 153142 şirket numarasına sahip Seguro N.V. tarafından işletilmektedir. Site GCB tarafından verilen geçerli bir lisansa sahiptir.
         </div>
 
         {/* Bottom Copyright */}
         <div className="border-t border-gray-800 pt-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
             <div>
-              © GuduBet. Tüm hakları saklıdır.
+              © CasiBom. Tüm hakları saklıdır.
             </div>
             <div className="flex items-center gap-2">
               <div className="bg-orange-500 rounded-full p-1">
