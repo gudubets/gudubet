@@ -8,31 +8,31 @@
 @layer base {
   :root {
     /* Dark Gaming Theme */
-    --background: 220 15% 8%;
+    --background: 0 0% 6%;
     --foreground: 210 40% 98%;
 
-    --card: 220 15% 12%;
+    --card: 0 0% 9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 220 15% 10%;
+    --popover: 0 0% 9%;
     --popover-foreground: 210 40% 98%;
 
-    /* Electric Blue Primary */
-    --primary: 217 91% 60%;
+    /* Orange Primary */
+    --primary: 15 100% 50%;
     --primary-foreground: 210 40% 98%;
 
     /* Gaming Accent Colors */
-    --secondary: 220 15% 18%;
+    --secondary: 0 0% 12%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 220 15% 15%;
+    --muted: 0 0% 12%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 142 76% 36%;
+    --accent: 142 71% 45%;
     --accent-foreground: 210 40% 98%;
 
     /* Success/Win Green */
-    --success: 142 76% 36%;
+    --success: 142 71% 45%;
     --success-foreground: 210 40% 98%;
 
     /* Danger/Loss Red */
@@ -41,11 +41,11 @@
 
     /* Gold for Premium */
     --gold: 45 100% 51%;
-    --gold-foreground: 220 15% 8%;
+    --gold-foreground: 0 0% 6%;
 
     /* Warning Orange */
-    --warning: 25 95% 53%;
-    --warning-foreground: 220 15% 8%;
+    --warning: 15 100% 50%;
+    --warning-foreground: 0 0% 6%;
 
     --border: 220 15% 20%;
     --input: 220 15% 18%;

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { RegistrationModal } from '@/components/auth/RegistrationModal';
 import { 
   Menu, 
   X, 
@@ -14,6 +15,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
 
   const navItems = [
     { name: 'Spor Bahisleri', href: '#sports' },
@@ -74,7 +76,12 @@ const Header = () => {
                   <LogIn className="w-4 h-4" />
                   Giriş Yap
                 </Button>
-                <Button variant="default" size="sm" className="gap-2">
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => setIsRegistrationModalOpen(true)}
+                >
                   <UserPlus className="w-4 h-4" />
                   Kayıt Ol
                 </Button>
@@ -133,7 +140,11 @@ const Header = () => {
                     <LogIn className="w-4 h-4" />
                     Giriş Yap
                   </Button>
-                  <Button variant="default" className="w-full gap-2">
+                  <Button 
+                    variant="default" 
+                    className="w-full gap-2"
+                    onClick={() => setIsRegistrationModalOpen(true)}
+                  >
                     <UserPlus className="w-4 h-4" />
                     Kayıt Ol
                   </Button>
@@ -143,6 +154,11 @@ const Header = () => {
           </div>
         )}
       </div>
+
+      <RegistrationModal 
+        isOpen={isRegistrationModalOpen}
+        onClose={() => setIsRegistrationModalOpen(false)}
+      />
     </header>
   );
 };
