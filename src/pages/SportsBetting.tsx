@@ -127,7 +127,35 @@ const SportsBetting = () => {
 
       if (data && data.matches) {
         console.log('Received matches:', data.matches.length, data.matches);
-        setLiveMatches(data.matches);
+        
+        // Transform API data to match UI format
+        const transformedMatches = data.matches.map((match: any) => ({
+          id: match.id,
+          league: match.league,
+          homeTeam: match.homeTeam,
+          awayTeam: match.awayTeam,
+          homeTeamFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', // Default flag
+          awayTeamFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', // Default flag
+          status: match.status === 'upcoming' ? 'Önce' : 'Canlı',
+          time: new Date(match.startTime).toLocaleTimeString('tr-TR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          odds: {
+            home: match.odds.home,
+            draw: match.odds.draw,
+            away: match.odds.away,
+            special: [
+              { name: '1.5 Gol Üstü', odds: 1.85 },
+              { name: '8.5 Üstü Korner', odds: 2.15 }
+            ]
+          },
+          isLive: match.status === 'live',
+          isFeatured: false
+        }));
+        
+        console.log('Transformed matches:', transformedMatches);
+        setLiveMatches(transformedMatches);
       } else {
         console.log('No matches in response:', data);
       }
