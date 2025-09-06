@@ -1020,8 +1020,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_current_admin_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["admin_role"]
+      }
       has_admin_permission: {
         Args: { _admin_id: string; _permission: string }
+        Returns: boolean
+      }
+      is_current_user_super_admin: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       is_super_admin: {
