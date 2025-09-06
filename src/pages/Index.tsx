@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Star, Trophy, TrendingUp, Play, Zap, Gift } from 'lucide-react';
 
 const Index = () => {
@@ -154,25 +155,127 @@ const Index = () => {
 
         {/* Main Content Area */}
         <div className="flex-1 bg-background min-h-screen">
-          {/* Hero Banner */}
-          <div className="relative h-64 bg-gradient-to-r from-blue-900 via-purple-900 to-orange-900 overflow-hidden">
-            <div className="absolute inset-0 bg-black/30"></div>
-            <div className="relative z-10 h-full flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                  GUDUBET
-                </h1>
-                <p className="text-xl text-white mb-4">En İyi Casino Oyunları Burada</p>
-                <div className="flex space-x-2 justify-center">
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <div 
-                      key={i} 
-                      className={`w-8 h-1 rounded ${i === 5 ? 'bg-red-500' : 'bg-white/50'}`}
-                    ></div>
-                  ))}
-                </div>
-              </div>
-            </div>
+          {/* Hero Carousel */}
+          <div className="relative h-80 overflow-hidden">
+            <Carousel className="h-full" opts={{ loop: true, duration: 30 }}>
+              <CarouselContent className="h-full">
+                {/* Gates of Olympus */}
+                <CarouselItem>
+                  <div className="relative h-80 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 overflow-hidden">
+                    <div className="absolute inset-0 bg-black/40"></div>
+                    <div className="relative z-10 h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">⚡</div>
+                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                          Gates of Olympus
+                        </h1>
+                        <p className="text-xl text-white mb-4">Zeus'un Gücüyle Kazanın</p>
+                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg">
+                          Hemen Oyna
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+
+                {/* Sweet Bonanza */}
+                <CarouselItem>
+                  <div className="relative h-80 bg-gradient-to-r from-pink-900 via-purple-900 to-red-900 overflow-hidden">
+                    <div className="absolute inset-0 bg-black/40"></div>
+                    <div className="relative z-10 h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">🍭</div>
+                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-pink-400 to-red-500 bg-clip-text text-transparent">
+                          Sweet Bonanza
+                        </h1>
+                        <p className="text-xl text-white mb-4">Tatlı Kazançlar Seni Bekliyor</p>
+                        <Button className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-8 py-3 text-lg">
+                          Şekerli Kazanç
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+
+                {/* Canlı Masa Oyunları */}
+                <CarouselItem>
+                  <div className="relative h-80 bg-gradient-to-r from-green-900 via-emerald-900 to-teal-900 overflow-hidden">
+                    <div className="absolute inset-0 bg-black/40"></div>
+                    <div className="relative z-10 h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">🃏</div>
+                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                          Canlı Masa Oyunları
+                        </h1>
+                        <p className="text-xl text-white mb-4">Gerçek Krupiyerlerle Oyna</p>
+                        <Button className="bg-green-500 hover:bg-green-600 text-white font-bold px-8 py-3 text-lg">
+                          Masaya Otur
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+
+                {/* Crazy Time */}
+                <CarouselItem>
+                  <div className="relative h-80 bg-gradient-to-r from-orange-900 via-red-900 to-yellow-900 overflow-hidden">
+                    <div className="absolute inset-0 bg-black/40"></div>
+                    <div className="relative z-10 h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">🎡</div>
+                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-orange-400 to-yellow-500 bg-clip-text text-transparent">
+                          Crazy Time
+                        </h1>
+                        <p className="text-xl text-white mb-4">Çılgın Kazançlar Burada</p>
+                        <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 text-lg">
+                          Çılgınlığa Katıl
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+
+                {/* Monopoly Live */}
+                <CarouselItem>
+                  <div className="relative h-80 bg-gradient-to-r from-blue-900 via-cyan-900 to-blue-900 overflow-hidden">
+                    <div className="absolute inset-0 bg-black/40"></div>
+                    <div className="relative z-10 h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">🎩</div>
+                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">
+                          Monopoly Live
+                        </h1>
+                        <p className="text-xl text-white mb-4">Emlak İmparatorluğu Kur</p>
+                        <Button className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-8 py-3 text-lg">
+                          Şansını Dene
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+
+                {/* Book of Ra */}
+                <CarouselItem>
+                  <div className="relative h-80 bg-gradient-to-r from-yellow-900 via-amber-900 to-orange-900 overflow-hidden">
+                    <div className="absolute inset-0 bg-black/40"></div>
+                    <div className="relative z-10 h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">📖</div>
+                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                          Book of Ra
+                        </h1>
+                        <p className="text-xl text-white mb-4">Antik Hazineleri Keşfet</p>
+                        <Button className="bg-yellow-600 hover:bg-yellow-700 text-black font-bold px-8 py-3 text-lg">
+                          Hazine Avı
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious className="left-4 bg-black/50 border-white/20 text-white hover:bg-black/70" />
+              <CarouselNext className="right-4 bg-black/50 border-white/20 text-white hover:bg-black/70" />
+            </Carousel>
           </div>
 
           {/* Featured Games */}
