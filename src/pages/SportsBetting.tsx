@@ -106,6 +106,39 @@ const SportsBetting = () => {
     }
   ];
 
+  // Get country flag by team/country name
+  const getCountryFlag = (teamName: string): string => {
+    const flagMap: { [key: string]: string } = {
+      // European Countries
+      'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      'Ireland': '🇮🇪',
+      'Hungary': '🇭🇺',
+      'Latvia': '🇱🇻',
+      'Serbia': '🇷🇸',
+      'Belgium': '🇧🇪',
+      'Kazakhstan': '🇰🇿',
+      'Austria': '🇦🇹',
+      'Cyprus': '🇨🇾',
+      'San Marino': '🇸🇲',
+      'Bosnia & Herzegovina': '🇧🇦',
+      'Armenia': '🇦🇲',
+      'Portugal': '🇵🇹',
+      'Andorra': '🇦🇩',
+      'Spain': '🇪🇸',
+      
+      // Turkish Teams
+      'Galatasaray': '🇹🇷',
+      'Fenerbahçe': '🇹🇷',
+      'Beşiktaş': '🇹🇷',
+      'Trabzonspor': '🇹🇷',
+      
+      // Default for other teams
+      'default': '⚽'
+    };
+    
+    return flagMap[teamName] || flagMap['default'];
+  };
+
   // Fetch live matches from API
   const fetchLiveMatches = async () => {
     setLoading(true);
@@ -134,8 +167,8 @@ const SportsBetting = () => {
           league: match.league,
           homeTeam: match.homeTeam,
           awayTeam: match.awayTeam,
-          homeTeamFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', // Default flag
-          awayTeamFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', // Default flag
+          homeTeamFlag: getCountryFlag(match.homeTeam),
+          awayTeamFlag: getCountryFlag(match.awayTeam),
           status: match.status === 'upcoming' ? 'Önce' : 'Canlı',
           time: new Date(match.startTime).toLocaleTimeString('tr-TR', { 
             hour: '2-digit', 
