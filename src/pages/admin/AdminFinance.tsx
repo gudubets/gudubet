@@ -314,40 +314,53 @@ const AdminFinance = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div>
+            <div className="flex gap-2">
               <Input
                 placeholder="Kullanıcı ara..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+              {searchTerm && (
+                <Button variant="outline" size="sm" onClick={() => setSearchTerm('')}>
+                  Temizle
+                </Button>
+              )}
             </div>
             
-            <div>
+            <div className="flex gap-2">
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="İşlem Türü" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tümü</SelectItem>
                   <SelectItem value="deposit">Yatırım</SelectItem>
                   <SelectItem value="withdraw">Çekim</SelectItem>
                 </SelectContent>
               </Select>
+              {typeFilter && (
+                <Button variant="outline" size="sm" onClick={() => setTypeFilter('')}>
+                  Temizle
+                </Button>
+              )}
             </div>
             
-            <div>
+            <div className="flex gap-2">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Durum" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tümü</SelectItem>
                   <SelectItem value="pending">Beklemede</SelectItem>
                   <SelectItem value="approved">Onaylandı</SelectItem>
                   <SelectItem value="rejected">Reddedildi</SelectItem>
                   <SelectItem value="completed">Tamamlandı</SelectItem>
                 </SelectContent>
               </Select>
+              {statusFilter && (
+                <Button variant="outline" size="sm" onClick={() => setStatusFilter('')}>
+                  Temizle
+                </Button>
+              )}
             </div>
             
             <div>
