@@ -283,8 +283,8 @@ const Profile = () => {
           {/* General Information Tab */}
           <TabsContent value="general" className="space-y-6">
             <Card>
-              <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-                <CardTitle className="flex items-center gap-2">
+              <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 pt-8">
+                <CardTitle className="flex items-center gap-2 text-lg">
                   <User className="w-5 h-5" />
                   Kişisel Bilgiler
                 </CardTitle>
