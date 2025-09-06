@@ -795,6 +795,7 @@ export type Database = {
           id: string
           status: string | null
           updated_at: string | null
+          used_amount: number | null
           user_id: string
           wagering_completed: number | null
           wagering_requirement: number | null
@@ -809,6 +810,7 @@ export type Database = {
           id?: string
           status?: string | null
           updated_at?: string | null
+          used_amount?: number | null
           user_id: string
           wagering_completed?: number | null
           wagering_requirement?: number | null
@@ -823,6 +825,7 @@ export type Database = {
           id?: string
           status?: string | null
           updated_at?: string | null
+          used_amount?: number | null
           user_id?: string
           wagering_completed?: number | null
           wagering_requirement?: number | null
