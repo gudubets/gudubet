@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RegistrationModalProps {
   isOpen: boolean;
@@ -53,6 +54,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const updateFormData = (field: keyof FormData, value: string) => {
@@ -133,17 +135,70 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  const handleSubmit = () => {
-    if (validateStep(3)) {
-      // Here you would normally submit to your backend
+  const handleSubmit = async () => {
+    if (!validateStep(3)) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Sign up user with Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email.toLowerCase(),
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            phone: formData.phone,
+            birth_date: formData.birthDate,
+            country: formData.country,
+            city: formData.city,
+            address: formData.address,
+            postal_code: formData.postalCode
+          }
+        }
+      });
+
+      if (error) {
+        let errorMessage = 'Kayıt olurken bir hata oluştu';
+        
+        if (error.message.includes('User already registered')) {
+          errorMessage = 'Bu e-posta adresi ile zaten bir hesap mevcut';
+        } else if (error.message.includes('Password should be at least')) {
+          errorMessage = 'Şifre en az 6 karakter olmalıdır';
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Geçersiz e-posta adresi';
+        }
+
+        toast({
+          title: "Kayıt Başarısız",
+          description: errorMessage,
+          variant: "destructive"
+        });
+        return;
+      }
+
       toast({
         title: "Kayıt Başarılı!",
-        description: "Hesabınız başarıyla oluşturuldu.",
+        description: "Hesabınız başarıyla oluşturuldu. E-posta adresinizi kontrol ediniz.",
       });
+      
       onClose();
       setCurrentStep(1);
       setFormData(initialFormData);
       setErrors({});
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast({
+        title: "Kayıt Başarısız",
+        description: "Bir hata oluştu. Lütfen tekrar deneyin.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -458,9 +513,19 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
                 <Button
                   onClick={handleSubmit}
                   className="gap-2 bg-accent hover:bg-accent/90"
+                  disabled={isLoading}
                 >
-                  <CheckCircle className="w-4 h-4" />
-                  Kaydı Tamamla
+                  {isLoading ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Kaydediliyor...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      Kaydı Tamamla
+                    </>
+                  )}
                 </Button>
               )}
             </div>

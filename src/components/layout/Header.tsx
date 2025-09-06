@@ -98,7 +98,11 @@ const Header = () => {
                 <Button variant="ghost" size="sm">
                   <Bell className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => window.location.href = '/profile'}
+                >
                   <UserIcon className="w-4 h-4" />
                 </Button>
                 <Button variant="ghost" size="sm">
@@ -182,7 +186,11 @@ const Header = () => {
                     <Button variant="ghost" className="flex-1">
                       <Bell className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" className="flex-1">
+                    <Button 
+                      variant="ghost" 
+                      className="flex-1"
+                      onClick={() => window.location.href = '/profile'}
+                    >
                       <UserIcon className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" className="flex-1">
