@@ -298,24 +298,6 @@ const LiveBetting = () => {
 
       </header>
       
-      {/* Header */}
-      <div className="bg-muted/30 border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">Canlı Bahisler</h1>
-              <Badge variant="destructive" className="animate-pulse">
-                <Play className="w-3 h-3 mr-1" />
-                🔴 CANLI
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Users className="w-4 h-4" />
-              <span>{filteredMatches.reduce((sum, match) => sum + match.viewers_count, 0).toLocaleString()} izleyici</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div className="container mx-auto px-4 py-6">
         <div className="flex gap-6">
