@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Star, Calendar, Trophy, TrendingUp, Plus, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 
 interface BetSelection {
   matchId: string;
@@ -22,6 +23,7 @@ const SportsBetting = () => {
   const [selectedLeague, setSelectedLeague] = useState('all');
   const [betSlip, setBetSlip] = useState<BetSelection[]>([]);
   const [stakeAmount, setStakeAmount] = useState('');
+  const { toast } = useToast();
 
   // Mock data for matches
   const matches = [
@@ -89,6 +91,36 @@ const SportsBetting = () => {
 
   const totalOdds = betSlip.reduce((acc, bet) => acc * bet.odds, 1);
   const potentialWin = parseFloat(stakeAmount) * totalOdds || 0;
+
+  const handleConfirmBet = () => {
+    if (!stakeAmount || parseFloat(stakeAmount) <= 0) {
+      toast({
+        title: "Hata",
+        description: "Lütfen geçerli bir bahis miktarı girin.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (betSlip.length === 0) {
+      toast({
+        title: "Hata", 
+        description: "Lütfen en az bir bahis seçin.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Bahis onaylama işlemi
+    toast({
+      title: "Bahis Onaylandı!",
+      description: `${betSlip.length} bahis ile ₺${parseFloat(stakeAmount)} miktarında bahsiniz onaylandı. Olası kazanç: ₺${potentialWin.toFixed(2)}`,
+    });
+
+    // Kuponu temizle
+    setBetSlip([]);
+    setStakeAmount('');
+  };
 
   const filteredMatches = matches.filter(match => {
     const sportMatch = selectedSport === 'all' || match.sport === selectedSport;
@@ -348,6 +380,7 @@ const SportsBetting = () => {
                       <Button 
                         className="w-full bg-destructive hover:bg-destructive/90" 
                         disabled={!stakeAmount || parseFloat(stakeAmount) <= 0}
+                        onClick={handleConfirmBet}
                       >
                         Bahsi Onayla
                       </Button>
