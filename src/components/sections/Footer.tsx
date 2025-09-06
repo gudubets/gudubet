@@ -79,7 +79,7 @@ const Footer = () => {
         {/* Game Providers - Row 1 */}
         <div className="mb-6">
           <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['Casibom Original', 'PRAGMATIC', 'Evolution', 'PRAGMATIC', 'imaginelive', 'AMIDST', 'WAZDAN', 'DIGITAIN', 'HACKSAW', 'NOLIMIT', 'RED TIGER', 'MOD', 'SMARTSOFT'].map(provider => <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+            {['GuduBet Original', 'PRAGMATIC', 'Evolution', 'PRAGMATIC', 'imaginelive', 'AMIDST', 'WAZDAN', 'DIGITAIN', 'HACKSAW', 'NOLIMIT', 'RED TIGER', 'MOD', 'SMARTSOFT'].map(provider => <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
                 <span className="text-xs text-gray-300">{provider}</span>
               </div>)}
           </div>
@@ -105,7 +105,7 @@ const Footer = () => {
 
         {/* Legal Text */}
         <div className="text-xs text-gray-400 mb-4">
-          casibom.com Curaçao yasalarına göre kayıtlı ve 153142 şirket numarasına sahip Seguro N.V. tarafından işletilmektedir. Site GCB tarafından verilen geçerli bir lisansa sahiptir.
+          gudubet.com Curaçao yasalarına göre kayıtlı ve 153142 şirket numarasına sahip Seguro N.V. tarafından işletilmektedir. Site GCB tarafından verilen geçerli bir lisansa sahiptir.
         </div>
 
         {/* Bottom Copyright */}

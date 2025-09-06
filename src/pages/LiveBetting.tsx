@@ -18,6 +18,8 @@ import {
 import LiveMatchCard from '@/components/betting/LiveMatchCard';
 import BettingSlip from '@/components/betting/BettingSlip';
 import MatchDetailsModal from '@/components/betting/MatchDetailsModal';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/sections/Footer';
 
 interface LiveMatch {
   id: string;
@@ -259,45 +261,27 @@ const LiveBetting = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header Navigation - Casibom Style */}
-      <header className="bg-black border-b border-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-8">
-              <a href="/" className="text-yellow-400 font-bold text-xl">
-                casibom
-              </a>
-              
-              {/* Main Navigation Links */}
-              <nav className="hidden lg:flex items-center space-x-6">
-                <a href="/" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">ANA SAYFA</a>
-                <a href="/sports-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">SPOR</a>
-                <a href="/live-betting" className="text-yellow-400 border-b border-yellow-400 pb-1 text-sm">CANLI</a>
-                <a href="/casino" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CASINO</a>
-                <a href="/live-casino" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CANLI CASINO</a>
-                <a href="/promotions" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">PROMOSYONLAR</a>
-              </nav>
+    <div className="min-h-screen bg-black">
+      <Header />
+      
+      {/* Header */}
+      <div className="bg-muted/30 border-b">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold">Canlı Bahisler</h1>
+              <Badge variant="destructive" className="animate-pulse">
+                <Play className="w-3 h-3 mr-1" />
+                🔴 CANLI
+              </Badge>
             </div>
-
-            {/* Right Side Actions */}
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm" className="text-gray-300 hover:text-yellow-400">
-                <span className="text-lg">💬</span>
-              </Button>
-              <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 text-sm">
-                GİRİŞ
-              </Button>
-              <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 text-sm">
-                ÜYE OL
-              </Button>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="w-4 h-4" />
+              <span>{filteredMatches.reduce((sum, match) => sum + match.viewers_count, 0).toLocaleString()} izleyici</span>
             </div>
           </div>
         </div>
-
-      </header>
-      
+      </div>
 
       <div className="container mx-auto px-4 py-6">
         <div className="flex gap-6">
@@ -398,6 +382,8 @@ const LiveBetting = () => {
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
       />
+
+      <Footer />
     </div>
   );
 };
