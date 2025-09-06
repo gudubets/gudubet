@@ -170,20 +170,132 @@ const SportsBetting = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top Notification Bar */}
-      <div className="bg-gradient-to-r from-orange-600 to-red-600 p-3">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4 text-white" />
-            <ArrowRight className="h-4 w-4 text-white" />
-            <span className="text-sm font-medium text-white">1/2</span>
+      {/* Header Navigation */}
+      <header className="bg-slate-900 border-b border-border">
+        {/* Main Navigation */}
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center space-x-8">
+              <div className="bg-destructive px-4 py-2 rounded">
+                <span className="text-destructive-foreground font-bold">GUDUBET</span>
+              </div>
+              
+              {/* Main Navigation Links */}
+              <nav className="hidden lg:flex items-center space-x-6">
+                <a href="/" className="text-white hover:text-primary transition-colors">Ana Sayfa</a>
+                <a href="/sports-betting" className="text-primary border-b-2 border-primary pb-1">Spor</a>
+                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Canlı</a>
+                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Casino</a>
+                <a href="/live-casino" className="text-muted-foreground hover:text-white transition-colors">Canlı Casino</a>
+                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Promosyonlar</a>
+                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Sürpriz</a>
+                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Oyun Meydanı</a>
+                <Select>
+                  <SelectTrigger className="w-32 bg-transparent border-none text-muted-foreground hover:text-white">
+                    <SelectValue placeholder="Daha Fazla" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tournaments">Turnuvalar</SelectItem>
+                    <SelectItem value="statistics">İstatistikler</SelectItem>
+                    <SelectItem value="results">Sonuçlar</SelectItem>
+                  </SelectContent>
+                </Select>
+              </nav>
+            </div>
+
+            {/* Right Side Actions */}
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+                <span className="text-lg">💬</span>
+              </Button>
+              <Button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                Giriş Yap
+              </Button>
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                Üye Ol
+              </Button>
+            </div>
           </div>
-          <div className="flex-1"></div>
-          <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
-            ×
-          </Button>
         </div>
-      </div>
+
+        {/* Sports Categories */}
+        <div className="border-t border-slate-700">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-12">
+              <div className="flex items-center space-x-8">
+                <Button
+                  variant="ghost"
+                  className={`text-sm hover:bg-white/5 ${
+                    selectedSport === 'futbol' ? 'text-primary' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedSport('futbol')}
+                >
+                  ⚽ Futbol
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={`text-sm hover:bg-white/5 ${
+                    selectedSport === 'basketball' ? 'text-primary' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedSport('basketball')}
+                >
+                  🏀 Basketbol
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={`text-sm hover:bg-white/5 ${
+                    selectedSport === 'tenis' ? 'text-primary' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedSport('tenis')}
+                >
+                  🎾 Tenis
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={`text-sm hover:bg-white/5 ${
+                    selectedSport === 'masa-tenisi' ? 'text-primary' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedSport('masa-tenisi')}
+                >
+                  🏓 Masa Tenisi
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={`text-sm hover:bg-white/5 ${
+                    selectedSport === 'voleybol' ? 'text-primary' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedSport('voleybol')}
+                >
+                  🏐 Voleybol
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={`text-sm hover:bg-white/5 ${
+                    selectedSport === 'esports' ? 'text-primary' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedSport('esports')}
+                >
+                  🎮 E-Spor
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={`text-sm hover:bg-white/5 ${
+                    selectedSport === 'hentbol' ? 'text-primary' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedSport('hentbol')}
+                >
+                  🤾 Hentbol
+                </Button>
+              </div>
+              
+              <Button variant="ghost" className="text-muted-foreground hover:text-white text-sm">
+                🔍 Ara
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
 
       <div className="container mx-auto flex gap-0">
         {/* Left Sidebar - Sports Categories */}
