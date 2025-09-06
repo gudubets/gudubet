@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -56,6 +57,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState('general');
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -246,39 +248,52 @@ const Profile = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 gap-1">
-            <TabsTrigger value="general" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
-              <User className="w-4 h-4" />
-              <span className="hidden sm:inline">Genel</span>
-              <span className="sm:hidden">Genel</span>
-            </TabsTrigger>
-            <TabsTrigger value="security" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
-              <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">Güvenlik</span>
-              <span className="sm:hidden">Güvenlik</span>
-            </TabsTrigger>
-            <TabsTrigger value="financial" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
-              <Wallet className="w-4 h-4" />
-              <span className="hidden sm:inline">Finansal</span>
-              <span className="sm:hidden">Finansal</span>
-            </TabsTrigger>
-            <TabsTrigger value="history" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
-              <History className="w-4 h-4" />
-              <span className="hidden sm:inline">Geçmiş</span>
-              <span className="sm:hidden">Geçmiş</span>
-            </TabsTrigger>
-            <TabsTrigger value="bonuses" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
-              <Gift className="w-4 h-4" />
-              <span className="hidden sm:inline">Bonuslar</span>
-              <span className="sm:hidden">Bonuslar</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Ayarlar</span>
-              <span className="sm:hidden">Ayarlar</span>
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="mb-6">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  <span className="flex items-center gap-2">
+                    {activeTab === 'general' && <><User className="w-4 h-4" /> Genel Bilgiler</>}
+                    {activeTab === 'security' && <><Shield className="w-4 h-4" /> Güvenlik</>}
+                    {activeTab === 'financial' && <><Wallet className="w-4 h-4" /> Finansal</>}
+                    {activeTab === 'history' && <><History className="w-4 h-4" /> Geçmiş</>}
+                    {activeTab === 'bonuses' && <><Gift className="w-4 h-4" /> Bonuslar</>}
+                    {activeTab === 'settings' && <><Settings className="w-4 h-4" /> Ayarlar</>}
+                  </span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full bg-background border shadow-lg">
+                <DropdownMenuItem onClick={() => setActiveTab('general')} className="cursor-pointer">
+                  <User className="w-4 h-4 mr-2" />
+                  Genel Bilgiler
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab('security')} className="cursor-pointer">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Güvenlik
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab('financial')} className="cursor-pointer">
+                  <Wallet className="w-4 h-4 mr-2" />
+                  Finansal
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab('history')} className="cursor-pointer">
+                  <History className="w-4 h-4 mr-2" />
+                  Geçmiş
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab('bonuses')} className="cursor-pointer">
+                  <Gift className="w-4 h-4 mr-2" />
+                  Bonuslar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab('settings')} className="cursor-pointer">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Ayarlar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
           {/* General Information Tab */}
           <TabsContent value="general" className="space-y-6">
