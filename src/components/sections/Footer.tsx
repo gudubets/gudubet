@@ -1,32 +1,18 @@
 import { Button } from '@/components/ui/button';
-import { 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  Youtube,
-  Mail,
-  Phone,
-  MessageCircle,
-  Shield,
-  Award,
-  Clock
-} from 'lucide-react';
-
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MessageCircle, Shield, Award, Clock } from 'lucide-react';
 const Footer = () => {
-  return (
-    <footer className="bg-black text-white">
+  return <footer className="bg-black text-white">
       {/* Promotional Banner */}
       <div className="container mx-auto px-4 py-6">
-        <div 
-          className="mx-auto p-4 text-center rounded-lg text-base"
-          style={{ 
-            background: '#151414', 
-            padding: '10px', 
-            borderRadius: '10px', 
-            fontSize: '16px' 
-          }}
-        >
-          <strong style={{ color: '#fbb204' }}>
+        <div className="mx-auto p-4 text-center rounded-lg text-base" style={{
+        background: '#151414',
+        padding: '10px',
+        borderRadius: '10px',
+        fontSize: '16px'
+      }}>
+          <strong style={{
+          color: '#fbb204'
+        }}>
             Casibom™ | Önde Gelen Casino ve Bahis Platformu
           </strong>
           <br />
@@ -41,7 +27,7 @@ const Footer = () => {
           {/* Email */}
           <div>
             <div className="text-orange-400 text-sm mb-2">EMAIL</div>
-            <div className="text-orange-400">support@casibom.com</div>
+            <div className="text-orange-400">support@gudubet.com</div>
           </div>
 
           {/* Genel Kurallar */}
@@ -84,44 +70,36 @@ const Footer = () => {
         {/* Payment Providers */}
         <div className="mb-8">
           <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['PAYco', 'Banka', 'SUPER PAY', 'PEP', 'papara', 'PAY', 'bitcoin', 'Litecoin', 'ethereum', 'VIGO', 'VIGO BONUS'].map((provider) => (
-              <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+            {['PAYco', 'Banka', 'SUPER PAY', 'PEP', 'papara', 'PAY', 'bitcoin', 'Litecoin', 'ethereum', 'VIGO', 'VIGO BONUS'].map(provider => <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
                 <span className="text-xs text-gray-300">{provider}</span>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
 
         {/* Game Providers - Row 1 */}
         <div className="mb-6">
           <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['Casibom Original', 'PRAGMATIC', 'Evolution', 'PRAGMATIC', 'imaginelive', 'AMIDST', 'WAZDAN', 'DIGITAIN', 'HACKSAW', 'NOLIMIT', 'RED TIGER', 'MOD', 'SMARTSOFT'].map((provider) => (
-              <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+            {['Casibom Original', 'PRAGMATIC', 'Evolution', 'PRAGMATIC', 'imaginelive', 'AMIDST', 'WAZDAN', 'DIGITAIN', 'HACKSAW', 'NOLIMIT', 'RED TIGER', 'MOD', 'SMARTSOFT'].map(provider => <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
                 <span className="text-xs text-gray-300">{provider}</span>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
 
         {/* Game Providers - Row 2 */}
         <div className="mb-6">
           <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['SPRIBE', 'PLAYSON', 'EGT', 'PG', 'betsolutions', 'BGAMING', 'zugi', 'RELAX', 'NETENT', 'GALAXSYS', 'BETSOFT', 'YGGDRASIL', 'BTG'].map((provider) => (
-              <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+            {['SPRIBE', 'PLAYSON', 'EGT', 'PG', 'betsolutions', 'BGAMING', 'zugi', 'RELAX', 'NETENT', 'GALAXSYS', 'BETSOFT', 'YGGDRASIL', 'BTG'].map(provider => <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
                 <span className="text-xs text-gray-300">{provider}</span>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
 
         {/* Game Providers - Row 3 */}
         <div className="mb-8">
           <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['evoplay', 'HABANERO', 'Endorphina', 'Microgaming', 'QUICKSPIN', 'Swinominator', 'IRON DOG STUDIO', 'BOOMING GAMES', 'tom horn', 'NOMATIC'].map((provider) => (
-              <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+            {['evoplay', 'HABANERO', 'Endorphina', 'Microgaming', 'QUICKSPIN', 'Swinominator', 'IRON DOG STUDIO', 'BOOMING GAMES', 'tom horn', 'NOMATIC'].map(provider => <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
                 <span className="text-xs text-gray-300">{provider}</span>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
 
@@ -144,8 +122,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
