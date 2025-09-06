@@ -1,21 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RegistrationModal } from '@/components/auth/RegistrationModal';
+import { LoginModal } from '@/components/auth/LoginModal';
+import { supabase } from '@/integrations/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
 import { 
   Menu, 
   X, 
-  User, 
+  User as UserIcon, 
   Wallet, 
   Bell, 
   Settings,
   LogIn,
-  UserPlus
+  UserPlus,
+  LogOut
 } from 'lucide-react';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
 
   const navItems = [
     { name: 'Spor Bahisleri', href: '#sports' },
@@ -24,6 +30,38 @@ const Header = () => {
     { name: 'Tombala', href: '#bingo' },
     { name: 'Promosyonlar', href: '#promotions' },
   ];
+
+  // Authentication state management
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setIsMenuOpen(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoginModalOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
@@ -54,7 +92,7 @@ const Header = () => {
 
           {/* Desktop User Actions */}
           <div className="hidden lg:flex items-center space-x-4">
-            {isLoggedIn ? (
+            {user ? (
               <>
                 <Button variant="outline" size="sm" className="gap-2">
                   <Wallet className="w-4 h-4" />
@@ -64,15 +102,29 @@ const Header = () => {
                   <Bell className="w-4 h-4" />
                 </Button>
                 <Button variant="ghost" size="sm">
-                  <User className="w-4 h-4" />
+                  <UserIcon className="w-4 h-4" />
                 </Button>
                 <Button variant="ghost" size="sm">
                   <Settings className="w-4 h-4" />
                 </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Çıkış
+                </Button>
               </>
             ) : (
               <>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => setIsLoginModalOpen(true)}
+                >
                   <LogIn className="w-4 h-4" />
                   Giriş Yap
                 </Button>
@@ -116,7 +168,7 @@ const Header = () => {
               ))}
             </nav>
             <div className="pt-4 border-t border-border space-y-3">
-              {isLoggedIn ? (
+              {user ? (
                 <>
                   <Button variant="outline" className="w-full gap-2">
                     <Wallet className="w-4 h-4" />
@@ -127,16 +179,28 @@ const Header = () => {
                       <Bell className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" className="flex-1">
-                      <User className="w-4 h-4" />
+                      <UserIcon className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" className="flex-1">
                       <Settings className="w-4 h-4" />
                     </Button>
                   </div>
+                  <Button 
+                    variant="outline" 
+                    className="w-full gap-2"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Çıkış Yap
+                  </Button>
                 </>
               ) : (
                 <div className="space-y-2">
-                  <Button variant="outline" className="w-full gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full gap-2"
+                    onClick={() => setIsLoginModalOpen(true)}
+                  >
                     <LogIn className="w-4 h-4" />
                     Giriş Yap
                   </Button>
@@ -158,6 +222,12 @@ const Header = () => {
       <RegistrationModal 
         isOpen={isRegistrationModalOpen}
         onClose={() => setIsRegistrationModalOpen(false)}
+      />
+      
+      <LoginModal 
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
       />
     </header>
   );
