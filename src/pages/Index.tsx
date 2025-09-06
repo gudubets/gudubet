@@ -4,19 +4,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
-
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  return (
-    <div className="min-h-screen bg-black">
+  return <div className="min-h-screen bg-black">
       <Header />
       
       {/* Main Content */}
       <div className="bg-black min-h-screen">
         {/* Hero Section */}
         <div className="relative">
-          <Carousel className="h-80 md:h-96" opts={{ loop: true, duration: 30 }}>
+          <Carousel className="h-80 md:h-96" opts={{
+          loop: true,
+          duration: 30
+        }}>
             <CarouselContent className="h-full">
               {/* Main Bonus Banner */}
               <CarouselItem>
@@ -50,9 +50,9 @@ const Index = () => {
                   
                   {/* Pagination Dots */}
                   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <div key={i} className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-yellow-400' : 'bg-white/50'}`}></div>
-                    ))}
+                    {Array.from({
+                    length: 5
+                  }, (_, i) => <div key={i} className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-yellow-400' : 'bg-white/50'}`}></div>)}
                   </div>
                 </div>
               </CarouselItem>
@@ -65,7 +65,7 @@ const Index = () => {
           {/* Address Bar */}
           <div className="bg-gradient-to-r from-yellow-600 to-orange-500 rounded-lg p-4 mb-6 text-center">
             <p className="text-black font-semibold">
-              Güncel adresimiz için: <span className="bg-yellow-300 px-2 py-1 rounded">t.ly/casibomadres</span> linkini kullanınız
+              Güncel adresimiz için: <span className="bg-yellow-300 px-2 py-1 rounded">t.ly/gudubetadres</span> linkini kullanınız
             </p>
           </div>
 
@@ -132,13 +132,27 @@ const Index = () => {
           <div className="mb-8">
             <h2 className="text-yellow-400 text-xl font-bold mb-4">SON KAZANANLAR</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {[
-                { name: 'Y.S.', game: 'Golden Penny x1000', amount: '31.594,50', avatar: '🎮' },
-                { name: 'S.S.', game: 'Flaming Hot Extreme VIP Bell...', amount: '42.960,00', avatar: '🔥' },
-                { name: 'O.A.', game: 'Book of Fallen', amount: '25.000,00', avatar: '📚' },
-                { name: 'M.S.', game: 'Gates of Olympus Super Scatter', amount: '32.294,50', avatar: '⚡' }
-              ].map((winner, index) => (
-                <Card key={index} className="bg-gray-900 border-gray-700 text-white">
+              {[{
+              name: 'Y.S.',
+              game: 'Golden Penny x1000',
+              amount: '31.594,50',
+              avatar: '🎮'
+            }, {
+              name: 'S.S.',
+              game: 'Flaming Hot Extreme VIP Bell...',
+              amount: '42.960,00',
+              avatar: '🔥'
+            }, {
+              name: 'O.A.',
+              game: 'Book of Fallen',
+              amount: '25.000,00',
+              avatar: '📚'
+            }, {
+              name: 'M.S.',
+              game: 'Gates of Olympus Super Scatter',
+              amount: '32.294,50',
+              avatar: '⚡'
+            }].map((winner, index) => <Card key={index} className="bg-gray-900 border-gray-700 text-white">
                   <CardContent className="p-4">
                     <div className="flex items-center space-x-3 mb-2">
                       <div className="text-2xl">{winner.avatar}</div>
@@ -151,8 +165,7 @@ const Index = () => {
                       <div className="text-lg font-bold text-yellow-400">₺{winner.amount}</div>
                     </div>
                   </CardContent>
-                </Card>
-              ))}
+                </Card>)}
             </div>
           </div>
         </div>
@@ -160,8 +173,6 @@ const Index = () => {
       
       {/* Footer */}
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
