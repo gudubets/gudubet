@@ -74,7 +74,7 @@ const BettingSlip: React.FC<BettingSlipProps> = ({
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <div className="flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-primary" />
+            <img src="/lovable-uploads/42285f46-3578-40be-b9e5-f9e05a4ecfbb.png" alt="TL" className="w-5 h-5" />
             <span className="font-semibold">
               {activeTab === 'betslip' ? 'Kupon' : 'Bahislerim'}
             </span>
@@ -238,7 +238,7 @@ const BettingSlip: React.FC<BettingSlipProps> = ({
     <Card className="sticky top-4">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2">
-          <Receipt className="w-5 h-5 text-primary" />
+          <img src="/lovable-uploads/42285f46-3578-40be-b9e5-f9e05a4ecfbb.png" alt="TL" className="w-5 h-5" />
           Bahis Kuponu
         </CardTitle>
       </CardHeader>
