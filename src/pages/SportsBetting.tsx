@@ -110,6 +110,7 @@ const SportsBetting = () => {
   const fetchLiveMatches = async () => {
     setLoading(true);
     try {
+      console.log('Fetching matches for sport:', selectedSport);
       const { data, error } = await supabase.functions.invoke('sports-proxy', {
         body: { 
           sport: selectedSport === 'futbol' ? 'soccer' : selectedSport.toLowerCase(),
@@ -117,13 +118,18 @@ const SportsBetting = () => {
         }
       });
 
+      console.log('API Response:', { data, error });
+
       if (error) {
         console.error('Error fetching matches:', error);
         return;
       }
 
       if (data && data.matches) {
+        console.log('Received matches:', data.matches.length, data.matches);
         setLiveMatches(data.matches);
+      } else {
+        console.log('No matches in response:', data);
       }
     } catch (error) {
       console.error('Error fetching matches:', error);
@@ -137,6 +143,8 @@ const SportsBetting = () => {
   }, [selectedSport]);
 
   // Use real data when available, fallback to mock data
+  console.log('Live matches count:', liveMatches.length);
+  console.log('Display matches will be:', liveMatches.length > 0 ? 'live data' : 'mock data');
   const displayMatches = liveMatches.length > 0 ? liveMatches.slice(0, 5) : featuredMatches;
 
   const addToBetSlip = (match: any, selection: string, odds: number) => {
