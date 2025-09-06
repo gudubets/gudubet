@@ -13,7 +13,7 @@ const Footer = () => {
           <strong style={{
           color: '#fbb204'
         }}>
-            Casibom™ | Önde Gelen Casino ve Bahis Platformu
+            Gudubet™ | Önde Gelen Casino ve Bahis Platformu
           </strong>
           <br />
           Gudubet ile en iyi casino ve bahis deneyimini yaşayın! 2000 TL hoş geldin bonusuyla hemen kazanmaya başlayın.
@@ -48,7 +48,7 @@ const Footer = () => {
             <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">Hakkımızda</h3>
             <div className="space-y-2 text-sm">
               <div>Bize ulaşın</div>
-              <div>Casibom Yardım Merkezi</div>
+              <div>Gudubet Yardım Merkezi</div>
               <div>Bahis Kuralları</div>
             </div>
             
@@ -70,7 +70,7 @@ const Footer = () => {
         {/* Payment Providers */}
         <div className="mb-8">
           <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['PAYco', 'Banka', 'SUPER PAY', 'PEP', 'papara', 'PAY', 'bitcoin', 'Litecoin', 'ethereum', 'VIGO', 'VIGO BONUS'].map(provider => <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+            {['PAYco', 'Banka','PEP', 'Papara', 'PAY', 'Bitcoin', 'Litecoin', 'Ethereum', 'VIGO',].map(provider => <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
                 <span className="text-xs text-gray-300">{provider}</span>
               </div>)}
           </div>
@@ -79,7 +79,7 @@ const Footer = () => {
         {/* Game Providers - Row 1 */}
         <div className="mb-6">
           <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['Casibom Original', 'PRAGMATIC', 'Evolution', 'PRAGMATIC', 'imaginelive', 'AMIDST', 'WAZDAN', 'DIGITAIN', 'HACKSAW', 'NOLIMIT', 'RED TIGER', 'MOD', 'SMARTSOFT'].map(provider => <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+            {['Casibom Original', 'PRAGMATIC', 'Evolution', 'UBISOFT', 'imaginelive', 'AMIDST', 'WAZDAN', 'DIGITAIN', 'HACKSAW', 'NOLIMIT', 'RED TIGER', 'MOD', 'SMARTSOFT'].map(provider => <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
                 <span className="text-xs text-gray-300">{provider}</span>
               </div>)}
           </div>
@@ -105,14 +105,14 @@ const Footer = () => {
 
         {/* Legal Text */}
         <div className="text-xs text-gray-400 mb-4">
-          casibom.com Curaçao yasalarına göre kayıtlı ve 153142 şirket numarasına sahip Seguro N.V. tarafından işletilmektedir. Site GCB tarafından verilen geçerli bir lisansa sahiptir.
+          gudubet.com Montenegro yasalarına göre kayıtlı ve 153142 şirket numarasına sahip Seguro N.V. tarafından işletilmektedir. Site GCB tarafından verilen geçerli bir lisansa sahiptir.
         </div>
 
         {/* Bottom Copyright */}
         <div className="border-t border-gray-800 pt-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
             <div>
-              © CasiBom. Tüm hakları saklıdır.
+              © GuduBet. Tüm hakları saklıdır.
             </div>
             <div className="flex items-center gap-2">
               <div className="bg-orange-500 rounded-full p-1">
