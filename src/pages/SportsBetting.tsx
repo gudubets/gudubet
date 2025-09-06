@@ -249,9 +249,9 @@ const SportsBetting = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-8">
-              <div className="bg-destructive px-4 py-2 rounded">
+              <a href="/" className="bg-destructive px-4 py-2 rounded hover:bg-destructive/90 transition-colors cursor-pointer">
                 <span className="text-destructive-foreground font-bold">GUDUBET</span>
-              </div>
+              </a>
               
               {/* Main Navigation Links */}
               <nav className="hidden lg:flex items-center space-x-6">
