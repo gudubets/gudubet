@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -15,7 +16,13 @@ import {
   Clock,
   Users,
   Trophy,
-  Zap
+  Zap,
+  Copy,
+  Share2,
+  Timer,
+  Crown,
+  Flame,
+  CheckCircle
 } from 'lucide-react';
 
 interface Promotion {
@@ -52,6 +59,7 @@ const Promotions = () => {
   const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string>('');
   const { toast } = useToast();
 
   const categories = [
@@ -61,7 +69,111 @@ const Promotions = () => {
     { id: 'freebet', name: 'Freebet', icon: Zap },
     { id: 'cashback', name: 'Cashback', icon: Percent },
     { id: 'special', name: 'Özel Gün', icon: Trophy },
+    { id: 'vip', name: 'VIP', icon: Crown },
   ];
+
+  // Countdown Timer Component
+  const CountdownTimer = ({ endDate }: { endDate: string }) => {
+    const [timeLeft, setTimeLeft] = useState({
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0
+    });
+
+    useEffect(() => {
+      const timer = setInterval(() => {
+        const now = new Date().getTime();
+        const end = new Date(endDate).getTime();
+        const distance = end - now;
+
+        if (distance < 0) {
+          setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+          return;
+        }
+
+        setTimeLeft({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }, [endDate]);
+
+    if (timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0) {
+      return (
+        <div className="flex items-center text-red-500 text-sm">
+          <Timer className="w-4 h-4 mr-1" />
+          <span>Süresi Doldu</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center space-x-1 text-sm">
+        <Timer className="w-4 h-4 text-orange-500" />
+        <div className="flex space-x-1">
+          {timeLeft.days > 0 && (
+            <span className="bg-orange-500/20 text-orange-500 px-1 rounded text-xs font-mono">
+              {timeLeft.days}g
+            </span>
+          )}
+          <span className="bg-orange-500/20 text-orange-500 px-1 rounded text-xs font-mono">
+            {timeLeft.hours.toString().padStart(2, '0')}s
+          </span>
+          <span className="bg-orange-500/20 text-orange-500 px-1 rounded text-xs font-mono">
+            {timeLeft.minutes.toString().padStart(2, '0')}d
+          </span>
+          <span className="bg-orange-500/20 text-orange-500 px-1 rounded text-xs font-mono">
+            {timeLeft.seconds.toString().padStart(2, '0')}sn
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  // Copy Promo Code Function
+  const copyPromoCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      toast({
+        title: "Kopyalandı!",
+        description: `Promosyon kodu ${code} panoya kopyalandı.`,
+      });
+      setTimeout(() => setCopiedCode(''), 2000);
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Kod kopyalanırken bir hata oluştu.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Social Share Function
+  const sharePromotion = (promotion: Promotion) => {
+    const text = `🎉 ${promotion.title} - ${promotion.description}`;
+    const url = window.location.href;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: promotion.title,
+        text: text,
+        url: url
+      });
+    } else {
+      // Fallback to clipboard
+      navigator.clipboard.writeText(`${text} ${url}`);
+      toast({
+        title: "Paylaşım Linki Kopyalandı!",
+        description: "Promosyon linki panoya kopyalandı.",
+      });
+    }
+  };
 
   // Fetch promotions
   const fetchPromotions = async () => {
@@ -349,6 +461,27 @@ const Promotions = () => {
             </div>
           </div>
 
+          {/* VIP Section */}
+          {selectedCategory === 'vip' && (
+            <div className="bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-orange-500/20 border border-amber-500/30 rounded-lg p-6 mb-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-amber-500/20 rounded-full">
+                    <Crown className="w-8 h-8 text-amber-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-amber-500">VIP Promosyonları</h3>
+                    <p className="text-sm text-muted-foreground">Özel üyelerimiz için hazırlanmış elit fırsatlar</p>
+                  </div>
+                </div>
+                <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30">
+                  <Crown className="w-3 h-3 mr-1" />
+                  Elit Üye
+                </Badge>
+              </div>
+            </div>
+          )}
+
           {/* Promotions Grid */}
           <div className="container mx-auto px-6 py-8">
             {loading ? (
@@ -358,86 +491,192 @@ const Promotions = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPromotions.map((promotion) => (
-                  <Card key={promotion.id} className="bg-slate-800 border-slate-700 hover:border-primary/50 transition-colors">
-                    <CardHeader className="pb-3">
-                      <div className="aspect-video bg-slate-700 rounded-lg mb-3 flex items-center justify-center">
-                        {getCategoryIcon(promotion.category)}
-                        <span className="ml-2 text-sm text-muted-foreground">
-                          {categories.find(c => c.id === promotion.category)?.name}
-                        </span>
-                      </div>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg leading-tight">{promotion.title}</CardTitle>
-                          <Badge variant="outline" className="mt-2">
-                            {categories.find(c => c.id === promotion.category)?.name}
-                          </Badge>
-                        </div>
-                        {promotion.bonus_percentage && (
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-primary">
-                              %{promotion.bonus_percentage}
-                            </div>
-                            <div className="text-xs text-muted-foreground">Bonus</div>
-                          </div>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                        {promotion.description}
-                      </p>
-                      
-                      <div className="space-y-2 mb-4">
-                        {promotion.min_deposit && (
-                          <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Min. Yatırım:</span>
-                            <span className="font-medium">₺{promotion.min_deposit}</span>
-                          </div>
-                        )}
-                        {promotion.max_bonus && (
-                          <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Max. Bonus:</span>
-                            <span className="font-medium">₺{promotion.max_bonus}</span>
-                          </div>
-                        )}
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Çevrim:</span>
-                          <span className="font-medium">{promotion.wagering_requirement}x</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Bitiş:</span>
-                          <span className="font-medium">{formatDate(promotion.end_date)}</span>
-                        </div>
-                      </div>
+                {filteredPromotions.map((promotion) => {
+                  // Calculate days left
+                  const daysLeft = Math.ceil((new Date(promotion.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                  const isUrgent = daysLeft <= 3;
+                  const hasPromoCode = promotion.promo_code;
+                  const participationRate = promotion.max_participants 
+                    ? (promotion.current_participants / promotion.max_participants) * 100 
+                    : 0;
 
-                      <div className="flex space-x-2">
-                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                          <DialogTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="flex-1"
-                              onClick={() => setSelectedPromotion(promotion)}
-                            >
-                              Detaylar
-                            </Button>
-                          </DialogTrigger>
-                        </Dialog>
+                  return (
+                    <Card key={promotion.id} className={`group bg-slate-800 border-slate-700 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 animate-fade-in ${
+                      isUrgent ? 'ring-2 ring-orange-500/30' : ''
+                    }`}>
+                      <CardHeader className="pb-3">
+                        {/* Hot/New/VIP Badges */}
+                        <div className="absolute top-3 right-3 flex space-x-1">
+                          {isUrgent && (
+                            <Badge className="bg-red-500/20 text-red-500 border-red-500/30 animate-pulse">
+                              <Flame className="w-3 h-3 mr-1" />
+                              Acil
+                            </Badge>
+                          )}
+                          {promotion.category === 'welcome' && (
+                            <Badge className="bg-green-500/20 text-green-500 border-green-500/30">
+                              Yeni
+                            </Badge>
+                          )}
+                          {promotion.category === 'vip' && (
+                            <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30">
+                              <Crown className="w-3 h-3 mr-1" />
+                              VIP
+                            </Badge>
+                          )}
+                        </div>
+
+                        <div className="aspect-video bg-slate-700 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent"></div>
+                          {getCategoryIcon(promotion.category)}
+                          <span className="ml-2 text-sm text-muted-foreground relative z-10">
+                            {categories.find(c => c.id === promotion.category)?.name}
+                          </span>
+                        </div>
+
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-lg leading-tight group-hover:text-primary transition-colors">
+                              {promotion.title}
+                            </CardTitle>
+                            <div className="flex items-center mt-2 space-x-2">
+                              <Badge variant="outline">
+                                {categories.find(c => c.id === promotion.category)?.name}
+                              </Badge>
+                              {hasPromoCode && (
+                                <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">
+                                  <Copy className="w-3 h-3 mr-1" />
+                                  Kod
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          {promotion.bonus_percentage && (
+                            <div className="text-right">
+                              <div className="text-2xl font-bold text-primary">
+                                %{promotion.bonus_percentage}
+                              </div>
+                              <div className="text-xs text-muted-foreground">Bonus</div>
+                            </div>
+                          )}
+                        </div>
+                      </CardHeader>
+
+                      <CardContent className="pt-0">
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                          {promotion.description}
+                        </p>
+
+                        {/* Countdown Timer */}
+                        <div className="mb-4">
+                          <CountdownTimer endDate={promotion.end_date} />
+                        </div>
+
+                        {/* Participation Progress */}
+                        {promotion.max_participants && (
+                          <div className="mb-4">
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="text-muted-foreground">Katılım</span>
+                              <span className="font-medium">
+                                {promotion.current_participants}/{promotion.max_participants}
+                              </span>
+                            </div>
+                            <Progress value={participationRate} className="h-2" />
+                          </div>
+                        )}
                         
-                        <Button 
-                          size="sm" 
-                          className="flex-1 bg-primary hover:bg-primary/90"
-                          onClick={() => joinPromotion(promotion)}
-                          disabled={hasParticipated(promotion.id)}
-                        >
-                          {hasParticipated(promotion.id) ? 'Katıldınız' : 'Katıl'}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        <div className="space-y-2 mb-4">
+                          {promotion.min_deposit && (
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Min. Yatırım:</span>
+                              <span className="font-medium">₺{promotion.min_deposit}</span>
+                            </div>
+                          )}
+                          {promotion.max_bonus && (
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Max. Bonus:</span>
+                              <span className="font-medium">₺{promotion.max_bonus}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Çevrim:</span>
+                            <span className="font-medium">{promotion.wagering_requirement}x</span>
+                          </div>
+                        </div>
+
+                        {/* Promo Code */}
+                        {hasPromoCode && (
+                          <div className="mb-4">
+                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2 flex items-center justify-between">
+                              <div className="flex items-center">
+                                <Copy className="w-4 h-4 text-blue-500 mr-2" />
+                                <code className="text-blue-500 font-mono font-bold text-sm">
+                                  {promotion.promo_code}
+                                </code>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-auto p-1 text-blue-500 hover:bg-blue-500/20"
+                                onClick={() => copyPromoCode(promotion.promo_code!)}
+                              >
+                                {copiedCode === promotion.promo_code ? (
+                                  <CheckCircle className="w-4 h-4" />
+                                ) : (
+                                  <Copy className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex space-x-2">
+                          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="flex-1"
+                                onClick={() => setSelectedPromotion(promotion)}
+                              >
+                                Detaylar
+                              </Button>
+                            </DialogTrigger>
+                          </Dialog>
+                          
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            className="p-2"
+                            onClick={() => sharePromotion(promotion)}
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </Button>
+                          
+                          <Button 
+                            size="sm" 
+                            className={`flex-1 transition-all duration-200 ${
+                              hasParticipated(promotion.id) 
+                                ? 'bg-green-600 hover:bg-green-700' 
+                                : 'bg-primary hover:bg-primary/90 hover:shadow-lg'
+                            }`}
+                            onClick={() => joinPromotion(promotion)}
+                            disabled={hasParticipated(promotion.id)}
+                          >
+                            {hasParticipated(promotion.id) ? (
+                              <div className="flex items-center">
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Katıldınız
+                              </div>
+                            ) : (
+                              'Katıl'
+                            )}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
 
