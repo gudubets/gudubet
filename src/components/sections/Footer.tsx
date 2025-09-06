@@ -13,7 +13,7 @@ const Footer = () => {
           <strong style={{
           color: '#fbb204'
         }}>
-            GuduBet™ | Önde Gelen Casino ve Bahis Platformu
+            Gudubet™ | Önde Gelen Casino ve Bahis Platformu
           </strong>
           <br />
           Gudubet ile en iyi casino ve bahis deneyimini yaşayın! 2000 TL hoş geldin bonusuyla hemen kazanmaya başlayın.
@@ -26,7 +26,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Email */}
           <div>
-            <div className="text-orange-400 text-sm mb-2">E-MAIL</div>
+            <div className="text-orange-400 text-sm mb-2">EMAIL</div>
             <div className="text-orange-400">support@gudubet.com</div>
           </div>
 
@@ -48,7 +48,7 @@ const Footer = () => {
             <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">Hakkımızda</h3>
             <div className="space-y-2 text-sm">
               <div>Bize ulaşın</div>
-              <div>GuduBet Yardım Merkezi</div>
+              <div>Gudubet Yardım Merkezi</div>
               <div>Bahis Kuralları</div>
             </div>
             
@@ -112,11 +112,11 @@ const Footer = () => {
         <div className="border-t border-gray-800 pt-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
             <div>
-              © CasiBom. Tüm hakları saklıdır.
+              © GuduBet. Tüm hakları saklıdır.
             </div>
             <div className="flex items-center gap-2">
               <div className="bg-orange-500 rounded-full p-1">
-                <span className="text-black text-xs">💬</span>
+                <span className="text-black text-xs">♦️</span>
               </div>
             </div>
           </div>
