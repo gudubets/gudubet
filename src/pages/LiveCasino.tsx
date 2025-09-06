@@ -1,15 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 
 const LiveCasino = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvider, setSelectedProvider] = useState('all');
+  const [games, setGames] = useState<any[]>([]);
+  const [providers, setProviders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch live casino games with provider info
+        const { data: gamesData } = await supabase
+          .from('games')
+          .select(`
+            *,
+            game_providers (
+              id,
+              name,
+              logo_url
+            )
+          `)
+          .eq('is_live', true)
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
+
+        // Fetch game providers
+        const { data: providersData } = await supabase
+          .from('game_providers')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
+
+        if (gamesData) setGames(gamesData);
+        if (providersData) {
+          setProviders([
+            { id: 'all', name: 'Tüm Sağlayıcılar' },
+            ...providersData
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const gameCategories = [
     { id: 'all', name: 'Tümü' },
@@ -17,86 +63,12 @@ const LiveCasino = () => {
     { id: 'roulette', name: 'Rulet' },
     { id: 'baccarat', name: 'Baccarat' },
     { id: 'poker', name: 'Poker' },
-    { id: 'shows', name: 'Show Games' }
-  ];
-
-  const providers = [
-    { id: 'all', name: 'Tüm Sağlayıcılar' },
-    { id: 'evolution', name: 'Evolution Gaming' },
-    { id: 'pragmatic', name: 'Pragmatic Play Live' },
-    { id: 'ezugi', name: 'Ezugi' }
-  ];
-
-  const games = [
-    {
-      id: 1,
-      name: 'Lightning Roulette',
-      category: 'roulette',
-      provider: 'evolution',
-      image: '/placeholder.svg',
-      providerLogo: '/placeholder.svg'
-    },
-    {
-      id: 2,
-      name: 'Live Blackjack',
-      category: 'blackjack',
-      provider: 'evolution',
-      image: '/placeholder.svg',
-      providerLogo: '/placeholder.svg'
-    },
-    {
-      id: 3,
-      name: 'Baccarat Squeeze',
-      category: 'baccarat',
-      provider: 'pragmatic',
-      image: '/placeholder.svg',
-      providerLogo: '/placeholder.svg'
-    },
-    {
-      id: 4,
-      name: 'Crazy Time',
-      category: 'shows',
-      provider: 'evolution',
-      image: '/placeholder.svg',
-      providerLogo: '/placeholder.svg'
-    },
-    {
-      id: 5,
-      name: 'Live Texas Holdem',
-      category: 'poker',
-      provider: 'ezugi',
-      image: '/placeholder.svg',
-      providerLogo: '/placeholder.svg'
-    },
-    {
-      id: 6,
-      name: 'Monopoly Live',
-      category: 'shows',
-      provider: 'evolution',
-      image: '/placeholder.svg',
-      providerLogo: '/placeholder.svg'
-    },
-    {
-      id: 7,
-      name: 'European Roulette',
-      category: 'roulette',
-      provider: 'pragmatic',
-      image: '/placeholder.svg',
-      providerLogo: '/placeholder.svg'
-    },
-    {
-      id: 8,
-      name: 'Live Baccarat',
-      category: 'baccarat',
-      provider: 'ezugi',
-      image: '/placeholder.svg',
-      providerLogo: '/placeholder.svg'
-    }
+    { id: 'show', name: 'Show Games' }
   ];
 
   const filteredGames = games.filter(game => {
     const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesProvider = selectedProvider === 'all' || game.provider === selectedProvider;
+    const matchesProvider = selectedProvider === 'all' || game.provider_id === selectedProvider;
     return matchesSearch && matchesProvider;
   });
 
@@ -104,6 +76,19 @@ const LiveCasino = () => {
     if (category === 'all') return filteredGames;
     return filteredGames.filter(game => game.category === category);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Oyunlar yükleniyor...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -195,13 +180,13 @@ const LiveCasino = () => {
                         <CardContent className="p-0">
                           <div className="relative">
                             <img
-                              src={game.image}
+                              src={game.thumbnail_url || '/placeholder.svg'}
                               alt={game.name}
                               className="w-full h-48 object-cover"
                             />
                             <img
-                              src={game.providerLogo}
-                              alt="Provider"
+                              src={game.game_providers?.logo_url || '/placeholder.svg'}
+                              alt={game.game_providers?.name || 'Provider'}
                               className="absolute top-2 right-2 w-8 h-8 bg-white rounded p-1"
                             />
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
