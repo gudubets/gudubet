@@ -565,6 +565,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_featured: boolean | null
+          is_live: boolean | null
           max_bet: number | null
           min_bet: number | null
           name: string
@@ -586,6 +587,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_featured?: boolean | null
+          is_live?: boolean | null
           max_bet?: number | null
           min_bet?: number | null
           name: string
@@ -607,6 +609,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_featured?: boolean | null
+          is_live?: boolean | null
           max_bet?: number | null
           min_bet?: number | null
           name?: string
