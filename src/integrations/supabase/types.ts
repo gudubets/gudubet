@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_permissions: {
+        Row: {
+          admin_id: string
+          created_at: string | null
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          is_granted: boolean | null
+          permission_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          is_granted?: boolean | null
+          permission_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          is_granted?: boolean | null
+          permission_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_permissions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_permissions_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admins: {
         Row: {
           created_at: string
@@ -21,6 +69,7 @@ export type Database = {
           id: string
           password_hash: string
           role: string
+          role_type: Database["public"]["Enums"]["admin_role"] | null
           updated_at: string
         }
         Insert: {
@@ -29,6 +78,7 @@ export type Database = {
           id?: string
           password_hash: string
           role?: string
+          role_type?: Database["public"]["Enums"]["admin_role"] | null
           updated_at?: string
         }
         Update: {
@@ -37,6 +87,7 @@ export type Database = {
           id?: string
           password_hash?: string
           role?: string
+          role_type?: Database["public"]["Enums"]["admin_role"] | null
           updated_at?: string
         }
         Relationships: []
@@ -969,9 +1020,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      has_admin_permission: {
+        Args: { _admin_id: string; _permission: string }
+        Returns: boolean
+      }
+      is_super_admin: {
+        Args: { _admin_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      admin_role: "super_admin" | "admin" | "finance_admin" | "support_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1098,6 +1157,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      admin_role: ["super_admin", "admin", "finance_admin", "support_admin"],
+    },
   },
 } as const

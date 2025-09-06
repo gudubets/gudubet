@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Check, X, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { CalendarIcon, Check, X, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -44,7 +44,41 @@ const AdminFinance = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const queryClient = useQueryClient();
+
+  // Check if current user is super admin
+  useEffect(() => {
+    const checkSuperAdmin = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data } = await supabase
+          .from('admins')
+          .select('role_type')
+          .eq('id', session.user.id)
+          .single();
+        
+        setIsSuperAdmin(data?.role_type === 'super_admin');
+      }
+    };
+    
+    checkSuperAdmin();
+  }, []);
+
+  // Show access denied for non-super admins
+  if (!isSuperAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-4">
+          <Shield className="w-16 h-16 text-red-500 mx-auto" />
+          <h2 className="text-2xl font-bold text-red-600">Erişim Reddedildi</h2>
+          <p className="text-muted-foreground">
+            Bu sayfaya erişim için Süper Admin yetkisi gereklidir.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Fetch transactions with filters
   const { data: transactions = [], isLoading } = useQuery({

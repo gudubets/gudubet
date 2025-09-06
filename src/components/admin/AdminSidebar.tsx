@@ -63,6 +63,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       icon: DollarSign,
       href: '/admin/finance',
       active: location.pathname === '/admin/finance'
+    },
+    {
+      title: 'Admin Yönetimi',
+      icon: Users,
+      href: '/admin/management',
+      active: location.pathname === '/admin/management'
     }
   ];
 
