@@ -283,7 +283,7 @@ const Profile = () => {
           {/* General Information Tab */}
           <TabsContent value="general" className="space-y-6">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                 <CardTitle className="flex items-center gap-2">
                   <User className="w-5 h-5" />
                   Kişisel Bilgiler
@@ -293,6 +293,7 @@ const Profile = () => {
                   size="sm"
                   onClick={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
                   disabled={saving}
+                  className="w-full sm:w-auto"
                 >
                   {isEditing ? (
                     <>
