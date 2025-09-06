@@ -162,12 +162,17 @@ export type Database = {
         Row: {
           amount_type: string
           amount_value: number
+          applicable_games: string | null
+          auto_apply: boolean | null
+          bonus_amount_fixed: number | null
+          bonus_percentage: number | null
           bonus_type: string
           created_at: string | null
           current_uses: number | null
           description: string | null
           end_date: string | null
           id: string
+          image_url: string | null
           is_active: boolean | null
           max_amount: number | null
           max_bonus: number | null
@@ -177,21 +182,28 @@ export type Database = {
           promotion_code: string | null
           slug: string
           start_date: string | null
+          terms_conditions: string | null
           total_max_uses: number | null
           trigger_type: string
           updated_at: string | null
+          usage_limit_per_user: number | null
           valid_days: number | null
           wagering_requirement: number | null
         }
         Insert: {
           amount_type: string
           amount_value: number
+          applicable_games?: string | null
+          auto_apply?: boolean | null
+          bonus_amount_fixed?: number | null
+          bonus_percentage?: number | null
           bonus_type: string
           created_at?: string | null
           current_uses?: number | null
           description?: string | null
           end_date?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           max_amount?: number | null
           max_bonus?: number | null
@@ -201,21 +213,28 @@ export type Database = {
           promotion_code?: string | null
           slug: string
           start_date?: string | null
+          terms_conditions?: string | null
           total_max_uses?: number | null
           trigger_type: string
           updated_at?: string | null
+          usage_limit_per_user?: number | null
           valid_days?: number | null
           wagering_requirement?: number | null
         }
         Update: {
           amount_type?: string
           amount_value?: number
+          applicable_games?: string | null
+          auto_apply?: boolean | null
+          bonus_amount_fixed?: number | null
+          bonus_percentage?: number | null
           bonus_type?: string
           created_at?: string | null
           current_uses?: number | null
           description?: string | null
           end_date?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           max_amount?: number | null
           max_bonus?: number | null
@@ -225,9 +244,11 @@ export type Database = {
           promotion_code?: string | null
           slug?: string
           start_date?: string | null
+          terms_conditions?: string | null
           total_max_uses?: number | null
           trigger_type?: string
           updated_at?: string | null
+          usage_limit_per_user?: number | null
           valid_days?: number | null
           wagering_requirement?: number | null
         }
