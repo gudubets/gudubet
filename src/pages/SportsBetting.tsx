@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, Star, Calendar, Trophy, TrendingUp, Plus, Trash2, Clock, Users, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BetSelection {
   matchId: string;
@@ -22,6 +23,8 @@ const SportsBetting = () => {
   const [stakeAmount, setStakeAmount] = useState('');
   const [activeTab, setActiveTab] = useState('betslip');
   const [confirmedBets, setConfirmedBets] = useState<any[]>([]);
+  const [liveMatches, setLiveMatches] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   // Sports categories for sidebar
@@ -102,6 +105,39 @@ const SportsBetting = () => {
       isLive: true
     }
   ];
+
+  // Fetch live matches from API
+  const fetchLiveMatches = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('sports-proxy', {
+        body: { 
+          sport: selectedSport === 'futbol' ? 'soccer' : selectedSport.toLowerCase(),
+          region: 'us'
+        }
+      });
+
+      if (error) {
+        console.error('Error fetching matches:', error);
+        return;
+      }
+
+      if (data && data.matches) {
+        setLiveMatches(data.matches);
+      }
+    } catch (error) {
+      console.error('Error fetching matches:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLiveMatches();
+  }, [selectedSport]);
+
+  // Use real data when available, fallback to mock data
+  const displayMatches = liveMatches.length > 0 ? liveMatches.slice(0, 5) : featuredMatches;
 
   const addToBetSlip = (match: any, selection: string, odds: number) => {
     const betSelection: BetSelection = {
@@ -388,8 +424,14 @@ const SportsBetting = () => {
 
           {/* Featured Matches */}
           <div className="p-6">
+            {loading && (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <p className="mt-2 text-muted-foreground">Canlı maçlar yükleniyor...</p>
+              </div>
+            )}
             <div className="grid gap-4">
-              {featuredMatches.map((match) => (
+              {displayMatches.map((match) => (
                 <Card key={match.id} className="bg-background border-2 border-teal-500 overflow-hidden">
                   <CardContent className="p-0">
                     {match.isFeatured && (
