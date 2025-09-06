@@ -230,12 +230,12 @@ const Profile = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Profile Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
               <User className="w-8 h-8 text-white" />
             </div>
-            <div>
-              <h1 className="text-3xl font-bold">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl font-bold">
                 {profile?.first_name || profile?.last_name 
                   ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
                   : 'Kullanıcı Profili'
@@ -247,30 +247,36 @@ const Profile = () => {
         </div>
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="general" className="gap-2">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 gap-1">
+            <TabsTrigger value="general" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
               <User className="w-4 h-4" />
-              Genel
+              <span className="hidden sm:inline">Genel</span>
+              <span className="sm:hidden">Genel</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="gap-2">
+            <TabsTrigger value="security" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
               <Shield className="w-4 h-4" />
-              Güvenlik
+              <span className="hidden sm:inline">Güvenlik</span>
+              <span className="sm:hidden">Güvenlik</span>
             </TabsTrigger>
-            <TabsTrigger value="financial" className="gap-2">
+            <TabsTrigger value="financial" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
               <Wallet className="w-4 h-4" />
-              Finansal
+              <span className="hidden sm:inline">Finansal</span>
+              <span className="sm:hidden">Finansal</span>
             </TabsTrigger>
-            <TabsTrigger value="history" className="gap-2">
+            <TabsTrigger value="history" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
               <History className="w-4 h-4" />
-              Geçmiş
+              <span className="hidden sm:inline">Geçmiş</span>
+              <span className="sm:hidden">Geçmiş</span>
             </TabsTrigger>
-            <TabsTrigger value="bonuses" className="gap-2">
+            <TabsTrigger value="bonuses" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
               <Gift className="w-4 h-4" />
-              Bonuslar
+              <span className="hidden sm:inline">Bonuslar</span>
+              <span className="sm:hidden">Bonuslar</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
+            <TabsTrigger value="settings" className="flex-col gap-1 text-xs sm:flex-row sm:gap-2 sm:text-sm">
               <Settings className="w-4 h-4" />
-              Ayarlar
+              <span className="hidden sm:inline">Ayarlar</span>
+              <span className="sm:hidden">Ayarlar</span>
             </TabsTrigger>
           </TabsList>
 
@@ -302,7 +308,7 @@ const Profile = () => {
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">Ad</Label>
                     <Input
@@ -373,7 +379,7 @@ const Profile = () => {
                   Adres Bilgileri
                 </h3>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="country">Ülke</Label>
                     <Select 
