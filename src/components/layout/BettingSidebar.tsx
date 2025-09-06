@@ -10,19 +10,23 @@ import {
   HelpCircle,
   Phone,
   Menu,
-  X
+  X,
+  Send,
+  Twitter,
+  Instagram,
+  Youtube
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const sidebarItems = [
-  { icon: Trophy, label: "Spor Bahisleri", path: "/sports" },
-  { icon: Play, label: "Canlı Spor", path: "/live-sports" },
+  { icon: Trophy, label: "Spor Bahisleri", path: "/" },
+  { icon: Play, label: "Canlı Spor", path: "/canli-spor" },
   { icon: Dice1, label: "Casino", path: "/casino" },
-  { icon: Video, label: "Canlı Casino", path: "/live-casino" },
-  { icon: Gift, label: "Promosyonlar", path: "/promotions" },
-  { icon: Gamepad2, label: "Şanslı Çark", path: "/lucky-wheel" },
-  { icon: HelpCircle, label: "SSS", path: "/faq" },
-  { icon: Phone, label: "İletişim", path: "/contact" },
+  { icon: Video, label: "Canlı Casino", path: "/canli-casino" },
+  { icon: Gift, label: "Promosyonlar", path: "/promosyonlar" },
+  { icon: Gamepad2, label: "Şanslı Çark", path: "/sansli-cark" },
+  { icon: HelpCircle, label: "SSS", path: "/sss" },
+  { icon: Phone, label: "İletişim", path: "/iletisim" },
 ];
 
 export function BettingSidebar() {
@@ -57,14 +61,8 @@ export function BettingSidebar() {
         `}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="p-6 border-b border-border">
-            <h1 className="text-2xl font-bold text-primary">GuduBets</h1>
-            <p className="text-xs text-muted-foreground">Güvenilir Bahis</p>
-          </div>
-
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto">
+          <nav className="flex-1 overflow-y-auto pt-4">
             <div className="p-4 space-y-2">
               {sidebarItems.map((item) => {
                 const Icon = item.icon;
@@ -87,9 +85,14 @@ export function BettingSidebar() {
 
           {/* Footer */}
           <div className="p-4 border-t border-border">
-            <div className="text-xs text-muted-foreground space-y-1">
+            <div className="flex justify-center gap-4 mb-3">
+              <Send className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-primary" />
+              <Twitter className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-primary" />
+              <Instagram className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-primary" />
+              <Youtube className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-primary" />
+            </div>
+            <div className="text-xs text-muted-foreground text-center">
               <p>7/24 Canlı Destek</p>
-              <p className="text-primary">+90 (212) 123-4567</p>
             </div>
           </div>
         </div>

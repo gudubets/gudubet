@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Trash2, Plus, Calculator } from "lucide-react";
+import { Trash2, Plus, Calculator, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface BetSlipItem {
   id: string;
@@ -13,15 +12,8 @@ interface BetSlipItem {
 }
 
 export function BetSlip() {
-  const [betSlipItems, setBetSlipItems] = useState<BetSlipItem[]>([
-    {
-      id: "1",
-      match: "Galatasaray vs Fenerbahçe",
-      selection: "Galatasaray Kazanır",
-      odds: 2.15,
-      stake: 50,
-    },
-  ]);
+  const [activeTab, setActiveTab] = useState<"slip" | "bets">("slip");
+  const [betSlipItems, setBetSlipItems] = useState<BetSlipItem[]>([]);
 
   const [myBets] = useState([
     {
@@ -63,104 +55,102 @@ export function BetSlip() {
 
   return (
     <div className="sticky top-24 space-y-4">
-      <Tabs defaultValue="betslip" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-muted">
-          <TabsTrigger value="betslip" className="text-sm">
-            Bahis Kuponu ({betSlipItems.length})
-          </TabsTrigger>
-          <TabsTrigger value="mybets" className="text-sm">
-            Bahislerim ({myBets.length})
-          </TabsTrigger>
-        </TabsList>
+      <div className="bet-card p-4">
+        <div className="border-b border-border mb-4">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab("slip")}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors relative ${
+                activeTab === "slip"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Bahis kuponu
+              <span className="ml-2 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">
+                0
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab("bets")}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "bets"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Bahislerim
+            </button>
+          </div>
+        </div>
 
-        <TabsContent value="betslip" className="space-y-4">
-          <div className="bet-card p-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Calculator className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold text-foreground">Bahis Kuponu</h3>
-            </div>
-
+        {activeTab === "slip" ? (
+          <div className="space-y-4">
             {betSlipItems.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <Plus className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Henüz bahis seçimi yok</p>
-                <p className="text-xs">Oranları tıklayarak bahis ekleyin</p>
+                <p className="text-sm">Bahis kuponun bulunmamaktadır. Bahis yapmak için herhangi bir bahis oranına tıkla.</p>
+                <div className="mt-4">
+                  <h4 className="font-medium mb-2">Bahis Türleri</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Bahis kuponun bulunmamaktadır. Bahis yapmak için herhangi bir bahis oranına tıkla.
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="space-y-4">
-                {/* Bet Items */}
+              <>
                 {betSlipItems.map((item) => (
-                  <div key={item.id} className="space-y-3 p-3 bg-muted/30 rounded-lg">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">
-                          {item.match}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {item.selection}
-                        </p>
-                        <p className="text-sm font-bold text-primary mt-1">
-                          Oran: {item.odds}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                  <div key={item.id} className="border border-border rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{item.match}</span>
+                      <button
                         onClick={() => removeBetSlipItem(item.id)}
-                        className="text-destructive hover:text-destructive h-8 w-8 p-0"
+                        className="text-muted-foreground hover:text-destructive"
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                        <X className="h-3 w-3" />
+                      </button>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <label className="text-xs text-muted-foreground">Bahis Miktarı (₺)</label>
-                      <Input
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{item.selection}</span>
+                      <span className="text-sm font-bold text-primary">{item.odds}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">Tutar:</span>
+                      <input
                         type="number"
                         value={item.stake}
                         onChange={(e) => updateStake(item.id, Number(e.target.value))}
-                        className="h-8 text-sm"
+                        className="flex-1 bg-background border border-border rounded px-2 py-1 text-xs"
+                        placeholder="0"
                         min="0"
-                        step="10"
                       />
-                      <p className="text-xs text-success">
-                        Kazanç: ₺{(item.stake * item.odds).toFixed(2)}
-                      </p>
+                      <span className="text-xs text-muted-foreground">TL</span>
                     </div>
                   </div>
                 ))}
 
-                {/* Totals */}
-                <div className="space-y-2 pt-4 border-t border-border">
+                <div className="border-t border-border pt-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Toplam Bahis:</span>
-                    <span className="font-medium">₺{totalStake.toFixed(2)}</span>
+                    <span>Toplam Tutar:</span>
+                    <span className="font-medium">{totalStake.toFixed(2)} TL</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Toplam Oran:</span>
-                    <span className="font-medium">{totalOdds.toFixed(2)}</span>
+                    <span>Toplam Oran:</span>
+                    <span className="font-medium text-primary">{totalOdds.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold border-t border-border pt-2">
-                    <span className="text-foreground">Kazanç:</span>
-                    <span className="text-success">₺{potentialWin.toFixed(2)}</span>
+                  <div className="flex justify-between text-sm font-bold">
+                    <span>Kazanç:</span>
+                    <span className="text-success">{potentialWin.toFixed(2)} TL</span>
                   </div>
+                  <button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 rounded-lg font-medium mt-4">
+                    Bahis Yap
+                  </button>
                 </div>
-
-                {/* Place Bet Button */}
-                <Button 
-                  className="w-full bg-gradient-primary hover:opacity-90 font-semibold animate-pulse-glow"
-                  size="lg"
-                >
-                  Bahis Yap
-                </Button>
-              </div>
+              </>
             )}
           </div>
-        </TabsContent>
-
-        <TabsContent value="mybets" className="space-y-4">
-          <div className="bet-card p-4">
-            <h3 className="font-semibold text-foreground mb-4">Aktif Bahislerim</h3>
+        ) : (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-foreground">Aktif Bahislerim</h3>
             
             {myBets.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
@@ -199,8 +189,8 @@ export function BetSlip() {
               </div>
             )}
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
     </div>
   );
 }
