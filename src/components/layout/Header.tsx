@@ -69,8 +69,6 @@ const Header = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center">
-            </div>
             <span className="text-xl font-gaming font-bold gradient-text-primary">
               SportsBet Pro
             </span>
