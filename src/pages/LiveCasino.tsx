@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
+import { supabase } from '@/integrations/supabase/client';
 
 const LiveCasino = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,7 +19,7 @@ const LiveCasino = () => {
     const fetchData = async () => {
       try {
         // Fetch live casino games with provider info
-        const { data: gamesData } = await supabase
+        const { data: gamesData, error: gamesError } = await supabase
           .from('games')
           .select(`
             *,
@@ -31,22 +31,25 @@ const LiveCasino = () => {
           `)
           .eq('is_live', true)
           .eq('is_active', true)
-          .order('sort_order', { ascending: true });
+          .order('is_featured', { ascending: false })
+          .order('name');
 
-        // Fetch game providers
-        const { data: providersData } = await supabase
+        if (gamesError) throw gamesError;
+
+        // Fetch providers
+        const { data: providersData, error: providersError } = await supabase
           .from('game_providers')
           .select('*')
           .eq('is_active', true)
-          .order('sort_order', { ascending: true });
+          .order('sort_order');
 
-        if (gamesData) setGames(gamesData);
-        if (providersData) {
-          setProviders([
-            { id: 'all', name: 'Tüm Sağlayıcılar' },
-            ...providersData
-          ]);
-        }
+        if (providersError) throw providersError;
+
+        setGames(gamesData || []);
+        setProviders([
+          { id: 'all', name: 'Tüm Sağlayıcılar' },
+          ...(providersData || [])
+        ]);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -82,7 +85,7 @@ const LiveCasino = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-20 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-muted-foreground">Oyunlar yükleniyor...</p>
         </div>
         <Footer />
