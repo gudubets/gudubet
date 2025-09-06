@@ -106,19 +106,17 @@ const LiveCasino = () => {
               <nav className="hidden lg:flex items-center space-x-6">
                 <a href="/" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">ANA SAYFA</a>
                 <a href="/sports-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">SPOR</a>
-                <a href="/live-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CANLI</a>
+                <a href="/live-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CANLI BAHİS</a>
                 <a href="/casino" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CASINO</a>
-                <a href="/live-casino" className="text-yellow-400 border-b border-yellow-400 pb-1 text-sm">CANLI CASINO</a>
-                <a href="/promotions" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">PROMOSYONLAR</a>
+                <a href="/live-casino" className="text-yellow-400 font-semibold text-sm border border-yellow-400 rounded px-2 py-1">CANLI CASINO</a>
+                <a href="/promotions" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">BONUSLAR</a>
+                <a href="#" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">VIP PROGRAMI</a>
               </nav>
             </div>
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm" className="text-gray-300 hover:text-yellow-400">
-                <span className="text-lg">💬</span>
-              </Button>
-              <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 text-sm">
+              <Button className="bg-white text-black hover:bg-gray-100 font-semibold px-4 py-2 text-sm">
                 GİRİŞ
               </Button>
               <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 text-sm">
@@ -127,341 +125,339 @@ const LiveCasino = () => {
             </div>
           </div>
         </div>
-
-        {/* Game Categories */}
-        <div className="border-t border-gray-800">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-12">
-              <div className="flex items-center space-x-8">
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-yellow-400">
-                  🎲 CANLI CASINO
-                </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  🃏 BLACKJACK
-                </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  🎰 RULET
-                </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  ♠️ BACCARAT
-                </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  🎪 SHOW GAMES
-                </Button>
-              </div>
-              
-              <Button variant="ghost" className="text-gray-300 hover:text-yellow-400 text-xs">
-                🔍 ARA
-              </Button>
-            </div>
-          </div>
-        </div>
       </header>
 
-      <div className="container mx-auto flex gap-0">
-        {/* Left Sidebar */}
-        <div className="w-64 bg-gray-900 min-h-screen border-r border-gray-800">
-          {/* Quick Links */}
-          <div className="p-4 border-b border-border">
-            <h3 className="text-destructive font-semibold mb-3 text-sm">Hızlı Linkler</h3>
-            <div className="space-y-2">
-              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
-                <Trophy className="h-4 w-4 mr-2" />
-                Öne Çıkan Masalar
-              </Button>
-              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
-                <Star className="h-4 w-4 mr-2" />
-                VIP Masaları
-              </Button>
-              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
-                <Zap className="h-4 w-4 mr-2" />
-                Hızlı Masalar
-              </Button>
-              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted text-destructive">
-                <Gift className="h-4 w-4 mr-2" />
-                Bonus Masaları
-              </Button>
-            </div>
+      {/* Main Content - Full Width */}
+      <div className="bg-black">
+        {/* Hero Banner - Crazy Time Style */}
+        <div className="relative h-80 overflow-hidden">
+          <div 
+            className="absolute inset-0 bg-gradient-to-r from-purple-900 via-red-800 to-yellow-600"
+            style={{
+              backgroundImage: `linear-gradient(45deg, 
+                rgba(139, 69, 19, 0.8), 
+                rgba(220, 20, 60, 0.8), 
+                rgba(255, 140, 0, 0.8),
+                rgba(75, 0, 130, 0.8))`
+            }}
+          >
+            <div className="absolute inset-0 bg-black/20"></div>
           </div>
-
-          {/* Game Categories */}
-          <div className="p-4 border-b border-border">
-            <h3 className="text-destructive font-semibold mb-3 text-sm">Oyun Kategorileri</h3>
-            <div className="space-y-1">
-              {gameCategories.map((category) => (
-                <Button 
-                  key={category.id}
-                  variant="ghost" 
-                  className="w-full justify-between text-sm hover:bg-muted text-muted-foreground"
-                >
-                  <span className="flex items-center">
-                    <span className="mr-2">
-                      {category.id === 'blackjack' && '🃏'}
-                      {category.id === 'roulette' && '🎰'}
-                      {category.id === 'baccarat' && '♠️'}
-                      {category.id === 'poker' && '🎯'}
-                      {category.id === 'show' && '🎪'}
-                      {category.id === 'all' && '🎲'}
-                    </span>
-                    {category.name}
-                  </span>
-                  <span className="text-xs bg-muted px-2 py-1 rounded">
-                    {Math.floor(Math.random() * 50) + 10}
-                  </span>
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Providers */}
-          <div className="p-4">
-            <h3 className="text-destructive font-semibold mb-3 text-sm">Oyun Sağlayıcıları</h3>
-            <div className="space-y-1">
-              {providers.slice(1).map(provider => (
-                <Button 
-                  key={provider.id}
-                  variant="ghost" 
-                  className="w-full justify-start text-sm hover:bg-muted text-muted-foreground"
-                >
-                  {provider.name} <span className="ml-auto text-xs">{Math.floor(Math.random() * 20) + 5}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="flex-1 bg-black min-h-screen">
-          {/* Hero Banner */}
-          <div className="relative h-64 bg-gradient-to-r from-blue-900 via-purple-900 to-orange-900 overflow-hidden">
-            <div className="absolute inset-0 bg-black/30"></div>
-            <div className="relative z-10 h-full flex items-center justify-center">
+          
+          {/* Crazy Time Logo */}
+          <div className="absolute left-8 top-1/2 transform -translate-y-1/2 z-10">
+            <div className="bg-red-800 rounded-full p-4 border-4 border-yellow-400">
               <div className="text-center">
-                <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                  CANLI CASINO
-                </h1>
-                <p className="text-xl text-white mb-4">Gerçek Krupiyerlerle Oyna</p>
-                <div className="flex space-x-2 justify-center">
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <div 
-                      key={i} 
-                      className={`w-8 h-1 rounded ${i === 3 ? 'bg-red-500' : 'bg-white/50'}`}
-                    ></div>
-                  ))}
-                </div>
+                <h1 className="text-yellow-400 font-bold text-2xl">CRAZY</h1>
+                <h1 className="text-white font-bold text-2xl">TIME</h1>
               </div>
             </div>
           </div>
 
-          {/* Game Tabs */}
-          <div className="p-6">
-            <Tabs defaultValue="all" className="w-full">
-              <div className="flex justify-center mb-6">
-                <TabsList className="grid grid-cols-6 w-full max-w-3xl">
-                  {gameCategories.map(category => (
-                    <TabsTrigger key={category.id} value={category.id} className="text-sm">
-                      {category.name}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </div>
+          {/* Evolution Logo */}
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="bg-white rounded px-4 py-2">
+              <span className="text-black font-bold">Evolution</span>
+            </div>
+          </div>
 
-              {gameCategories.map(category => (
-                <TabsContent key={category.id} value={category.id}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {getFilteredGamesByCategory(category.id).length > 0 ? (
-                      getFilteredGamesByCategory(category.id).map(game => (
-                        <Card 
-                          key={game.id} 
-                          className="bg-slate-800 border border-slate-700 hover:border-teal-500 transition-all duration-300 hover:scale-105 cursor-pointer"
-                        >
-                          <CardContent className="p-0">
-                            <div className="relative">
-                              <img
-                                src={game.thumbnail_url || '/placeholder.svg'}
-                                alt={game.name}
-                                className="w-full h-48 object-cover"
-                              />
-                              <img
-                                src={game.game_providers?.logo_url || '/placeholder.svg'}
-                                alt={game.game_providers?.name || 'Provider'}
-                                className="absolute top-2 right-2 w-8 h-8 bg-white rounded p-1"
-                              />
-                              <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                                <Button
-                                  className="bg-teal-600 hover:bg-teal-700 text-white opacity-0 hover:opacity-100 transition-opacity duration-300"
-                                  size="sm"
-                                >
-                                  <Play className="mr-1 h-4 w-4" />
-                                  Oyna
-                                </Button>
-                              </div>
-                            </div>
-                            <div className="p-4">
-                              <h3 className="font-semibold text-center text-white">{game.name}</h3>
-                              <p className="text-center text-slate-400 text-sm mt-1">
-                                {game.game_providers?.name || 'Evolution Gaming'}
-                              </p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    ) : (
-                      // Mock data for empty categories
-                      Array.from({ length: 8 }, (_, i) => (
-                        <Card 
-                          key={i}
-                          className="bg-slate-800 border border-slate-700 hover:border-teal-500 transition-all duration-300 hover:scale-105 cursor-pointer"
-                        >
-                          <CardContent className="p-0">
-                            <div className="relative">
-                              <div className="w-full h-48 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
-                                <span className="text-4xl">
-                                  {category.id === 'blackjack' && '🃏'}
-                                  {category.id === 'roulette' && '🎰'}
-                                  {category.id === 'baccarat' && '♠️'}
-                                  {category.id === 'poker' && '🎯'}
-                                  {category.id === 'show' && '🎪'}
-                                  {category.id === 'all' && '🎲'}
-                                </span>
-                              </div>
-                              <div className="absolute top-2 right-2 w-8 h-8 bg-white rounded p-1 flex items-center justify-center">
-                                <span className="text-xs font-bold">E</span>
-                              </div>
-                              <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                                <Button
-                                  className="bg-teal-600 hover:bg-teal-700 text-white opacity-0 hover:opacity-100 transition-opacity duration-300"
-                                  size="sm"
-                                >
-                                  <Play className="mr-1 h-4 w-4" />
-                                  Oyna
-                                </Button>
-                              </div>
-                            </div>
-                            <div className="p-4">
-                              <h3 className="font-semibold text-center text-white">
-                                {category.name} Masası {i + 1}
-                              </h3>
-                              <p className="text-center text-slate-400 text-sm mt-1">Evolution Gaming</p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    )}
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
+          {/* Play Button */}
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+            <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-lg">
+              HEMEN OYNA
+            </Button>
+          </div>
+
+          {/* Carousel Dots */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+            {Array.from({ length: 8 }, (_, i) => (
+              <div 
+                key={i} 
+                className={`w-3 h-3 rounded-full ${i === 2 ? 'bg-yellow-400' : 'bg-white/50'}`}
+              ></div>
+            ))}
           </div>
         </div>
 
-        {/* Right Sidebar - Live Tables */}
-        <div className="w-80 bg-gray-900 min-h-screen border-l border-gray-800">
-          <div className="sticky top-0">
-            {/* Live Tables Header */}
-            <div className="bg-destructive text-destructive-foreground p-4">
-              <h3 className="font-semibold">Canlı Masalar</h3>
-            </div>
-
-            {/* Live Tables Content */}
-            <div className="p-4 space-y-4">
-              <Card className="bg-slate-800 border border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="font-semibold text-white">Blackjack VIP</span>
-                  </div>
-                  <p className="text-sm text-slate-400 mb-3">Evolution Gaming</p>
-                  <div className="flex justify-between text-sm mb-3">
-                    <span className="text-slate-400">Oyuncular:</span>
-                    <span className="text-white">7/7</span>
-                  </div>
-                  <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white" size="sm">
-                    İzle
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-slate-800 border border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="font-semibold text-white">Auto Roulette</span>
-                  </div>
-                  <p className="text-sm text-slate-400 mb-3">Evolution Gaming</p>
-                  <div className="flex justify-between text-sm mb-3">
-                    <span className="text-slate-400">Oyuncular:</span>
-                    <span className="text-white">12/∞</span>
-                  </div>
-                  <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white" size="sm">
-                    Katıl
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-slate-800 border border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <span className="font-semibold text-white">Speed Baccarat</span>
-                  </div>
-                  <p className="text-sm text-slate-400 mb-3">Evolution Gaming</p>
-                  <div className="flex justify-between text-sm mb-3">
-                    <span className="text-slate-400">Oyuncular:</span>
-                    <span className="text-white">3/8</span>
-                  </div>
-                  <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white" size="sm">
-                    Katıl
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Popular Games */}
-            <div className="p-4 border-t border-slate-700">
-              <div className="flex items-center gap-2 mb-3">
-                <TrendingUp className="h-4 w-4 text-red-400" />
-                <h3 className="font-semibold text-white text-sm">Popüler Masalar</h3>
+        {/* Category Buttons */}
+        <div className="bg-black border-b border-gray-800">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Button className="bg-yellow-500 text-black hover:bg-yellow-600 px-4 py-2 rounded text-sm font-semibold">
+                  🔥 POPÜLER
+                </Button>
+                <Button variant="ghost" className="text-white hover:text-yellow-400 px-4 py-2 text-sm">
+                  CASIBOM ORIGINAL
+                </Button>
+                <Button variant="ghost" className="text-white hover:text-yellow-400 px-4 py-2 text-sm">
+                  🎰 RULET
+                </Button>
+                <Button variant="ghost" className="text-white hover:text-yellow-400 px-4 py-2 text-sm">
+                  🃏 BLACKJACK
+                </Button>
+                <Button variant="ghost" className="text-white hover:text-yellow-400 px-4 py-2 text-sm">
+                  🎯 POKER
+                </Button>
+                <Button variant="ghost" className="text-white hover:text-yellow-400 px-4 py-2 text-sm">
+                  ♠️ BAKARA
+                </Button>
+                <Button variant="ghost" className="text-white hover:text-yellow-400 px-4 py-2 text-sm">
+                  💎 DROPS&WINS
+                </Button>
+                <Button variant="ghost" className="text-white hover:text-yellow-400 px-4 py-2 text-sm">
+                  📂 DİĞER
+                </Button>
               </div>
               
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-2 bg-slate-700 rounded hover:bg-slate-600 cursor-pointer transition-colors">
-                  <div>
-                    <p className="text-sm font-medium text-white">Lightning Roulette</p>
-                    <p className="text-xs text-slate-400">Evolution Gaming</p>
-                    <p className="text-xs font-medium text-teal-400">Çarpanlar: 500x</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse mb-1"></div>
-                    <span className="text-xs text-slate-400">CANLI</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-slate-700 rounded hover:bg-slate-600 cursor-pointer transition-colors">
-                  <div>
-                    <p className="text-sm font-medium text-white">Crazy Time</p>
-                    <p className="text-xs text-slate-400">Evolution Gaming</p>
-                    <p className="text-xs font-medium text-teal-400">Bonus Round</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mb-1"></div>
-                    <span className="text-xs text-slate-400">AÇIK</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-2 bg-slate-700 rounded hover:bg-slate-600 cursor-pointer transition-colors">
-                  <div>
-                    <p className="text-sm font-medium text-white">Monopoly Live</p>
-                    <p className="text-xs text-slate-400">Evolution Gaming</p>
-                    <p className="text-xs font-medium text-teal-400">Mega Bonus</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse mb-1"></div>
-                    <span className="text-xs text-slate-400">CANLI</span>
-                  </div>
+              <div className="flex items-center space-x-4">
+                <Select defaultValue="providers">
+                  <SelectTrigger className="w-48 bg-yellow-500 text-black border-none">
+                    <SelectValue placeholder="OYUN SAĞLAYICILARI" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="providers">OYUN SAĞLAYICILARI</SelectItem>
+                    <SelectItem value="evolution">Evolution Gaming</SelectItem>
+                    <SelectItem value="pragmatic">Pragmatic Play</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <div className="relative">
+                  <Input 
+                    placeholder="Oyun ara"
+                    className="w-64 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                  />
+                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Live Casino Games Grid */}
+        <div className="container mx-auto px-4 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+            {/* Casibom Lightning Rulet */}
+            <Card className="bg-gray-900 border border-gray-700 overflow-hidden hover:border-yellow-400 transition-colors cursor-pointer">
+              <CardContent className="p-0">
+                <div className="relative">
+                  <div className="w-full h-48 bg-gradient-to-br from-red-800 to-yellow-600 flex items-center justify-center relative">
+                    <div className="absolute inset-0 bg-black/30"></div>
+                    <div className="relative z-10 text-center">
+                      <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mb-2 mx-auto">
+                        <span className="text-2xl">🎰</span>
+                      </div>
+                      <div className="text-white font-bold">Live Dealer</div>
+                    </div>
+                  </div>
+                  
+                  {/* Evolution Logo */}
+                  <div className="absolute top-2 right-2 bg-white rounded px-2 py-1">
+                    <span className="text-black text-xs font-bold">Evolution</span>
+                  </div>
+                  
+                  {/* Turkish Flag */}
+                  <div className="absolute top-2 left-2 text-lg">🇹🇷</div>
+                  
+                  {/* Türkçe Badge */}
+                  <div className="absolute bottom-2 left-2 bg-red-600 text-white px-2 py-1 rounded text-xs">
+                    Türkçe
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-black">
+                  <h3 className="text-white font-semibold text-center">Casibom Lightning Rulet</h3>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Casibom Özel Studio */}
+            <Card className="bg-gray-900 border border-gray-700 overflow-hidden hover:border-yellow-400 transition-colors cursor-pointer">
+              <CardContent className="p-0">
+                <div className="relative">
+                  <div className="w-full h-48 bg-gradient-to-br from-blue-800 to-purple-600 flex items-center justify-center relative">
+                    <div className="absolute inset-0 bg-black/30"></div>
+                    <div className="relative z-10 text-center">
+                      <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mb-2 mx-auto">
+                        <span className="text-2xl">🃏</span>
+                      </div>
+                      <div className="text-white font-bold">Live Dealer</div>
+                    </div>
+                  </div>
+                  
+                  <div className="absolute top-2 right-2 bg-white rounded px-2 py-1">
+                    <span className="text-black text-xs font-bold">Evolution</span>
+                  </div>
+                  
+                  <div className="absolute top-2 left-2 text-lg">🇹🇷</div>
+                </div>
+                
+                <div className="p-3 bg-black">
+                  <h3 className="text-white font-semibold text-center">Casibom Özel Stüdyo</h3>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Casibom Özel Rulet */}
+            <Card className="bg-gray-900 border border-gray-700 overflow-hidden hover:border-yellow-400 transition-colors cursor-pointer">
+              <CardContent className="p-0">
+                <div className="relative">
+                  <div className="w-full h-48 bg-gradient-to-br from-green-800 to-blue-600 flex items-center justify-center relative">
+                    <div className="absolute inset-0 bg-black/30"></div>
+                    <div className="relative z-10 text-center">
+                      <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mb-2 mx-auto">
+                        <span className="text-2xl">🎯</span>
+                      </div>
+                      <div className="text-white font-bold">Live Dealer</div>
+                    </div>
+                  </div>
+                  
+                  <div className="absolute top-2 right-2 bg-white rounded px-2 py-1">
+                    <span className="text-black text-xs font-bold">Evolution</span>
+                  </div>
+                  
+                  <div className="absolute top-2 left-2 text-lg">🇹🇷</div>
+                </div>
+                
+                <div className="p-3 bg-black">
+                  <h3 className="text-white font-semibold text-center">Casibom Özel Rulet</h3>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Casibom Özel Stüdyo 2 */}
+            <Card className="bg-gray-900 border border-gray-700 overflow-hidden hover:border-yellow-400 transition-colors cursor-pointer">
+              <CardContent className="p-0">
+                <div className="relative">
+                  <div className="w-full h-48 bg-gradient-to-br from-purple-800 to-pink-600 flex items-center justify-center relative">
+                    <div className="absolute inset-0 bg-black/30"></div>
+                    <div className="relative z-10 text-center">
+                      <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mb-2 mx-auto">
+                        <span className="text-2xl">♠️</span>
+                      </div>
+                      <div className="text-white font-bold">Live Dealer</div>
+                    </div>
+                  </div>
+                  
+                  <div className="absolute top-2 right-2 bg-white rounded px-2 py-1">
+                    <span className="text-black text-xs font-bold">Evolution</span>
+                  </div>
+                  
+                  <div className="absolute top-2 left-2 text-lg">🇹🇷</div>
+                  
+                  <div className="absolute bottom-2 right-2 bg-yellow-500 text-black px-2 py-1 rounded text-xs font-bold">
+                    Casibom Özel
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-black">
+                  <h3 className="text-white font-semibold text-center">Casibom Özel Stüdyo</h3>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Blackjack Lobby */}
+            <Card className="bg-gray-900 border border-gray-700 overflow-hidden hover:border-yellow-400 transition-colors cursor-pointer">
+              <CardContent className="p-0">
+                <div className="relative">
+                  <div className="w-full h-48 bg-gradient-to-br from-gray-800 to-gray-600 flex items-center justify-center relative">
+                    <div className="absolute inset-0 bg-black/40"></div>
+                    <div className="relative z-10 text-center">
+                      <div className="bg-green-800 rounded-lg p-4 mb-2 mx-auto">
+                        <span className="text-white text-xl font-bold">Lobby</span>
+                      </div>
+                      <div className="text-white font-bold">Multiple Tables</div>
+                    </div>
+                  </div>
+                  
+                  <div className="absolute top-2 right-2 bg-white rounded px-2 py-1">
+                    <span className="text-black text-xs font-bold">ImagineLive</span>
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-black">
+                  <h3 className="text-white font-semibold text-center">Blackjack Lobby</h3>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Casibom VIP Blackjack */}
+            <Card className="bg-gray-900 border border-gray-700 overflow-hidden hover:border-yellow-400 transition-colors cursor-pointer">
+              <CardContent className="p-0">
+                <div className="relative">
+                  <div className="w-full h-48 bg-gradient-to-br from-yellow-800 to-orange-600 flex items-center justify-center relative">
+                    <div className="absolute inset-0 bg-black/30"></div>
+                    <div className="relative z-10 text-center">
+                      <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mb-2 mx-auto">
+                        <span className="text-2xl">👑</span>
+                      </div>
+                      <div className="text-white font-bold">VIP Table</div>
+                    </div>
+                  </div>
+                  
+                  <div className="absolute top-2 right-2 bg-white rounded px-2 py-1">
+                    <span className="text-black text-xs font-bold">casibom</span>
+                  </div>
+                  
+                  <div className="absolute top-2 left-2 text-lg">🇹🇷</div>
+                  
+                  <div className="absolute bottom-2 left-2 bg-yellow-500 text-black px-2 py-1 rounded text-xs font-bold">
+                    VIP
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-black">
+                  <h3 className="text-white font-semibold text-center">Casibom VIP Blackjack</h3>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* More games with different themes */}
+            {Array.from({ length: 14 }, (_, i) => (
+              <Card key={`game-${i}`} className="bg-gray-900 border border-gray-700 overflow-hidden hover:border-yellow-400 transition-colors cursor-pointer">
+                <CardContent className="p-0">
+                  <div className="relative">
+                    <div className={`w-full h-48 bg-gradient-to-br ${
+                      i % 5 === 0 ? 'from-red-800 to-pink-600' :
+                      i % 5 === 1 ? 'from-blue-800 to-cyan-600' :
+                      i % 5 === 2 ? 'from-green-800 to-emerald-600' :
+                      i % 5 === 3 ? 'from-purple-800 to-violet-600' :
+                      'from-orange-800 to-yellow-600'
+                    } flex items-center justify-center relative`}>
+                      <div className="absolute inset-0 bg-black/30"></div>
+                      <div className="relative z-10 text-center">
+                        <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mb-2 mx-auto">
+                          <span className="text-2xl">
+                            {i % 4 === 0 && '🎰'}
+                            {i % 4 === 1 && '🃏'}
+                            {i % 4 === 2 && '♠️'}
+                            {i % 4 === 3 && '🎯'}
+                          </span>
+                        </div>
+                        <div className="text-white font-bold">Live Dealer</div>
+                      </div>
+                    </div>
+                    
+                    <div className="absolute top-2 right-2 bg-white rounded px-2 py-1">
+                      <span className="text-black text-xs font-bold">
+                        {i % 3 === 0 ? 'Evolution' : i % 3 === 1 ? 'Pragmatic' : 'Ezugi'}
+                      </span>
+                    </div>
+                    
+                    {i % 3 === 0 && <div className="absolute top-2 left-2 text-lg">🇹🇷</div>}
+                  </div>
+                  
+                  <div className="p-3 bg-black">
+                    <h3 className="text-white font-semibold text-center">
+                      {i % 4 === 0 && `Lightning Roulette ${i + 1}`}
+                      {i % 4 === 1 && `Blackjack VIP ${i + 1}`}
+                      {i % 4 === 2 && `Speed Baccarat ${i + 1}`}
+                      {i % 4 === 3 && `Poker Room ${i + 1}`}
+                    </h3>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>
