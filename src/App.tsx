@@ -19,6 +19,7 @@ import AdminBets from "./pages/admin/AdminBets";
 import AdminGameSessions from "./pages/admin/AdminGameSessions";
 import AdminBonuses from "./pages/admin/AdminBonuses";
 import AdminFinance from "./pages/admin/AdminFinance";
+import AdminManagement from "./pages/admin/AdminManagement";
 import AdminCompetitorAnalysis from "./pages/admin/AdminCompetitorAnalysis";
 
 const queryClient = new QueryClient();

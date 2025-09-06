@@ -502,6 +502,39 @@ export type Database = {
           },
         ]
       }
+      competitor_analyses: {
+        Row: {
+          analysis_type: string
+          competitors: string[] | null
+          created_at: string
+          id: string
+          query: string
+          related_questions: string[] | null
+          result: string
+          updated_at: string
+        }
+        Insert: {
+          analysis_type: string
+          competitors?: string[] | null
+          created_at?: string
+          id?: string
+          query: string
+          related_questions?: string[] | null
+          result: string
+          updated_at?: string
+        }
+        Update: {
+          analysis_type?: string
+          competitors?: string[] | null
+          created_at?: string
+          id?: string
+          query?: string
+          related_questions?: string[] | null
+          result?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       game_providers: {
         Row: {
           created_at: string | null
