@@ -57,10 +57,22 @@ interface BetSelection {
   market: string;
 }
 
+interface ConfirmedBet {
+  id: string;
+  bets: BetSelection[];
+  stakeAmount: number;
+  totalOdds: number;
+  potentialWin: number;
+  date: string;
+  status: string;
+}
+
 const LiveBetting = () => {
   const [liveMatches, setLiveMatches] = useState<LiveMatch[]>([]);
   const [selectedSport, setSelectedSport] = useState<string>('hepsi');
   const [betSlip, setBetSlip] = useState<BetSelection[]>([]);
+  const [confirmedBets, setConfirmedBets] = useState<ConfirmedBet[]>([]);
+  const [activeTab, setActiveTab] = useState<string>('betslip');
   const [stakeAmount, setStakeAmount] = useState<string>('');
   const [selectedMatch, setSelectedMatch] = useState<LiveMatch | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -218,6 +230,18 @@ const LiveBetting = () => {
       return;
     }
 
+    const confirmedBet: ConfirmedBet = {
+      id: Date.now().toString(),
+      bets: [...betSlip],
+      stakeAmount: parseFloat(stakeAmount),
+      totalOdds: totalOdds,
+      potentialWin: potentialWin,
+      date: new Date().toLocaleString('tr-TR'),
+      status: 'Beklemede'
+    };
+
+    setConfirmedBets(prev => [...prev, confirmedBet]);
+
     toast({
       title: "Canlı Bahis Onaylandı!",
       description: `${betSlip.length} bahis ile ₺${parseFloat(stakeAmount)} miktarında canlı bahsiniz onaylandı.`,
@@ -225,6 +249,7 @@ const LiveBetting = () => {
 
     setBetSlip([]);
     setStakeAmount('');
+    setActiveTab('mybets');
   };
 
   // Show match details
@@ -316,6 +341,9 @@ const LiveBetting = () => {
           <div className="hidden lg:block w-80">
             <BettingSlip
               betSlip={betSlip}
+              confirmedBets={confirmedBets}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
               stakeAmount={stakeAmount}
               onStakeChange={setStakeAmount}
               onRemoveBet={removeFromBetSlip}
@@ -332,6 +360,9 @@ const LiveBetting = () => {
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg">
           <BettingSlip
             betSlip={betSlip}
+            confirmedBets={confirmedBets}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
             stakeAmount={stakeAmount}
             onStakeChange={setStakeAmount}
             onRemoveBet={removeFromBetSlip}
