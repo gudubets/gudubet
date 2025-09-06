@@ -245,7 +245,7 @@ const BettingSlip: React.FC<BettingSlipProps> = ({
       
       <CardContent className="p-0">
         <Tabs value={activeTab} onValueChange={onTabChange}>
-          <TabsList className="grid w-full grid-cols-2 m-4 mb-0">
+          <TabsList className="grid w-full grid-cols-2 mx-auto my-4 mb-0 max-w-md">
             <TabsTrigger value="betslip" className="flex items-center gap-2">
               <Receipt className="w-4 h-4" />
               Kupon
