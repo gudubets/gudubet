@@ -70,7 +70,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <span className="text-xl font-gaming font-bold gradient-text-primary">
-              SportsBet Pro
+              GUDUBET
             </span>
           </div>
 
