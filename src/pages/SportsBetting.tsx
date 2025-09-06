@@ -23,6 +23,8 @@ const SportsBetting = () => {
   const [selectedLeague, setSelectedLeague] = useState('all');
   const [betSlip, setBetSlip] = useState<BetSelection[]>([]);
   const [stakeAmount, setStakeAmount] = useState('');
+  const [activeTab, setActiveTab] = useState('betslip');
+  const [confirmedBets, setConfirmedBets] = useState<any[]>([]);
   const { toast } = useToast();
 
   // Mock data for matches
@@ -111,6 +113,19 @@ const SportsBetting = () => {
       return;
     }
 
+    // Bahis bilgilerini kaydet
+    const confirmedBet = {
+      id: Date.now().toString(),
+      bets: [...betSlip],
+      stakeAmount: parseFloat(stakeAmount),
+      totalOdds: totalOdds,
+      potentialWin: potentialWin,
+      date: new Date().toLocaleString('tr-TR'),
+      status: 'Beklemede'
+    };
+
+    setConfirmedBets(prev => [...prev, confirmedBet]);
+
     // Bahis onaylama işlemi
     toast({
       title: "Bahis Onaylandı!",
@@ -120,6 +135,9 @@ const SportsBetting = () => {
     // Kuponu temizle
     setBetSlip([]);
     setStakeAmount('');
+    
+    // "Bahislerim" sekmesine geç
+    setActiveTab('mybets');
   };
 
   const filteredMatches = matches.filter(match => {
@@ -295,96 +313,176 @@ const SportsBetting = () => {
               <Card className="bg-muted/30">
                 {/* Header with tabs */}
                 <div className="flex">
-                  <div className="bg-destructive text-destructive-foreground px-4 py-3 rounded-t-lg flex items-center gap-2 font-semibold">
+                  <div 
+                    className={`px-4 py-3 rounded-t-lg flex items-center gap-2 font-semibold cursor-pointer transition-colors ${
+                      activeTab === 'betslip' 
+                        ? 'bg-destructive text-destructive-foreground' 
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                    onClick={() => setActiveTab('betslip')}
+                  >
                     Bahis kuponu
                     <Badge variant="secondary" className="bg-white/20 text-white">
                       {betSlip.length}
                     </Badge>
                   </div>
-                  <div className="bg-muted px-4 py-3 rounded-tr-lg flex-1 text-center text-muted-foreground font-medium">
+                  <div 
+                    className={`px-4 py-3 rounded-tr-lg flex-1 text-center font-medium cursor-pointer transition-colors ${
+                      activeTab === 'mybets' 
+                        ? 'bg-destructive text-destructive-foreground' 
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                    onClick={() => setActiveTab('mybets')}
+                  >
                     Bahislerim
+                    {confirmedBets.length > 0 && (
+                      <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
+                        {confirmedBets.length}
+                      </Badge>
+                    )}
                   </div>
                 </div>
 
                 <CardContent className="p-4 space-y-4">
-                  {betSlip.length === 0 ? (
-                    <div className="text-center py-6">
-                      <p className="text-muted-foreground mb-2">
-                        Bahis kuponun bulunmamaktadir. Bahis yapmak için herhangi bir bahis oranina tikla.
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      {/* Selected Bets */}
-                      <div className="space-y-3">
-                        {betSlip.map((bet) => (
-                          <div key={bet.matchId} className="bg-background/50 rounded-lg p-3 border">
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex-1">
-                                <p className="font-medium text-sm">{bet.matchName}</p>
-                                <p className="text-xs text-muted-foreground">{bet.selection}</p>
+                  {activeTab === 'betslip' ? (
+                    // Bahis Kuponu İçeriği
+                    betSlip.length === 0 ? (
+                      <div className="text-center py-6">
+                        <p className="text-muted-foreground mb-2">
+                          Bahis kuponun bulunmamaktadir. Bahis yapmak için herhangi bir bahis oranina tikla.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Selected Bets */}
+                        <div className="space-y-3">
+                          {betSlip.map((bet) => (
+                            <div key={bet.matchId} className="bg-background/50 rounded-lg p-3 border">
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm">{bet.matchName}</p>
+                                  <p className="text-xs text-muted-foreground">{bet.selection}</p>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeFromBetSlip(bet.matchId)}
+                                  className="h-6 w-6 p-0 hover:bg-destructive/20"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeFromBetSlip(bet.matchId)}
-                                className="h-6 w-6 p-0 hover:bg-destructive/20"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-muted-foreground">Oran:</span>
+                                <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
+                                  {bet.odds.toFixed(2)}
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm text-muted-foreground">Oran:</span>
-                              <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
-                                {bet.odds.toFixed(2)}
+                          ))}
+                        </div>
+
+                        <Separator />
+
+                        {/* Stake Input */}
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Bahis Miktarı (₺)
+                          </label>
+                          <Input
+                            type="number"
+                            placeholder="0.00"
+                            value={stakeAmount}
+                            onChange={(e) => setStakeAmount(e.target.value)}
+                            className="bg-background/50"
+                          />
+                        </div>
+
+                        {/* Summary */}
+                        <div className="space-y-2 bg-background/30 p-3 rounded-lg border">
+                          <div className="flex justify-between text-sm">
+                            <span>Toplam Oran:</span>
+                            <span className="font-bold">{totalOdds.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span>Bahis Miktarı:</span>
+                            <span>₺{parseFloat(stakeAmount) || 0}</span>
+                          </div>
+                          <Separator />
+                          <div className="flex justify-between font-bold text-primary">
+                            <span>Olası Kazanç:</span>
+                            <span>₺{potentialWin.toFixed(2)}</span>
+                          </div>
+                        </div>
+
+                        {/* Confirm Button */}
+                        <Button 
+                          className="w-full bg-destructive hover:bg-destructive/90" 
+                          disabled={!stakeAmount || parseFloat(stakeAmount) <= 0}
+                          onClick={handleConfirmBet}
+                        >
+                          Bahsi Onayla
+                        </Button>
+                      </>
+                    )
+                  ) : (
+                    // Bahislerim İçeriği
+                    confirmedBets.length === 0 ? (
+                      <div className="text-center py-6">
+                        <p className="text-muted-foreground mb-2">
+                          Henüz onaylanmış bahsiniz bulunmuyor.
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Bahis yapmak için "Bahis kuponu" sekmesini kullanın.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {confirmedBets.map((bet) => (
+                          <div key={bet.id} className="bg-background/50 rounded-lg p-3 border">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <p className="font-medium text-sm">Bahis #{bet.id.slice(-4)}</p>
+                                <p className="text-xs text-muted-foreground">{bet.date}</p>
+                              </div>
+                              <Badge 
+                                variant={bet.status === 'Beklemede' ? 'secondary' : 'default'}
+                                className="text-xs"
+                              >
+                                {bet.status}
+                              </Badge>
+                            </div>
+                            
+                            <div className="space-y-1 mb-2">
+                              {bet.bets.map((selection: any, index: number) => (
+                                <div key={index} className="text-xs">
+                                  <span className="font-medium">{selection.matchName}</span>
+                                  <span className="text-muted-foreground"> - {selection.selection}</span>
+                                  <span className="float-right font-bold">{selection.odds.toFixed(2)}</span>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            <Separator />
+                            
+                            <div className="grid grid-cols-3 gap-2 text-xs mt-2">
+                              <div>
+                                <span className="text-muted-foreground block">Bahis</span>
+                                <span className="font-semibold">₺{bet.stakeAmount}</span>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground block">Toplam Oran</span>
+                                <span className="font-semibold">{bet.totalOdds.toFixed(2)}</span>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground block">Olası Kazanç</span>
+                                <span className="font-semibold text-green-600">₺{bet.potentialWin.toFixed(2)}</span>
                               </div>
                             </div>
                           </div>
                         ))}
                       </div>
-
-                      <Separator />
-
-                      {/* Stake Input */}
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">
-                          Bahis Miktarı (₺)
-                        </label>
-                        <Input
-                          type="number"
-                          placeholder="0.00"
-                          value={stakeAmount}
-                          onChange={(e) => setStakeAmount(e.target.value)}
-                          className="bg-background/50"
-                        />
-                      </div>
-
-                      {/* Summary */}
-                      <div className="space-y-2 bg-background/30 p-3 rounded-lg border">
-                        <div className="flex justify-between text-sm">
-                          <span>Toplam Oran:</span>
-                          <span className="font-bold">{totalOdds.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span>Bahis Miktarı:</span>
-                          <span>₺{parseFloat(stakeAmount) || 0}</span>
-                        </div>
-                        <Separator />
-                        <div className="flex justify-between font-bold text-primary">
-                          <span>Olası Kazanç:</span>
-                          <span>₺{potentialWin.toFixed(2)}</span>
-                        </div>
-                      </div>
-
-                      {/* Confirm Button */}
-                      <Button 
-                        className="w-full bg-destructive hover:bg-destructive/90" 
-                        disabled={!stakeAmount || parseFloat(stakeAmount) <= 0}
-                        onClick={handleConfirmBet}
-                      >
-                        Bahsi Onayla
-                      </Button>
-                    </>
+                    )
                   )}
                 </CardContent>
               </Card>
