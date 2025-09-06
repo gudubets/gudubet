@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { Star, Trophy, TrendingUp, Play, Zap, Gift } from 'lucide-react';
+import { Star, Trophy, TrendingUp, Play, Zap, Gift, Menu, X } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header Navigation */}
@@ -13,13 +18,23 @@ const Index = () => {
         {/* Main Navigation */}
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-8">
+            {/* Logo and Mobile Menu Button */}
+            <div className="flex items-center space-x-4">
+              {isMobile && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="text-white hover:bg-white/10"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              )}
               <a href="/" className="bg-destructive px-4 py-2 rounded hover:bg-destructive/90 transition-colors cursor-pointer">
                 <span className="text-destructive-foreground font-bold">GUDUBET</span>
               </a>
               
-              {/* Main Navigation Links */}
+              {/* Main Navigation Links - Desktop Only */}
               <nav className="hidden lg:flex items-center space-x-6">
                 <a href="/" className="text-primary border-b-2 border-primary pb-1">Ana Sayfa</a>
                 <a href="/sports-betting" className="text-muted-foreground hover:text-white transition-colors">Spor</a>
@@ -31,22 +46,54 @@ const Index = () => {
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+            <div className="flex items-center space-x-2 lg:space-x-4">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 hidden sm:flex">
                 <span className="text-lg">💬</span>
               </Button>
-              <Button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+              <Button 
+                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs sm:text-sm px-2 sm:px-4"
+                size={isMobile ? "sm" : "default"}
+              >
                 Giriş Yap
               </Button>
-              <Button className="bg-green-600 hover:bg-green-700 text-white">
+              <Button 
+                className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-2 sm:px-4"
+                size={isMobile ? "sm" : "default"}
+              >
                 Üye Ol
               </Button>
+              
+              {/* Mobile Menu Toggle */}
+              {isMobile && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="text-white hover:bg-white/10"
+                >
+                  {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </Button>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Game Categories */}
-        <div className="border-t border-slate-700">
+        {/* Mobile Navigation Menu */}
+        {isMobileMenuOpen && isMobile && (
+          <div className="lg:hidden bg-slate-800 border-t border-slate-700">
+            <div className="px-4 py-2 space-y-2">
+              <a href="/" className="block py-2 text-primary border-l-2 border-primary pl-2">Ana Sayfa</a>
+              <a href="/sports-betting" className="block py-2 text-muted-foreground hover:text-white">Spor</a>
+              <a href="/live-betting" className="block py-2 text-muted-foreground hover:text-white">Canlı</a>
+              <a href="/casino" className="block py-2 text-muted-foreground hover:text-white">Casino</a>
+              <a href="/live-casino" className="block py-2 text-muted-foreground hover:text-white">Canlı Casino</a>
+              <a href="/promotions" className="block py-2 text-muted-foreground hover:text-white">Promosyonlar</a>
+            </div>
+          </div>
+        )}
+
+        {/* Game Categories - Desktop */}
+        <div className="border-t border-slate-700 hidden lg:block">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-12">
               <div className="flex items-center space-x-8">
@@ -75,9 +122,40 @@ const Index = () => {
         </div>
       </header>
 
-      <div className="container mx-auto flex gap-0">
+      <div className="container mx-auto flex gap-0 relative">
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && isMobile && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
         {/* Left Sidebar */}
-        <div className="w-64 bg-muted/30 min-h-screen border-r">
+        <div className={`
+          ${isMobile 
+            ? `fixed top-0 left-0 h-full z-50 transform transition-transform duration-300 ${
+                isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+              }` 
+            : 'relative'
+          }
+          w-64 bg-muted/30 min-h-screen border-r
+        `}>
+          {/* Mobile Sidebar Header */}
+          {isMobile && (
+            <div className="p-4 border-b border-border flex justify-between items-center">
+              <span className="text-destructive font-bold">GUDUBET</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsSidebarOpen(false)}
+                className="text-white hover:bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
           {/* Quick Links */}
           <div className="p-4 border-b border-border">
             <h3 className="text-destructive font-semibold mb-3 text-sm">Hızlı Linkler</h3>
@@ -154,23 +232,23 @@ const Index = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 bg-background min-h-screen">
+        <div className={`flex-1 bg-background min-h-screen ${isMobile && isSidebarOpen ? 'ml-0' : ''}`}>
           {/* Hero Carousel */}
-          <div className="relative h-48 overflow-hidden">
+          <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden">
             <Carousel className="h-full" opts={{ loop: true, duration: 30 }}>
               <CarouselContent className="h-full">
                 {/* Gates of Olympus */}
                 <CarouselItem>
-                  <div className="relative h-48 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 overflow-hidden">
+                  <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
-                    <div className="relative z-10 h-full flex items-center justify-center">
+                    <div className="relative z-10 h-full flex items-center justify-center px-4">
                       <div className="text-center">
-                        <div className="text-6xl mb-4">⚡</div>
-                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                        <div className="text-3xl sm:text-4xl md:text-6xl mb-2 md:mb-4">⚡</div>
+                        <h1 className="text-lg sm:text-2xl md:text-3xl font-bold mb-1 md:mb-2 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
                           Gates of Olympus
                         </h1>
-                        <p className="text-lg text-white mb-3">Zeus'un Gücüyle Kazanın</p>
-                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-6 py-2">
+                        <p className="text-sm sm:text-base md:text-lg text-white mb-2 md:mb-3 hidden sm:block">Zeus'un Gücüyle Kazanın</p>
+                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-3 sm:px-4 md:px-6 py-1 sm:py-2 text-xs sm:text-sm">
                           Hemen Oyna
                         </Button>
                       </div>
@@ -180,16 +258,16 @@ const Index = () => {
 
                 {/* Sweet Bonanza */}
                 <CarouselItem>
-                  <div className="relative h-48 bg-gradient-to-r from-pink-900 via-purple-900 to-red-900 overflow-hidden">
+                  <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-pink-900 via-purple-900 to-red-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
-                    <div className="relative z-10 h-full flex items-center justify-center">
+                    <div className="relative z-10 h-full flex items-center justify-center px-4">
                       <div className="text-center">
-                        <div className="text-6xl mb-4">🍭</div>
-                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-pink-400 to-red-500 bg-clip-text text-transparent">
+                        <div className="text-3xl sm:text-4xl md:text-6xl mb-2 md:mb-4">🍭</div>
+                        <h1 className="text-lg sm:text-2xl md:text-3xl font-bold mb-1 md:mb-2 bg-gradient-to-r from-pink-400 to-red-500 bg-clip-text text-transparent">
                           Sweet Bonanza
                         </h1>
-                        <p className="text-lg text-white mb-3">Tatlı Kazançlar Seni Bekliyor</p>
-                        <Button className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-2">
+                        <p className="text-sm sm:text-base md:text-lg text-white mb-2 md:mb-3 hidden sm:block">Tatlı Kazançlar Seni Bekliyor</p>
+                        <Button className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-3 sm:px-4 md:px-6 py-1 sm:py-2 text-xs sm:text-sm">
                           Şekerli Kazanç
                         </Button>
                       </div>
@@ -199,16 +277,16 @@ const Index = () => {
 
                 {/* Canlı Masa Oyunları */}
                 <CarouselItem>
-                  <div className="relative h-48 bg-gradient-to-r from-green-900 via-emerald-900 to-teal-900 overflow-hidden">
+                  <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-green-900 via-emerald-900 to-teal-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
-                    <div className="relative z-10 h-full flex items-center justify-center">
+                    <div className="relative z-10 h-full flex items-center justify-center px-4">
                       <div className="text-center">
-                        <div className="text-6xl mb-4">🃏</div>
-                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                        <div className="text-3xl sm:text-4xl md:text-6xl mb-2 md:mb-4">🃏</div>
+                        <h1 className="text-lg sm:text-2xl md:text-3xl font-bold mb-1 md:mb-2 bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
                           Canlı Masa Oyunları
                         </h1>
-                        <p className="text-lg text-white mb-3">Gerçek Krupiyerlerle Oyna</p>
-                        <Button className="bg-green-500 hover:bg-green-600 text-white font-bold px-6 py-2">
+                        <p className="text-sm sm:text-base md:text-lg text-white mb-2 md:mb-3 hidden sm:block">Gerçek Krupiyerlerle Oyna</p>
+                        <Button className="bg-green-500 hover:bg-green-600 text-white font-bold px-3 sm:px-4 md:px-6 py-1 sm:py-2 text-xs sm:text-sm">
                           Masaya Otur
                         </Button>
                       </div>
@@ -218,16 +296,16 @@ const Index = () => {
 
                 {/* Crazy Time */}
                 <CarouselItem>
-                  <div className="relative h-48 bg-gradient-to-r from-orange-900 via-red-900 to-yellow-900 overflow-hidden">
+                  <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-orange-900 via-red-900 to-yellow-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
-                    <div className="relative z-10 h-full flex items-center justify-center">
+                    <div className="relative z-10 h-full flex items-center justify-center px-4">
                       <div className="text-center">
-                        <div className="text-6xl mb-4">🎡</div>
-                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-orange-400 to-yellow-500 bg-clip-text text-transparent">
+                        <div className="text-3xl sm:text-4xl md:text-6xl mb-2 md:mb-4">🎡</div>
+                        <h1 className="text-lg sm:text-2xl md:text-3xl font-bold mb-1 md:mb-2 bg-gradient-to-r from-orange-400 to-yellow-500 bg-clip-text text-transparent">
                           Crazy Time
                         </h1>
-                        <p className="text-lg text-white mb-3">Çılgın Kazançlar Burada</p>
-                        <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2">
+                        <p className="text-sm sm:text-base md:text-lg text-white mb-2 md:mb-3 hidden sm:block">Çılgın Kazançlar Burada</p>
+                        <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-3 sm:px-4 md:px-6 py-1 sm:py-2 text-xs sm:text-sm">
                           Çılgınlığa Katıl
                         </Button>
                       </div>
@@ -237,16 +315,16 @@ const Index = () => {
 
                 {/* Monopoly Live */}
                 <CarouselItem>
-                  <div className="relative h-48 bg-gradient-to-r from-blue-900 via-cyan-900 to-blue-900 overflow-hidden">
+                  <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-blue-900 via-cyan-900 to-blue-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
-                    <div className="relative z-10 h-full flex items-center justify-center">
+                    <div className="relative z-10 h-full flex items-center justify-center px-4">
                       <div className="text-center">
-                        <div className="text-6xl mb-4">🎩</div>
-                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">
+                        <div className="text-3xl sm:text-4xl md:text-6xl mb-2 md:mb-4">🎩</div>
+                        <h1 className="text-lg sm:text-2xl md:text-3xl font-bold mb-1 md:mb-2 bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">
                           Monopoly Live
                         </h1>
-                        <p className="text-lg text-white mb-3">Emlak İmparatorluğu Kur</p>
-                        <Button className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-2">
+                        <p className="text-sm sm:text-base md:text-lg text-white mb-2 md:mb-3 hidden sm:block">Emlak İmparatorluğu Kur</p>
+                        <Button className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-3 sm:px-4 md:px-6 py-1 sm:py-2 text-xs sm:text-sm">
                           Şansını Dene
                         </Button>
                       </div>
@@ -256,16 +334,16 @@ const Index = () => {
 
                 {/* Book of Ra */}
                 <CarouselItem>
-                  <div className="relative h-48 bg-gradient-to-r from-yellow-900 via-amber-900 to-orange-900 overflow-hidden">
+                  <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-yellow-900 via-amber-900 to-orange-900 overflow-hidden">
                     <div className="absolute inset-0 bg-black/40"></div>
-                    <div className="relative z-10 h-full flex items-center justify-center">
+                    <div className="relative z-10 h-full flex items-center justify-center px-4">
                       <div className="text-center">
-                        <div className="text-6xl mb-4">📖</div>
-                        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                        <div className="text-3xl sm:text-4xl md:text-6xl mb-2 md:mb-4">📖</div>
+                        <h1 className="text-lg sm:text-2xl md:text-3xl font-bold mb-1 md:mb-2 bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
                           Book of Ra
                         </h1>
-                        <p className="text-lg text-white mb-3">Antik Hazineleri Keşfet</p>
-                        <Button className="bg-yellow-600 hover:bg-yellow-700 text-black font-bold px-6 py-2">
+                        <p className="text-sm sm:text-base md:text-lg text-white mb-2 md:mb-3 hidden sm:block">Antik Hazineleri Keşfet</p>
+                        <Button className="bg-yellow-600 hover:bg-yellow-700 text-black font-bold px-3 sm:px-4 md:px-6 py-1 sm:py-2 text-xs sm:text-sm">
                           Hazine Avı
                         </Button>
                       </div>
@@ -273,13 +351,13 @@ const Index = () => {
                   </div>
                 </CarouselItem>
               </CarouselContent>
-              <CarouselPrevious className="left-4 bg-black/50 border-white/20 text-white hover:bg-black/70" />
-              <CarouselNext className="right-4 bg-black/50 border-white/20 text-white hover:bg-black/70" />
+              <CarouselPrevious className="left-2 sm:left-4 bg-black/50 border-white/20 text-white hover:bg-black/70 h-8 w-8 sm:h-10 sm:w-10" />
+              <CarouselNext className="right-2 sm:right-4 bg-black/50 border-white/20 text-white hover:bg-black/70 h-8 w-8 sm:h-10 sm:w-10" />
             </Carousel>
           </div>
 
           {/* Featured Games */}
-          <div className="p-6">
+          <div className="p-3 sm:p-4 md:p-6">
             <div className="grid gap-4">
               <Card className="bg-background border-2 border-teal-500 overflow-hidden">
                 <CardContent className="p-0">
@@ -290,48 +368,48 @@ const Index = () => {
                     </div>
                   </div>
                   
-                  <div className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <Card className="bg-slate-800 border border-slate-700 hover:border-teal-500 transition-colors cursor-pointer">
-                        <CardContent className="p-4">
-                          <div className="aspect-video bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg mb-3 flex items-center justify-center">
-                            <Play className="h-8 w-8 text-white" />
-                          </div>
-                          <h3 className="text-white font-semibold text-sm mb-1">Sweet Bonanza</h3>
-                          <p className="text-slate-400 text-xs">Pragmatic Play</p>
-                          <Button className="w-full mt-3 bg-teal-600 hover:bg-teal-700 text-white">
-                            Oyna
-                          </Button>
-                        </CardContent>
-                      </Card>
+                   <div className="p-2 sm:p-4">
+                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
+                       <Card className="bg-slate-800 border border-slate-700 hover:border-teal-500 transition-colors cursor-pointer">
+                         <CardContent className="p-2 sm:p-4">
+                           <div className="aspect-video bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg mb-2 sm:mb-3 flex items-center justify-center">
+                             <Play className="h-4 w-4 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
+                           </div>
+                           <h3 className="text-white font-semibold text-xs sm:text-sm mb-1">Sweet Bonanza</h3>
+                           <p className="text-slate-400 text-xs hidden sm:block">Pragmatic Play</p>
+                           <Button className="w-full mt-2 sm:mt-3 bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm py-1 sm:py-2">
+                             Oyna
+                           </Button>
+                         </CardContent>
+                       </Card>
 
-                      <Card className="bg-slate-800 border border-slate-700 hover:border-teal-500 transition-colors cursor-pointer">
-                        <CardContent className="p-4">
-                          <div className="aspect-video bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg mb-3 flex items-center justify-center">
-                            <Play className="h-8 w-8 text-white" />
-                          </div>
-                          <h3 className="text-white font-semibold text-sm mb-1">Gates of Olympus</h3>
-                          <p className="text-slate-400 text-xs">Pragmatic Play</p>
-                          <Button className="w-full mt-3 bg-teal-600 hover:bg-teal-700 text-white">
-                            Oyna
-                          </Button>
-                        </CardContent>
-                      </Card>
+                       <Card className="bg-slate-800 border border-slate-700 hover:border-teal-500 transition-colors cursor-pointer">
+                         <CardContent className="p-2 sm:p-4">
+                           <div className="aspect-video bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg mb-2 sm:mb-3 flex items-center justify-center">
+                             <Play className="h-4 w-4 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
+                           </div>
+                           <h3 className="text-white font-semibold text-xs sm:text-sm mb-1">Gates of Olympus</h3>
+                           <p className="text-slate-400 text-xs hidden sm:block">Pragmatic Play</p>
+                           <Button className="w-full mt-2 sm:mt-3 bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm py-1 sm:py-2">
+                             Oyna
+                           </Button>
+                         </CardContent>
+                       </Card>
 
-                      <Card className="bg-slate-800 border border-slate-700 hover:border-teal-500 transition-colors cursor-pointer">
-                        <CardContent className="p-4">
-                          <div className="aspect-video bg-gradient-to-br from-red-600 to-orange-600 rounded-lg mb-3 flex items-center justify-center">
-                            <Play className="h-8 w-8 text-white" />
-                          </div>
-                          <h3 className="text-white font-semibold text-sm mb-1">Book of Dead</h3>
-                          <p className="text-slate-400 text-xs">Play'n GO</p>
-                          <Button className="w-full mt-3 bg-teal-600 hover:bg-teal-700 text-white">
-                            Oyna
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+                       <Card className="bg-slate-800 border border-slate-700 hover:border-teal-500 transition-colors cursor-pointer">
+                         <CardContent className="p-2 sm:p-4">
+                           <div className="aspect-video bg-gradient-to-br from-red-600 to-orange-600 rounded-lg mb-2 sm:mb-3 flex items-center justify-center">
+                             <Play className="h-4 w-4 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
+                           </div>
+                           <h3 className="text-white font-semibold text-xs sm:text-sm mb-1">Book of Dead</h3>
+                           <p className="text-slate-400 text-xs hidden sm:block">Play'n GO</p>
+                           <Button className="w-full mt-2 sm:mt-3 bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm py-1 sm:py-2">
+                             Oyna
+                           </Button>
+                         </CardContent>
+                       </Card>
+                     </div>
+                   </div>
                 </CardContent>
               </Card>
             </div>
