@@ -4,6 +4,7 @@ import { RegistrationModal } from '@/components/auth/RegistrationModal';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
+import { Link } from 'react-router-dom';
 import { 
   Menu, 
   X, 
@@ -24,8 +25,8 @@ const Header = () => {
   const [session, setSession] = useState<Session | null>(null);
 
   const navItems = [
-    { name: 'Spor Bahisleri', href: '#sports' },
-    { name: 'Canlı Casino', href: '#casino' },
+    { name: 'Spor Bahisleri', href: '/sports-betting' },
+    { name: 'Canlı Casino', href: '/live-casino' },
     { name: 'Slot Oyunları', href: '#slots' },
     { name: 'Tombala', href: '#bingo' },
     { name: 'Promosyonlar', href: '#promotions' },
@@ -80,13 +81,23 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
             {navItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
-              >
-                {item.name}
-              </a>
+              item.href.startsWith('#') ? (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                >
+                  {item.name}
+                </a>
+              ) : (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                >
+                  {item.name}
+                </Link>
+              )
             ))}
           </nav>
 
@@ -168,14 +179,25 @@ const Header = () => {
           <div className="lg:hidden py-4 space-y-4 border-t border-border">
             <nav className="space-y-3">
               {navItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="block text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </a>
+                item.href.startsWith('#') ? (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="block text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.name}
+                  </a>
+                ) : (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="block text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                )
               ))}
             </nav>
             <div className="pt-4 border-t border-border space-y-3">
