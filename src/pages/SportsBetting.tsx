@@ -3,9 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Star, Calendar, Trophy, TrendingUp, Plus, Trash2 } from 'lucide-react';
+import { Search, Star, Calendar, Trophy, TrendingUp, Plus, Trash2, Clock, Users, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,56 +16,90 @@ interface BetSelection {
 }
 
 const SportsBetting = () => {
-  const [selectedSport, setSelectedSport] = useState('all');
+  const [selectedSport, setSelectedSport] = useState('futbol');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDate, setSelectedDate] = useState('today');
-  const [selectedLeague, setSelectedLeague] = useState('all');
   const [betSlip, setBetSlip] = useState<BetSelection[]>([]);
   const [stakeAmount, setStakeAmount] = useState('');
   const [activeTab, setActiveTab] = useState('betslip');
   const [confirmedBets, setConfirmedBets] = useState<any[]>([]);
   const { toast } = useToast();
 
-  // Mock data for matches
-  const matches = [
+  // Sports categories for sidebar
+  const sportsCategories = [
+    { id: 'futbol', name: 'Futbol', icon: '⚽', count: 156 },
+    { id: 'basketball', name: 'Basketbol', icon: '🏀', count: 45 },
+    { id: 'tenis', name: 'Tenis', icon: '🎾', count: 67 },
+    { id: 'masa-tenisi', name: 'Masa Tenisi', icon: '🏓', count: 23 },
+    { id: 'voleybol', name: 'Voleybol', icon: '🏐', count: 18 },
+    { id: 'esports', name: 'E-Spor', icon: '🎮', count: 89 },
+    { id: 'hentbol', name: 'Hentbol', icon: '🤾', count: 12 }
+  ];
+
+  // Mock featured matches with enhanced data
+  const featuredMatches = [
     {
       id: '1',
-      league: 'Premier League',
-      homeTeam: 'Manchester United',
-      awayTeam: 'Liverpool',
-      homeTeamLogo: '🔴',
-      awayTeamLogo: '🔴',
-      date: '2024-01-15',
-      time: '20:00',
-      odds: { home: 2.45, draw: 3.20, away: 2.85 },
+      league: 'UEFA Şampiyonlar Ligi',
+      homeTeam: 'İrlanda',
+      awayTeam: 'Macaristan',
+      homeTeamFlag: '🇮🇪',
+      awayTeamFlag: '🇭🇺',
+      status: 'Önce',
+      time: '2:40',
+      odds: { 
+        home: 2.40, 
+        draw: null, 
+        away: 2.80,
+        special: [
+          { name: '1.5 Gol Üstü', odds: 1.85 },
+          { name: '8.5 Üstü Korner', odds: 2.15 }
+        ]
+      },
       isLive: false,
-      sport: 'football'
+      isFeatured: true
     },
     {
       id: '2',
-      league: 'NBA',
-      homeTeam: 'Lakers',
-      awayTeam: 'Warriors',
-      homeTeamLogo: '🏀',
-      awayTeamLogo: '🏀',
-      date: '2024-01-15',
-      time: '22:30',
-      odds: { home: 1.95, away: 1.85 },
-      isLive: true,
-      sport: 'basketball'
+      league: 'UEFA Şampiyonlar Ligi',
+      homeTeam: 'Belçika',
+      awayTeam: 'Kazakistan',
+      homeTeamFlag: '🇧🇪',
+      awayTeamFlag: '🇰🇿',
+      status: 'Önce',
+      time: '2:45',
+      odds: { 
+        home: 2.45, 
+        draw: null, 
+        away: 2.45,
+        special: [
+          { name: '1.5 Gol Üstü', odds: 1.90 },
+          { name: '8.5 Üstü Korner', odds: 2.25 }
+        ]
+      },
+      isLive: false,
+      isFeatured: true
     },
     {
       id: '3',
-      league: 'Süper Lig',
-      homeTeam: 'Galatasaray',
-      awayTeam: 'Fenerbahçe',
-      homeTeamLogo: '🟡',
-      awayTeamLogo: '🔵',
-      date: '2024-01-16',
-      time: '19:00',
-      odds: { home: 2.10, draw: 3.45, away: 3.20 },
-      isLive: false,
-      sport: 'football'
+      league: 'FIFA Dünya Kupası Elemeleri - UEFA',
+      homeTeam: 'Letonya',
+      awayTeam: 'Sırbistan',
+      homeTeamFlag: '🇱🇻',
+      awayTeamFlag: '🇷🇸',
+      homeScore: 0,
+      awayScore: 1,
+      status: 'Canlı',
+      time: '26:31 İlk Yarı',
+      odds: { 
+        home: 2.5, 
+        draw: 3.40, 
+        away: 2.80,
+        special: [
+          { name: 'Üst/Alt 2.5 Gol', odds: 1.58, selection: 'Ü 2.5' },
+          { name: 'Karşılıklı Gol Olur', odds: 2.40 }
+        ]
+      },
+      isLive: true
     }
   ];
 
@@ -113,7 +146,6 @@ const SportsBetting = () => {
       return;
     }
 
-    // Bahis bilgilerini kaydet
     const confirmedBet = {
       id: Date.now().toString(),
       bets: [...betSlip],
@@ -126,177 +158,210 @@ const SportsBetting = () => {
 
     setConfirmedBets(prev => [...prev, confirmedBet]);
 
-    // Bahis onaylama işlemi
     toast({
       title: "Bahis Onaylandı!",
-      description: `${betSlip.length} bahis ile ₺${parseFloat(stakeAmount)} miktarında bahsiniz onaylandı. Olası kazanç: ₺${potentialWin.toFixed(2)}`,
+      description: `${betSlip.length} bahis ile ₺${parseFloat(stakeAmount)} miktarında bahsiniz onaylandı.`,
     });
 
-    // Kuponu temizle
     setBetSlip([]);
     setStakeAmount('');
-    
-    // "Bahislerim" sekmesine geç
     setActiveTab('mybets');
   };
 
-  const filteredMatches = matches.filter(match => {
-    const sportMatch = selectedSport === 'all' || match.sport === selectedSport;
-    const searchMatch = searchQuery === '' || 
-      match.homeTeam.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      match.awayTeam.toLowerCase().includes(searchQuery.toLowerCase());
-    const leagueMatch = selectedLeague === 'all' || match.league === selectedLeague;
-    
-    return sportMatch && searchMatch && leagueMatch;
-  });
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-primary/20 to-primary/10 py-16">
-        <div className="absolute inset-0 bg-[url('/src/assets/hero-sports.jpg')] bg-cover bg-center opacity-20"></div>
-        <div className="relative z-10 container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
-            Spor Bahisleri
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Futbol, Basketbol, Tenis ve daha fazlası – En iyi oranlarla bahis yap!
+    <div className="min-h-screen bg-slate-900 text-white">
+      {/* Top Notification Bar */}
+      <div className="bg-gradient-to-r from-orange-600 to-red-600 p-3">
+        <div className="container mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4" />
+            <span className="text-sm font-medium">1/2</span>
+          </div>
+          <p className="text-sm text-center flex-1">
+            Dünya Kupası eleme maçlarına bahis yap, bedava dönüş ve casino çipi kazan.
           </p>
+          <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+            ×
+          </Button>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Sports Tabs */}
-            <Tabs value={selectedSport} onValueChange={setSelectedSport} className="mb-6">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="all">Tümü</TabsTrigger>
-                <TabsTrigger value="football">⚽ Futbol</TabsTrigger>
-                <TabsTrigger value="basketball">🏀 Basketbol</TabsTrigger>
-                <TabsTrigger value="tennis">🎾 Tenis</TabsTrigger>
-                <TabsTrigger value="esports">🎮 E-Spor</TabsTrigger>
-              </TabsList>
-            </Tabs>
+      <div className="container mx-auto flex gap-0">
+        {/* Left Sidebar - Sports Categories */}
+        <div className="w-64 bg-slate-800 min-h-screen">
+          {/* Quick Links */}
+          <div className="p-4 border-b border-slate-700">
+            <h3 className="text-red-400 font-semibold mb-3 text-sm">Hızlı Linkler</h3>
+            <div className="space-y-2">
+              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-slate-700">
+                <Trophy className="h-4 w-4 mr-2" />
+                Öne Çıkan Maçlar
+              </Button>
+              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-slate-700">
+                <Star className="h-4 w-4 mr-2" />
+                FIFA Dünya Kupası ...
+              </Button>
+              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-slate-700">
+                <Star className="h-4 w-4 mr-2" />
+                FIFA Dünya Kupası ...
+              </Button>
+              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-slate-700 text-red-400">
+                🎲 Gates of Betboo 10...
+              </Button>
+            </div>
+          </div>
 
-            {/* Filters */}
-            <Card className="mb-6">
-              <CardContent className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input
-                      type="text"
-                      placeholder="Takım ara..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  
-                  <Select value={selectedDate} onValueChange={setSelectedDate}>
-                    <SelectTrigger>
-                      <Calendar className="h-4 w-4 mr-2" />
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="today">Bugün</SelectItem>
-                      <SelectItem value="tomorrow">Yarın</SelectItem>
-                      <SelectItem value="3days">3 Gün İçinde</SelectItem>
-                      <SelectItem value="week">Bu Hafta</SelectItem>
-                    </SelectContent>
-                  </Select>
+          {/* Today's Matches */}
+          <div className="p-4 border-b border-slate-700">
+            <h3 className="text-red-400 font-semibold mb-3 text-sm">Günün Maçları</h3>
+            <div className="space-y-1">
+              {sportsCategories.map((sport) => (
+                <Button
+                  key={sport.id}
+                  variant="ghost"
+                  className={`w-full justify-between text-sm hover:bg-slate-700 ${
+                    selectedSport === sport.id ? 'bg-slate-700 text-white' : 'text-slate-300'
+                  }`}
+                  onClick={() => setSelectedSport(sport.id)}
+                >
+                  <span className="flex items-center">
+                    <span className="mr-2">{sport.icon}</span>
+                    {sport.name}
+                  </span>
+                  <span className="text-xs bg-slate-600 px-2 py-1 rounded">
+                    {sport.count}
+                  </span>
+                </Button>
+              ))}
+            </div>
+          </div>
 
-                  <Select value={selectedLeague} onValueChange={setSelectedLeague}>
-                    <SelectTrigger>
-                      <Trophy className="h-4 w-4 mr-2" />
-                      <SelectValue placeholder="Lig Seç" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tüm Ligler</SelectItem>
-                      <SelectItem value="Premier League">Premier League</SelectItem>
-                      <SelectItem value="Süper Lig">Süper Lig</SelectItem>
-                      <SelectItem value="NBA">NBA</SelectItem>
-                      <SelectItem value="La Liga">La Liga</SelectItem>
-                    </SelectContent>
-                  </Select>
+          {/* All Sports */}
+          <div className="p-4">
+            <h3 className="text-red-400 font-semibold mb-3 text-sm">Tüm Sporlar</h3>
+            <div className="space-y-1">
+              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-slate-700 text-slate-300">
+                Futbol <span className="ml-auto text-xs">62</span>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-slate-700 text-slate-300">
+                Basketbol <span className="ml-auto text-xs">7</span>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-slate-700 text-slate-300">
+                Tenis <span className="ml-auto text-xs">30</span>
+              </Button>
+            </div>
+          </div>
+        </div>
 
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    Canlı Bahis
-                  </Button>
+        {/* Main Content Area */}
+        <div className="flex-1 bg-slate-900 min-h-screen">
+          {/* Hero Banner */}
+          <div className="relative h-64 bg-gradient-to-r from-blue-900 via-purple-900 to-orange-900 overflow-hidden">
+            <div className="absolute inset-0 bg-black/30"></div>
+            <div className="relative z-10 h-full flex items-center justify-center">
+              <div className="text-center">
+                <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                  YÜKSEK ORAN
+                </h1>
+                <div className="flex space-x-2 justify-center">
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <div 
+                      key={i} 
+                      className={`w-8 h-1 rounded ${i === 7 ? 'bg-red-500' : 'bg-white/50'}`}
+                    ></div>
+                  ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          </div>
 
-            {/* Matches List */}
-            <div className="space-y-4">
-              {filteredMatches.map((match) => (
-                <Card key={match.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{match.league}</Badge>
+          {/* Featured Matches */}
+          <div className="p-6">
+            <div className="grid gap-4">
+              {featuredMatches.map((match) => (
+                <Card key={match.id} className="bg-slate-800 border-2 border-teal-500 overflow-hidden">
+                  <CardContent className="p-0">
+                    {match.isFeatured && (
+                      <div className="flex items-center justify-between bg-slate-700 px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                          <span className="text-sm font-medium text-white">{match.homeTeam} v {match.awayTeam}</span>
+                        </div>
                         {match.isLive && (
-                          <Badge variant="destructive" className="animate-pulse">
-                            CANLI
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="destructive" className="animate-pulse">CANLI</Badge>
+                            <span className="text-sm text-teal-400">{match.time}</span>
+                          </div>
                         )}
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {match.date} • {match.time}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                      {/* Teams */}
-                      <div className="col-span-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl">{match.homeTeamLogo}</span>
-                            <span className="font-semibold">{match.homeTeam}</span>
-                          </div>
-                          <span className="text-muted-foreground font-medium">VS</span>
-                          <div className="flex items-center gap-3">
-                            <span className="font-semibold">{match.awayTeam}</span>
-                            <span className="text-2xl">{match.awayTeamLogo}</span>
-                          </div>
+                    )}
+                    
+                    <div className="p-4">
+                      {/* Match Info */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3 flex-1">
+                          <span className="text-2xl">{match.homeTeamFlag}</span>
+                          <span className="font-semibold text-white">{match.homeTeam}</span>
+                          {match.isLive && (
+                            <span className="text-2xl font-bold text-teal-400">
+                              {match.homeScore} - {match.awayScore}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-center px-4">
+                          <span className="text-sm text-slate-400">vs</span>
+                        </div>
+                        <div className="flex items-center gap-3 flex-1 justify-end">
+                          {match.isLive && (
+                            <span className="text-2xl font-bold text-teal-400">
+                              {match.awayScore} - {match.homeScore}
+                            </span>
+                          )}
+                          <span className="font-semibold text-white">{match.awayTeam}</span>
+                          <span className="text-2xl">{match.awayTeamFlag}</span>
                         </div>
                       </div>
 
-                      {/* Odds */}
+                      {/* Special Bets */}
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        {match.odds.special?.map((bet, index) => (
+                          <div key={index} className="text-sm text-slate-300">
+                            <div className="flex items-center justify-between">
+                              <span>{bet.name}</span>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => addToBetSlip(match, bet.name, bet.odds)}
+                                className="bg-slate-700 border-slate-600 hover:bg-slate-600 text-white"
+                              >
+                                {bet.odds.toFixed(2)}
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Main Odds */}
                       <div className="flex gap-2">
                         <Button
-                          variant="outline"
-                          size="sm"
+                          className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3"
                           onClick={() => addToBetSlip(match, `${match.homeTeam} Kazanır`, match.odds.home)}
-                          className="flex-1 flex flex-col py-3"
                         >
-                          <span className="text-xs text-muted-foreground">1</span>
-                          <span className="font-bold">{match.odds.home}</span>
+                          <div className="text-center">
+                            <div className="text-xs opacity-75">Önce</div>
+                            <div className="text-lg">{match.odds.home.toFixed(2)}</div>
+                          </div>
                         </Button>
-
-                        {match.odds.draw && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => addToBetSlip(match, 'Beraberlik', match.odds.draw)}
-                            className="flex-1 flex flex-col py-3"
-                          >
-                            <span className="text-xs text-muted-foreground">X</span>
-                            <span className="font-bold">{match.odds.draw}</span>
-                          </Button>
-                        )}
-
+                        
                         <Button
-                          variant="outline"
-                          size="sm"
+                          className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3"
                           onClick={() => addToBetSlip(match, `${match.awayTeam} Kazanır`, match.odds.away)}
-                          className="flex-1 flex flex-col py-3"
                         >
-                          <span className="text-xs text-muted-foreground">2</span>
-                          <span className="font-bold">{match.odds.away}</span>
+                          <div className="text-center">
+                            <div className="text-xs opacity-75">Şimdi</div>
+                            <div className="text-lg">{match.odds.away.toFixed(2)}</div>
+                          </div>
                         </Button>
                       </div>
                     </div>
@@ -304,235 +369,292 @@ const SportsBetting = () => {
                 </Card>
               ))}
             </div>
-          </div>
 
-          {/* Betting Slip Sidebar */}
-          <div className="lg:w-80">
-            <div className="sticky top-4 space-y-4">
-              {/* Bet Slip Card */}
-              <Card className="bg-muted/30">
-                {/* Header with tabs */}
-                <div className="flex">
-                  <div 
-                    className={`px-4 py-3 rounded-t-lg flex items-center gap-2 font-semibold cursor-pointer transition-colors ${
-                      activeTab === 'betslip' 
-                        ? 'bg-destructive text-destructive-foreground' 
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    }`}
-                    onClick={() => setActiveTab('betslip')}
-                  >
-                    Bahis kuponu
-                    <Badge variant="secondary" className="bg-white/20 text-white">
-                      {betSlip.length}
-                    </Badge>
-                  </div>
-                  <div 
-                    className={`px-4 py-3 rounded-tr-lg flex-1 text-center font-medium cursor-pointer transition-colors ${
-                      activeTab === 'mybets' 
-                        ? 'bg-destructive text-destructive-foreground' 
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    }`}
-                    onClick={() => setActiveTab('mybets')}
-                  >
-                    Bahislerim
-                    {confirmedBets.length > 0 && (
-                      <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
-                        {confirmedBets.length}
-                      </Badge>
-                    )}
+            {/* Live Match Example */}
+            <Card className="mt-4 bg-slate-800 border border-slate-700">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-white font-semibold">FIFA Dünya Kupası Elemeleri - UEFA</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="destructive" className="animate-pulse">Canlı</Badge>
+                      <span className="text-sm text-teal-400">26:31 İlk Yarı</span>
+                    </div>
                   </div>
                 </div>
 
-                <CardContent className="p-4 space-y-4">
-                  {activeTab === 'betslip' ? (
-                    // Bahis Kuponu İçeriği
-                    betSlip.length === 0 ? (
-                      <div className="text-center py-6">
-                        <p className="text-muted-foreground mb-2">
-                          Bahis kuponun bulunmamaktadir. Bahis yapmak için herhangi bir bahis oranina tikla.
-                        </p>
-                      </div>
-                    ) : (
-                      <>
-                        {/* Selected Bets */}
-                        <div className="space-y-3">
-                          {betSlip.map((bet) => (
-                            <div key={bet.matchId} className="bg-background/50 rounded-lg p-3 border">
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1">
-                                  <p className="font-medium text-sm">{bet.matchName}</p>
-                                  <p className="text-xs text-muted-foreground">{bet.selection}</p>
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeFromBetSlip(bet.matchId)}
-                                  className="h-6 w-6 p-0 hover:bg-destructive/20"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-muted-foreground">Oran:</span>
-                                <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
-                                  {bet.odds.toFixed(2)}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                <div className="flex items-center justify-center gap-8 mb-4">
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-white">Letonya</div>
+                    <div className="text-3xl font-bold text-teal-400">0</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-slate-400">-</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-white">Sırbistan</div>
+                    <div className="text-3xl font-bold text-teal-400">1</div>
+                  </div>
+                </div>
 
-                        <Separator />
-
-                        {/* Stake Input */}
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">
-                            Bahis Miktarı (₺)
-                          </label>
-                          <Input
-                            type="number"
-                            placeholder="0.00"
-                            value={stakeAmount}
-                            onChange={(e) => setStakeAmount(e.target.value)}
-                            className="bg-background/50"
-                          />
-                        </div>
-
-                        {/* Summary */}
-                        <div className="space-y-2 bg-background/30 p-3 rounded-lg border">
-                          <div className="flex justify-between text-sm">
-                            <span>Toplam Oran:</span>
-                            <span className="font-bold">{totalOdds.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span>Bahis Miktarı:</span>
-                            <span>₺{parseFloat(stakeAmount) || 0}</span>
-                          </div>
-                          <Separator />
-                          <div className="flex justify-between font-bold text-primary">
-                            <span>Olası Kazanç:</span>
-                            <span>₺{potentialWin.toFixed(2)}</span>
-                          </div>
-                        </div>
-
-                        {/* Confirm Button */}
-                        <Button 
-                          className="w-full bg-destructive hover:bg-destructive/90" 
-                          disabled={!stakeAmount || parseFloat(stakeAmount) <= 0}
-                          onClick={handleConfirmBet}
-                        >
-                          Bahsi Onayla
+                <div className="flex items-center justify-between">
+                  <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="text-center">
+                      <div className="text-xs text-slate-400">Üst/Alt 2.5 Gol</div>
+                      <div className="flex gap-2 mt-1">
+                        <Button variant="outline" size="sm" className="bg-slate-700 border-slate-600">
+                          Ü 2.5 <span className="ml-1 font-bold">1.58</span>
                         </Button>
-                      </>
-                    )
-                  ) : (
-                    // Bahislerim İçeriği
-                    confirmedBets.length === 0 ? (
-                      <div className="text-center py-6">
-                        <p className="text-muted-foreground mb-2">
-                          Henüz onaylanmış bahsiniz bulunmuyor.
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Bahis yapmak için "Bahis kuponu" sekmesini kullanın.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {confirmedBets.map((bet) => (
-                          <div key={bet.id} className="bg-background/50 rounded-lg p-3 border">
-                            <div className="flex justify-between items-start mb-2">
-                              <div>
-                                <p className="font-medium text-sm">Bahis #{bet.id.slice(-4)}</p>
-                                <p className="text-xs text-muted-foreground">{bet.date}</p>
-                              </div>
-                              <Badge 
-                                variant={bet.status === 'Beklemede' ? 'secondary' : 'default'}
-                                className="text-xs"
-                              >
-                                {bet.status}
-                              </Badge>
-                            </div>
-                            
-                            <div className="space-y-1 mb-2">
-                              {bet.bets.map((selection: any, index: number) => (
-                                <div key={index} className="text-xs">
-                                  <span className="font-medium">{selection.matchName}</span>
-                                  <span className="text-muted-foreground"> - {selection.selection}</span>
-                                  <span className="float-right font-bold">{selection.odds.toFixed(2)}</span>
-                                </div>
-                              ))}
-                            </div>
-                            
-                            <Separator />
-                            
-                            <div className="grid grid-cols-3 gap-2 text-xs mt-2">
-                              <div>
-                                <span className="text-muted-foreground block">Bahis</span>
-                                <span className="font-semibold">₺{bet.stakeAmount}</span>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground block">Toplam Oran</span>
-                                <span className="font-semibold">{bet.totalOdds.toFixed(2)}</span>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground block">Olası Kazanç</span>
-                                <span className="font-semibold text-green-600">₺{bet.potentialWin.toFixed(2)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Popular Bets Section */}
-              <Card className="bg-muted/30">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <TrendingUp className="h-4 w-4 text-destructive" />
-                    Popüler Bahisler
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {/* Popular bet examples */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-2 bg-background/50 rounded border hover:bg-background/70 cursor-pointer transition-colors">
-                      <div>
-                        <p className="text-sm font-medium">Ermenistan v Portekiz</p>
-                        <p className="text-xs text-muted-foreground">Maç Kazananı</p>
-                        <p className="text-xs font-medium">Portekiz</p>
-                      </div>
-                      <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
-                        1.12
+                        <Button variant="outline" size="sm" className="bg-slate-700 border-slate-600">
+                          A 2.5 <span className="ml-1 font-bold">2.25</span>
+                        </Button>
                       </div>
                     </div>
-
-                    <div className="flex items-center justify-between p-2 bg-background/50 rounded border hover:bg-background/70 cursor-pointer transition-colors">
-                      <div>
-                        <p className="text-sm font-medium">Gürcistan v Bulgaristan</p>
-                        <p className="text-xs text-muted-foreground">Maç Kazananı</p>
-                        <p className="text-xs font-medium">Gürcistan</p>
-                      </div>
-                      <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
-                        1.43
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2 bg-background/50 rounded border hover:bg-background/70 cursor-pointer transition-colors">
-                      <div>
-                        <p className="text-sm font-medium">Türkiye v İspanya</p>
-                        <p className="text-xs text-muted-foreground">Maç Kazananı</p>
-                        <p className="text-xs font-medium">İspanya</p>
-                      </div>
-                      <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
-                        1.55
+                    
+                    <div className="text-center">
+                      <div className="text-xs text-slate-400">Karşılıklı Gol Olur</div>
+                      <div className="flex gap-2 mt-1">
+                        <Button variant="outline" size="sm" className="bg-slate-700 border-slate-600">
+                          Evet <span className="ml-1 font-bold">2.40</span>
+                        </Button>
+                        <Button variant="outline" size="sm" className="bg-slate-700 border-slate-600">
+                          Hayır <span className="ml-1 font-bold">1.50</span>
+                        </Button>
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+
+                  <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Right Sidebar - Betting Slip */}
+        <div className="w-80 bg-slate-800 min-h-screen">
+          <div className="sticky top-0">
+            {/* Bet Slip Header */}
+            <div className="flex">
+              <Button
+                variant="ghost"
+                className={`flex-1 py-3 rounded-none font-semibold ${
+                  activeTab === 'betslip' 
+                    ? 'bg-red-600 text-white' 
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+                onClick={() => setActiveTab('betslip')}
+              >
+                Bahis kuponu 
+                <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
+                  {betSlip.length}
+                </Badge>
+              </Button>
+              <Button
+                variant="ghost"
+                className={`flex-1 py-3 rounded-none font-semibold ${
+                  activeTab === 'mybets' 
+                    ? 'bg-red-600 text-white' 
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+                onClick={() => setActiveTab('mybets')}
+              >
+                Bahislerim
+                {confirmedBets.length > 0 && (
+                  <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
+                    {confirmedBets.length}
+                  </Badge>
+                )}
+              </Button>
+            </div>
+
+            {/* Bet Slip Content */}
+            <div className="p-4">
+              {activeTab === 'betslip' ? (
+                betSlip.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-slate-400 text-sm mb-2">
+                      Bahis kuponun bulunmamaktadır. Bahis yapmak için herhangi bir bahis oranına tıkla.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Selected Bets */}
+                    <div className="space-y-3">
+                      {betSlip.map((bet) => (
+                        <div key={bet.matchId} className="bg-slate-700 rounded-lg p-3">
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <p className="font-medium text-sm text-white">{bet.matchName}</p>
+                              <p className="text-xs text-slate-400">{bet.selection}</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFromBetSlip(bet.matchId)}
+                              className="h-6 w-6 p-0 hover:bg-red-600/20"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-slate-400">Oran:</span>
+                            <div className="bg-red-600 text-white px-2 py-1 rounded text-sm font-bold">
+                              {bet.odds.toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Separator className="bg-slate-600" />
+
+                    {/* Stake Input */}
+                    <div>
+                      <label className="text-sm font-medium mb-2 block text-white">
+                        Bahis Miktarı (₺)
+                      </label>
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        value={stakeAmount}
+                        onChange={(e) => setStakeAmount(e.target.value)}
+                        className="bg-slate-700 border-slate-600 text-white"
+                      />
+                    </div>
+
+                    {/* Summary */}
+                    <div className="space-y-2 bg-slate-700 p-3 rounded-lg">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Toplam Oran:</span>
+                        <span className="font-bold text-white">{totalOdds.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-400">Bahis Miktarı:</span>
+                        <span className="text-white">₺{parseFloat(stakeAmount) || 0}</span>
+                      </div>
+                      <Separator className="bg-slate-600" />
+                      <div className="flex justify-between font-bold text-green-400">
+                        <span>Olası Kazanç:</span>
+                        <span>₺{potentialWin.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    {/* Confirm Button */}
+                    <Button 
+                      className="w-full bg-red-600 hover:bg-red-700 font-bold" 
+                      disabled={!stakeAmount || parseFloat(stakeAmount) <= 0}
+                      onClick={handleConfirmBet}
+                    >
+                      Bahsi Onayla
+                    </Button>
+                  </div>
+                )
+              ) : (
+                // My Bets Content
+                confirmedBets.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-slate-400 text-sm mb-2">
+                      Henüz onaylanmış bahsiniz bulunmuyor.
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Bahis yapmak için "Bahis kuponu" sekmesini kullanın.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {confirmedBets.map((bet) => (
+                      <div key={bet.id} className="bg-slate-700 rounded-lg p-3">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <p className="font-medium text-sm text-white">Bahis #{bet.id.slice(-4)}</p>
+                            <p className="text-xs text-slate-400">{bet.date}</p>
+                          </div>
+                          <Badge variant="secondary" className="bg-yellow-600 text-white text-xs">
+                            {bet.status}
+                          </Badge>
+                        </div>
+                        
+                        <div className="space-y-1 mb-2">
+                          {bet.bets.map((selection: any, index: number) => (
+                            <div key={index} className="text-xs text-slate-300">
+                              <span className="font-medium">{selection.matchName}</span>
+                              <span className="text-slate-400"> - {selection.selection}</span>
+                              <span className="float-right font-bold text-white">{selection.odds.toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <Separator className="bg-slate-600 my-2" />
+                        
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <span className="text-slate-400 block">Bahis</span>
+                            <span className="font-semibold text-white">₺{bet.stakeAmount}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block">Toplam Oran</span>
+                            <span className="font-semibold text-white">{bet.totalOdds.toFixed(2)}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block">Olası Kazanç</span>
+                            <span className="font-semibold text-green-400">₺{bet.potentialWin.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+            </div>
+
+            {/* Popular Bets Section */}
+            <div className="p-4 border-t border-slate-700">
+              <div className="flex items-center gap-2 mb-3">
+                <TrendingUp className="h-4 w-4 text-red-400" />
+                <h3 className="font-semibold text-white text-sm">Popüler Bahisler</h3>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2 bg-slate-700 rounded hover:bg-slate-600 cursor-pointer transition-colors">
+                  <div>
+                    <p className="text-sm font-medium text-white">Ermenistan v Portekiz</p>
+                    <p className="text-xs text-slate-400">Maç Kazananı</p>
+                    <p className="text-xs font-medium text-teal-400">Portekiz</p>
+                  </div>
+                  <div className="bg-red-600 text-white px-2 py-1 rounded text-sm font-bold">
+                    1.12
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-slate-700 rounded hover:bg-slate-600 cursor-pointer transition-colors">
+                  <div>
+                    <p className="text-sm font-medium text-white">Gürcistan v Bulgaristan</p>
+                    <p className="text-xs text-slate-400">Maç Kazananı</p>
+                    <p className="text-xs font-medium text-teal-400">Gürcistan</p>
+                  </div>
+                  <div className="bg-red-600 text-white px-2 py-1 rounded text-sm font-bold">
+                    1.43
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-2 bg-slate-700 rounded hover:bg-slate-600 cursor-pointer transition-colors">
+                  <div>
+                    <p className="text-sm font-medium text-white">Türkiye v İspanya</p>
+                    <p className="text-xs text-slate-400">Maç Kazananı</p>
+                    <p className="text-xs font-medium text-teal-400">İspanya</p>
+                  </div>
+                  <div className="bg-red-600 text-white px-2 py-1 rounded text-sm font-bold">
+                    1.55
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
