@@ -106,6 +106,80 @@ const SportsBetting = () => {
     }
   ];
 
+  // Get Turkish translation of team/country name
+  const getTeamNameInTurkish = (teamName: string): string => {
+    const turkishNames: { [key: string]: string } = {
+      // Countries
+      'England': 'İngiltere',
+      'Ireland': 'İrlanda',
+      'Hungary': 'Macaristan',
+      'Latvia': 'Letonya',
+      'Serbia': 'Sırbistan',
+      'Belgium': 'Belçika',
+      'Kazakhstan': 'Kazakistan',
+      'Austria': 'Avusturya',
+      'Cyprus': 'Kıbrıs',
+      'San Marino': 'San Marino',
+      'Bosnia & Herzegovina': 'Bosna Hersek',
+      'Armenia': 'Ermenistan',
+      'Portugal': 'Portekiz',
+      'Andorra': 'Andorra',
+      'Spain': 'İspanya',
+      
+      // English Teams
+      'Doncaster Rovers': 'Doncaster Rovers',
+      'Bradford City': 'Bradford City',
+      'Cheltenham Town': 'Cheltenham Town',
+      'Accrington Stanley': 'Accrington Stanley',
+      'Barrow': 'Barrow',
+      'Swindon Town': 'Swindon Town',
+      'Bolton Wanderers': 'Bolton Wanderers',
+      'Wimbledon': 'Wimbledon',
+      'Walsall': 'Walsall',
+      'Chesterfield FC': 'Chesterfield FC',
+      'Colchester United': 'Colchester United',
+      'Crewe Alexandra': 'Crewe Alexandra',
+      'Harrogate Town': 'Harrogate Town',
+      'Crawley Town': 'Crawley Town',
+      'Rotherham United': 'Rotherham United',
+      'Exeter City': 'Exeter City',
+      'Notts County': 'Notts County',
+      'Fleetwood Town': 'Fleetwood Town',
+      'Huddersfield Town': 'Huddersfield Town',
+      'Peterborough United': 'Peterborough United',
+      'Port Vale': 'Port Vale',
+      'Leyton Orient': 'Leyton Orient',
+      'Lincoln City': 'Lincoln City',
+      'Wigan Athletic': 'Wigan Athletic',
+      'Wycombe Wanderers': 'Wycombe Wanderers',
+      'Mansfield Town': 'Mansfield Town',
+      'Plymouth Argyle': 'Plymouth Argyle',
+      'Stockport County FC': 'Stockport County FC',
+      'Salford City': 'Salford City',
+      'Tranmere Rovers': 'Tranmere Rovers',
+      'Barnet': 'Barnet',
+      'Shrewsbury Town': 'Shrewsbury Town',
+      'Cambridge United': 'Cambridge United',
+      'Oldham Athletic': 'Oldham Athletic',
+      'Milton Keynes Dons': 'Milton Keynes Dons',
+      'Grimsby Town': 'Grimsby Town',
+      'Bromley FC': 'Bromley FC',
+      'Gillingham': 'Gillingham',
+      
+      // Spanish Teams
+      'Deportivo La Coruña': 'Deportivo La Coruña',
+      'Sporting Gijón': 'Sporting Gijón',
+      'Zaragoza': 'Zaragoza',
+      'Real Valladolid CF': 'Real Valladolid CF',
+      
+      // Brazilian Teams
+      'Botafogo': 'Botafogo',
+      'Atletico Paranaense': 'Atletico Paranaense'
+    };
+    
+    return turkishNames[teamName] || teamName;
+  };
+
   // Get country flag by team/country name
   const getCountryFlag = (teamName: string): string => {
     const flagMap: { [key: string]: string } = {
@@ -165,8 +239,8 @@ const SportsBetting = () => {
         const transformedMatches = data.matches.map((match: any) => ({
           id: match.id,
           league: match.league,
-          homeTeam: match.homeTeam,
-          awayTeam: match.awayTeam,
+          homeTeam: getTeamNameInTurkish(match.homeTeam),
+          awayTeam: getTeamNameInTurkish(match.awayTeam),
           homeTeamFlag: getCountryFlag(match.homeTeam),
           awayTeamFlag: getCountryFlag(match.awayTeam),
           status: match.status === 'upcoming' ? 'Önce' : 'Canlı',
