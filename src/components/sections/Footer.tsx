@@ -14,9 +14,9 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-black">
+    <footer className="bg-black text-white">
       {/* Promotional Banner */}
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 py-6">
         <div 
           className="mx-auto p-4 text-center rounded-lg text-base"
           style={{ 
@@ -34,52 +34,112 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Payment Methods Section */}
+      {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center">
-          <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 items-center">
-            {/* Payment method placeholders - you can replace these with actual payment logos */}
-            <div className="bg-white rounded p-2 flex items-center justify-center h-12">
-              <span className="text-xs font-semibold text-gray-800">VISA</span>
+        {/* Info Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          {/* Email */}
+          <div>
+            <div className="text-orange-400 text-sm mb-2">EMAIL</div>
+            <div className="text-orange-400">support@casibom.com</div>
+          </div>
+
+          {/* Genel Kurallar */}
+          <div>
+            <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">Genel Kurallar</h3>
+            <div className="space-y-2 text-sm">
+              <div>Kurallar ve Şartlar</div>
+              <div>Gizlilik politikası</div>
+              <div>Ortaklık</div>
             </div>
-            <div className="bg-white rounded p-2 flex items-center justify-center h-12">
-              <span className="text-xs font-semibold text-gray-800">MC</span>
+            <div className="space-y-2 text-sm mt-4">
+              <div>Sorumlu Oyun</div>
             </div>
-            <div className="bg-white rounded p-2 flex items-center justify-center h-12">
-              <span className="text-xs font-semibold text-gray-800">Papara</span>
+          </div>
+
+          {/* Hakkımızda */}
+          <div>
+            <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">Hakkımızda</h3>
+            <div className="space-y-2 text-sm">
+              <div>Bize ulaşın</div>
+              <div>Casibom Yardım Merkezi</div>
+              <div>Bahis Kuralları</div>
             </div>
-            <div className="bg-white rounded p-2 flex items-center justify-center h-12">
-              <span className="text-xs font-semibold text-gray-800">Paykasa</span>
-            </div>
-            <div className="bg-white rounded p-2 flex items-center justify-center h-12">
-              <span className="text-xs font-semibold text-gray-800">Bitcoin</span>
-            </div>
-            <div className="bg-white rounded p-2 flex items-center justify-center h-12">
-              <span className="text-xs font-semibold text-gray-800">Havale</span>
-            </div>
-            <div className="bg-white rounded p-2 flex items-center justify-center h-12">
-              <span className="text-xs font-semibold text-gray-800">Astropay</span>
-            </div>
-            <div className="bg-white rounded p-2 flex items-center justify-center h-12">
-              <span className="text-xs font-semibold text-gray-800">Jeton</span>
+            
+            {/* Certifications */}
+            <div className="flex items-center gap-4 mt-6">
+              <div className="bg-gray-800 rounded-full w-12 h-12 flex items-center justify-center text-xs font-bold">
+                18+
+              </div>
+              <div className="bg-green-600 rounded px-3 py-1 text-xs font-bold">
+                GCB
+              </div>
+              <div className="bg-red-600 rounded px-2 py-1 text-xs font-bold flex items-center gap-1">
+                🇹🇷 TR
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Section */}
-      <div className="border-t border-gray-800 py-4">
-        <div className="container mx-auto px-4">
+        {/* Payment Providers */}
+        <div className="mb-8">
+          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
+            {['PAYco', 'Banka', 'SUPER PAY', 'PEP', 'papara', 'PAY', 'bitcoin', 'Litecoin', 'ethereum', 'VIGO', 'VIGO BONUS'].map((provider) => (
+              <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+                <span className="text-xs text-gray-300">{provider}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Game Providers - Row 1 */}
+        <div className="mb-6">
+          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
+            {['Casibom Original', 'PRAGMATIC', 'Evolution', 'PRAGMATIC', 'imaginelive', 'AMIDST', 'WAZDAN', 'DIGITAIN', 'HACKSAW', 'NOLIMIT', 'RED TIGER', 'MOD', 'SMARTSOFT'].map((provider) => (
+              <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+                <span className="text-xs text-gray-300">{provider}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Game Providers - Row 2 */}
+        <div className="mb-6">
+          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
+            {['SPRIBE', 'PLAYSON', 'EGT', 'PG', 'betsolutions', 'BGAMING', 'zugi', 'RELAX', 'NETENT', 'GALAXSYS', 'BETSOFT', 'YGGDRASIL', 'BTG'].map((provider) => (
+              <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+                <span className="text-xs text-gray-300">{provider}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Game Providers - Row 3 */}
+        <div className="mb-8">
+          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
+            {['evoplay', 'HABANERO', 'Endorphina', 'Microgaming', 'QUICKSPIN', 'Swinominator', 'IRON DOG STUDIO', 'BOOMING GAMES', 'tom horn', 'NOMATIC'].map((provider) => (
+              <div key={provider} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+                <span className="text-xs text-gray-300">{provider}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Legal Text */}
+        <div className="text-xs text-gray-400 mb-4">
+          casibom.com Curaçao yasalarına göre kayıtlı ve 153142 şirket numarasına sahip Seguro N.V. tarafından işletilmektedir. Site GCB tarafından verilen geçerli bir lisansa sahiptir.
+        </div>
+
+        {/* Bottom Copyright */}
+        <div className="border-t border-gray-800 pt-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
             <div>
-              © 2024 Casibom™. Tüm hakları saklıdır.
+              © CasiBom. Tüm hakları saklıdır.
             </div>
-            <div className="flex items-center gap-4">
-              <span>18+ Sorumlu Oyun</span>
-              <span>|</span>
-              <span>Güvenli Ödeme</span>
-              <span>|</span>
-              <span>7/24 Destek</span>
+            <div className="flex items-center gap-2">
+              <div className="bg-orange-500 rounded-full p-1">
+                <span className="text-black text-xs">💬</span>
+              </div>
             </div>
           </div>
         </div>
