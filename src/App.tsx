@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Casino from "./pages/Casino";
 import LiveCasino from "./pages/LiveCasino";
 import SportsBetting from "./pages/SportsBetting";
 import LiveBetting from "./pages/LiveBetting";
@@ -29,6 +30,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/casino" element={<Casino />} />
           <Route path="/live-casino" element={<LiveCasino />} />
           <Route path="/sports-betting" element={<SportsBetting />} />
           <Route path="/live-betting" element={<LiveBetting />} />
