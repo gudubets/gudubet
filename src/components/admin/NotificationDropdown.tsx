@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Bell, Clock, User, DollarSign, Gift, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
