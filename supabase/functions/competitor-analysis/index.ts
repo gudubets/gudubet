@@ -79,15 +79,8 @@ serve(async (req) => {
             content: userPrompt
           }
         ],
-        temperature: 0.2,
-        top_p: 0.9,
         max_tokens: 4000,
-        return_images: false,
-        return_related_questions: true,
-        search_domain_filter: [],
-        search_recency_filter: 'month',
-        frequency_penalty: 1,
-        presence_penalty: 0
+        return_related_questions: true
       }),
     })
 
