@@ -45,11 +45,12 @@ html {
   }
 
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: 'Inter', sans-serif;
   }
 
@@ -74,27 +75,65 @@ html {
 
 @layer components {
   .bet-card {
-    @apply bg-card border border-border rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02];
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    transition: all 0.3s;
+  }
+  
+  .bet-card:hover {
+    box-shadow: 0 25px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    transform: scale(1.02);
   }
   
   .odds-button {
-    @apply bg-primary/10 border border-primary/30 rounded-lg px-3 py-2 text-primary font-semibold hover:bg-primary hover:text-primary-foreground transition-all duration-200;
+    background-color: hsl(var(--primary) / 0.1);
+    border: 1px solid hsl(var(--primary) / 0.3);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: hsl(var(--primary));
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  
+  .odds-button:hover {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
   }
   
   .nav-link {
-    @apply text-muted-foreground hover:text-foreground transition-colors duration-200 relative;
+    color: hsl(var(--muted-foreground));
+    transition: color 0.2s;
+    position: relative;
+  }
+  
+  .nav-link:hover {
+    color: hsl(var(--foreground));
   }
   
   .nav-link.active {
-    @apply text-primary;
+    color: hsl(var(--primary));
   }
   
   .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-3 text-sidebar-foreground hover:bg-muted/50 rounded-lg transition-all duration-200 cursor-pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: hsl(var(--sidebar-foreground));
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  
+  .sidebar-item:hover {
+    background-color: hsl(var(--muted) / 0.5);
   }
   
   .sidebar-item.active {
-    @apply bg-primary text-primary-foreground;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
   }
   
   .glow-effect {
