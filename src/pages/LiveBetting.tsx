@@ -259,68 +259,67 @@ const LiveBetting = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header Navigation */}
-      <header className="bg-slate-900 border-b border-border">
-        {/* Main Navigation */}
+    <div className="min-h-screen bg-black text-white">
+      {/* Header Navigation - Casibom Style */}
+      <header className="bg-black border-b border-gray-800">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-8">
-              <a href="/" className="bg-destructive px-4 py-2 rounded hover:bg-destructive/90 transition-colors cursor-pointer">
-                <span className="text-destructive-foreground font-bold">GUDUBET</span>
+              <a href="/" className="text-yellow-400 font-bold text-xl">
+                casibom
               </a>
               
               {/* Main Navigation Links */}
               <nav className="hidden lg:flex items-center space-x-6">
-                <a href="/" className="text-muted-foreground hover:text-white transition-colors">Ana Sayfa</a>
-                <a href="/sports-betting" className="text-muted-foreground hover:text-white transition-colors">Spor</a>
-                <a href="/live-betting" className="text-primary border-b-2 border-primary pb-1">Canlı</a>
-                <a href="/casino" className="text-muted-foreground hover:text-white transition-colors">Casino</a>
-                <a href="/live-casino" className="text-muted-foreground hover:text-white transition-colors">Canlı Casino</a>
-                <a href="/promotions" className="text-muted-foreground hover:text-white transition-colors">Promosyonlar</a>
+                <a href="/" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">ANA SAYFA</a>
+                <a href="/sports-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">SPOR</a>
+                <a href="/live-betting" className="text-yellow-400 border-b border-yellow-400 pb-1 text-sm">CANLI</a>
+                <a href="/casino" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CASINO</a>
+                <a href="/live-casino" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CANLI CASINO</a>
+                <a href="/promotions" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">PROMOSYONLAR</a>
               </nav>
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" size="sm" className="text-gray-300 hover:text-yellow-400">
                 <span className="text-lg">💬</span>
               </Button>
-              <Button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
-                Giriş Yap
+              <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 text-sm">
+                GİRİŞ
               </Button>
-              <Button className="bg-green-600 hover:bg-green-700 text-white">
-                Üye Ol
+              <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 text-sm">
+                ÜYE OL
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Game Categories */}
-        <div className="border-t border-slate-700">
+        {/* Sports Categories */}
+        <div className="border-t border-gray-800">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-12">
               <div className="flex items-center space-x-8">
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🎰 Slot Oyunları
+                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-yellow-400">
+                  🔴 CANLI
                 </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🃏 Masa Oyunları
+                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
+                  ⚽ FUTBOL
                 </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🎲 Canlı Casino
+                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
+                  🏀 BASKETBOL
                 </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🎯 Jackpot
+                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
+                  🎾 TENİS
                 </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🎮 Sanal Sporlar
+                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
+                  🎮 E-SPOR
                 </Button>
               </div>
               
-              <Button variant="ghost" className="text-muted-foreground hover:text-white text-sm">
-                🔍 Ara
+              <Button variant="ghost" className="text-gray-300 hover:text-yellow-400 text-xs">
+                🔍 ARA
               </Button>
             </div>
           </div>

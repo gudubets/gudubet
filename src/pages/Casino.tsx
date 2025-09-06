@@ -246,107 +246,106 @@ const Casino = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header Navigation - Same as Index page */}
-      <header className="bg-slate-900 border-b border-border">
-        {/* Main Navigation */}
+    <div className="min-h-screen bg-black text-white">
+      {/* Header Navigation - Casibom Style */}
+      <header className="bg-black border-b border-gray-800">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-8">
-              <a href="/" className="bg-destructive px-4 py-2 rounded hover:bg-destructive/90 transition-colors cursor-pointer">
-                <span className="text-destructive-foreground font-bold">GUDUBET</span>
+              <a href="/" className="text-yellow-400 font-bold text-xl">
+                casibom
               </a>
               
               {/* Main Navigation Links */}
               <nav className="hidden lg:flex items-center space-x-6">
-                <a href="/" className="text-muted-foreground hover:text-white transition-colors">Ana Sayfa</a>
-                <a href="/sports-betting" className="text-muted-foreground hover:text-white transition-colors">Spor</a>
-                <a href="/live-betting" className="text-muted-foreground hover:text-white transition-colors">Canlı</a>
-                <a href="/casino" className="text-primary border-b-2 border-primary pb-1">Casino</a>
-                <a href="/live-casino" className="text-muted-foreground hover:text-white transition-colors">Canlı Casino</a>
-                <a href="/promotions" className="text-muted-foreground hover:text-white transition-colors">Promosyonlar</a>
+                <a href="/" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">ANA SAYFA</a>
+                <a href="/sports-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">SPOR</a>
+                <a href="/live-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CANLI</a>
+                <a href="/casino" className="text-yellow-400 border-b border-yellow-400 pb-1 text-sm">CASINO</a>
+                <a href="/live-casino" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CANLI CASINO</a>
+                <a href="/promotions" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">PROMOSYONLAR</a>
               </nav>
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" size="sm" className="text-gray-300 hover:text-yellow-400">
                 <span className="text-lg">💬</span>
               </Button>
-              <Button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
-                Giriş Yap
+              <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 text-sm">
+                GİRİŞ
               </Button>
-              <Button className="bg-green-600 hover:bg-green-700 text-white">
-                Üye Ol
+              <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 text-sm">
+                ÜYE OL
               </Button>
             </div>
           </div>
         </div>
 
         {/* Game Categories */}
-        <div className="border-t border-slate-700">
+        <div className="border-t border-gray-800">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-12">
               <div className="flex items-center space-x-8">
                 <Button 
                   variant="ghost" 
-                  className={`text-sm hover:bg-white/5 transition-colors ${
+                  className={`text-xs hover:bg-gray-800 transition-colors ${
                     selectedCategory === 'all' || selectedCategory === categories.find(c => c.slug === 'slots')?.id 
-                      ? 'text-white bg-white/10' : 'text-muted-foreground hover:text-white'
+                      ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-400'
                   }`}
                   onClick={() => setSelectedCategory(categories.find(c => c.slug === 'slots')?.id || 'all')}
                 >
-                  🎰 Slot Oyunları
+                  🎰 SLOT OYUNLARI
                 </Button>
                 <Button 
                   variant="ghost" 
-                  className={`text-sm hover:bg-white/5 transition-colors ${
+                  className={`text-xs hover:bg-gray-800 transition-colors ${
                     selectedCategory === categories.find(c => c.slug === 'table-games')?.id 
-                      ? 'text-white bg-white/10' : 'text-muted-foreground hover:text-white'
+                      ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-400'
                   }`}
                   onClick={() => setSelectedCategory(categories.find(c => c.slug === 'table-games')?.id || 'all')}
                 >
-                  🃏 Masa Oyunları
+                  🃏 MASA OYUNLARI
                 </Button>
                 <Button 
                   variant="ghost" 
-                  className={`text-sm hover:bg-white/5 transition-colors ${
+                  className={`text-xs hover:bg-gray-800 transition-colors ${
                     selectedCategory === categories.find(c => c.slug === 'live-casino')?.id 
-                      ? 'text-white bg-white/10' : 'text-muted-foreground hover:text-white'
+                      ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-400'
                   }`}
                   onClick={() => setSelectedCategory(categories.find(c => c.slug === 'live-casino')?.id || 'all')}
                 >
-                  🎲 Canlı Casino
+                  🎲 CANLI CASINO
                 </Button>
                 <Button 
                   variant="ghost" 
-                  className={`text-sm hover:bg-white/5 transition-colors ${
+                  className={`text-xs hover:bg-gray-800 transition-colors ${
                     selectedCategory === categories.find(c => c.slug === 'jackpot')?.id 
-                      ? 'text-white bg-white/10' : 'text-muted-foreground hover:text-white'
+                      ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-400'
                   }`}
                   onClick={() => setSelectedCategory(categories.find(c => c.slug === 'jackpot')?.id || 'all')}
                 >
-                  🎯 Jackpot
+                  🎯 JACKPOT
                 </Button>
                 <Button 
                   variant="ghost" 
-                  className={`text-sm hover:bg-white/5 transition-colors ${
+                  className={`text-xs hover:bg-gray-800 transition-colors ${
                     selectedCategory === 'new' 
-                      ? 'text-white bg-white/10' : 'text-muted-foreground hover:text-white'
+                      ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-400'
                   }`}
                   onClick={() => setSelectedCategory('new')}
                 >
-                  🆕 Yeni Oyunlar
+                  🆕 YENİ OYUNLAR
                 </Button>
               </div>
               
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
                   placeholder="Oyun ara..."
-                  className="w-64 pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-64 pl-10 pr-4 py-2 bg-gray-900 border border-gray-700 rounded text-white placeholder-gray-400 focus:outline-none focus:border-yellow-500"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -358,7 +357,7 @@ const Casino = () => {
 
       <div className="container mx-auto flex gap-0">
         {/* Left Sidebar - Same structure as Index */}
-        <div className="w-64 bg-muted/30 min-h-screen border-r">
+        <div className="w-64 bg-gray-900 min-h-screen border-r border-gray-800">
           {/* Quick Links */}
           <div className="p-4 border-b border-border">
             <h3 className="text-destructive font-semibold mb-3 text-sm">Hızlı Linkler</h3>

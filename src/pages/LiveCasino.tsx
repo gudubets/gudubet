@@ -91,68 +91,67 @@ const LiveCasino = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header Navigation */}
-      <header className="bg-slate-900 border-b border-border">
-        {/* Main Navigation */}
+    <div className="min-h-screen bg-black text-white">
+      {/* Header Navigation - Casibom Style */}
+      <header className="bg-black border-b border-gray-800">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-8">
-              <a href="/" className="bg-destructive px-4 py-2 rounded hover:bg-destructive/90 transition-colors cursor-pointer">
-                <span className="text-destructive-foreground font-bold">GUDUBET</span>
+              <a href="/" className="text-yellow-400 font-bold text-xl">
+                casibom
               </a>
               
               {/* Main Navigation Links */}
               <nav className="hidden lg:flex items-center space-x-6">
-                <a href="/" className="text-muted-foreground hover:text-white transition-colors">Ana Sayfa</a>
-                <a href="/sports-betting" className="text-muted-foreground hover:text-white transition-colors">Spor</a>
-                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Canlı</a>
-                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Casino</a>
-                <a href="/live-casino" className="text-primary border-b-2 border-primary pb-1">Canlı Casino</a>
-                <a href="/promotions" className="text-muted-foreground hover:text-white transition-colors">Promosyonlar</a>
+                <a href="/" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">ANA SAYFA</a>
+                <a href="/sports-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">SPOR</a>
+                <a href="/live-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CANLI</a>
+                <a href="/casino" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CASINO</a>
+                <a href="/live-casino" className="text-yellow-400 border-b border-yellow-400 pb-1 text-sm">CANLI CASINO</a>
+                <a href="/promotions" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">PROMOSYONLAR</a>
               </nav>
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" size="sm" className="text-gray-300 hover:text-yellow-400">
                 <span className="text-lg">💬</span>
               </Button>
-              <Button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
-                Giriş Yap
+              <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 text-sm">
+                GİRİŞ
               </Button>
-              <Button className="bg-green-600 hover:bg-green-700 text-white">
-                Üye Ol
+              <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 text-sm">
+                ÜYE OL
               </Button>
             </div>
           </div>
         </div>
 
         {/* Game Categories */}
-        <div className="border-t border-slate-700">
+        <div className="border-t border-gray-800">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-12">
               <div className="flex items-center space-x-8">
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-primary">
-                  🎲 Canlı Casino
+                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-yellow-400">
+                  🎲 CANLI CASINO
                 </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🃏 Blackjack
+                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
+                  🃏 BLACKJACK
                 </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🎰 Rulet
+                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
+                  🎰 RULET
                 </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  ♠️ Baccarat
+                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
+                  ♠️ BACCARAT
                 </Button>
-                <Button variant="ghost" className="text-sm hover:bg-white/5 text-muted-foreground hover:text-white">
-                  🎪 Show Games
+                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
+                  🎪 SHOW GAMES
                 </Button>
               </div>
               
-              <Button variant="ghost" className="text-muted-foreground hover:text-white text-sm">
-                🔍 Ara
+              <Button variant="ghost" className="text-gray-300 hover:text-yellow-400 text-xs">
+                🔍 ARA
               </Button>
             </div>
           </div>
@@ -161,7 +160,7 @@ const LiveCasino = () => {
 
       <div className="container mx-auto flex gap-0">
         {/* Left Sidebar */}
-        <div className="w-64 bg-muted/30 min-h-screen border-r">
+        <div className="w-64 bg-gray-900 min-h-screen border-r border-gray-800">
           {/* Quick Links */}
           <div className="p-4 border-b border-border">
             <h3 className="text-destructive font-semibold mb-3 text-sm">Hızlı Linkler</h3>
@@ -232,7 +231,7 @@ const LiveCasino = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 bg-background min-h-screen">
+        <div className="flex-1 bg-black min-h-screen">
           {/* Hero Banner */}
           <div className="relative h-64 bg-gradient-to-r from-blue-900 via-purple-900 to-orange-900 overflow-hidden">
             <div className="absolute inset-0 bg-black/30"></div>
@@ -357,7 +356,7 @@ const LiveCasino = () => {
         </div>
 
         {/* Right Sidebar - Live Tables */}
-        <div className="w-80 bg-muted/30 min-h-screen border-l">
+        <div className="w-80 bg-gray-900 min-h-screen border-l border-gray-800">
           <div className="sticky top-0">
             {/* Live Tables Header */}
             <div className="bg-destructive text-destructive-foreground p-4">
