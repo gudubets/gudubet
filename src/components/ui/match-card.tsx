@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils"
 
 export interface Team {
   name: string
-  logo: string
+  logo?: string
+  flag?: string
 }
 
 export interface MatchCardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -24,11 +25,17 @@ const MatchCard = React.forwardRef<HTMLDivElement, MatchCardProps>(
       >
         {/* Home Team */}
         <div className="flex items-center gap-3 flex-1">
-          <img
-            src={homeTeam.logo}
-            alt={`${homeTeam.name} logo`}
-            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-          />
+          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-muted flex-shrink-0">
+            {homeTeam.logo ? (
+              <img
+                src={homeTeam.logo}
+                alt={`${homeTeam.name} logo`}
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <span className="text-lg">{homeTeam.flag || '⚽'}</span>
+            )}
+          </div>
           <span className="font-bold text-card-foreground text-sm md:text-base truncate">
             {homeTeam.name}
           </span>
@@ -46,11 +53,17 @@ const MatchCard = React.forwardRef<HTMLDivElement, MatchCardProps>(
           <span className="font-bold text-card-foreground text-sm md:text-base truncate text-right">
             {awayTeam.name}
           </span>
-          <img
-            src={awayTeam.logo}
-            alt={`${awayTeam.name} logo`}
-            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-          />
+          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-muted flex-shrink-0">
+            {awayTeam.logo ? (
+              <img
+                src={awayTeam.logo}
+                alt={`${awayTeam.name} logo`}
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <span className="text-lg">{awayTeam.flag || '⚽'}</span>
+            )}
+          </div>
         </div>
       </div>
     )
