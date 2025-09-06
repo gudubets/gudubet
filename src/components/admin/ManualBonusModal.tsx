@@ -271,8 +271,8 @@ export const ManualBonusModal = ({ isOpen, onClose, onSave }: ManualBonusModalPr
                         <div className="font-medium">{campaign.name}</div>
                         <div className="text-sm text-muted-foreground">
                           {campaign.amount_type === 'percentage' 
-                            ? `%${campaign.amount_value}` 
-                            : `₺${campaign.amount_value.toLocaleString('tr-TR')}`
+                            ? `%${campaign.amount_value || 0}` 
+                            : `₺${(campaign.amount_value || 0).toLocaleString('tr-TR')}`
                           }
                         </div>
                       </div>
@@ -290,8 +290,8 @@ export const ManualBonusModal = ({ isOpen, onClose, onSave }: ManualBonusModalPr
                   <p><strong>Tür:</strong> {selectedCampaignData.bonus_type}</p>
                   <p><strong>Miktar:</strong> {
                     selectedCampaignData.amount_type === 'percentage' 
-                      ? `%${selectedCampaignData.amount_value}` 
-                      : `₺${selectedCampaignData.amount_value.toLocaleString('tr-TR')}`
+                      ? `%${selectedCampaignData.amount_value || 0}` 
+                      : `₺${(selectedCampaignData.amount_value || 0).toLocaleString('tr-TR')}`
                   }</p>
                 </div>
               </div>

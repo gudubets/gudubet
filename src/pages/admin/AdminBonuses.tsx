@@ -233,9 +233,9 @@ const AdminBonuses = () => {
 
   const formatAmount = (bonus: BonusCampaign) => {
     if (bonus.amount_type === 'percentage') {
-      return `%${bonus.amount_value}`;
+      return `%${bonus.amount_value || 0}`;
     }
-    return `₺${bonus.amount_value.toLocaleString('tr-TR')}`;
+    return `₺${(bonus.amount_value || 0).toLocaleString('tr-TR')}`;
   };
 
   const exportData = () => {
@@ -342,7 +342,7 @@ const AdminBonuses = () => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₺{stats.totalValue.toLocaleString('tr-TR')}</div>
+            <div className="text-2xl font-bold">₺{(stats.totalValue || 0).toLocaleString('tr-TR')}</div>
             <p className="text-xs text-muted-foreground">
               Sabit bonus değeri
             </p>
@@ -465,11 +465,11 @@ const AdminBonuses = () => {
                       {formatAmount(bonus)}
                       {bonus.max_amount && (
                         <div className="text-xs text-muted-foreground">
-                          Max: ₺{bonus.max_amount.toLocaleString('tr-TR')}
+                          Max: ₺{(bonus.max_amount || 0).toLocaleString('tr-TR')}
                         </div>
                       )}
                     </TableCell>
-                    <TableCell>₺{bonus.min_deposit.toLocaleString('tr-TR')}</TableCell>
+                    <TableCell>₺{(bonus.min_deposit || 0).toLocaleString('tr-TR')}</TableCell>
                     <TableCell>{bonus.wagering_requirement}x</TableCell>
                     <TableCell>
                       <Badge variant="secondary">
