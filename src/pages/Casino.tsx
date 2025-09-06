@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Heart, Play, Star, TrendingUp, Zap, Trophy, Gift, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -143,9 +143,9 @@ const Casino = () => {
     const isFavorite = favorites.some(fav => fav.game_id === game.id);
 
     return (
-      <Card className="group overflow-hidden bg-card hover:bg-muted/50 transition-all duration-300 transform hover:-translate-y-1">
+      <Card className="group overflow-hidden bg-slate-800 border border-slate-700 hover:border-teal-500 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
         <CardContent className="p-0 relative">
-          <div className="aspect-[3/4] bg-gradient-to-br from-primary/20 to-secondary/20 relative overflow-hidden">
+          <div className="aspect-video bg-gradient-to-br from-purple-600 to-pink-600 relative overflow-hidden">
             {game.thumbnail_url ? (
               <img
                 src={game.thumbnail_url}
@@ -154,35 +154,35 @@ const Casino = () => {
                 loading="lazy"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-muted">
-                <Play className="h-12 w-12 text-muted-foreground" />
+              <div className="w-full h-full flex items-center justify-center">
+                <Play className="h-12 w-12 text-white" />
               </div>
             )}
 
             {/* Overlay with buttons */}
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <Button size="lg" className="bg-primary hover:bg-primary/90">
+              <Button size="lg" className="bg-teal-600 hover:bg-teal-700 text-white">
                 <Play className="w-4 h-4 mr-2" />
-                Hemen Oyna
+                Oyna
               </Button>
             </div>
 
             {/* Badges */}
             <div className="absolute top-2 left-2 flex flex-col gap-1">
               {game.is_new && (
-                <Badge variant="secondary" className="bg-green-600 text-white">
+                <Badge className="bg-green-600 text-white text-xs">
                   <Zap className="w-3 h-3 mr-1" />
                   Yeni
                 </Badge>
               )}
               {game.is_featured && (
-                <Badge variant="secondary" className="bg-yellow-600 text-white">
+                <Badge className="bg-yellow-600 text-white text-xs">
                   <Star className="w-3 h-3 mr-1" />
                   Öne Çıkan
                 </Badge>
               )}
               {game.is_popular && (
-                <Badge variant="secondary" className="bg-red-600 text-white">
+                <Badge className="bg-red-600 text-white text-xs">
                   <TrendingUp className="w-3 h-3 mr-1" />
                   Popüler
                 </Badge>
@@ -194,7 +194,10 @@ const Casino = () => {
               variant="ghost"
               size="sm"
               className="absolute top-2 right-2 w-8 h-8 p-0 bg-black/30 hover:bg-black/50"
-              onClick={() => toggleFavorite(game.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFavorite(game.id);
+              }}
             >
               <Heart
                 className={`w-4 h-4 ${
@@ -206,7 +209,7 @@ const Casino = () => {
             {/* Jackpot indicator */}
             {game.jackpot_amount > 0 && (
               <div className="absolute bottom-2 left-2">
-                <Badge className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white">
+                <Badge className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white text-xs">
                   <Trophy className="w-3 h-3 mr-1" />
                   ₺{game.jackpot_amount.toLocaleString()}
                 </Badge>
@@ -215,9 +218,9 @@ const Casino = () => {
           </div>
 
           {/* Game info */}
-          <div className="p-4">
-            <h3 className="font-semibold text-sm truncate mb-1">{game.name}</h3>
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="p-3">
+            <h3 className="text-white font-semibold text-sm mb-1">{game.name}</h3>
+            <div className="flex items-center justify-between text-xs text-slate-400">
               {game.rtp_percentage && (
                 <span>RTP: %{game.rtp_percentage}</span>
               )}
@@ -244,135 +247,331 @@ const Casino = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Banner */}
-      <div className="relative h-64 md:h-80 bg-gradient-to-r from-blue-900 via-purple-900 to-orange-900 overflow-hidden">
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="text-center text-white px-4">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-              Casino & Slot Oyunları
-            </h1>
-            <p className="text-lg md:text-xl mb-6">En heyecan verici casino oyunları sizi bekliyor!</p>
-            <Button size="lg" className="bg-primary hover:bg-primary/90">
-              <Gift className="w-5 h-5 mr-2" />
-              Hoşgeldin Bonusunu Al
-            </Button>
+      {/* Header Navigation - Same as Index page */}
+      <header className="bg-slate-900 border-b border-border">
+        {/* Main Navigation */}
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center space-x-8">
+              <a href="/" className="bg-destructive px-4 py-2 rounded hover:bg-destructive/90 transition-colors cursor-pointer">
+                <span className="text-destructive-foreground font-bold">GUDUBET</span>
+              </a>
+              
+              {/* Main Navigation Links */}
+              <nav className="hidden lg:flex items-center space-x-6">
+                <a href="/" className="text-muted-foreground hover:text-white transition-colors">Ana Sayfa</a>
+                <a href="/sports-betting" className="text-muted-foreground hover:text-white transition-colors">Spor</a>
+                <a href="/live-betting" className="text-muted-foreground hover:text-white transition-colors">Canlı</a>
+                <a href="/casino" className="text-primary border-b-2 border-primary pb-1">Casino</a>
+                <a href="/live-casino" className="text-muted-foreground hover:text-white transition-colors">Canlı Casino</a>
+                <a href="#" className="text-muted-foreground hover:text-white transition-colors">Promosyonlar</a>
+                <Select>
+                  <SelectTrigger className="w-32 bg-transparent border-none text-muted-foreground hover:text-white">
+                    <SelectValue placeholder="Daha Fazla" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tournaments">Turnuvalar</SelectItem>
+                    <SelectItem value="statistics">İstatistikler</SelectItem>
+                    <SelectItem value="results">Sonuçlar</SelectItem>
+                  </SelectContent>
+                </Select>
+              </nav>
+            </div>
+
+            {/* Right Side Actions */}
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+                <span className="text-lg">💬</span>
+              </Button>
+              <Button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                Giriş Yap
+              </Button>
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                Üye Ol
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex gap-8">
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Search Bar */}
-            <div className="mb-6">
-              <div className="relative max-w-md">
+        {/* Game Categories */}
+        <div className="border-t border-slate-700">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-12">
+              <div className="flex items-center space-x-8">
+                <Button 
+                  variant="ghost" 
+                  className={`text-sm hover:bg-white/5 transition-colors ${
+                    selectedCategory === 'all' || selectedCategory === categories.find(c => c.slug === 'slots')?.id 
+                      ? 'text-white bg-white/10' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedCategory(categories.find(c => c.slug === 'slots')?.id || 'all')}
+                >
+                  🎰 Slot Oyunları
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className={`text-sm hover:bg-white/5 transition-colors ${
+                    selectedCategory === categories.find(c => c.slug === 'table-games')?.id 
+                      ? 'text-white bg-white/10' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedCategory(categories.find(c => c.slug === 'table-games')?.id || 'all')}
+                >
+                  🃏 Masa Oyunları
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className={`text-sm hover:bg-white/5 transition-colors ${
+                    selectedCategory === categories.find(c => c.slug === 'live-casino')?.id 
+                      ? 'text-white bg-white/10' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedCategory(categories.find(c => c.slug === 'live-casino')?.id || 'all')}
+                >
+                  🎲 Canlı Casino
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className={`text-sm hover:bg-white/5 transition-colors ${
+                    selectedCategory === categories.find(c => c.slug === 'jackpot')?.id 
+                      ? 'text-white bg-white/10' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedCategory(categories.find(c => c.slug === 'jackpot')?.id || 'all')}
+                >
+                  🎯 Jackpot
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className={`text-sm hover:bg-white/5 transition-colors ${
+                    selectedCategory === 'new' 
+                      ? 'text-white bg-white/10' : 'text-muted-foreground hover:text-white'
+                  }`}
+                  onClick={() => setSelectedCategory('new')}
+                >
+                  🆕 Yeni Oyunlar
+                </Button>
+              </div>
+              
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <input
                   type="text"
                   placeholder="Oyun ara..."
-                  className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-64 pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-teal-500"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
+          </div>
+        </div>
+      </header>
 
-            {/* Category Tabs */}
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-8">
-              <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full">
-                <TabsTrigger value="all">Tümü</TabsTrigger>
-                <TabsTrigger value="featured">Öne Çıkan</TabsTrigger>
-                <TabsTrigger value="new">Yeni</TabsTrigger>
-                <TabsTrigger value="popular">Popüler</TabsTrigger>
-                {categories.slice(0, 2).map((category) => (
-                  <TabsTrigger key={category.id} value={category.id} className="hidden lg:flex">
-                    {category.name}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              <TabsContent value={selectedCategory} className="mt-6">
-                {/* Games Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                  {filteredGames.map((game) => (
-                    <GameCard key={game.id} game={game} />
-                  ))}
-                </div>
-
-                {filteredGames.length === 0 && (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground text-lg">
-                      {searchQuery ? 'Aradığınız oyun bulunamadı.' : 'Bu kategoride henüz oyun bulunmuyor.'}
-                    </p>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
+      <div className="container mx-auto flex gap-0">
+        {/* Left Sidebar - Same structure as Index */}
+        <div className="w-64 bg-muted/30 min-h-screen border-r">
+          {/* Quick Links */}
+          <div className="p-4 border-b border-border">
+            <h3 className="text-destructive font-semibold mb-3 text-sm">Hızlı Linkler</h3>
+            <div className="space-y-2">
+              <Button 
+                variant="ghost" 
+                className={`w-full justify-start text-sm hover:bg-muted ${
+                  selectedCategory === 'featured' ? 'bg-muted text-primary' : ''
+                }`}
+                onClick={() => setSelectedCategory('featured')}
+              >
+                <Trophy className="h-4 w-4 mr-2" />
+                Öne Çıkan Oyunlar
+              </Button>
+              <Button 
+                variant="ghost" 
+                className={`w-full justify-start text-sm hover:bg-muted ${
+                  selectedCategory === 'new' ? 'bg-muted text-primary' : ''
+                }`}
+                onClick={() => setSelectedCategory('new')}
+              >
+                <Star className="h-4 w-4 mr-2" />
+                Yeni Oyunlar
+              </Button>
+              <Button 
+                variant="ghost" 
+                className={`w-full justify-start text-sm hover:bg-muted ${
+                  selectedCategory === 'popular' ? 'bg-muted text-primary' : ''
+                }`}
+                onClick={() => setSelectedCategory('popular')}
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Popüler Oyunlar
+              </Button>
+              <Button 
+                variant="ghost" 
+                className={`w-full justify-start text-sm hover:bg-muted text-destructive ${
+                  selectedCategory === categories.find(c => c.slug === 'jackpot')?.id ? 'bg-muted' : ''
+                }`}
+                onClick={() => setSelectedCategory(categories.find(c => c.slug === 'jackpot')?.id || 'all')}
+              >
+                <Gift className="h-4 w-4 mr-2" />
+                Jackpot Oyunları
+              </Button>
+            </div>
           </div>
 
-          {/* Right Sidebar */}
-          <div className="hidden lg:block w-80">
-            <div className="sticky top-4 space-y-6">
-              {/* Jackpot Pool */}
-              <Card className="bg-gradient-to-br from-yellow-600 to-orange-600 text-white border-0">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Trophy className="h-6 w-6" />
-                    <h3 className="font-bold text-lg">Mega Jackpot</h3>
+          {/* Game Categories */}
+          <div className="p-4 border-b border-border">
+            <h3 className="text-destructive font-semibold mb-3 text-sm">Oyun Kategorileri</h3>
+            <div className="space-y-1">
+              <Button 
+                variant="ghost" 
+                className={`w-full justify-between text-sm hover:bg-muted text-muted-foreground ${
+                  selectedCategory === 'all' ? 'bg-muted text-primary' : ''
+                }`}
+                onClick={() => setSelectedCategory('all')}
+              >
+                <span className="flex items-center">
+                  <span className="mr-2">🎲</span>
+                  Tüm Oyunlar
+                </span>
+                <span className="text-xs bg-muted px-2 py-1 rounded">{games.length}</span>
+              </Button>
+              {categories.map((category) => (
+                <Button 
+                  key={category.id}
+                  variant="ghost" 
+                  className={`w-full justify-between text-sm hover:bg-muted text-muted-foreground ${
+                    selectedCategory === category.id ? 'bg-muted text-primary' : ''
+                  }`}
+                  onClick={() => setSelectedCategory(category.id)}
+                >
+                  <span className="flex items-center">
+                    <span className="mr-2">
+                      {category.slug === 'slots' ? '🎰' :
+                       category.slug === 'live-casino' ? '🎲' :
+                       category.slug === 'table-games' ? '🃏' :
+                       category.slug === 'jackpot' ? '🎯' : '🎮'}
+                    </span>
+                    {category.name}
+                  </span>
+                  <span className="text-xs bg-muted px-2 py-1 rounded">
+                    {games.filter(g => g.category_id === category.id).length}
+                  </span>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Providers */}
+          <div className="p-4">
+            <h3 className="text-destructive font-semibold mb-3 text-sm">Sağlayıcılar</h3>
+            <div className="space-y-1">
+              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted text-muted-foreground">
+                Pragmatic Play <span className="ml-auto text-xs">150</span>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted text-muted-foreground">
+                Evolution Gaming <span className="ml-auto text-xs">85</span>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted text-muted-foreground">
+                NetEnt <span className="ml-auto text-xs">95</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 bg-background min-h-screen">
+          {/* Hero Banner - Same style as Index */}
+          <div className="relative h-64 bg-gradient-to-r from-blue-900 via-purple-900 to-orange-900 overflow-hidden">
+            <div className="absolute inset-0 bg-black/30"></div>
+            <div className="relative z-10 h-full flex items-center justify-center">
+              <div className="text-center">
+                <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                  Casino Oyunları
+                </h1>
+                <p className="text-xl text-white mb-4">En Heyecan Verici Casino Deneyimi</p>
+                <Button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                  <Gift className="w-4 h-4 mr-2" />
+                  Hoşgeldin Bonusu Al
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Games Grid */}
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredGames.map((game) => (
+                <GameCard key={game.id} game={game} />
+              ))}
+            </div>
+
+            {filteredGames.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-lg">
+                  {searchQuery ? 'Aradığınız oyun bulunamadı.' : 'Bu kategoride henüz oyun bulunmuyor.'}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Sidebar - Promotions */}
+        <div className="w-80 bg-muted/30 min-h-screen border-l">
+          <div className="sticky top-0">
+            {/* Promotions Header */}
+            <div className="bg-destructive text-destructive-foreground p-4">
+              <h3 className="font-semibold">Aktif Promosyonlar</h3>
+            </div>
+
+            {/* Promotions Content */}
+            <div className="p-4 space-y-4">
+              <Card className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Gift className="h-5 w-5" />
+                    <span className="font-semibold">Hoşgeldin Bonusu</span>
                   </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold mb-2">₺15.750.000</div>
-                    <div className="text-sm opacity-90">Son kazanan: Ahmet K.</div>
-                    <Button className="w-full mt-4 bg-white text-orange-600 hover:bg-gray-100">
-                      Şansını Dene
-                    </Button>
-                  </div>
+                  <p className="text-sm opacity-90 mb-3">%100 Bonus + 100 Freespin</p>
+                  <Button className="w-full bg-white text-purple-600 hover:bg-gray-100">
+                    Bonus Al
+                  </Button>
                 </CardContent>
               </Card>
 
-              {/* Recommended Games */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                    <Star className="h-5 w-5 text-primary" />
-                    Önerilen Oyunlar
-                  </h3>
-                  <div className="space-y-3">
-                    {games.filter(game => game.is_featured).slice(0, 4).map((game) => (
-                      <div key={game.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer">
-                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center flex-shrink-0">
-                          <Play className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm truncate">{game.name}</h4>
-                          <p className="text-xs text-muted-foreground">
-                            {game.rtp_percentage ? `RTP: %${game.rtp_percentage}` : 'Popüler'}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+              <Card className="bg-gradient-to-r from-green-600 to-emerald-600 text-white border-0">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="h-5 w-5" />
+                    <span className="font-semibold">Günlük Cashback</span>
                   </div>
+                  <p className="text-sm opacity-90 mb-3">%10 Kayıp İadesi</p>
+                  <Button className="w-full bg-white text-green-600 hover:bg-gray-100">
+                    Detaylar
+                  </Button>
                 </CardContent>
               </Card>
 
-              {/* Category List for Mobile Alternative */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="font-bold text-lg mb-4">Kategoriler</h3>
-                  <div className="space-y-2">
-                    {categories.map((category) => (
-                      <Button
-                        key={category.id}
-                        variant={selectedCategory === category.id ? "default" : "ghost"}
-                        className="w-full justify-start"
-                        onClick={() => setSelectedCategory(category.id)}
-                      >
-                        {category.name}
-                      </Button>
-                    ))}
+              <Card className="bg-gradient-to-r from-orange-600 to-red-600 text-white border-0">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className="h-5 w-5" />
+                    <span className="font-semibold">Haftalık Turnuva</span>
                   </div>
+                  <p className="text-sm opacity-90 mb-3">₺50,000 Ödül Havuzu</p>
+                  <Button className="w-full bg-white text-red-600 hover:bg-gray-100">
+                    Katıl
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Trophy className="h-5 w-5" />
+                    <span className="font-semibold">Mega Jackpot</span>
+                  </div>
+                  <p className="text-sm opacity-90 mb-3">₺15,750,000</p>
+                  <Button className="w-full bg-white text-blue-600 hover:bg-gray-100">
+                    Şansını Dene
+                  </Button>
                 </CardContent>
               </Card>
             </div>
