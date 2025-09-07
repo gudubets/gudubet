@@ -315,7 +315,11 @@ const BettingRules = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col md:flex-row gap-4 justify-center">
-                  <Badge variant="outline" className="px-4 py-2">
+                  <Badge 
+                    variant="outline" 
+                    className="px-4 py-2 cursor-pointer hover:bg-primary/10 transition-colors"
+                    onClick={() => window.location.href = '/live-support'}
+                  >
                     📞 7/24 Canlı Destek
                   </Badge>
                   <Badge variant="outline" className="px-4 py-2">

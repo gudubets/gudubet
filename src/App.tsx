@@ -19,6 +19,7 @@ import ResponsibleGaming from "./pages/ResponsibleGaming";
 import ContactUs from "./pages/ContactUs";
 import HelpCenter from "./pages/HelpCenter";
 import BettingRules from "./pages/BettingRules";
+import LiveSupport from "./pages/LiveSupport";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/help-center" element={<HelpCenter />} />
           <Route path="/betting-rules" element={<BettingRules />} />
+          <Route path="/live-support" element={<LiveSupport />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
