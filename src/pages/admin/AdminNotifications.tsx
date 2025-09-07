@@ -306,12 +306,12 @@ const AdminNotifications = () => {
 
                 <div>
                   <Label htmlFor="target_user">Hedef Kullanıcı (Boş bırakırsan tüm kullanıcılara gider)</Label>
-                  <Select value={newNotification.target_user_id} onValueChange={(value) => setNewNotification(prev => ({ ...prev, target_user_id: value }))}>
+                  <Select value={newNotification.target_user_id || "all"} onValueChange={(value) => setNewNotification(prev => ({ ...prev, target_user_id: value === "all" ? "" : value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Kullanıcı seç (opsiyonel)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tüm Kullanıcılar</SelectItem>
+                      <SelectItem value="all">Tüm Kullanıcılar</SelectItem>
                       {users.map(user => (
                         <SelectItem key={user.id} value={user.id}>
                           {user.email} {user.first_name && user.last_name && `(${user.first_name} ${user.last_name})`}
