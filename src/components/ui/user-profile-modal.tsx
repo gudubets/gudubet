@@ -1,0 +1,160 @@
+import React from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { 
+  User, 
+  MessageSquare, 
+  Crown, 
+  Trophy, 
+  Zap, 
+  Gift, 
+  RotateCw, 
+  Clock,
+  LogOut
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface UserProfileModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  user?: {
+    email: string;
+    first_name?: string;
+    last_name?: string;
+  };
+}
+
+const UserProfileModal = ({ isOpen, onClose, user }: UserProfileModalProps) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      onClose();
+      navigate('/');
+      toast({
+        title: "Başarıyla çıkış yapıldı",
+        description: "Güvenle çıkış yaptınız."
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Hata",
+        description: "Çıkış yapılırken bir hata oluştu.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDepositClick = () => {
+    onClose();
+    navigate('/deposit-withdrawal');
+  };
+
+  const handleAccountClick = () => {
+    onClose();
+    navigate('/profile');
+  };
+
+  const getUserDisplayName = () => {
+    if (user?.first_name || user?.last_name) {
+      return `${user.first_name || ''} ${user.last_name || ''}`.trim();
+    }
+    return user?.email?.split('@')[0] || 'Kullanıcı';
+  };
+
+  const menuItems = [
+    { icon: MessageSquare, label: 'MESAJLAR', value: 'HİÇ MESAJINIZ YOK', color: 'text-gray-400' },
+    { icon: Crown, label: 'VIP SEVİYENİZ', value: 'SİLVER', color: 'text-silver' },
+    { icon: Trophy, label: 'SEVİYE PUANI', value: '1,186.50', color: 'text-green-500' },
+    { icon: Zap, label: 'FREESPINS', value: '0', color: 'text-orange-500' },
+    { icon: Gift, label: 'BONUS', value: '0,00₺', color: 'text-purple-500' },
+    { icon: RotateCw, label: 'TOPLAM ÇEVİRİM', value: 'AKTİF BONUS YOK', color: 'text-gray-400' },
+    { icon: Clock, label: 'ÇEVİRİM SÜRESİ', value: 'AKTİF BONUS YOK', color: 'text-gray-400' }
+  ];
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md w-full p-0 bg-gradient-to-b from-slate-800 to-slate-900 border-slate-700 text-white">
+        {/* Header Section */}
+        <div className="p-4 space-y-4">
+          {/* Balance and Deposit Button */}
+          <div className="flex items-center gap-3">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2">
+              <span className="text-white font-medium">₺0,41</span>
+            </div>
+            <Button 
+              onClick={handleDepositClick}
+              className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2 rounded-lg flex-1"
+            >
+              PARA YATIR
+            </Button>
+          </div>
+
+          {/* User Name */}
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg p-3 text-center">
+            <span className="text-black font-bold text-lg">{getUserDisplayName()}</span>
+          </div>
+
+          {/* Loss Bonus Section */}
+          <div className="flex items-center gap-3">
+            <div className="bg-slate-700 rounded-lg px-4 py-3 flex-1">
+              <span className="text-white font-medium">KAYIP BONUSU</span>
+            </div>
+            <Button className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-3 rounded-lg">
+              KAYIP BONUSU AL
+            </Button>
+          </div>
+        </div>
+
+        <Separator className="bg-slate-600" />
+
+        {/* Menu Items */}
+        <div className="p-4 space-y-1">
+          {menuItems.map((item, index) => {
+            const IconComponent = item.icon;
+            return (
+              <div key={index} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/5 transition-colors">
+                <div className="flex items-center gap-3">
+                  <IconComponent className="w-4 h-4 text-white/70" />
+                  <span className="text-white font-medium text-sm">{item.label}</span>
+                </div>
+                <span className={`text-sm font-medium ${item.color}`}>
+                  {item.value}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <Separator className="bg-slate-600" />
+
+        {/* Bottom Actions */}
+        <div className="p-4 flex items-center gap-3">
+          <Button 
+            onClick={handleAccountClick}
+            variant="outline" 
+            className="flex-1 bg-amber-500/20 border-amber-500/30 text-amber-100 hover:bg-amber-500/30 font-medium"
+          >
+            <User className="w-4 h-4 mr-2" />
+            HESABIM
+          </Button>
+          <Button 
+            onClick={handleLogout}
+            variant="outline" 
+            className="flex-1 bg-amber-500/20 border-amber-500/30 text-amber-100 hover:bg-amber-500/30 font-medium"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            ÇIKIŞ
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default UserProfileModal;

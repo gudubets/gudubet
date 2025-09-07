@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RegistrationModal } from '@/components/auth/RegistrationModal';
 import { LoginModal } from '@/components/auth/LoginModal';
+import UserProfileModal from '@/components/ui/user-profile-modal';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 import { Link, useLocation } from 'react-router-dom';
@@ -10,6 +11,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const location = useLocation();
@@ -100,7 +102,7 @@ const Header = () => {
                 <Button variant="ghost" className="text-white hover:bg-white/10 p-2">
                   <Bell className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" onClick={handleLogout} className="text-white hover:bg-white/10 p-2">
+                <Button variant="ghost" onClick={() => setIsProfileModalOpen(true)} className="text-white hover:bg-white/10 p-2">
                   <UserIcon className="h-4 w-4" />
                 </Button>
               </div>}
@@ -140,6 +142,17 @@ const Header = () => {
       {/* Login and Registration Modals */}
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
       <RegistrationModal isOpen={isRegistrationModalOpen} onClose={() => setIsRegistrationModalOpen(false)} />
+      
+      {/* User Profile Modal */}
+      <UserProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)}
+        user={user ? {
+          email: user.email || '',
+          first_name: user.user_metadata?.first_name,
+          last_name: user.user_metadata?.last_name
+        } : undefined}
+      />
     </header>;
 };
 export default Header;
