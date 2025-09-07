@@ -74,7 +74,7 @@ const VIP = () => {
             <div className="text-center mb-16">
               <div className="flex items-center justify-center mb-10 py-8 px-6">
                 <Crown className="w-16 h-16 text-yellow-500 mr-4" />
-                <h1 className="text-5xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
                   GuduBet VIP Programı
                 </h1>
               </div>
