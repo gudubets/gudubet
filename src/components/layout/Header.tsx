@@ -89,7 +89,7 @@ const Header = () => {
                 <Button variant="outline" onClick={() => setIsLoginModalOpen(true)} className="text-black bg-white border-white hover:bg-gray-100 text-xs px-4 h-8 uppercase font-medium">
                   GİRİŞ
                 </Button>
-                <Button onClick={() => setIsRegistrationModalOpen(true)} className="bg-green-500 hover:bg-green-600 text-white text-sm px-6 h-9 uppercase font-medium">
+                <Button onClick={() => setIsRegistrationModalOpen(true)} className="bg-green-500 hover:bg-green-600 text-white text-xs px-4 h-8 uppercase font-medium">
                   ÜYE OL
                 </Button>
               </> : <div className="flex items-center space-x-4">
