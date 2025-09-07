@@ -7,6 +7,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 import { RegistrationModal } from '@/components/auth/RegistrationModal';
 import FloatingSupportButton from '@/components/ui/floating-support-button';
+import treasureImage from '@/assets/treasure.png';
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
@@ -329,7 +330,7 @@ const Index = () => {
 
             {/* VIP Program */}
             <Card className="bg-gradient-to-r from-green-600 to-emerald-500 border-none text-white overflow-hidden">
-              <CardContent className="p-6">
+              <CardContent className="p-6 relative bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url(${treasureImage})`}}>
                 <div className="text-center">
                   <div className="flex justify-center space-x-4 mb-4">
                     <div className="text-center">
