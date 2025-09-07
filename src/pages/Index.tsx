@@ -34,8 +34,8 @@ const Index = () => {
                   <div className="absolute top-1/3 right-1/4 text-6xl opacity-20">🎰</div>
                   <div className="absolute bottom-1/3 left-1/4 text-4xl opacity-20">🎲</div>
                   
-                  <div className="relative z-10 h-full flex items-center justify-between px-8 md:px-16">
-                    <div className="flex-1">
+                  <div className="relative z-10 h-full flex items-center justify-center px-8 md:px-16">
+                    <div className="flex-1 flex flex-col items-center justify-center text-center">
                       <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
                         <span className="text-yellow-300 text-6xl md:text-8xl">2000TL</span>
                       </h1>
