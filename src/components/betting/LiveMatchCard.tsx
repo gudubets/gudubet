@@ -84,10 +84,10 @@ const LiveMatchCard: React.FC<LiveMatchCardProps> = ({
         </div>
       )}
       
-      <CardContent className="p-4">
+      <CardContent className="p-2 md:p-4">
         {/* Match Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between mb-2 md:mb-4">
+          <div className="flex items-center gap-1 md:gap-2">
             <Badge variant="outline" className="text-xs">
               {match.league}
             </Badge>
@@ -96,7 +96,7 @@ const LiveMatchCard: React.FC<LiveMatchCardProps> = ({
               {match.match_time || `${match.match_minute}'`}
             </Badge>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 md:gap-3">
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Users className="w-3 h-3" />
               {match.viewers_count.toLocaleString()}
@@ -114,20 +114,20 @@ const LiveMatchCard: React.FC<LiveMatchCardProps> = ({
 
         {/* Teams and Score */}
         <div 
-          className="grid grid-cols-3 items-center gap-4 mb-4 cursor-pointer hover:bg-muted/30 rounded-lg p-2 -m-2 transition-colors"
+          className="grid grid-cols-3 items-center gap-2 md:gap-4 mb-2 md:mb-4 cursor-pointer hover:bg-muted/30 rounded-lg p-1 md:p-2 -m-1 md:-m-2 transition-colors"
           onClick={() => onShowDetails(match)}
         >
           {/* Home Team */}
           <div className="text-right">
-            <div className="flex items-center justify-end gap-2">
-              <span className="font-semibold text-lg">{match.home_team}</span>
-              <span className="text-2xl">{getTeamLogo(match.home_team_logo)}</span>
+            <div className="flex items-center justify-end gap-1 md:gap-2">
+              <span className="font-semibold text-sm md:text-lg truncate">{match.home_team}</span>
+              <span className="text-lg md:text-2xl">{getTeamLogo(match.home_team_logo)}</span>
             </div>
           </div>
           
           {/* Score */}
           <div className="text-center">
-            <div className="text-3xl font-bold text-primary">
+            <div className="text-xl md:text-3xl font-bold text-primary">
               {match.home_score} - {match.away_score}
             </div>
             {match.period && (
@@ -137,25 +137,25 @@ const LiveMatchCard: React.FC<LiveMatchCardProps> = ({
           
           {/* Away Team */}
           <div className="text-left">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">{getTeamLogo(match.away_team_logo)}</span>
-              <span className="font-semibold text-lg">{match.away_team}</span>
+            <div className="flex items-center gap-1 md:gap-2">
+              <span className="text-lg md:text-2xl">{getTeamLogo(match.away_team_logo)}</span>
+              <span className="font-semibold text-sm md:text-lg truncate">{match.away_team}</span>
             </div>
           </div>
         </div>
 
         {/* Main Odds */}
         {mainOdds.length > 0 && (
-          <div className="mb-4">
+          <div className="mb-2 md:mb-4">
             <h4 className="text-sm font-medium text-muted-foreground mb-2">
               {mainOdds[0]?.market_name}
             </h4>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-1 md:gap-2">
               {mainOdds.map((odds) => (
                 <Button
                   key={odds.id}
                   variant="outline"
-                  className="h-12 flex flex-col gap-1 hover:bg-primary hover:text-primary-foreground transition-all"
+                  className="h-8 md:h-12 flex flex-col gap-1 hover:bg-primary hover:text-primary-foreground transition-all"
                   onClick={() => onAddToBetSlip(match, odds)}
                 >
                   <span className="text-xs opacity-75">{odds.selection_name}</span>
