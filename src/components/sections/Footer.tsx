@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MessageCircle, Shield, Award, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 const Footer = () => {
   return <footer className="bg-black text-white">
       {/* Promotional Banner */}
@@ -34,7 +35,12 @@ const Footer = () => {
           <div>
             <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">Genel Kurallar</h3>
             <div className="space-y-2 text-sm">
-              <div>Kurallar ve Şartlar</div>
+              <Link 
+                to="/terms-and-conditions"
+                className="block hover:text-orange-400 transition-colors cursor-pointer"
+              >
+                Kurallar ve Şartlar
+              </Link>
               <div>Gizlilik politikası</div>
               <div>Ortaklık</div>
             </div>
