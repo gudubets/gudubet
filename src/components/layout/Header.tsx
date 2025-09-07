@@ -104,12 +104,12 @@ const Header = () => {
                   ÜYE OL
                 </Button>
               </> : <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 text-white">
+                <Link to="/deposit-withdrawal" className="flex items-center space-x-2 text-white hover:text-orange-400 transition-colors cursor-pointer">
                   <Wallet className="h-4 w-4" />
                   <span className="text-sm">
                     {balanceData.loading ? '...' : `₺${balanceData.total_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
                   </span>
-                </div>
+                </Link>
                 <NotificationsDropdown 
                   notifications={notificationsData.notifications}
                   unreadCount={notificationsData.unreadCount}
