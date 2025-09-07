@@ -41,7 +41,12 @@ const Footer = () => {
               >
                 Kurallar ve Şartlar
               </Link>
-              <div>Gizlilik politikası</div>
+              <Link 
+                to="/privacy-policy"
+                className="block hover:text-orange-400 transition-colors cursor-pointer"
+              >
+                Gizlilik politikası
+              </Link>
               <div>Ortaklık</div>
             </div>
             <div className="space-y-2 text-sm mt-4">
