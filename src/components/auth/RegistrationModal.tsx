@@ -462,10 +462,16 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
           </div>
 
           {/* Mobile Header - Only visible on mobile */}
-          <div className="md:hidden bg-gradient-to-r from-primary/10 to-accent/10 p-4 text-center border-b">
+          <div className="md:hidden bg-gradient-to-r from-primary/10 to-accent/10 p-6 text-center border-b">
+            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-3">
+              <CheckCircle className="w-8 h-8 text-white" />
+            </div>
             <h3 className="text-lg font-bold text-foreground mb-2">
               Hesap Oluştur
             </h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              En iyi bahis deneyimi için kayıt olun
+            </p>
             <div className="flex justify-center space-x-2">
               {[1, 2, 3].map((step) => (
                 <div
@@ -481,7 +487,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
           </div>
 
           {/* Right Side - Form */}
-          <div className="md:w-1/2 w-full p-4 md:p-8 flex flex-col flex-1">
+          <div className="md:w-1/2 w-full p-3 md:p-8 flex flex-col flex-1">
             <div className="flex-1 overflow-y-auto">
               <div 
                 className={`transition-all duration-500 ease-in-out transform ${
