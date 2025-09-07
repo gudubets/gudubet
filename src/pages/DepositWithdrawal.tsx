@@ -18,6 +18,7 @@ const DepositWithdrawal = () => {
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [withdrawalMethod, setWithdrawalMethod] = useState('');
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
@@ -66,10 +67,10 @@ const DepositWithdrawal = () => {
   };
 
   const handleWithdrawal = async () => {
-    if (!withdrawalAmount) {
+    if (!withdrawalAmount || !withdrawalMethod) {
       toast({
         title: "Eksik Bilgi",
-        description: "Lütfen çekmek istediğiniz miktarı giriniz.",
+        description: "Lütfen miktar ve çekim yöntemi seçiniz.",
         variant: "destructive"
       });
       return;
@@ -83,6 +84,7 @@ const DepositWithdrawal = () => {
         description: `₺${withdrawalAmount} çekme talebiniz alındı.`
       });
       setWithdrawalAmount('');
+      setWithdrawalMethod('');
       setLoading(false);
     }, 2000);
   };
@@ -246,6 +248,23 @@ const DepositWithdrawal = () => {
                           </Button>
                         ))}
                       </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="withdrawalMethod">Para Alacak Hesap</Label>
+                      <Select value={withdrawalMethod} onValueChange={setWithdrawalMethod}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Hesap türü seçiniz" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="iban">IBAN / Banka Hesabı</SelectItem>
+                          <SelectItem value="papara">Papara</SelectItem>
+                          <SelectItem value="crypto-btc">Bitcoin (BTC)</SelectItem>
+                          <SelectItem value="crypto-eth">Ethereum (ETH)</SelectItem>
+                          <SelectItem value="crypto-usdt">Tether (USDT)</SelectItem>
+                          <SelectItem value="crypto-other">Diğer Kripto Para</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
