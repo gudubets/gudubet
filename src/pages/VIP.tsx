@@ -72,7 +72,7 @@ const VIP = () => {
         <section className="py-20 bg-gradient-to-b from-background to-muted/20">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-              <div className="flex items-center justify-center mb-6">
+              <div className="flex items-center justify-center mb-10 py-8 px-6">
                 <Crown className="w-16 h-16 text-yellow-500 mr-4" />
                 <h1 className="text-5xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
                   GuduBet VIP Programı
