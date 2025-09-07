@@ -26,18 +26,27 @@ interface LiveMatch {
   away_team: string;
   home_team_logo?: string;
   away_team_logo?: string;
-  match_date: string;
-  match_time: string;
-  sport_type: string;
-  league: string;
-  home_odds: number;
-  draw_odds: number;
-  away_odds: number;
-  is_live: boolean;
-  minute: number;
   home_score: number;
   away_score: number;
+  period?: string;
+  match_minute?: number;
+  match_time?: string;
+  sport_type: string;
+  league?: string;
+  status: string;
   viewers_count: number;
+  is_featured: boolean;
+  odds: LiveOdds[];
+}
+
+interface LiveOdds {
+  id: string;
+  market_type: string;
+  market_name: string;
+  selection: string;
+  selection_name: string;
+  odds_value: number;
+  is_active: boolean;
 }
 
 interface BetSelection {
@@ -88,18 +97,45 @@ const LiveBetting = () => {
           id: '1',
           home_team: 'Barcelona',
           away_team: 'Real Madrid',
-          match_date: '2024-01-20',
+          home_score: 2,
+          away_score: 1,
+          period: '2nd Half',
+          match_minute: 67,
           match_time: '17:00',
           sport_type: 'futbol',
           league: 'El Clasico',
-          home_odds: 2.1,
-          draw_odds: 3.2,
-          away_odds: 3.5,
-          is_live: true,
-          minute: 67,
-          home_score: 2,
-          away_score: 1,
-          viewers_count: 125000
+          status: 'live',
+          viewers_count: 125000,
+          is_featured: true,
+          odds: [
+            {
+              id: '1',
+              market_type: '1X2',
+              market_name: 'Match Winner',
+              selection: '1',
+              selection_name: 'Barcelona',
+              odds_value: 2.1,
+              is_active: true
+            },
+            {
+              id: '2',
+              market_type: '1X2',
+              market_name: 'Match Winner',
+              selection: 'X',
+              selection_name: 'Draw',
+              odds_value: 3.2,
+              is_active: true
+            },
+            {
+              id: '3',
+              market_type: '1X2',
+              market_name: 'Match Winner',
+              selection: '2',
+              selection_name: 'Real Madrid',
+              odds_value: 3.5,
+              is_active: true
+            }
+          ]
         },
       ];
       
@@ -114,12 +150,12 @@ const LiveBetting = () => {
     ? liveMatches 
     : liveMatches.filter(match => match.sport_type === selectedSport);
 
-  const addToBetSlip = (match: LiveMatch, selection: string, odds: number) => {
+  const addToBetSlip = (match: LiveMatch, odds: LiveOdds) => {
     const betSelection: BetSelection = {
       matchId: match.id,
       matchName: `${match.home_team} vs ${match.away_team}`,
-      selection,
-      odds
+      selection: odds.selection_name,
+      odds: odds.odds_value
     };
 
     setBetSlip(prev => {
@@ -134,7 +170,7 @@ const LiveBetting = () => {
 
     toast({
       title: "Bahis Eklendi",
-      description: `${selection} - ${odds} kupona eklendi.`,
+      description: `${odds.selection_name} - ${odds.odds_value} kupona eklendi.`,
     });
   };
 
@@ -248,8 +284,8 @@ const LiveBetting = () => {
               <LiveMatchCard
                 key={match.id}
                 match={match}
-                onBetSelect={addToBetSlip}
-                onDetailsClick={(match) => {
+                onAddToBetSlip={addToBetSlip}
+                onShowDetails={(match) => {
                   setSelectedMatch(match);
                   setIsDetailsOpen(true);
                 }}
