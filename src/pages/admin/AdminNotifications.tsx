@@ -263,6 +263,102 @@ const AdminNotifications = () => {
                 Yeni Bildirim
               </Button>
             </DialogTrigger>
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Yeni Bildirim Oluştur</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="title">Başlık *</Label>
+                  <Input
+                    id="title"
+                    value={newNotification.title}
+                    onChange={(e) => setNewNotification(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Bildirim başlığı..."
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="message">Mesaj *</Label>
+                  <Textarea
+                    id="message"
+                    value={newNotification.message}
+                    onChange={(e) => setNewNotification(prev => ({ ...prev, message: e.target.value }))}
+                    placeholder="Bildirim mesajı..."
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="type">Tür</Label>
+                  <Select value={newNotification.type} onValueChange={(value: 'info' | 'warning' | 'success' | 'error') => setNewNotification(prev => ({ ...prev, type: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="info">Bilgi</SelectItem>
+                      <SelectItem value="success">Başarılı</SelectItem>
+                      <SelectItem value="warning">Uyarı</SelectItem>
+                      <SelectItem value="error">Hata</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="target_user">Hedef Kullanıcı (Boş bırakırsan tüm kullanıcılara gider)</Label>
+                  <Select value={newNotification.target_user_id} onValueChange={(value) => setNewNotification(prev => ({ ...prev, target_user_id: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Kullanıcı seç (opsiyonel)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Tüm Kullanıcılar</SelectItem>
+                      {users.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.email} {user.first_name && user.last_name && `(${user.first_name} ${user.last_name})`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="expires_at">Son Geçerlilik Tarihi (Opsiyonel)</Label>
+                  <Input
+                    id="expires_at"
+                    type="datetime-local"
+                    value={newNotification.expires_at}
+                    onChange={(e) => setNewNotification(prev => ({ ...prev, expires_at: e.target.value }))}
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => setIsCreateModalOpen(false)} 
+                    variant="outline" 
+                    className="flex-1"
+                  >
+                    İptal
+                  </Button>
+                  <Button 
+                    onClick={handleCreateNotification} 
+                    disabled={creating}
+                    className="flex-1"
+                  >
+                    {creating ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Gönderiliyor...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Gönder
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
           </Dialog>
         </div>
       </div>
@@ -393,104 +489,6 @@ const AdminNotifications = () => {
           )}
         </CardContent>
       </Card>
-
-      {/* Create Notification Modal */}
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Yeni Bildirim Oluştur</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="title">Başlık *</Label>
-            <Input
-              id="title"
-              value={newNotification.title}
-              onChange={(e) => setNewNotification(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="Bildirim başlığı..."
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="message">Mesaj *</Label>
-            <Textarea
-              id="message"
-              value={newNotification.message}
-              onChange={(e) => setNewNotification(prev => ({ ...prev, message: e.target.value }))}
-              placeholder="Bildirim mesajı..."
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="type">Tür</Label>
-            <Select value={newNotification.type} onValueChange={(value: 'info' | 'warning' | 'success' | 'error') => setNewNotification(prev => ({ ...prev, type: value }))}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="info">Bilgi</SelectItem>
-                <SelectItem value="success">Başarılı</SelectItem>
-                <SelectItem value="warning">Uyarı</SelectItem>
-                <SelectItem value="error">Hata</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="target_user">Hedef Kullanıcı (Boş bırakırsan tüm kullanıcılara gider)</Label>
-            <Select value={newNotification.target_user_id} onValueChange={(value) => setNewNotification(prev => ({ ...prev, target_user_id: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Kullanıcı seç (opsiyonel)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Tüm Kullanıcılar</SelectItem>
-                {users.map(user => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.email} {user.first_name && user.last_name && `(${user.first_name} ${user.last_name})`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="expires_at">Son Geçerlilik Tarihi (Opsiyonel)</Label>
-            <Input
-              id="expires_at"
-              type="datetime-local"
-              value={newNotification.expires_at}
-              onChange={(e) => setNewNotification(prev => ({ ...prev, expires_at: e.target.value }))}
-            />
-          </div>
-
-          <div className="flex gap-2">
-            <Button 
-              onClick={() => setIsCreateModalOpen(false)} 
-              variant="outline" 
-              className="flex-1"
-            >
-              İptal
-            </Button>
-            <Button 
-              onClick={handleCreateNotification} 
-              disabled={creating}
-              className="flex-1"
-            >
-              {creating ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Gönderiliyor...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Gönder
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
     </div>
   );
 };
