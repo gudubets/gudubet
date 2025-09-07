@@ -210,65 +210,65 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
   };
 
   const renderStep1 = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-gaming font-bold text-foreground mb-2">
+    <div className="space-y-4 md:space-y-6">
+      <div className="text-center mb-4 md:mb-8">
+        <h2 className="text-lg md:text-2xl font-gaming font-bold text-foreground mb-2">
           Kişisel Bilgiler
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-sm md:text-base text-muted-foreground">
           Hesabınızı oluşturmak için kişisel bilgilerinizi giriniz
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
         <div className="space-y-2">
-          <Label htmlFor="firstName">Ad *</Label>
+          <Label htmlFor="firstName" className="text-sm">Ad *</Label>
           <Input
             id="firstName"
             value={formData.firstName}
             onChange={(e) => updateFormData('firstName', e.target.value)}
-            className={errors.firstName ? 'border-destructive' : ''}
+            className={errors.firstName ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
             placeholder="Adınız"
           />
-          {errors.firstName && <p className="text-sm text-destructive">{errors.firstName}</p>}
+          {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="lastName">Soyad *</Label>
+          <Label htmlFor="lastName" className="text-sm">Soyad *</Label>
           <Input
             id="lastName"
             value={formData.lastName}
             onChange={(e) => updateFormData('lastName', e.target.value)}
-            className={errors.lastName ? 'border-destructive' : ''}
+            className={errors.lastName ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
             placeholder="Soyadınız"
           />
-          {errors.lastName && <p className="text-sm text-destructive">{errors.lastName}</p>}
+          {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="phone">Telefon Numarası *</Label>
+        <Label htmlFor="phone" className="text-sm">Telefon Numarası *</Label>
         <Input
           id="phone"
           type="tel"
           value={formData.phone}
           onChange={(e) => updateFormData('phone', e.target.value)}
-          className={errors.phone ? 'border-destructive' : ''}
+          className={errors.phone ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
           placeholder="05xx xxx xx xx"
         />
-        {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
+        {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="birthDate">Doğum Tarihi *</Label>
+        <Label htmlFor="birthDate" className="text-sm">Doğum Tarihi *</Label>
         <Input
           id="birthDate"
           type="date"
           value={formData.birthDate}
           onChange={(e) => updateFormData('birthDate', e.target.value)}
-          className={errors.birthDate ? 'border-destructive' : ''}
+          className={errors.birthDate ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
         />
-        {errors.birthDate && <p className="text-sm text-destructive">{errors.birthDate}</p>}
+        {errors.birthDate && <p className="text-xs text-destructive">{errors.birthDate}</p>}
       </div>
     </div>
   );
@@ -427,10 +427,10 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl h-[600px] p-0 overflow-hidden bg-background border border-border">
-        <div className="flex h-full">
-          {/* Left Side - Animation Area */}
-          <div className="w-1/2 bg-gradient-to-br from-primary/10 to-accent/10 relative overflow-hidden">
+      <DialogContent className="max-w-4xl md:h-[600px] h-[95vh] max-h-[95vh] p-0 overflow-hidden bg-background border border-border w-[95vw] md:w-auto">
+        <div className="flex h-full md:flex-row flex-col">
+          {/* Left Side - Animation Area - Hidden on mobile */}
+          <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-primary/10 to-accent/10 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5" />
             <div className="relative h-full flex items-center justify-center p-8">
               <div className="text-center space-y-6 z-10">
@@ -461,8 +461,27 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             </div>
           </div>
 
+          {/* Mobile Header - Only visible on mobile */}
+          <div className="md:hidden bg-gradient-to-r from-primary/10 to-accent/10 p-4 text-center border-b">
+            <h3 className="text-lg font-bold text-foreground mb-2">
+              Hesap Oluştur
+            </h3>
+            <div className="flex justify-center space-x-2">
+              {[1, 2, 3].map((step) => (
+                <div
+                  key={step}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    step <= currentStep 
+                      ? 'bg-primary' 
+                      : 'bg-muted'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+
           {/* Right Side - Form */}
-          <div className="w-1/2 p-8 flex flex-col">
+          <div className="md:w-1/2 w-full p-4 md:p-8 flex flex-col flex-1">
             <div className="flex-1 overflow-y-auto">
               <div 
                 className={`transition-all duration-500 ease-in-out transform ${
@@ -490,39 +509,39 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between pt-6 border-t border-border">
+            <div className="flex justify-between pt-4 md:pt-6 border-t border-border">
               <Button
                 variant="outline"
                 onClick={prevStep}
                 disabled={currentStep === 1}
-                className="gap-2"
+                className="gap-2 text-xs md:text-sm px-3 md:px-4"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-3 h-3 md:w-4 md:h-4" />
                 Geri
               </Button>
 
               {currentStep < 3 ? (
                 <Button
                   onClick={nextStep}
-                  className="gap-2"
+                  className="gap-2 text-xs md:text-sm px-3 md:px-4"
                 >
                   İleri
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
                 </Button>
               ) : (
                 <Button
                   onClick={handleSubmit}
-                  className="gap-2 bg-accent hover:bg-accent/90"
+                  className="gap-2 bg-accent hover:bg-accent/90 text-xs md:text-sm px-3 md:px-4"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <RefreshCw className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
                       Kaydediliyor...
                     </>
                   ) : (
                     <>
-                      <CheckCircle className="w-4 h-4" />
+                      <CheckCircle className="w-3 h-3 md:w-4 md:h-4" />
                       Kaydı Tamamla
                     </>
                   )}
