@@ -54,7 +54,7 @@ const Index = () => {
                       </div>
                     </div>
                     <div className="flex-1 flex justify-center items-center">
-                      <div className="text-8xl md:text-9xl opacity-80">🎰</div>
+                      <div className="text-8xl md:text-9xl opacity-80 ml-20">🎰</div>
                     </div>
                   </div>
                   
