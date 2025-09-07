@@ -55,7 +55,12 @@ const Footer = () => {
               </Link>
             </div>
             <div className="space-y-2 text-sm mt-4">
-              <div>Sorumlu Oyun</div>
+              <Link 
+                to="/responsible-gaming"
+                className="block hover:text-orange-400 transition-colors cursor-pointer"
+              >
+                Sorumlu Oyun
+              </Link>
             </div>
           </div>
 
