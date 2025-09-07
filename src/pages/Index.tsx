@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
   return <div className="min-h-screen bg-black">
       <Header />
       
@@ -104,7 +106,10 @@ const Index = () => {
                       <div className="text-sm font-bold">%25</div>
                     </div>
                   </div>
-                  <Button className="bg-white text-green-600 font-bold hover:bg-gray-100">
+                  <Button 
+                    className="bg-white text-green-600 font-bold hover:bg-gray-100"
+                    onClick={() => navigate('/vip')}
+                  >
                     VIP PROGRAMI →
                   </Button>
                 </div>
