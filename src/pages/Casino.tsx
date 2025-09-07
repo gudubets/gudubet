@@ -188,58 +188,45 @@ const Casino = () => {
       </div>
 
       <div className="container mx-auto px-4 py-6">
-        <div className="flex gap-6">
-          {/* Sidebar - Categories */}
-          <div className="w-64 space-y-4">
-            <Card className="bg-black border-gray-800">
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3 text-white">Kategoriler</h3>
-                <div className="space-y-2">
-                  {categories.map((category) => (
-                    <Button
-                      key={category.id}
-                      variant={selectedCategory === category.id ? "default" : "ghost"}
-                      className="w-full justify-start text-white hover:bg-gray-800"
-                      onClick={() => setSelectedCategory(category.id)}
-                    >
-                      <span className="mr-2">{category.icon}</span>
-                      {category.name}
-                      {category.id !== 'all' && (
-                        <Badge variant="secondary" className="ml-auto">
-                          {category.id === 'new' 
-                            ? games.filter(g => g.isNew).length
-                            : category.id === 'popular' 
-                            ? games.filter(g => g.isPopular).length
-                            : games.filter(g => g.category === category.id).length
-                          }
-                        </Badge>
-                      )}
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Providers */}
-            <Card className="bg-black border-gray-800">
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3 text-white">Sağlayıcılar</h3>
-                <div className="space-y-2 text-sm">
-                  {Array.from(new Set(games.map(g => g.provider))).map(provider => (
-                    <div key={provider} className="flex items-center justify-between text-gray-300">
-                      <span>{provider}</span>
-                      <Badge variant="outline">
-                        {games.filter(g => g.provider === provider).length}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+        {/* Category Filter */}
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2 mb-4">
+            {categories.map((category) => (
+              <Button
+                key={category.id}
+                variant={selectedCategory === category.id ? "default" : "outline"}
+                className="flex items-center gap-2"
+                onClick={() => setSelectedCategory(category.id)}
+              >
+                <span>{category.icon}</span>
+                {category.name}
+                {category.id !== 'all' && (
+                  <Badge variant="secondary" className="ml-1">
+                    {category.id === 'new' 
+                      ? games.filter(g => g.isNew).length
+                      : category.id === 'popular' 
+                      ? games.filter(g => g.isPopular).length
+                      : games.filter(g => g.category === category.id).length
+                    }
+                  </Badge>
+                )}
+              </Button>
+            ))}
           </div>
+          
+          {/* Providers */}
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm text-muted-foreground mr-2">Sağlayıcılar:</span>
+            {Array.from(new Set(games.map(g => g.provider))).map(provider => (
+              <Badge key={provider} variant="outline" className="text-xs">
+                {provider} ({games.filter(g => g.provider === provider).length})
+              </Badge>
+            ))}
+          </div>
+        </div>
 
-          {/* Main Content - Games */}
-          <div className="flex-1">
+        {/* Main Content - Games */}
+        <div className="w-full">
             {loading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -356,11 +343,10 @@ const Casino = () => {
                     </p>
                   </div>
                 )}
-              </>
-            )}
+                </>
+              )}
           </div>
         </div>
-      </div>
 
       <Footer />
     </div>
