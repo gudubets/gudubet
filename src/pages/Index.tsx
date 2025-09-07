@@ -35,7 +35,7 @@ const Index = () => {
                   <div className="absolute bottom-1/3 left-1/4 text-4xl opacity-20 animate-pulse">🎲</div>
                   
                   <div className="relative z-10 h-full flex items-center justify-center px-8 md:px-16">
-                    <div className="flex-1 flex flex-col items-center justify-center text-center animate-scale-in">
+                    <div className="w-full flex flex-col items-center justify-center text-center animate-scale-in">
                       <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 animate-fade-in">
                         <span className="text-yellow-300 text-6xl md:text-8xl animate-pulse">2000TL</span>
                       </h1>
@@ -52,9 +52,6 @@ const Index = () => {
                           ÜYE OL
                         </Button>
                       </div>
-                    </div>
-                    <div className="flex-1 flex justify-center items-center">
-                      <div className="text-8xl md:text-9xl opacity-80 ml-20 animate-spin">🎰</div>
                     </div>
                   </div>
                 </div>
