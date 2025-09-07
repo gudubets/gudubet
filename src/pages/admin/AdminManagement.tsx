@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { UserPlus, Shield, Settings, Users, Edit, Trash2 } from 'lucide-react';
+import { UserPlus, Shield, Settings, Users, Edit, Trash2, Clock, Search, Activity } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { logAdminActivity, ACTIVITY_TYPES } from '@/utils/adminActivityLogger';
 
@@ -32,6 +32,20 @@ interface Permission {
   granted_by: string;
 }
 
+interface AdminActivity {
+  id: string;
+  admin_id: string;
+  action_type: string;
+  description: string;
+  target_type: string | null;
+  target_id: string | null;
+  metadata: any;
+  created_at: string;
+  admin?: {
+    email: string;
+  };
+}
+
 const AVAILABLE_PERMISSIONS = [
   { name: 'view_users', label: 'Kullanıcıları Görüntüle' },
   { name: 'manage_users', label: 'Kullanıcıları Yönet' },
@@ -49,6 +63,8 @@ const AdminManagement = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
+  const [activitySearchTerm, setActivitySearchTerm] = useState('');
+  const [activityFilter, setActivityFilter] = useState<string>('all');
   const [newAdminData, setNewAdminData] = useState({
     email: '',
     password: '',
@@ -109,6 +125,27 @@ const AdminManagement = () => {
       return data as Permission[];
     },
     enabled: !!selectedAdmin,
+  });
+
+  // Fetch admin activities
+  const { data: activities = [], isLoading: activitiesLoading } = useQuery({
+    queryKey: ['admin-activities'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('admin_activities')
+        .select(`
+          *,
+          admin:admins!admin_activities_admin_id_fkey(email)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(100);
+      
+      if (error) throw error;
+      return data.map(activity => ({
+        ...activity,
+        admin: activity.admin ? { email: activity.admin.email } : null
+      })) as AdminActivity[];
+    },
   });
 
   // Create admin mutation
@@ -245,6 +282,34 @@ const AdminManagement = () => {
       permission,
       isGranted,
     });
+  };
+
+  // Filter activities based on search term and filter
+  const filteredActivities = activities.filter(activity => {
+    const matchesSearch = activity.description.toLowerCase().includes(activitySearchTerm.toLowerCase()) ||
+                         activity.action_type.toLowerCase().includes(activitySearchTerm.toLowerCase()) ||
+                         (activity.admin?.email?.toLowerCase().includes(activitySearchTerm.toLowerCase()) || false);
+    
+    const matchesFilter = activityFilter === 'all' || activity.action_type === activityFilter;
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const getActivityTypeBadge = (actionType: string) => {
+    switch (actionType) {
+      case 'admin_created':
+        return <Badge className="bg-green-100 text-green-800">Admin Oluşturuldu</Badge>;
+      case 'admin_updated':
+        return <Badge className="bg-blue-100 text-blue-800">Admin Güncellendi</Badge>;
+      case 'admin_deleted':
+        return <Badge className="bg-red-100 text-red-800">Admin Silindi</Badge>;
+      case 'permission_updated':
+        return <Badge className="bg-purple-100 text-purple-800">İzin Güncellendi</Badge>;
+      case 'user_updated':
+        return <Badge className="bg-orange-100 text-orange-800">Kullanıcı Güncellendi</Badge>;
+      default:
+        return <Badge variant="outline">{actionType}</Badge>;
+    }
   };
 
   // Show access denied if not super admin
@@ -389,6 +454,116 @@ const AdminManagement = () => {
                 )}
               </TableBody>
             </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Admin Activity History */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="w-5 h-5" />
+            Admin Aktivite Geçmişi
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Search and Filter */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Aktivite ara..."
+                  value={activitySearchTerm}
+                  onChange={(e) => setActivitySearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={activityFilter} onValueChange={setActivityFilter}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Aktivite türü" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tüm Aktiviteler</SelectItem>
+                  <SelectItem value="admin_created">Admin Oluşturuldu</SelectItem>
+                  <SelectItem value="admin_updated">Admin Güncellendi</SelectItem>
+                  <SelectItem value="admin_deleted">Admin Silindi</SelectItem>
+                  <SelectItem value="permission_updated">İzin Güncellendi</SelectItem>
+                  <SelectItem value="user_updated">Kullanıcı Güncellendi</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Activities Table */}
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Admin</TableHead>
+                    <TableHead>Aktivite</TableHead>
+                    <TableHead>Açıklama</TableHead>
+                    <TableHead>Tarih</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {activitiesLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8">
+                        <div className="flex items-center justify-center gap-2">
+                          <Clock className="w-4 h-4 animate-spin" />
+                          Aktiviteler yükleniyor...
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredActivities.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8">
+                        {activitySearchTerm || activityFilter !== 'all' 
+                          ? 'Arama kriterlerine uygun aktivite bulunamadı.' 
+                          : 'Henüz aktivite kaydı bulunmuyor.'
+                        }
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredActivities.map((activity) => (
+                      <TableRow key={activity.id}>
+                        <TableCell className="font-medium">
+                          {activity.admin?.email || 'Bilinmeyen Admin'}
+                        </TableCell>
+                        <TableCell>
+                          {getActivityTypeBadge(activity.action_type)}
+                        </TableCell>
+                        <TableCell className="max-w-md">
+                          <div className="truncate" title={activity.description}>
+                            {activity.description}
+                          </div>
+                          {activity.metadata && Object.keys(activity.metadata).length > 0 && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {activity.target_type && `Hedef: ${activity.target_type}`}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            {new Date(activity.created_at).toLocaleDateString('tr-TR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                            })}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(activity.created_at).toLocaleTimeString('tr-TR', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </CardContent>
       </Card>
