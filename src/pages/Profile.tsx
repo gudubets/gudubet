@@ -578,13 +578,25 @@ const Profile = () => {
                   <CardTitle>Hızlı İşlemler</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button className="w-full" variant="default">
+                  <Button 
+                    className="w-full" 
+                    variant="default"
+                    onClick={() => navigate('/deposit-withdrawal')}
+                  >
                     Para Yatır
                   </Button>
-                  <Button className="w-full" variant="outline">
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={() => navigate('/deposit-withdrawal')}
+                  >
                     Para Çek
                   </Button>
-                  <Button className="w-full" variant="secondary">
+                  <Button 
+                    className="w-full" 
+                    variant="secondary"
+                    onClick={() => navigate('/deposit-withdrawal')}
+                  >
                     İşlem Geçmişi
                   </Button>
                 </CardContent>

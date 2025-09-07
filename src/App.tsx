@@ -21,6 +21,7 @@ import HelpCenter from "./pages/HelpCenter";
 import BettingRules from "./pages/BettingRules";
 import LiveSupport from "./pages/LiveSupport";
 import NotFound from "./pages/NotFound";
+import DepositWithdrawal from "./pages/DepositWithdrawal";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -56,6 +57,7 @@ const App = () => (
           <Route path="/help-center" element={<HelpCenter />} />
           <Route path="/betting-rules" element={<BettingRules />} />
           <Route path="/live-support" element={<LiveSupport />} />
+          <Route path="/deposit-withdrawal" element={<DepositWithdrawal />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
