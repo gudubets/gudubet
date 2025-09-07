@@ -4,10 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Mail, Phone, MapPin, Clock, MessageCircle } from 'lucide-react';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/sections/Footer';
 
 const ContactUs = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-background/50">
+    <div className="min-h-screen bg-black">
+      <Header />
+      <div className="bg-gradient-to-br from-background to-background/50">
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-4">
@@ -188,6 +192,8 @@ const ContactUs = () => {
           </Card>
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 };
