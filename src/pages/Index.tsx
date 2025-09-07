@@ -43,7 +43,7 @@ const Index = () => {
                           HOŞ GELDİN BONUSU
                         </h2>
                       </div>
-                      <div className="text-center">
+                      <div className="flex justify-center items-center w-full">
                         <Button 
                           className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full"
                           onClick={() => setIsRegistrationModalOpen(true)}
