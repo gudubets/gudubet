@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/sections/Footer';
 import { 
   Gift, 
   Calendar, 
@@ -135,46 +137,6 @@ const Promotions = () => {
     );
   };
 
-  // Copy Promo Code Function
-  const copyPromoCode = async (code: string) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedCode(code);
-      toast({
-        title: "Kopyalandı!",
-        description: `Promosyon kodu ${code} panoya kopyalandı.`,
-      });
-      setTimeout(() => setCopiedCode(''), 2000);
-    } catch (error) {
-      toast({
-        title: "Hata",
-        description: "Kod kopyalanırken bir hata oluştu.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Social Share Function
-  const sharePromotion = (promotion: Promotion) => {
-    const text = `🎉 ${promotion.title} - ${promotion.description}`;
-    const url = window.location.href;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: promotion.title,
-        text: text,
-        url: url
-      });
-    } else {
-      // Fallback to clipboard
-      navigator.clipboard.writeText(`${text} ${url}`);
-      toast({
-        title: "Paylaşım Linki Kopyalandı!",
-        description: "Promosyon linki panoya kopyalandı.",
-      });
-    }
-  };
-
   // Fetch promotions
   const fetchPromotions = async () => {
     try {
@@ -290,509 +252,356 @@ const Promotions = () => {
     return <IconComponent className="w-4 h-4" />;
   };
 
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('tr-TR');
-  };
-
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header Navigation - Casibom Style */}
-      <header className="bg-black border-b border-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-8">
-              <a href="/" className="text-yellow-400 font-bold text-xl">
-                casibom
-              </a>
-              
-              {/* Main Navigation Links */}
-              <nav className="hidden lg:flex items-center space-x-6">
-                <a href="/" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">ANA SAYFA</a>
-                <a href="/sports-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">SPOR</a>
-                <a href="/live-betting" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CANLI</a>
-                <a href="/casino" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CASINO</a>
-                <a href="/live-casino" className="text-gray-300 hover:text-yellow-400 transition-colors text-sm">CANLI CASINO</a>
-                <a href="/promotions" className="text-yellow-400 border-b border-yellow-400 pb-1 text-sm">PROMOSYONLAR</a>
-              </nav>
-            </div>
-
-            {/* Right Side Actions */}
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm" className="text-gray-300 hover:text-yellow-400">
-                <span className="text-lg">💬</span>
-              </Button>
-              <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 text-sm">
-                GİRİŞ
-              </Button>
-              <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 text-sm">
-                ÜYE OL
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Game Categories */}
-        <div className="border-t border-gray-800">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-12">
-              <div className="flex items-center space-x-8">
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  🎁 PROMOSYONLAR
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="pt-20">
+        <div className="container mx-auto flex gap-0">
+          {/* Left Sidebar */}
+          <div className="w-64 bg-card min-h-screen border-r border-border">
+            {/* Quick Links */}
+            <div className="p-4 border-b border-border">
+              <h3 className="text-destructive font-semibold mb-3 text-sm">Hızlı Linkler</h3>
+              <div className="space-y-2">
+                <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
+                  <Trophy className="h-4 w-4 mr-2" />
+                  Aktif Promosyonlar
                 </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  💰 BONUSLAR
+                <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
+                  <Star className="h-4 w-4 mr-2" />
+                  Popüler Bonuslar
                 </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  🎯 KAMPANYALAR
+                <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
+                  <Clock className="h-4 w-4 mr-2" />
+                  Süreli Kampanyalar
                 </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  👑 VIP
-                </Button>
-                <Button variant="ghost" className="text-xs hover:bg-gray-800 text-gray-300 hover:text-yellow-400">
-                  💎 CASHBACK
+                <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
+                  <Users className="h-4 w-4 mr-2" />
+                  VIP Promosyonlar
                 </Button>
               </div>
-              
-              <Button variant="ghost" className="text-gray-300 hover:text-yellow-400 text-xs">
-                🔍 ARA
-              </Button>
             </div>
-          </div>
-        </div>
-      </header>
 
-      <div className="container mx-auto flex gap-0">
-        {/* Left Sidebar */}
-        <div className="w-64 bg-gray-900 min-h-screen border-r border-gray-800">
-          {/* Quick Links */}
-          <div className="p-4 border-b border-border">
-            <h3 className="text-destructive font-semibold mb-3 text-sm">Hızlı Linkler</h3>
-            <div className="space-y-2">
-              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
-                <Trophy className="h-4 w-4 mr-2" />
-                Aktif Promosyonlar
-              </Button>
-              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
-                <Star className="h-4 w-4 mr-2" />
-                Popüler Bonuslar
-              </Button>
-              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
-                <Clock className="h-4 w-4 mr-2" />
-                Süreli Kampanyalar
-              </Button>
-              <Button variant="ghost" className="w-full justify-start text-sm hover:bg-muted">
-                <Users className="h-4 w-4 mr-2" />
-                VIP Promosyonlar
-              </Button>
-            </div>
-          </div>
-
-          {/* Promotion Categories */}
-          <div className="p-4">
-            <h3 className="text-destructive font-semibold mb-3 text-sm">Kategoriler</h3>
-            <div className="space-y-1">
-              {categories.map((category) => (
-                <Button
-                  key={category.id}
-                  variant={selectedCategory === category.id ? "default" : "ghost"}
-                  className="w-full justify-start text-sm"
-                  onClick={() => setSelectedCategory(category.id)}
-                >
-                  <category.icon className="h-4 w-4 mr-2" />
-                  {category.name}
-                  <Badge variant="secondary" className="ml-auto">
-                    {category.id === 'all' 
-                      ? promotions.length 
-                      : promotions.filter(p => p.category === category.id).length
-                    }
-                  </Badge>
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1">
-          {/* Hero Section */}
-          <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-b">
-            <div className="container mx-auto px-6 py-12">
-              <div className="flex items-center justify-between">
-                <div className="max-w-2xl">
-                  <h1 className="text-4xl font-bold mb-4">Promosyonlar & Bonuslar</h1>
-                  <p className="text-lg text-muted-foreground mb-6">
-                    Size özel hazırlanmış muhteşem bonus ve promosyonlarla kazancınızı artırın! 
-                    Hoş geldin bonuslarından özel gün kampanyalarına kadar birçok fırsatı kaçırmayın.
-                  </p>
-                  <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-                    <div className="flex items-center">
-                      <Gift className="w-4 h-4 mr-2" />
-                      <span>{promotions.length} Aktif Promosyon</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 mr-2" />
-                      <span>Günlük Güncelleme</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 mr-2" />
-                      <span>VIP Bonuslar</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="hidden lg:block">
-                  <div className="w-64 h-32 bg-gradient-to-br from-primary/20 to-destructive/20 rounded-lg flex items-center justify-center">
-                    <Gift className="w-16 h-16 text-primary" />
-                  </div>
-                </div>
+            {/* Promotion Categories */}
+            <div className="p-4">
+              <h3 className="text-destructive font-semibold mb-3 text-sm">Kategoriler</h3>
+              <div className="space-y-1">
+                {categories.map((category) => (
+                  <Button
+                    key={category.id}
+                    variant={selectedCategory === category.id ? "default" : "ghost"}
+                    className="w-full justify-start text-sm"
+                    onClick={() => setSelectedCategory(category.id)}
+                  >
+                    <category.icon className="h-4 w-4 mr-2" />
+                    {category.name}
+                    <Badge variant="secondary" className="ml-auto">
+                      {category.id === 'all' 
+                        ? promotions.length 
+                        : promotions.filter(p => p.category === category.id).length
+                      }
+                    </Badge>
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* VIP Section */}
-          {selectedCategory === 'vip' && (
-            <div className="bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-orange-500/20 border border-amber-500/30 rounded-lg p-6 mb-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-amber-500/20 rounded-full">
-                    <Crown className="w-8 h-8 text-amber-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-amber-500">VIP Promosyonları</h3>
-                    <p className="text-sm text-muted-foreground">Özel üyelerimiz için hazırlanmış elit fırsatlar</p>
-                  </div>
-                </div>
-                <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30">
-                  <Crown className="w-3 h-3 mr-1" />
-                  Elit Üye
-                </Badge>
-              </div>
-            </div>
-          )}
-
-          {/* Promotions Grid */}
-          <div className="container mx-auto px-6 py-8">
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                <p className="mt-2 text-muted-foreground">Promosyonlar yükleniyor...</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPromotions.map((promotion) => {
-                  // Calculate days left
-                  const daysLeft = Math.ceil((new Date(promotion.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                  const isUrgent = daysLeft <= 3;
-                  const hasPromoCode = promotion.promo_code;
-                  const participationRate = promotion.max_participants 
-                    ? (promotion.current_participants / promotion.max_participants) * 100 
-                    : 0;
-
-                  return (
-                    <Card key={promotion.id} className={`group bg-slate-800 border-slate-700 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 animate-fade-in ${
-                      isUrgent ? 'ring-2 ring-orange-500/30' : ''
-                    }`}>
-                      <CardHeader className="pb-3">
-                        {/* Hot/New/VIP Badges */}
-                        <div className="absolute top-3 right-3 flex space-x-1">
-                          {isUrgent && (
-                            <Badge className="bg-red-500/20 text-red-500 border-red-500/30 animate-pulse">
-                              <Flame className="w-3 h-3 mr-1" />
-                              Acil
-                            </Badge>
-                          )}
-                          {promotion.category === 'welcome' && (
-                            <Badge className="bg-green-500/20 text-green-500 border-green-500/30">
-                              Yeni
-                            </Badge>
-                          )}
-                          {promotion.category === 'vip' && (
-                            <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30">
-                              <Crown className="w-3 h-3 mr-1" />
-                              VIP
-                            </Badge>
-                          )}
-                        </div>
-
-                        <div className="aspect-video bg-slate-700 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent"></div>
-                          {getCategoryIcon(promotion.category)}
-                          <span className="ml-2 text-sm text-muted-foreground relative z-10">
-                            {categories.find(c => c.id === promotion.category)?.name}
-                          </span>
-                        </div>
-
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <CardTitle className="text-lg leading-tight group-hover:text-primary transition-colors">
-                              {promotion.title}
-                            </CardTitle>
-                            <div className="flex items-center mt-2 space-x-2">
-                              <Badge variant="outline">
-                                {categories.find(c => c.id === promotion.category)?.name}
-                              </Badge>
-                              {hasPromoCode && (
-                                <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">
-                                  <Copy className="w-3 h-3 mr-1" />
-                                  Kod
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          {promotion.bonus_percentage && (
-                            <div className="text-right">
-                              <div className="text-2xl font-bold text-primary">
-                                %{promotion.bonus_percentage}
-                              </div>
-                              <div className="text-xs text-muted-foreground">Bonus</div>
-                            </div>
-                          )}
-                        </div>
-                      </CardHeader>
-
-                      <CardContent className="pt-0">
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                          {promotion.description}
-                        </p>
-
-                        {/* Countdown Timer */}
-                        <div className="mb-4">
-                          <CountdownTimer endDate={promotion.end_date} />
-                        </div>
-
-                        {/* Participation Progress */}
-                        {promotion.max_participants && (
-                          <div className="mb-4">
-                            <div className="flex justify-between text-xs mb-1">
-                              <span className="text-muted-foreground">Katılım</span>
-                              <span className="font-medium">
-                                {promotion.current_participants}/{promotion.max_participants}
-                              </span>
-                            </div>
-                            <Progress value={participationRate} className="h-2" />
-                          </div>
-                        )}
-                        
-                        <div className="space-y-2 mb-4">
-                          {promotion.min_deposit && (
-                            <div className="flex justify-between text-xs">
-                              <span className="text-muted-foreground">Min. Yatırım:</span>
-                              <span className="font-medium">₺{promotion.min_deposit}</span>
-                            </div>
-                          )}
-                          {promotion.max_bonus && (
-                            <div className="flex justify-between text-xs">
-                              <span className="text-muted-foreground">Max. Bonus:</span>
-                              <span className="font-medium">₺{promotion.max_bonus}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Çevrim:</span>
-                            <span className="font-medium">{promotion.wagering_requirement}x</span>
-                          </div>
-                        </div>
-
-                        {/* Promo Code */}
-                        {hasPromoCode && (
-                          <div className="mb-4">
-                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2 flex items-center justify-between">
-                              <div className="flex items-center">
-                                <Copy className="w-4 h-4 text-blue-500 mr-2" />
-                                <code className="text-blue-500 font-mono font-bold text-sm">
-                                  {promotion.promo_code}
-                                </code>
-                              </div>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-auto p-1 text-blue-500 hover:bg-blue-500/20"
-                                onClick={() => copyPromoCode(promotion.promo_code!)}
-                              >
-                                {copiedCode === promotion.promo_code ? (
-                                  <CheckCircle className="w-4 h-4" />
-                                ) : (
-                                  <Copy className="w-4 h-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex space-x-2">
-                          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <DialogTrigger asChild>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="flex-1"
-                                onClick={() => setSelectedPromotion(promotion)}
-                              >
-                                Detaylar
-                              </Button>
-                            </DialogTrigger>
-                          </Dialog>
-                          
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            className="p-2"
-                            onClick={() => sharePromotion(promotion)}
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </Button>
-                          
-                          <Button 
-                            size="sm" 
-                            className={`flex-1 transition-all duration-200 ${
-                              hasParticipated(promotion.id) 
-                                ? 'bg-green-600 hover:bg-green-700' 
-                                : 'bg-primary hover:bg-primary/90 hover:shadow-lg'
-                            }`}
-                            onClick={() => joinPromotion(promotion)}
-                            disabled={hasParticipated(promotion.id)}
-                          >
-                            {hasParticipated(promotion.id) ? (
-                              <div className="flex items-center">
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Katıldınız
-                              </div>
-                            ) : (
-                              'Katıl'
-                            )}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-
-            {!loading && filteredPromotions.length === 0 && (
-              <div className="text-center py-12">
-                <Gift className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">
-                  {selectedCategory === 'all' 
-                    ? 'Şu anda aktif promosyon bulunmuyor.' 
-                    : `${categories.find(c => c.id === selectedCategory)?.name} kategorisinde promosyon bulunmuyor.`
-                  }
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Promotion Details Modal */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center space-x-2">
-              {selectedPromotion && getCategoryIcon(selectedPromotion.category)}
-              <span>{selectedPromotion?.title}</span>
-            </DialogTitle>
-          </DialogHeader>
-          
-          {selectedPromotion && (
-            <div className="space-y-6">
-              {/* Promotion Image Placeholder */}
-              <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <Gift className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Promosyon Görseli</p>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div>
-                <h4 className="font-semibold mb-2">Promosyon Açıklaması</h4>
-                <p className="text-sm text-muted-foreground">
-                  {selectedPromotion.detailed_description || selectedPromotion.description}
-                </p>
-              </div>
-
-              {/* Promotion Details */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  {selectedPromotion.bonus_percentage && (
-                    <div>
-                      <span className="text-sm font-medium">Bonus Oranı:</span>
-                      <p className="text-lg font-bold text-primary">%{selectedPromotion.bonus_percentage}</p>
-                    </div>
-                  )}
-                  {selectedPromotion.bonus_amount && (
-                    <div>
-                      <span className="text-sm font-medium">Bonus Miktarı:</span>
-                      <p className="text-lg font-bold text-primary">₺{selectedPromotion.bonus_amount}</p>
-                    </div>
-                  )}
-                  {selectedPromotion.min_deposit && (
-                    <div>
-                      <span className="text-sm font-medium">Minimum Yatırım:</span>
-                      <p className="font-medium">₺{selectedPromotion.min_deposit}</p>
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-3">
-                  {selectedPromotion.max_bonus && (
-                    <div>
-                      <span className="text-sm font-medium">Maksimum Bonus:</span>
-                      <p className="font-medium">₺{selectedPromotion.max_bonus}</p>
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-sm font-medium">Çevrim Şartı:</span>
-                    <p className="font-medium">{selectedPromotion.wagering_requirement}x</p>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">Geçerlilik:</span>
-                    <p className="font-medium text-xs">
-                      {formatDate(selectedPromotion.start_date)} - {formatDate(selectedPromotion.end_date)}
+          {/* Main Content */}
+          <div className="flex-1">
+            {/* Hero Section */}
+            <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-b">
+              <div className="container mx-auto px-6 py-12">
+                <div className="flex items-center justify-between">
+                  <div className="max-w-2xl">
+                    <h1 className="text-4xl font-bold mb-4">Promosyonlar & Bonuslar</h1>
+                    <p className="text-lg text-muted-foreground mb-6">
+                      Size özel hazırlanmış muhteşem bonus ve promosyonlarla kazancınızı artırın! 
+                      Hoş geldin bonuslarından özel gün kampanyalarına kadar birçok fırsatı kaçırmayın.
                     </p>
+                    <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+                      <div className="flex items-center">
+                        <Gift className="w-4 h-4 mr-2" />
+                        <span>{promotions.length} Aktif Promosyon</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-2" />
+                        <span>Günlük Güncelleme</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 mr-2" />
+                        <span>VIP Bonuslar</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="hidden lg:block">
+                    <div className="w-64 h-32 bg-gradient-to-br from-primary/20 to-destructive/20 rounded-lg flex items-center justify-center">
+                      <Gift className="w-16 h-16 text-primary" />
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Terms and Conditions */}
-              <div>
-                <h4 className="font-semibold mb-2">Şartlar ve Koşullar</h4>
-                <div className="bg-muted/30 p-3 rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    {selectedPromotion.terms_conditions}
-                  </p>
+            {/* VIP Section */}
+            {selectedCategory === 'vip' && (
+              <div className="bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-orange-500/20 border border-amber-500/30 rounded-lg p-6 mb-8 mx-6 mt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-amber-500/20 rounded-full">
+                      <Crown className="w-8 h-8 text-amber-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-amber-500">VIP Promosyonları</h3>
+                      <p className="text-sm text-muted-foreground">Özel üyelerimiz için hazırlanmış elit fırsatlar</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30">
+                    <Crown className="w-3 h-3 mr-1" />
+                    Elit Üye
+                  </Badge>
                 </div>
               </div>
+            )}
 
-              {/* Promo Code */}
-              {selectedPromotion.promo_code && (
-                <div>
-                  <h4 className="font-semibold mb-2">Promosyon Kodu</h4>
-                  <div className="bg-primary/10 border border-primary/20 p-3 rounded-lg">
-                    <code className="text-primary font-mono font-bold">
-                      {selectedPromotion.promo_code}
-                    </code>
-                  </div>
+            {/* Promotions Grid */}
+            <div className="container mx-auto px-6 py-8">
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Promosyonlar yükleniyor...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredPromotions.map((promotion) => {
+                    const participationRate = promotion.max_participants 
+                      ? (promotion.current_participants / promotion.max_participants) * 100
+                      : 0;
+                    const hasPromoCode = Boolean(promotion.promo_code);
+                    const isUrgent = participationRate > 80;
+                    
+                    return (
+                      <Card key={promotion.id} className="bg-card border border-border hover:border-primary/50 transition-colors">
+                        <CardHeader className="pb-3 relative">
+                          {/* Hot/New/VIP Badges */}
+                          <div className="absolute top-3 right-3 flex space-x-1">
+                            {isUrgent && (
+                              <Badge className="bg-red-500/20 text-red-500 border-red-500/30">
+                                <Flame className="w-3 h-3 mr-1" />
+                                Sınırlı
+                              </Badge>
+                            )}
+                            {promotion.category === 'vip' && (
+                              <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30">
+                                <Crown className="w-3 h-3 mr-1" />
+                                VIP
+                              </Badge>
+                            )}
+                          </div>
+
+                          <div className="aspect-video bg-slate-700 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent"></div>
+                            {getCategoryIcon(promotion.category)}
+                            <span className="ml-2 text-sm text-muted-foreground relative z-10">
+                              Promosyon Görseli
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1 pr-4">
+                              <h3 className="font-bold text-lg mb-1 line-clamp-1">{promotion.title}</h3>
+                              
+                              <div className="flex items-center mt-2 space-x-2">
+                                <Badge variant="outline">
+                                  {categories.find(c => c.id === promotion.category)?.name}
+                                </Badge>
+                                {hasPromoCode && (
+                                  <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">
+                                    <Copy className="w-3 h-3 mr-1" />
+                                    Kod
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            {promotion.bonus_percentage && (
+                              <div className="text-right">
+                                <div className="text-2xl font-bold text-primary">
+                                  %{promotion.bonus_percentage}
+                                </div>
+                                <div className="text-xs text-muted-foreground">Bonus</div>
+                              </div>
+                            )}
+                          </div>
+                        </CardHeader>
+
+                        <CardContent className="pt-0">
+                          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                            {promotion.description}
+                          </p>
+
+                          {/* Countdown Timer */}
+                          <div className="mb-4">
+                            <CountdownTimer endDate={promotion.end_date} />
+                          </div>
+
+                          {/* Participation Progress */}
+                          {promotion.max_participants && (
+                            <div className="mb-4">
+                              <div className="flex justify-between text-xs mb-1">
+                                <span className="text-muted-foreground">Katılım</span>
+                                <span className="font-medium">
+                                  {promotion.current_participants}/{promotion.max_participants}
+                                </span>
+                              </div>
+                              <Progress value={participationRate} className="h-2" />
+                            </div>
+                          )}
+                          
+                          <div className="space-y-2 mb-4">
+                            {promotion.min_deposit && (
+                              <div className="flex justify-between text-xs">
+                                <span className="text-muted-foreground">Min. Yatırım:</span>
+                                <span className="font-medium">₺{promotion.min_deposit}</span>
+                              </div>
+                            )}
+                            {promotion.max_bonus && (
+                              <div className="flex justify-between text-xs">
+                                <span className="text-muted-foreground">Max. Bonus:</span>
+                                <span className="font-medium">₺{promotion.max_bonus}</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">Çevrim:</span>
+                              <span className="font-medium">{promotion.wagering_requirement}x</span>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="flex-1"
+                                  onClick={() => setSelectedPromotion(promotion)}
+                                >
+                                  Detay
+                                </Button>
+                              </DialogTrigger>
+                            </Dialog>
+                            
+                            <Button 
+                              size="sm"
+                              className={`flex-1 ${hasParticipated(promotion.id) 
+                                ? 'bg-green-500/20 text-green-500 border-green-500/30 hover:bg-green-500/30' 
+                                : 'bg-primary hover:bg-primary/90'
+                              }`}
+                              onClick={() => joinPromotion(promotion)}
+                              disabled={hasParticipated(promotion.id)}
+                            >
+                              {hasParticipated(promotion.id) ? (
+                                <div className="flex items-center">
+                                  <CheckCircle className="w-4 h-4 mr-1" />
+                                  Katıldınız
+                                </div>
+                              ) : (
+                                'Katıl'
+                              )}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
 
-              {/* Action Button */}
-              <div className="flex justify-end">
-                <Button 
-                  className="bg-primary hover:bg-primary/90"
-                  onClick={() => {
-                    joinPromotion(selectedPromotion);
-                    setIsDialogOpen(false);
-                  }}
-                  disabled={hasParticipated(selectedPromotion.id)}
-                >
-                  {hasParticipated(selectedPromotion.id) ? 'Zaten Katıldınız' : 'Promosyona Katıl'}
-                </Button>
-              </div>
+              {!loading && filteredPromotions.length === 0 && (
+                <div className="text-center py-12">
+                  <Gift className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    {selectedCategory === 'all' 
+                      ? 'Şu anda aktif promosyon bulunmuyor.' 
+                      : `${categories.find(c => c.id === selectedCategory)?.name} kategorisinde promosyon bulunmuyor.`
+                    }
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+
+        {/* Promotion Details Modal */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                {selectedPromotion && getCategoryIcon(selectedPromotion.category)}
+                <span>{selectedPromotion?.title}</span>
+              </DialogTitle>
+            </DialogHeader>
+            
+            {selectedPromotion && (
+              <div className="space-y-6">
+                {/* Promotion Image Placeholder */}
+                <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Gift className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Promosyon Görseli</p>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <h4 className="font-semibold mb-2">Promosyon Açıklaması</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedPromotion.detailed_description || selectedPromotion.description}
+                  </p>
+                </div>
+
+                {/* Terms & Conditions */}
+                <div>
+                  <h4 className="font-semibold mb-2">Şartlar & Koşullar</h4>
+                  <div className="bg-muted/50 p-3 rounded-lg">
+                    <p className="text-sm text-muted-foreground">
+                      {selectedPromotion.terms_conditions}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Promo Code */}
+                {selectedPromotion.promo_code && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Promosyon Kodu</h4>
+                    <div className="bg-primary/10 border border-primary/20 p-3 rounded-lg">
+                      <code className="text-primary font-mono font-bold">
+                        {selectedPromotion.promo_code}
+                      </code>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Button */}
+                <div className="flex justify-end">
+                  <Button 
+                    className="bg-primary hover:bg-primary/90"
+                    onClick={() => {
+                      joinPromotion(selectedPromotion);
+                      setIsDialogOpen(false);
+                    }}
+                    disabled={hasParticipated(selectedPromotion.id)}
+                  >
+                    {hasParticipated(selectedPromotion.id) ? 'Zaten Katıldınız' : 'Promosyona Katıl'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </main>
+
+      <Footer />
     </div>
   );
 };
