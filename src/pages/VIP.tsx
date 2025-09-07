@@ -142,7 +142,8 @@ const VIP = () => {
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     {tiers.map((tier, index) => (
                       <div key={tier.name} className="text-center">
-                        <div className={`bg-gradient-to-br ${tier.color} p-6 rounded-lg mb-4`}>
+                        <div className={`bg-gradient-to-br ${tier.color} p-6 rounded-lg mb-4 relative`}>
+                          <img src={treasureImage} alt="Treasure" className="absolute top-2 right-2 w-6 h-6 opacity-70" />
                           <div className="text-4xl mb-2">{tier.icon}</div>
                           <div className="text-white font-bold text-lg mb-2">{tier.name}</div>
                           <div className="text-white text-3xl font-bold">%{tier.percentage}</div>
