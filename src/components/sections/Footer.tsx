@@ -47,7 +47,12 @@ const Footer = () => {
               >
                 Gizlilik politikası
               </Link>
-              <div>Ortaklık</div>
+              <Link 
+                to="/partnership"
+                className="block hover:text-orange-400 transition-colors cursor-pointer"
+              >
+                Ortaklık
+              </Link>
             </div>
             <div className="space-y-2 text-sm mt-4">
               <div>Sorumlu Oyun</div>
