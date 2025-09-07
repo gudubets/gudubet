@@ -5,8 +5,10 @@ import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carouse
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
+import { RegistrationModal } from '@/components/auth/RegistrationModal';
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
   const navigate = useNavigate();
   return <div className="min-h-screen bg-black">
       <Header />
@@ -41,9 +43,14 @@ const Index = () => {
                           HOŞ GELDİN BONUSU
                         </h2>
                       </div>
-                      <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full">
-                        ÜYE OL
-                      </Button>
+                      <div className="text-center">
+                        <Button 
+                          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full"
+                          onClick={() => setIsRegistrationModalOpen(true)}
+                        >
+                          ÜYE OL
+                        </Button>
+                      </div>
                     </div>
                     <div className="flex-1 flex justify-center items-center">
                       <div className="text-8xl md:text-9xl opacity-80">🎰</div>
@@ -178,6 +185,12 @@ const Index = () => {
       
       {/* Footer */}
       <Footer />
+
+      {/* Registration Modal */}
+      <RegistrationModal 
+        isOpen={isRegistrationModalOpen} 
+        onClose={() => setIsRegistrationModalOpen(false)} 
+      />
     </div>;
 };
 export default Index;
