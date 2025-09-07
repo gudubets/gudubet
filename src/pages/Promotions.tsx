@@ -354,7 +354,7 @@ const Promotions = () => {
                 const isUrgent = participationRate > 80;
                 
                 return (
-                  <Card key={promotion.id} className="bg-card border border-border hover:border-primary/50 transition-colors">
+                  <Card key={promotion.id} className="bg-card border border-border hover:border-primary/50 transition-colors h-full flex flex-col">
                     <CardHeader className="pb-3 relative">
                       {/* Hot/New/VIP Badges */}
                       <div className="absolute top-3 right-3 flex space-x-1">
@@ -407,7 +407,7 @@ const Promotions = () => {
                       </div>
                     </CardHeader>
 
-                    <CardContent className="pt-0">
+                    <CardContent className="pt-2 flex-1 flex flex-col">
                       <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                         {promotion.description}
                       </p>
@@ -430,7 +430,7 @@ const Promotions = () => {
                         </div>
                       )}
                       
-                      <div className="space-y-2 mb-4">
+                      <div className="space-y-2 mb-4 flex-1">
                         {promotion.min_deposit && (
                           <div className="flex justify-between text-xs">
                             <span className="text-muted-foreground">Min. Yatırım:</span>
@@ -449,7 +449,8 @@ const Promotions = () => {
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
+                      {/* Buttons - Always at bottom */}
+                      <div className="flex gap-2 mt-auto">
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button 
