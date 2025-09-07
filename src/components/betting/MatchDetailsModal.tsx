@@ -121,27 +121,27 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
               </div>
 
               {/* Teams and Score */}
-              <div className="grid grid-cols-3 items-center gap-4">
+              <div className="grid grid-cols-3 items-center gap-2 md:gap-4">
                 {/* Home Team */}
                 <div className="text-center">
-                  <div className="text-4xl mb-2">{getTeamLogo(match.home_team_logo)}</div>
-                  <h3 className="font-bold text-lg">{match.home_team}</h3>
+                  <div className="text-2xl md:text-3xl mb-2">{getTeamLogo(match.home_team_logo)}</div>
+                  <h3 className="font-bold text-sm md:text-base truncate px-1">{match.home_team}</h3>
                 </div>
                 
                 {/* Score */}
                 <div className="text-center">
-                  <div className="text-6xl font-bold text-primary mb-2">
+                  <div className="text-3xl md:text-5xl font-bold text-primary mb-2">
                     {match.home_score} - {match.away_score}
                   </div>
                   {match.period && (
-                    <Badge variant="secondary">{match.period}</Badge>
+                    <Badge variant="secondary" className="text-xs">{match.period}</Badge>
                   )}
                 </div>
                 
                 {/* Away Team */}
                 <div className="text-center">
-                  <div className="text-4xl mb-2">{getTeamLogo(match.away_team_logo)}</div>
-                  <h3 className="font-bold text-lg">{match.away_team}</h3>
+                  <div className="text-2xl md:text-3xl mb-2">{getTeamLogo(match.away_team_logo)}</div>
+                  <h3 className="font-bold text-sm md:text-base truncate px-1">{match.away_team}</h3>
                 </div>
               </div>
             </CardContent>
