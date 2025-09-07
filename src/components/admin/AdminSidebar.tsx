@@ -65,6 +65,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       active: location.pathname === '/admin/balance'
     },
     {
+      title: 'Bildirimler',
+      icon: Target,
+      href: '/admin/notifications',
+      active: location.pathname === '/admin/notifications'
+    },
+    {
       title: 'Rakip Analizi',
       icon: Target,
       href: '/admin/competitor-analysis',

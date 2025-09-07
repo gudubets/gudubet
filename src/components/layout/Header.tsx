@@ -8,6 +8,8 @@ import { User, Session } from '@supabase/supabase-js';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User as UserIcon, Wallet, Bell } from 'lucide-react';
 import { useUserBalance } from '@/hooks/useUserBalance';
+import { useNotifications } from '@/hooks/useNotifications';
+import NotificationsDropdown from '@/components/ui/notifications-dropdown';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
@@ -19,6 +21,9 @@ const Header = () => {
   
   // Get user balance data
   const balanceData = useUserBalance(user);
+  
+  // Get notifications data
+  const notificationsData = useNotifications(user);
   const navItems = [{
     name: 'SPOR',
     href: '/sports-betting'
@@ -105,9 +110,13 @@ const Header = () => {
                     {balanceData.loading ? '...' : `₺${balanceData.total_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
                   </span>
                 </div>
-                <Button variant="ghost" className="text-white hover:bg-white/10 p-2">
-                  <Bell className="h-4 w-4" />
-                </Button>
+                <NotificationsDropdown 
+                  notifications={notificationsData.notifications}
+                  unreadCount={notificationsData.unreadCount}
+                  loading={notificationsData.loading}
+                  onMarkAsRead={notificationsData.markAsRead}
+                  onMarkAllAsRead={notificationsData.markAllAsRead}
+                />
                 <Button variant="ghost" onClick={() => setIsProfileModalOpen(true)} className="text-white hover:bg-white/10 p-2">
                   <UserIcon className="h-4 w-4" />
                 </Button>
