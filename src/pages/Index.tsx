@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 import { RegistrationModal } from '@/components/auth/RegistrationModal';
+import FloatingSupportButton from '@/components/ui/floating-support-button';
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
@@ -191,6 +192,9 @@ const Index = () => {
         isOpen={isRegistrationModalOpen} 
         onClose={() => setIsRegistrationModalOpen(false)} 
       />
+
+      {/* Floating Support Button */}
+      <FloatingSupportButton />
     </div>;
 };
 export default Index;
