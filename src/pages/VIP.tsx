@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/sections/Footer";
-import treasureImage from "@/assets/treasure.png";
 
 const VIP = () => {
   const tiers = [
@@ -74,7 +73,6 @@ const VIP = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center mb-10 py-8 px-6">
-                <img src={treasureImage} alt="Treasure" className="w-16 h-16 mr-4" />
                 <Crown className="w-16 h-16 text-yellow-500 mr-4" />
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
                   GuduBet VIP Programı
@@ -114,7 +112,6 @@ const VIP = () => {
                         <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 p-3 rounded-full mr-4">
                           <span className="text-2xl">{index + 1}</span>
                         </div>
-                        <img src={treasureImage} alt="Treasure" className="w-8 h-8 mr-2" />
                         <benefit.icon className="w-8 h-8 text-yellow-500" />
                       </div>
                       <CardTitle className="text-xl">{benefit.title}</CardTitle>
@@ -133,7 +130,6 @@ const VIP = () => {
               <Card className="bg-card border border-border">
                 <CardHeader>
                   <CardTitle className="text-2xl flex items-center">
-                    <img src={treasureImage} alt="Treasure" className="w-8 h-8 mr-3" />
                     <Gift className="w-8 h-8 mr-3 text-yellow-500" />
                     Çevrimsiz Yatırım Bonusu
                   </CardTitle>
@@ -142,8 +138,7 @@ const VIP = () => {
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     {tiers.map((tier, index) => (
                       <div key={tier.name} className="text-center">
-                        <div className={`bg-gradient-to-br ${tier.color} p-6 rounded-lg mb-4 relative`}>
-                          <img src={treasureImage} alt="Treasure" className="absolute top-2 right-2 w-6 h-6 opacity-70" />
+                        <div className={`bg-gradient-to-br ${tier.color} p-6 rounded-lg mb-4`}>
                           <div className="text-4xl mb-2">{tier.icon}</div>
                           <div className="text-white font-bold text-lg mb-2">{tier.name}</div>
                           <div className="text-white text-3xl font-bold">%{tier.percentage}</div>
@@ -158,7 +153,6 @@ const VIP = () => {
               <Card className="bg-card border border-border">
                 <CardHeader>
                   <CardTitle className="text-2xl flex items-center">
-                    <img src={treasureImage} alt="Treasure" className="w-8 h-8 mr-3" />
                     <TrendingUp className="w-8 h-8 mr-3 text-yellow-500" />
                     Seviye Atlama Puanı
                   </CardTitle>
