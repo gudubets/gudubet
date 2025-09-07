@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,9 @@ import { ArrowUpCircle, ArrowDownCircle, CreditCard, Wallet, Clock, CheckCircle 
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 import { useToast } from '@/hooks/use-toast';
+import { useUserBalance } from '@/hooks/useUserBalance';
+import { supabase } from '@/integrations/supabase/client';
+import { User } from '@supabase/supabase-js';
 
 const DepositWithdrawal = () => {
   const [activeTab, setActiveTab] = useState('deposit');
@@ -16,7 +19,28 @@ const DepositWithdrawal = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
+
+  // Get user balance data
+  const balanceData = useUserBalance(user);
+
+  useEffect(() => {
+    // Get current user
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    getUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleDeposit = async () => {
     if (!depositAmount || !paymentMethod) {
@@ -93,15 +117,21 @@ const DepositWithdrawal = () => {
             <CardContent className="space-y-4">
               <div className="text-center p-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg">
                 <p className="text-sm text-muted-foreground">Toplam Bakiye</p>
-                <p className="text-2xl font-bold">₺0.00</p>
+                <p className="text-2xl font-bold">
+                  {balanceData.loading ? '...' : `₺${balanceData.total_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
+                </p>
               </div>
               <div className="flex justify-between">
                 <span>Gerçek Bakiye</span>
-                <span className="font-semibold">₺0.00</span>
+                <span className="font-semibold">
+                  {balanceData.loading ? '...' : `₺${balanceData.balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Bonus Bakiye</span>
-                <span className="font-semibold text-green-600">₺0.00</span>
+                <span className="font-semibold text-green-600">
+                  {balanceData.loading ? '...' : `₺${balanceData.bonus_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
+                </span>
               </div>
             </CardContent>
           </Card>
