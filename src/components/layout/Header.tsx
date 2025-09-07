@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User as UserIcon, Wallet, Bell } from 'lucide-react';
+import { useUserBalance } from '@/hooks/useUserBalance';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
@@ -15,6 +16,9 @@ const Header = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const location = useLocation();
+  
+  // Get user balance data
+  const balanceData = useUserBalance(user);
   const navItems = [{
     name: 'SPOR',
     href: '/sports-betting'
@@ -97,7 +101,9 @@ const Header = () => {
               </> : <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-white">
                   <Wallet className="h-4 w-4" />
-                  <span className="text-sm">₺0.00</span>
+                  <span className="text-sm">
+                    {balanceData.loading ? '...' : `₺${balanceData.total_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
+                  </span>
                 </div>
                 <Button variant="ghost" className="text-white hover:bg-white/10 p-2">
                   <Bell className="h-4 w-4" />
@@ -152,6 +158,7 @@ const Header = () => {
           first_name: user.user_metadata?.first_name,
           last_name: user.user_metadata?.last_name
         } : undefined}
+        balanceData={balanceData}
       />
     </header>;
 };

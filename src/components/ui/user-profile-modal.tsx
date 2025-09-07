@@ -17,6 +17,14 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface UserBalance {
+  balance: number;
+  bonus_balance: number;
+  total_balance: number;
+  loading: boolean;
+  error: string | null;
+}
+
 interface UserProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -25,9 +33,10 @@ interface UserProfileModalProps {
     first_name?: string;
     last_name?: string;
   };
+  balanceData?: UserBalance;
 }
 
-const UserProfileModal = ({ isOpen, onClose, user }: UserProfileModalProps) => {
+const UserProfileModal = ({ isOpen, onClose, user, balanceData }: UserProfileModalProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -85,7 +94,9 @@ const UserProfileModal = ({ isOpen, onClose, user }: UserProfileModalProps) => {
           {/* Balance and Deposit Button */}
           <div className="flex items-center gap-3">
             <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2">
-              <span className="text-white font-medium">₺0,41</span>
+              <span className="text-white font-medium">
+                {balanceData?.loading ? '...' : `₺${(balanceData?.total_balance || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
+              </span>
             </div>
             <Button 
               onClick={handleDepositClick}
