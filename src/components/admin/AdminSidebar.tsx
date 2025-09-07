@@ -59,6 +59,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       active: location.pathname === '/admin/finance'
     },
     {
+      title: 'Bakiye Yönetimi',
+      icon: Users,
+      href: '/admin/balance',
+      active: location.pathname === '/admin/balance'
+    },
+    {
       title: 'Rakip Analizi',
       icon: Target,
       href: '/admin/competitor-analysis',
