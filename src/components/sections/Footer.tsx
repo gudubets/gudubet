@@ -80,7 +80,12 @@ const Footer = () => {
               >
                 Gudubet Yardım Merkezi
               </Link>
-              <div>Bahis Kuralları</div>
+              <Link 
+                to="/betting-rules"
+                className="block hover:text-orange-400 transition-colors cursor-pointer"
+              >
+                Bahis Kuralları
+              </Link>
             </div>
             
             {/* Certifications */}
