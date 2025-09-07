@@ -449,20 +449,26 @@ const Promotions = () => {
                         </div>
                       </div>
 
-                      {/* Buttons - Always at bottom */}
-                      <div className="flex gap-2 mt-auto">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="flex-1"
-                              onClick={() => setSelectedPromotion(promotion)}
-                            >
-                              Detay
-                            </Button>
-                          </DialogTrigger>
-                        </Dialog>
+                       {/* Buttons - Always at bottom */}
+                       <div className="flex gap-2 mt-auto">
+                         <Dialog open={isDialogOpen && selectedPromotion?.id === promotion.id} onOpenChange={(open) => {
+                           setIsDialogOpen(open);
+                           if (!open) setSelectedPromotion(null);
+                         }}>
+                           <DialogTrigger asChild>
+                             <Button 
+                               variant="outline" 
+                               size="sm" 
+                               className="flex-1"
+                               onClick={() => {
+                                 setSelectedPromotion(promotion);
+                                 setIsDialogOpen(true);
+                               }}
+                             >
+                               Detay
+                             </Button>
+                           </DialogTrigger>
+                         </Dialog>
                         
                         <Button 
                           size="sm"
