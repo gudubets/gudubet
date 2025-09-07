@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Shield, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ForgotPasswordModal } from './ForgotPasswordModal';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -67,6 +68,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [captchaData, setCaptchaData] = useState<CaptchaData>(generateCaptcha());
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { toast } = useToast();
 
   const updateFormData = (field: keyof FormData, value: string) => {
@@ -212,42 +214,12 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
     refreshCaptcha();
   };
 
-  const handleForgotPassword = async () => {
-    if (!formData.email) {
-      toast({
-        title: "E-posta Gerekli",
-        description: "Şifre sıfırlama için e-posta adresinizi giriniz.",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleForgotPassword = () => {
+    setShowForgotPassword(true);
+  };
 
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      });
-
-      if (error) {
-        toast({
-          title: "Hata",
-          description: "Şifre sıfırlama e-postası gönderilemedi.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      toast({
-        title: "E-posta Gönderildi",
-        description: "Şifre sıfırlama e-postasını kontrol ediniz.",
-      });
-    } catch (error) {
-      console.error('Password reset error:', error);
-      toast({
-        title: "Hata",
-        description: "Bir hata oluştu. Lütfen tekrar deneyin.",
-        variant: "destructive"
-      });
-    }
+  const handleBackToLogin = () => {
+    setShowForgotPassword(false);
   };
 
   const isFormValid = formData.email && formData.password.length >= 8 && formData.captcha;
@@ -260,126 +232,137 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
   }, [isOpen]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md p-0 overflow-hidden bg-background border border-border">
-        <div className="relative">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-6 text-center">
-            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
-              <Shield className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-2xl font-gaming font-bold text-foreground mb-2">
-              Giriş Yap
-            </h2>
-            <p className="text-muted-foreground">
-              Hesabınıza giriş yapın
-            </p>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="email">E-posta Adresi *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => updateFormData('email', e.target.value)}
-                className={errors.email ? 'border-destructive' : ''}
-                placeholder="ornek@email.com"
-                disabled={isLoading}
-              />
-              {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+    <>
+      <Dialog open={isOpen && !showForgotPassword} onOpenChange={handleClose}>
+        <DialogContent className="max-w-md p-0 overflow-hidden bg-background border border-border">
+          <div className="relative">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-6 text-center">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
+                <Shield className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-gaming font-bold text-foreground mb-2">
+                Giriş Yap
+              </h2>
+              <p className="text-muted-foreground">
+                Hesabınıza giriş yapın
+              </p>
             </div>
 
-            {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password">Şifre *</Label>
-              <div className="relative">
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email">E-posta Adresi *</Label>
                 <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={(e) => updateFormData('password', e.target.value)}
-                  className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
-                  placeholder="En az 8 karakter"
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => updateFormData('email', e.target.value)}
+                  className={errors.email ? 'border-destructive' : ''}
+                  placeholder="ornek@email.com"
                   disabled={isLoading}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:opacity-50"
-                  disabled={isLoading}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
               </div>
-              {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-            </div>
 
-            {/* Captcha */}
-            <div className="space-y-2">
-              <Label htmlFor="captcha">Güvenlik Doğrulaması *</Label>
-              <div className="flex space-x-2">
-                <div className="flex-1">
-                  <div className="bg-muted border border-border rounded-md p-3 text-center font-mono text-lg mb-2">
-                    {captchaData.question}
-                  </div>
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password">Şifre *</Label>
+                <div className="relative">
                   <Input
-                    id="captcha"
-                    type="number"
-                    value={formData.captcha}
-                    onChange={(e) => updateFormData('captcha', e.target.value)}
-                    className={errors.captcha ? 'border-destructive' : ''}
-                    placeholder="Sonucu giriniz"
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.password}
+                    onChange={(e) => updateFormData('password', e.target.value)}
+                    className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
+                    placeholder="En az 8 karakter"
                     disabled={isLoading}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:opacity-50"
+                    disabled={isLoading}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
-                <Button
+                {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+              </div>
+
+              {/* Captcha */}
+              <div className="space-y-2">
+                <Label htmlFor="captcha">Güvenlik Doğrulaması *</Label>
+                <div className="flex space-x-2">
+                  <div className="flex-1">
+                    <div className="bg-muted border border-border rounded-md p-3 text-center font-mono text-lg mb-2">
+                      {captchaData.question}
+                    </div>
+                    <Input
+                      id="captcha"
+                      type="number"
+                      value={formData.captcha}
+                      onChange={(e) => updateFormData('captcha', e.target.value)}
+                      className={errors.captcha ? 'border-destructive' : ''}
+                      placeholder="Sonucu giriniz"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={refreshCaptcha}
+                    className="mt-8"
+                    disabled={isLoading}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                </div>
+                {errors.captcha && <p className="text-sm text-destructive">{errors.captcha}</p>}
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={!isFormValid || isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Giriş yapılıyor...
+                  </>
+                ) : (
+                  'Giriş Yap'
+                )}
+              </Button>
+
+              {/* Forgot Password */}
+              <div className="text-center">
+                <button
                   type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={refreshCaptcha}
-                  className="mt-8"
+                  onClick={handleForgotPassword}
+                  className="text-sm text-primary hover:text-primary/80 underline transition-colors"
                   disabled={isLoading}
                 >
-                  <RefreshCw className="w-4 h-4" />
-                </Button>
+                  Şifremi Unuttum
+                </button>
               </div>
-              {errors.captcha && <p className="text-sm text-destructive">{errors.captcha}</p>}
-            </div>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={!isFormValid || isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Giriş yapılıyor...
-                </>
-              ) : (
-                'Giriş Yap'
-              )}
-            </Button>
-
-            {/* Forgot Password */}
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="text-sm text-primary hover:text-primary/80 underline transition-colors"
-                disabled={isLoading}
-              >
-                Şifremi Unuttum
-              </button>
-            </div>
-          </form>
-        </div>
-      </DialogContent>
-    </Dialog>
+      <ForgotPasswordModal 
+        isOpen={showForgotPassword}
+        onClose={() => {
+          setShowForgotPassword(false);
+          onClose();
+        }}
+        onBackToLogin={handleBackToLogin}
+      />
+    </>
   );
 };
