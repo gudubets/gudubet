@@ -11,6 +11,7 @@ import SportsBetting from "./pages/SportsBetting";
 import LiveBetting from "./pages/LiveBetting";
 import Promotions from "./pages/Promotions";
 import Profile from "./pages/Profile";
+import VIP from "./pages/VIP";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/live-betting" element={<LiveBetting />} />
           <Route path="/promotions" element={<Promotions />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/vip" element={<VIP />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
