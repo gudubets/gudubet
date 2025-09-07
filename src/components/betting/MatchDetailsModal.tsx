@@ -172,15 +172,15 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
                     <CardTitle className="text-lg">{marketName}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                       {odds.map((odd) => (
                         <Button
                           key={odd.id}
                           variant="outline"
-                          className="h-16 flex flex-col gap-1 hover:bg-primary hover:text-primary-foreground"
+                          className="h-12 flex flex-col justify-center hover:bg-primary hover:text-primary-foreground"
                         >
-                          <span className="text-sm font-medium">{odd.selection_name}</span>
-                          <span className="text-lg font-bold">{odd.odds_value.toFixed(2)}</span>
+                          <span className="text-xs font-medium truncate">{odd.selection_name}</span>
+                          <span className="text-sm font-bold">{odd.odds_value.toFixed(2)}</span>
                         </Button>
                       ))}
                     </div>
