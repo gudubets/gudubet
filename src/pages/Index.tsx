@@ -16,37 +16,37 @@ const Index = () => {
       
       {/* Main Content */}
       <div className="bg-black min-h-screen">
-        {/* Hero Section */}
+        {/* Hero Section - Animated Advertisement Slider */}
         <div className="relative">
           <Carousel className="h-80 md:h-96" opts={{
-          loop: true,
-          duration: 30
-        }}>
+            loop: true,
+            duration: 30
+          }}>
             <CarouselContent className="h-full">
-              {/* Main Bonus Banner */}
+              {/* Slide 1 - Main Bonus Banner */}
               <CarouselItem>
-                <div className="relative h-80 md:h-96 bg-gradient-to-br from-red-800 via-red-600 to-orange-500 overflow-hidden">
+                <div className="relative h-80 md:h-96 bg-gradient-to-br from-red-800 via-red-600 to-orange-500 overflow-hidden animate-fade-in">
                   <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
                   
-                  {/* Decorative Elements */}
+                  {/* Animated Decorative Elements */}
                   <div className="absolute top-10 left-10 w-16 h-16 rounded-full bg-yellow-400/20 animate-pulse"></div>
                   <div className="absolute bottom-20 right-20 w-12 h-12 rounded-full bg-orange-400/30 animate-bounce"></div>
-                  <div className="absolute top-1/3 right-1/4 text-6xl opacity-20">🎰</div>
-                  <div className="absolute bottom-1/3 left-1/4 text-4xl opacity-20">🎲</div>
+                  <div className="absolute top-1/3 right-1/4 text-6xl opacity-20 animate-spin">🎰</div>
+                  <div className="absolute bottom-1/3 left-1/4 text-4xl opacity-20 animate-pulse">🎲</div>
                   
                   <div className="relative z-10 h-full flex items-center justify-center px-8 md:px-16">
-                    <div className="flex-1 flex flex-col items-center justify-center text-center">
-                      <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-                        <span className="text-yellow-300 text-6xl md:text-8xl">2000TL</span>
+                    <div className="flex-1 flex flex-col items-center justify-center text-center animate-scale-in">
+                      <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 animate-fade-in">
+                        <span className="text-yellow-300 text-6xl md:text-8xl animate-pulse">2000TL</span>
                       </h1>
-                      <div className="bg-black/80 rounded-lg px-6 py-3 inline-block mb-6">
+                      <div className="bg-black/80 rounded-lg px-6 py-3 inline-block mb-6 animate-slide-in-right">
                         <h2 className="text-xl md:text-2xl font-bold text-yellow-300">
                           HOŞ GELDİN BONUSU
                         </h2>
                       </div>
                       <div className="flex justify-center items-center w-full">
                         <Button 
-                          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full"
+                          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
                           onClick={() => setIsRegistrationModalOpen(true)}
                         >
                           ÜYE OL
@@ -54,19 +54,131 @@ const Index = () => {
                       </div>
                     </div>
                     <div className="flex-1 flex justify-center items-center">
-                      <div className="text-8xl md:text-9xl opacity-80 ml-20">🎰</div>
+                      <div className="text-8xl md:text-9xl opacity-80 ml-20 animate-spin">🎰</div>
                     </div>
                   </div>
+                </div>
+              </CarouselItem>
+
+              {/* Slide 2 - VIP Program */}
+              <CarouselItem>
+                <div className="relative h-80 md:h-96 bg-gradient-to-br from-purple-800 via-purple-600 to-pink-500 overflow-hidden animate-fade-in">
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
                   
-                  {/* Pagination Dots */}
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                    {Array.from({
-                    length: 5
-                  }, (_, i) => <div key={i} className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-yellow-400' : 'bg-white/50'}`}></div>)}
+                  <div className="absolute top-10 right-10 w-20 h-20 rounded-full bg-purple-400/20 animate-pulse"></div>
+                  <div className="absolute bottom-10 left-10 w-16 h-16 rounded-full bg-pink-400/30 animate-bounce"></div>
+                  <div className="absolute top-1/4 left-1/3 text-5xl opacity-30 animate-pulse">💎</div>
+                  <div className="absolute bottom-1/4 right-1/3 text-4xl opacity-30 animate-bounce">👑</div>
+                  
+                  <div className="relative z-10 h-full flex items-center justify-center px-8 md:px-16">
+                    <div className="flex-1 flex flex-col items-center justify-center text-center animate-scale-in">
+                      <h1 className="text-5xl md:text-7xl font-bold text-white mb-4">
+                        <span className="text-yellow-300 animate-pulse">VIP</span>
+                      </h1>
+                      <div className="bg-black/80 rounded-lg px-6 py-3 inline-block mb-6 animate-slide-in-right">
+                        <h2 className="text-xl md:text-2xl font-bold text-purple-300">
+                          ÖZEL AVANTAJLAR
+                        </h2>
+                      </div>
+                      <div className="flex justify-center items-center space-x-4 mb-6">
+                        <div className="text-center animate-fade-in">
+                          <div className="text-3xl mb-1">💎</div>
+                          <div className="text-lg font-bold text-yellow-300">%25</div>
+                        </div>
+                        <div className="text-center animate-fade-in" style={{animationDelay: '0.2s'}}>
+                          <div className="text-3xl mb-1">🎁</div>
+                          <div className="text-lg font-bold text-yellow-300">BONUS</div>
+                        </div>
+                      </div>
+                      <Button 
+                        className="bg-purple-500 hover:bg-purple-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
+                        onClick={() => navigate('/vip')}
+                      >
+                        VIP OL
+                      </Button>
+                    </div>
+                    <div className="flex-1 flex justify-center items-center">
+                      <div className="text-8xl md:text-9xl opacity-80 animate-pulse">👑</div>
+                    </div>
+                  </div>
+                </div>
+              </CarouselItem>
+
+              {/* Slide 3 - Live Casino */}
+              <CarouselItem>
+                <div className="relative h-80 md:h-96 bg-gradient-to-br from-green-800 via-green-600 to-emerald-500 overflow-hidden animate-fade-in">
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
+                  
+                  <div className="absolute top-15 left-15 w-14 h-14 rounded-full bg-green-400/20 animate-pulse"></div>
+                  <div className="absolute bottom-15 right-15 w-18 h-18 rounded-full bg-emerald-400/30 animate-bounce"></div>
+                  <div className="absolute top-1/3 left-1/4 text-5xl opacity-30 animate-spin">🃏</div>
+                  <div className="absolute bottom-1/3 right-1/4 text-4xl opacity-30 animate-pulse">🎯</div>
+                  
+                  <div className="relative z-10 h-full flex items-center justify-center px-8 md:px-16">
+                    <div className="flex-1 flex flex-col items-center justify-center text-center animate-scale-in">
+                      <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                        <span className="text-emerald-300 animate-pulse">CANLI</span>
+                      </h1>
+                      <div className="bg-black/80 rounded-lg px-6 py-3 inline-block mb-6 animate-slide-in-right">
+                        <h2 className="text-xl md:text-2xl font-bold text-emerald-300">
+                          CASİNO DENEYİMİ
+                        </h2>
+                      </div>
+                      <Button 
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
+                        onClick={() => navigate('/live-casino')}
+                      >
+                        OYNA
+                      </Button>
+                    </div>
+                    <div className="flex-1 flex justify-center items-center">
+                      <div className="text-8xl md:text-9xl opacity-80 animate-bounce">🎲</div>
+                    </div>
+                  </div>
+                </div>
+              </CarouselItem>
+
+              {/* Slide 4 - Sports Betting */}
+              <CarouselItem>
+                <div className="relative h-80 md:h-96 bg-gradient-to-br from-blue-800 via-blue-600 to-cyan-500 overflow-hidden animate-fade-in">
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
+                  
+                  <div className="absolute top-12 right-12 w-16 h-16 rounded-full bg-blue-400/20 animate-pulse"></div>
+                  <div className="absolute bottom-12 left-12 w-14 h-14 rounded-full bg-cyan-400/30 animate-bounce"></div>
+                  <div className="absolute top-1/4 right-1/3 text-5xl opacity-30 animate-bounce">⚽</div>
+                  <div className="absolute bottom-1/4 left-1/3 text-4xl opacity-30 animate-pulse">🏀</div>
+                  
+                  <div className="relative z-10 h-full flex items-center justify-center px-8 md:px-16">
+                    <div className="flex-1 flex flex-col items-center justify-center text-center animate-scale-in">
+                      <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                        <span className="text-cyan-300 animate-pulse">SPOR</span>
+                      </h1>
+                      <div className="bg-black/80 rounded-lg px-6 py-3 inline-block mb-6 animate-slide-in-right">
+                        <h2 className="text-xl md:text-2xl font-bold text-cyan-300">
+                          BAHİS HEYECANI
+                        </h2>
+                      </div>
+                      <Button 
+                        className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
+                        onClick={() => navigate('/sports-betting')}
+                      >
+                        BAHİS YAP
+                      </Button>
+                    </div>
+                    <div className="flex-1 flex justify-center items-center">
+                      <div className="text-8xl md:text-9xl opacity-80 animate-spin">⚽</div>
+                    </div>
                   </div>
                 </div>
               </CarouselItem>
             </CarouselContent>
+            
+            {/* Pagination Dots */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+              {Array.from({length: 4}, (_, i) => 
+                <div key={i} className={`w-3 h-3 rounded-full bg-white/50 animate-pulse`} style={{animationDelay: `${i * 0.2}s`}}></div>
+              )}
+            </div>
           </Carousel>
         </div>
 
