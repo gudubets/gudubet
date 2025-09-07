@@ -74,7 +74,12 @@ const Footer = () => {
               >
                 Bize ulaşın
               </Link>
-              <div>Gudubet Yardım Merkezi</div>
+              <Link 
+                to="/help-center"
+                className="block hover:text-orange-400 transition-colors cursor-pointer"
+              >
+                Gudubet Yardım Merkezi
+              </Link>
               <div>Bahis Kuralları</div>
             </div>
             
