@@ -504,66 +504,190 @@ const Promotions = () => {
 
         {/* Promotion Details Modal */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle className="flex items-center space-x-2">
-                {selectedPromotion && getCategoryIcon(selectedPromotion.category)}
-                <span>{selectedPromotion?.title}</span>
-              </DialogTitle>
-            </DialogHeader>
-            
+          <DialogContent className="sm:max-w-4xl max-w-[95vw] max-h-[90vh] overflow-hidden p-0">
             {selectedPromotion && (
-              <div className="space-y-6">
-                {/* Promotion Image Placeholder */}
-                <div className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Gift className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Promosyon Görseli</p>
+              <div className="flex flex-col lg:flex-row h-full">
+                {/* Left Side - Image */}
+                <div className="lg:w-1/2 w-full">
+                  <div className="relative h-64 lg:h-full bg-gradient-to-br from-primary/20 via-primary/10 to-background overflow-hidden">
+                    {/* Background Pattern */}
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute inset-0 bg-grid-pattern"></div>
+                    </div>
+                    
+                    {/* Main Visual Content */}
+                    <div className="relative h-full flex flex-col items-center justify-center p-8">
+                      <div className="mb-6">
+                        {getCategoryIcon(selectedPromotion.category)}
+                      </div>
+                      
+                      {/* Bonus Display */}
+                      {selectedPromotion.bonus_percentage && (
+                        <div className="text-center mb-6">
+                          <div className="text-6xl lg:text-8xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                            %{selectedPromotion.bonus_percentage}
+                          </div>
+                          <div className="text-lg text-muted-foreground font-medium">
+                            Bonus
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Category Badge */}
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-sm">
+                          {categories.find(c => c.id === selectedPromotion.category)?.name}
+                        </Badge>
+                        {selectedPromotion.promo_code && (
+                          <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">
+                            <Copy className="w-3 h-3 mr-1" />
+                            Kod Var
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Decorative Elements */}
+                    <div className="absolute top-4 right-4 w-20 h-20 bg-primary/10 rounded-full blur-xl"></div>
+                    <div className="absolute bottom-4 left-4 w-16 h-16 bg-secondary/10 rounded-full blur-lg"></div>
                   </div>
                 </div>
 
-                {/* Description */}
-                <div>
-                  <h4 className="font-semibold mb-2">Promosyon Açıklaması</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedPromotion.detailed_description || selectedPromotion.description}
-                  </p>
-                </div>
-
-                {/* Terms & Conditions */}
-                <div>
-                  <h4 className="font-semibold mb-2">Şartlar & Koşullar</h4>
-                  <div className="bg-muted/50 p-3 rounded-lg">
-                    <p className="text-sm text-muted-foreground">
-                      {selectedPromotion.terms_conditions}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Promo Code */}
-                {selectedPromotion.promo_code && (
-                  <div>
-                    <h4 className="font-semibold mb-2">Promosyon Kodu</h4>
-                    <div className="bg-primary/10 border border-primary/20 p-3 rounded-lg">
-                      <code className="text-primary font-mono font-bold">
-                        {selectedPromotion.promo_code}
-                      </code>
+                {/* Right Side - Content */}
+                <div className="lg:w-1/2 w-full flex flex-col">
+                  {/* Header */}
+                  <div className="p-6 border-b bg-muted/30">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl font-bold leading-tight">
+                        {selectedPromotion.title}
+                      </DialogTitle>
+                    </DialogHeader>
+                    
+                    {/* Quick Stats */}
+                    <div className="mt-4 flex flex-wrap gap-3 text-sm">
+                      {selectedPromotion.min_deposit && (
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                          <TrendingUp className="w-4 h-4" />
+                          <span>Min. ₺{selectedPromotion.min_deposit}</span>
+                        </div>
+                      )}
+                      {selectedPromotion.max_bonus && (
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                          <Gift className="w-4 h-4" />
+                          <span>Max. ₺{selectedPromotion.max_bonus}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1 text-muted-foreground">
+                        <Clock className="w-4 h-4" />
+                        <span>{selectedPromotion.wagering_requirement}x çevrim</span>
+                      </div>
                     </div>
                   </div>
-                )}
 
-                {/* Action Button */}
-                <div className="flex justify-end">
-                  <Button 
-                    className="bg-primary hover:bg-primary/90"
-                    onClick={() => {
-                      joinPromotion(selectedPromotion);
-                      setIsDialogOpen(false);
-                    }}
-                    disabled={hasParticipated(selectedPromotion.id)}
-                  >
-                    {hasParticipated(selectedPromotion.id) ? 'Zaten Katıldınız' : 'Promosyona Katıl'}
-                  </Button>
+                  {/* Content Area */}
+                  <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    {/* Description */}
+                    <div>
+                      <h4 className="font-semibold mb-3 text-lg flex items-center gap-2">
+                        <Star className="w-5 h-5 text-yellow-500" />
+                        Promosyon Detayları
+                      </h4>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {selectedPromotion.detailed_description || selectedPromotion.description}
+                      </p>
+                    </div>
+
+                    {/* Promo Code Section */}
+                    {selectedPromotion.promo_code && (
+                      <div>
+                        <h4 className="font-semibold mb-3 text-lg flex items-center gap-2">
+                          <Copy className="w-5 h-5 text-blue-500" />
+                          Promosyon Kodu
+                        </h4>
+                        <div className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-lg p-4">
+                          <div className="flex items-center justify-between">
+                            <code className="text-primary font-mono font-bold text-lg">
+                              {selectedPromotion.promo_code}
+                            </code>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                navigator.clipboard.writeText(selectedPromotion.promo_code || '');
+                                toast({
+                                  title: "Kopyalandı!",
+                                  description: "Promosyon kodu panoya kopyalandı.",
+                                });
+                              }}
+                            >
+                              <Copy className="w-4 h-4 mr-1" />
+                              Kopyala
+                            </Button>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-2">
+                            Bu kodu yatırım yaparken kullanın
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Countdown Timer */}
+                    <div>
+                      <h4 className="font-semibold mb-3 text-lg flex items-center gap-2">
+                        <Timer className="w-5 h-5 text-orange-500" />
+                        Süre
+                      </h4>
+                      <div className="bg-muted/50 rounded-lg p-4">
+                        <CountdownTimer endDate={selectedPromotion.end_date} />
+                      </div>
+                    </div>
+
+                    {/* Terms & Conditions */}
+                    <div>
+                      <h4 className="font-semibold mb-3 text-lg flex items-center gap-2">
+                        <Users className="w-5 h-5 text-purple-500" />
+                        Şartlar & Koşullar
+                      </h4>
+                      <div className="bg-muted/30 border rounded-lg p-4">
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {selectedPromotion.terms_conditions}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer Actions */}
+                  <div className="p-6 border-t bg-muted/20">
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => setIsDialogOpen(false)}
+                      >
+                        Kapat
+                      </Button>
+                      <Button 
+                        className="flex-1 bg-primary hover:bg-primary/90"
+                        onClick={() => {
+                          joinPromotion(selectedPromotion);
+                          setIsDialogOpen(false);
+                        }}
+                        disabled={hasParticipated(selectedPromotion.id)}
+                      >
+                        {hasParticipated(selectedPromotion.id) ? (
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4" />
+                            Katıldınız
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <Gift className="w-4 h-4" />
+                            Promosyona Katıl
+                          </div>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
