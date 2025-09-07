@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
+import MatchDetailsModal from '@/components/betting/MatchDetailsModal';
 
 interface Match {
   id: string;
@@ -26,6 +27,8 @@ interface Match {
   away_team: string;
   home_team_logo?: string;
   away_team_logo?: string;
+  home_score: number;
+  away_score: number;
   match_date: string;
   match_time: string;
   sport_type: string;
@@ -34,6 +37,19 @@ interface Match {
   draw_odds: number;
   away_odds: number;
   is_featured: boolean;
+  status: string;
+  viewers_count: number;
+  odds: LiveOdds[];
+}
+
+interface LiveOdds {
+  id: string;
+  market_type: string;
+  market_name: string;
+  selection: string;
+  selection_name: string;
+  odds_value: number;
+  is_active: boolean;
 }
 
 interface BetSelection {
@@ -60,6 +76,8 @@ const SportsBetting = () => {
   const [confirmedBets, setConfirmedBets] = useState<ConfirmedBet[]>([]);
   const [activeTab, setActiveTab] = useState<string>('betslip');
   const [stakeAmount, setStakeAmount] = useState<string>('');
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -81,6 +99,8 @@ const SportsBetting = () => {
           id: '1',
           home_team: 'Manchester United',
           away_team: 'Liverpool',
+          home_score: 0,
+          away_score: 0,
           match_date: '2024-01-20',
           match_time: '17:00',
           sport_type: 'futbol',
@@ -88,8 +108,85 @@ const SportsBetting = () => {
           home_odds: 2.1,
           draw_odds: 3.2,
           away_odds: 3.5,
-          is_featured: true
+          is_featured: true,
+          status: 'scheduled',
+          viewers_count: 0,
+          odds: [
+            {
+              id: '1',
+              market_type: '1X2',
+              market_name: 'Maç Sonucu',
+              selection: '1',
+              selection_name: 'Manchester United',
+              odds_value: 2.1,
+              is_active: true
+            },
+            {
+              id: '2',
+              market_type: '1X2',
+              market_name: 'Maç Sonucu',
+              selection: 'X',
+              selection_name: 'Beraberlik',
+              odds_value: 3.2,
+              is_active: true
+            },
+            {
+              id: '3',
+              market_type: '1X2',
+              market_name: 'Maç Sonucu',
+              selection: '2',
+              selection_name: 'Liverpool',
+              odds_value: 3.5,
+              is_active: true
+            }
+          ]
         },
+        {
+          id: '2',
+          home_team: 'Arsenal',
+          away_team: 'Chelsea',
+          home_score: 0,
+          away_score: 0,
+          match_date: '2024-01-21',
+          match_time: '15:00',
+          sport_type: 'futbol',
+          league: 'Premier League',
+          home_odds: 1.9,
+          draw_odds: 3.4,
+          away_odds: 4.1,
+          is_featured: false,
+          status: 'scheduled',
+          viewers_count: 0,
+          odds: [
+            {
+              id: '4',
+              market_type: '1X2',
+              market_name: 'Maç Sonucu',
+              selection: '1',
+              selection_name: 'Arsenal',
+              odds_value: 1.9,
+              is_active: true
+            },
+            {
+              id: '5',
+              market_type: '1X2',
+              market_name: 'Maç Sonucu',
+              selection: 'X',
+              selection_name: 'Beraberlik',
+              odds_value: 3.4,
+              is_active: true
+            },
+            {
+              id: '6',
+              market_type: '1X2',
+              market_name: 'Maç Sonucu',
+              selection: '2',
+              selection_name: 'Chelsea',
+              odds_value: 4.1,
+              is_active: true
+            }
+          ]
+        }
       ];
       
       setMatches(mockMatches);
@@ -245,14 +342,33 @@ const SportsBetting = () => {
                         </Badge>
                       )}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      {match.match_date} - {match.match_time}
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm text-muted-foreground">
+                        {match.match_date} - {match.match_time}
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedMatch(match);
+                          setIsDetailsOpen(true);
+                        }}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <BarChart3 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <div className="text-lg font-semibold mb-1">
+                      <div 
+                        className="text-lg font-semibold mb-1 cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => {
+                          setSelectedMatch(match);
+                          setIsDetailsOpen(true);
+                        }}
+                      >
                         {match.home_team} vs {match.away_team}
                       </div>
                     </div>
@@ -295,6 +411,19 @@ const SportsBetting = () => {
                           <div className="font-bold">{match.away_odds}</div>
                         </div>
                       </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedMatch(match);
+                          setIsDetailsOpen(true);
+                        }}
+                        className="text-primary hover:text-primary/80 ml-2"
+                      >
+                        <TrendingUp className="w-4 h-4 mr-1" />
+                        Detaylar
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -314,6 +443,12 @@ const SportsBetting = () => {
           )}
         </div>
       </main>
+
+      <MatchDetailsModal
+        match={selectedMatch}
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+      />
 
       <Footer />
     </div>
