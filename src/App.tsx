@@ -16,6 +16,7 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Partnership from "./pages/Partnership";
 import ResponsibleGaming from "./pages/ResponsibleGaming";
+import ContactUs from "./pages/ContactUs";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/partnership" element={<Partnership />} />
           <Route path="/responsible-gaming" element={<ResponsibleGaming />} />
+          <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />

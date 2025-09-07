@@ -68,7 +68,12 @@ const Footer = () => {
           <div>
             <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">Hakkımızda</h3>
             <div className="space-y-2 text-sm">
-              <div>Bize ulaşın</div>
+              <Link 
+                to="/contact-us"
+                className="block hover:text-orange-400 transition-colors cursor-pointer"
+              >
+                Bize ulaşın
+              </Link>
               <div>Gudubet Yardım Merkezi</div>
               <div>Bahis Kuralları</div>
             </div>
