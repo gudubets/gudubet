@@ -17,24 +17,28 @@ import {
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
-interface Game {
+interface SlotGame {
   id: string;
-  title: string;
+  name: string;
+  slug: string;
   provider: string;
-  thumbnail: string;
-  category: string;
-  isPopular: boolean;
-  isNew: boolean;
-  rtp?: number;
+  rtp: number;
+  min_bet: number;
+  max_bet: number;
+  thumbnail_url?: string;
+  is_active: boolean;
 }
 
 const Casino = () => {
-  const [games, setGames] = useState<Game[]>([]);
+  const [games, setGames] = useState<SlotGame[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const categories = [
     { id: 'all', name: 'Hepsi', icon: '🎮' },
@@ -45,112 +49,51 @@ const Casino = () => {
     { id: 'popular', name: 'Popüler', icon: '🔥' },
   ];
 
-  // Mock games data
+  // Load slot games from database
   useEffect(() => {
-    const mockGames: Game[] = [
-      {
-        id: '1',
-        title: 'Gates of Olympus',
-        provider: 'Pragmatic Play',
-        thumbnail: 'https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?w=300&h=200&fit=crop',
-        category: 'slots',
-        isPopular: true,
-        isNew: false,
-        rtp: 96.5
-      },
-      {
-        id: '2',
-        title: 'Sweet Bonanza',
-        provider: 'Pragmatic Play',
-        thumbnail: 'https://images.unsplash.com/photo-1576671081837-49000212a370?w=300&h=200&fit=crop',
-        category: 'slots',
-        isPopular: true,
-        isNew: false,
-        rtp: 96.48
-      },
-      {
-        id: '3',
-        title: 'Book of Dead',
-        provider: 'Play\'n GO',
-        thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop',
-        category: 'slots',
-        isPopular: false,
-        isNew: true,
-        rtp: 94.25
-      },
-      {
-        id: '4',
-        title: 'Lightning Roulette',
-        provider: 'Evolution',
-        thumbnail: 'https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=300&h=200&fit=crop',
-        category: 'table',
-        isPopular: true,
-        isNew: false,
-        rtp: 97.3
-      },
-      {
-        id: '5',
-        title: 'Mega Moolah',
-        provider: 'Microgaming',
-        thumbnail: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=300&h=200&fit=crop',
-        category: 'jackpot',
-        isPopular: true,
-        isNew: false,
-        rtp: 88.12
-      },
-      {
-        id: '6',
-        title: 'Blackjack Classic',
-        provider: 'NetEnt',
-        thumbnail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop',
-        category: 'table',
-        isPopular: false,
-        isNew: true,
-        rtp: 99.28
-      }
-    ];
-
-    setTimeout(() => {
-      setGames(mockGames);
-      setLoading(false);
-    }, 1000);
+    loadSlotGames();
   }, []);
+
+  const loadSlotGames = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('slot_games')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) throw error;
+
+      setGames(data || []);
+    } catch (error) {
+      console.error('Error loading slot games:', error);
+      toast.error('Oyunlar yüklenirken hata oluştu');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter games based on search and category
   const filteredGames = games.filter(game => {
-    const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = game.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          game.provider.toLowerCase().includes(searchTerm.toLowerCase());
     
     let matchesCategory = true;
     if (selectedCategory !== 'all') {
-      if (selectedCategory === 'new') {
-        matchesCategory = game.isNew;
+      if (selectedCategory === 'slots') {
+        matchesCategory = true; // All our games are slots for now
       } else if (selectedCategory === 'popular') {
-        matchesCategory = game.isPopular;
-      } else {
-        matchesCategory = game.category === selectedCategory;
+        matchesCategory = game.provider === 'Pragmatic Play'; // Mark Pragmatic Play as popular
+      } else if (selectedCategory === 'new') {
+        matchesCategory = game.provider === 'Gudubet'; // Mark our own games as new
       }
     }
     
     return matchesSearch && matchesCategory;
   });
 
-  const playGame = (gameId: string) => {
-    // Navigate to slot game for slot games
-    if (gameId === '1' || gameId === '2' || gameId === '3') { // Slot games
-      // Map game IDs to actual slot game slugs
-      const gameMapping: { [key: string]: string } = {
-        '1': 'treasure-quest',
-        '2': 'lucky-fruits', 
-        '3': 'treasure-quest'
-      };
-      
-      const slug = gameMapping[gameId] || 'treasure-quest';
-      window.location.href = `/slot/${slug}`;
-    } else {
-      console.log(`Playing game ${gameId}`);
-      toast.success('Oyun yakında açılacak!');
-    }
+  const playGame = (gameSlug: string) => {
+    navigate(`/slot/${gameSlug}`);
   };
 
   return (
@@ -217,10 +160,12 @@ const Casino = () => {
                 {category.id !== 'all' && (
                   <Badge variant="secondary" className="ml-1">
                     {category.id === 'new' 
-                      ? games.filter(g => g.isNew).length
+                      ? games.filter(g => g.provider === 'Gudubet').length
                       : category.id === 'popular' 
-                      ? games.filter(g => g.isPopular).length
-                      : games.filter(g => g.category === category.id).length
+                      ? games.filter(g => g.provider === 'Pragmatic Play').length
+                      : category.id === 'slots'
+                      ? games.length
+                      : games.length
                     }
                   </Badge>
                 )}
@@ -255,8 +200,8 @@ const Casino = () => {
                         <CardContent className="p-0">
                           <div className="relative">
                             <img
-                              src={game.thumbnail}
-                              alt={game.title}
+                              src={game.thumbnail_url || '/placeholder.svg'}
+                              alt={game.name}
                               className="w-full h-32 object-cover rounded-t-lg"
                             />
                             
@@ -264,7 +209,7 @@ const Casino = () => {
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-t-lg">
                               <Button
                                 size="sm"
-                                onClick={() => playGame(game.id)}
+                                onClick={() => playGame(game.slug)}
                                 className="bg-primary hover:bg-primary/90"
                               >
                                 <Play className="w-4 h-4 mr-1" />
@@ -274,12 +219,12 @@ const Casino = () => {
                             
                             {/* Badges */}
                             <div className="absolute top-2 left-2 flex gap-1">
-                              {game.isNew && (
+                              {game.provider === 'Gudubet' && (
                                 <Badge className="bg-green-500 text-xs">
                                   Yeni
                                 </Badge>
                               )}
-                              {game.isPopular && (
+                              {game.provider === 'Pragmatic Play' && (
                                 <Badge className="bg-red-500 text-xs">
                                   Popüler
                                 </Badge>
@@ -289,17 +234,15 @@ const Casino = () => {
                           
                           <div className="p-3">
                             <h3 className="font-medium text-sm mb-1 text-white truncate">
-                              {game.title}
+                              {game.name}
                             </h3>
                             <p className="text-xs text-gray-400 mb-2">
                               {game.provider}
                             </p>
-                            {game.rtp && (
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="text-gray-400">RTP:</span>
-                                <span className="text-green-400">{game.rtp}%</span>
-                              </div>
-                            )}
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-gray-400">RTP:</span>
+                              <span className="text-green-400">{game.rtp}%</span>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -312,32 +255,30 @@ const Casino = () => {
                         <CardContent className="p-4">
                           <div className="flex items-center gap-4">
                             <img
-                              src={game.thumbnail}
-                              alt={game.title}
+                              src={game.thumbnail_url || '/placeholder.svg'}
+                              alt={game.name}
                               className="w-16 h-16 object-cover rounded"
                             />
                             
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-medium text-white">{game.title}</h3>
-                                {game.isNew && (
+                                <h3 className="font-medium text-white">{game.name}</h3>
+                                {game.provider === 'Gudubet' && (
                                   <Badge className="bg-green-500 text-xs">Yeni</Badge>
                                 )}
-                                {game.isPopular && (
+                                {game.provider === 'Pragmatic Play' && (
                                   <Badge className="bg-red-500 text-xs">Popüler</Badge>
                                 )}
                               </div>
                               <p className="text-sm text-gray-400 mb-1">{game.provider}</p>
                               <div className="flex items-center gap-4 text-sm text-gray-400">
-                                <span>Kategori: {categories.find(c => c.id === game.category)?.name}</span>
-                                {game.rtp && (
-                                  <span className="text-green-400">RTP: {game.rtp}%</span>
-                                )}
+                                <span>Kategori: Slot Oyunları</span>
+                                <span className="text-green-400">RTP: {game.rtp}%</span>
                               </div>
                             </div>
                             
                             <Button
-                              onClick={() => playGame(game.id)}
+                              onClick={() => playGame(game.slug)}
                               className="bg-primary hover:bg-primary/90"
                             >
                               <Play className="w-4 h-4 mr-1" />
