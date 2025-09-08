@@ -1218,6 +1218,176 @@ export type Database = {
         }
         Relationships: []
       }
+      slot_game_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          session_end: string | null
+          session_start: string
+          slot_game_id: string
+          total_bet: number
+          total_spins: number
+          total_win: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          session_end?: string | null
+          session_start?: string
+          slot_game_id: string
+          total_bet?: number
+          total_spins?: number
+          total_win?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          session_end?: string | null
+          session_start?: string
+          slot_game_id?: string
+          total_bet?: number
+          total_spins?: number
+          total_win?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slot_game_sessions_slot_game_id_fkey"
+            columns: ["slot_game_id"]
+            isOneToOne: false
+            referencedRelation: "slot_games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      slot_game_spins: {
+        Row: {
+          balance_after: number
+          balance_before: number
+          bet_amount: number
+          created_at: string
+          id: string
+          multiplier: number | null
+          result: Json
+          session_id: string
+          slot_game_id: string
+          spin_timestamp: string
+          user_id: string
+          win_amount: number
+          winning_lines: Json | null
+        }
+        Insert: {
+          balance_after: number
+          balance_before: number
+          bet_amount: number
+          created_at?: string
+          id?: string
+          multiplier?: number | null
+          result: Json
+          session_id: string
+          slot_game_id: string
+          spin_timestamp?: string
+          user_id: string
+          win_amount?: number
+          winning_lines?: Json | null
+        }
+        Update: {
+          balance_after?: number
+          balance_before?: number
+          bet_amount?: number
+          created_at?: string
+          id?: string
+          multiplier?: number | null
+          result?: Json
+          session_id?: string
+          slot_game_id?: string
+          spin_timestamp?: string
+          user_id?: string
+          win_amount?: number
+          winning_lines?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slot_game_spins_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "slot_game_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slot_game_spins_slot_game_id_fkey"
+            columns: ["slot_game_id"]
+            isOneToOne: false
+            referencedRelation: "slot_games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      slot_games: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          max_bet: number
+          min_bet: number
+          name: string
+          paylines: number
+          paytable: Json
+          provider: string
+          reels: number
+          rows: number
+          rtp: number
+          slug: string
+          symbols: Json
+          thumbnail_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_bet?: number
+          min_bet?: number
+          name: string
+          paylines?: number
+          paytable: Json
+          provider: string
+          reels?: number
+          rows?: number
+          rtp?: number
+          slug: string
+          symbols: Json
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_bet?: number
+          min_bet?: number
+          name?: string
+          paylines?: number
+          paytable?: Json
+          provider?: string
+          reels?: number
+          rows?: number
+          rtp?: number
+          slug?: string
+          symbols?: Json
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sports: {
         Row: {
           created_at: string | null

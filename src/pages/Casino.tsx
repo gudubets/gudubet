@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
+import { toast } from 'sonner';
 
 interface Game {
   id: string;
@@ -135,8 +136,21 @@ const Casino = () => {
   });
 
   const playGame = (gameId: string) => {
-    console.log(`Playing game ${gameId}`);
-    // Here you would typically open the game
+    // Navigate to slot game for slot games
+    if (gameId === '1' || gameId === '2' || gameId === '3') { // Slot games
+      // Map game IDs to actual slot game slugs
+      const gameMapping: { [key: string]: string } = {
+        '1': 'treasure-quest',
+        '2': 'lucky-fruits', 
+        '3': 'treasure-quest'
+      };
+      
+      const slug = gameMapping[gameId] || 'treasure-quest';
+      window.location.href = `/slot/${slug}`;
+    } else {
+      console.log(`Playing game ${gameId}`);
+      toast.success('Oyun yakında açılacak!');
+    }
   };
 
   return (
