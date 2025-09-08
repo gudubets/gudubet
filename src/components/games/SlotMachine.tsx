@@ -235,7 +235,7 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({ gameSlug, user }) => {
           <CardContent className="p-0">
             <div className="relative w-full" style={{ paddingTop: '56.25%' /* 16:9 aspect ratio */ }}>
               <iframe 
-                src={`https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol=${gameSlug}&lang=en&cur=EUR&lobby=https://demogamesfree.pragmaticplay.net/lobbyprev.jsp&channel=mobile`}
+                src={`https://demogamesfree.pragmaticplay.net/gs2c/html5Game.do?extGame=1&symbol=${gameSlug}&jurisdictionID=99&lobbyURL=https://demogamesfree.pragmaticplay.net/gs2c/common/html5Launcher.do`}
                 className="absolute top-0 left-0 w-full h-full border-0"
                 allowFullScreen
                 title={game.name}
