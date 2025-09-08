@@ -203,8 +203,11 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({ gameSlug, user }) => {
     );
   }
 
+  // Check if this is an external provider game (iframe-based)
+  const isExternalGame = game.provider === 'Pragmatic Play' || game.provider === 'Evolution' || game.provider?.toLowerCase().includes('external');
+
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-6">
+    <div className="max-w-7xl mx-auto p-4 space-y-6">
       {/* Game Header */}
       <Card className="bg-gradient-to-r from-primary/20 to-secondary/20">
         <CardContent className="p-6">
@@ -225,143 +228,160 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({ gameSlug, user }) => {
         </CardContent>
       </Card>
 
-      {/* Slot Machine */}
-      <Card className="bg-gradient-to-b from-yellow-900/20 to-yellow-800/10 border-yellow-600/30">
-        <CardContent className="p-8">
-          {/* Reels */}
-          <div className="mb-6">
-            <div 
-              className={`grid gap-2 justify-center ${
-                game.reels === 5 ? 'grid-cols-5' : 'grid-cols-3'
-              }`}
-            >
-              {reels.map((reel, reelIndex) => (
-                <div key={reelIndex} className="space-y-2">
-                  {reel.map((symbol, symbolIndex) => (
-                    <div
-                      key={`${reelIndex}-${symbolIndex}`}
-                      className={`
-                        w-20 h-20 bg-black/50 border-2 border-yellow-500/50 
-                        rounded-lg flex items-center justify-center text-3xl
-                        transition-all duration-200
-                        ${winningLines.includes(symbolIndex) ? 
-                          'border-yellow-400 bg-yellow-400/20 shadow-lg shadow-yellow-400/50' : 
-                          ''
-                        }
-                        ${isSpinning ? 'animate-pulse' : ''}
-                      `}
-                    >
-                      {symbolEmojis[symbol] || symbol}
-                    </div>
-                  ))}
-                </div>
-              ))}
+      {/* Game Container */}
+      {isExternalGame ? (
+        /* External Provider Game - Responsive Iframe */
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="relative w-full" style={{ paddingTop: '56.25%' /* 16:9 aspect ratio */ }}>
+              <iframe 
+                src={`https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol=${gameSlug}&lang=tr&cur=TRY`}
+                className="absolute top-0 left-0 w-full h-full border-0"
+                allowFullScreen
+                title={game.name}
+              />
             </div>
-          </div>
-
-          {/* Winning Display */}
-          {lastWin > 0 && (
-            <div className="text-center mb-6">
-              <div className="bg-gradient-to-r from-yellow-500/20 to-yellow-300/20 rounded-lg p-4">
-                <div className="flex items-center justify-center gap-2 text-yellow-400">
-                  <TrendingUp className="w-6 h-6" />
-                  <span className="text-2xl font-bold">{lastWin.toFixed(2)} TL</span>
-                </div>
-                <p className="text-sm text-muted-foreground">Kazanç</p>
+          </CardContent>
+        </Card>
+      ) : (
+        /* Custom Slot Machine */
+        <Card className="bg-gradient-to-b from-yellow-900/20 to-yellow-800/10 border-yellow-600/30">
+          <CardContent className="p-8">
+            {/* Reels */}
+            <div className="mb-6">
+              <div 
+                className={`grid gap-2 justify-center ${
+                  game.reels === 5 ? 'grid-cols-5' : 'grid-cols-3'
+                }`}
+              >
+                {reels.map((reel, reelIndex) => (
+                  <div key={reelIndex} className="space-y-2">
+                    {reel.map((symbol, symbolIndex) => (
+                      <div
+                        key={`${reelIndex}-${symbolIndex}`}
+                        className={`
+                          w-16 h-16 md:w-20 md:h-20 bg-black/50 border-2 border-yellow-500/50 
+                          rounded-lg flex items-center justify-center text-2xl md:text-3xl
+                          transition-all duration-200
+                          ${winningLines.includes(symbolIndex) ? 
+                            'border-yellow-400 bg-yellow-400/20 shadow-lg shadow-yellow-400/50' : 
+                            ''
+                          }
+                          ${isSpinning ? 'animate-pulse' : ''}
+                        `}
+                      >
+                        {symbolEmojis[symbol] || symbol}
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </div>
             </div>
-          )}
 
-          {/* Controls */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Bet Amount */}
-            <Card>
-              <CardContent className="p-4">
-                <Label className="text-sm font-medium mb-2 block">Bahis Miktarı</Label>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => adjustBet(-0.1)}
-                    disabled={betAmount <= game.min_bet}
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                  <Input
-                    type="number"
-                    value={betAmount}
-                    onChange={(e) => setBetAmount(Number(e.target.value))}
-                    min={game.min_bet}
-                    max={game.max_bet}
-                    step="0.1"
-                    className="text-center"
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => adjustBet(0.1)}
-                    disabled={betAmount >= game.max_bet}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
+            {/* Winning Display */}
+            {lastWin > 0 && (
+              <div className="text-center mb-6">
+                <div className="bg-gradient-to-r from-yellow-500/20 to-yellow-300/20 rounded-lg p-4">
+                  <div className="flex items-center justify-center gap-2 text-yellow-400">
+                    <TrendingUp className="w-6 h-6" />
+                    <span className="text-2xl font-bold">{lastWin.toFixed(2)} TL</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">Kazanç</p>
                 </div>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={maxBet}
-                  className="w-full mt-2"
-                >
-                  Max Bahis
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+            )}
 
-            {/* Spin Button */}
-            <Card>
-              <CardContent className="p-4 flex items-center justify-center">
-                <Button
-                  size="lg"
-                  onClick={spin}
-                  disabled={isSpinning || !user || balanceData.total_balance < betAmount}
-                  className={`w-full h-16 text-lg font-bold ${
-                    isSpinning ? 'animate-pulse' : ''
-                  }`}
-                >
-                  {isSpinning ? (
-                    <RotateCcw className="w-6 h-6 animate-spin mr-2" />
-                  ) : (
-                    <Play className="w-6 h-6 mr-2" />
-                  )}
-                  {isSpinning ? 'Çeviriyor...' : 'ÇEVİR'}
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Bet Amount */}
+              <Card>
+                <CardContent className="p-4">
+                  <Label className="text-sm font-medium mb-2 block">Bahis Miktarı</Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => adjustBet(-0.1)}
+                      disabled={betAmount <= game.min_bet}
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    <Input
+                      type="number"
+                      value={betAmount}
+                      onChange={(e) => setBetAmount(Number(e.target.value))}
+                      min={game.min_bet}
+                      max={game.max_bet}
+                      step="0.1"
+                      className="text-center"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => adjustBet(0.1)}
+                      disabled={betAmount >= game.max_bet}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={maxBet}
+                    className="w-full mt-2"
+                  >
+                    Max Bahis
+                  </Button>
+                </CardContent>
+              </Card>
 
-            {/* Balance */}
-            <Card>
-              <CardContent className="p-4">
-                <Label className="text-sm font-medium mb-2 block">Bakiye</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Ana Bakiye:</span>
-                    <span className="font-medium">{balanceData.balance.toFixed(2)} TL</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Bonus:</span>
-                    <span className="font-medium">{balanceData.bonus_balance.toFixed(2)} TL</span>
-                  </div>
-                  <div className="border-t pt-2">
+              {/* Spin Button */}
+              <Card>
+                <CardContent className="p-4 flex items-center justify-center">
+                  <Button
+                    size="lg"
+                    onClick={spin}
+                    disabled={isSpinning || !user || balanceData.total_balance < betAmount}
+                    className={`w-full h-16 text-lg font-bold ${
+                      isSpinning ? 'animate-pulse' : ''
+                    }`}
+                  >
+                    {isSpinning ? (
+                      <RotateCcw className="w-6 h-6 animate-spin mr-2" />
+                    ) : (
+                      <Play className="w-6 h-6 mr-2" />
+                    )}
+                    {isSpinning ? 'Çeviriyor...' : 'ÇEVİR'}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Balance */}
+              <Card>
+                <CardContent className="p-4">
+                  <Label className="text-sm font-medium mb-2 block">Bakiye</Label>
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">Toplam:</span>
-                      <span className="font-bold text-lg">{balanceData.total_balance.toFixed(2)} TL</span>
+                      <span className="text-sm text-muted-foreground">Ana Bakiye:</span>
+                      <span className="font-medium">{balanceData.balance.toFixed(2)} TL</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Bonus:</span>
+                      <span className="font-medium">{balanceData.bonus_balance.toFixed(2)} TL</span>
+                    </div>
+                    <div className="border-t pt-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Toplam:</span>
+                        <span className="font-bold text-lg">{balanceData.total_balance.toFixed(2)} TL</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </CardContent>
-      </Card>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Paytable */}
       <Card>
