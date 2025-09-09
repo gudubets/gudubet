@@ -49,6 +49,8 @@ export const useI18n = () => {
     setCurrentLanguage(language);
     localStorage.setItem('language', language);
     await loadTranslations(language);
+    // Reload page to ensure all components update with new language
+    window.location.reload();
   }, [loadTranslations]);
 
   // Format currency based on language
