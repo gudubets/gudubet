@@ -9,6 +9,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User as UserIcon, Wallet, Bell } from 'lucide-react';
 import { useUserBalance } from '@/hooks/useUserBalance';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useI18n } from '@/hooks/useI18n';
 import NotificationsDropdown from '@/components/ui/notifications-dropdown';
 import LanguageSelector from '@/components/LanguageSelector';
 const Header = () => {
@@ -20,28 +21,33 @@ const Header = () => {
   const [session, setSession] = useState<Session | null>(null);
   const location = useLocation();
   
+  // I18n hook for translations
+  const { t } = useI18n();
+  
   // Get user balance data
   const balanceData = useUserBalance(user);
   
   // Get notifications data
   const notificationsData = useNotifications(user);
+  
+  // Navigation items with translations
   const navItems = [{
-    name: 'SPOR',
+    name: t('sports'),
     href: '/sports-betting'
   }, {
-    name: 'CANLI BAHİS',
+    name: t('live_betting'),
     href: '/live-betting'
   }, {
-    name: 'CASİNO',
+    name: t('casino'),
     href: '/casino'
   }, {
-    name: 'CANLI CASİNO',
+    name: t('live_casino'),
     href: '/live-casino'
   }, {
-    name: 'BONUSLAR',
+    name: t('bonuses'),
     href: '/promotions'
   }, {
-    name: 'VIP PROGRAMI',
+    name: t('vip_program'),
     href: '/vip'
   }];
   useEffect(() => {
@@ -100,10 +106,10 @@ const Header = () => {
             <LanguageSelector />
             {!user ? <>
                 <Button variant="outline" onClick={() => setIsLoginModalOpen(true)} className="text-black bg-white border-white hover:bg-gray-100 text-xs px-4 h-8 uppercase font-medium">
-                  GİRİŞ
+                  {t('login_button')}
                 </Button>
                 <Button onClick={() => setIsRegistrationModalOpen(true)} className="bg-green-500 hover:bg-green-600 text-white text-xs px-4 h-8 uppercase font-medium">
-                  ÜYE OL
+                  {t('register_button')}
                 </Button>
               </> : <div className="flex items-center space-x-4">
                 <Link to="/deposit-withdrawal" className="flex items-center space-x-2 text-white hover:text-orange-400 transition-colors cursor-pointer">
@@ -144,13 +150,13 @@ const Header = () => {
             setIsLoginModalOpen(true);
             setIsMenuOpen(false);
           }} className="flex-1 text-black bg-white border-white hover:bg-gray-100">
-                  GİRİŞ
+                  {t('login_button')}
                 </Button>
                 <Button onClick={() => {
             setIsRegistrationModalOpen(true);
             setIsMenuOpen(false);
           }} className="flex-1 bg-green-500 hover:bg-green-600 text-white">
-                  ÜYE OL
+                  {t('register_button')}
                 </Button>
               </div>}
           </div>
