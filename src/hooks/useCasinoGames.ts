@@ -118,17 +118,17 @@ export const useCasinoGames = () => {
     }
 
     // Category filter
-    if (filters.category) {
+    if (filters.category && filters.category !== 'all') {
       filtered = filtered.filter(game => game.category === filters.category);
     }
 
     // Provider filter
-    if (filters.provider) {
+    if (filters.provider && filters.provider !== 'all') {
       filtered = filtered.filter(game => game.provider === filters.provider);
     }
 
     // Volatility filter
-    if (filters.volatility) {
+    if (filters.volatility && filters.volatility !== 'all') {
       filtered = filtered.filter(game => game.volatility === filters.volatility);
     }
 

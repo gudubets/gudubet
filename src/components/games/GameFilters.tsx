@@ -148,7 +148,7 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
             <SelectValue placeholder="Kategori" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tüm Kategoriler</SelectItem>
+            <SelectItem value="all">Tüm Kategoriler</SelectItem>
             {categories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -162,7 +162,7 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
             <SelectValue placeholder="Sağlayıcı" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tüm Sağlayıcılar</SelectItem>
+            <SelectItem value="all">Tüm Sağlayıcılar</SelectItem>
             {providers.map((provider) => (
               <SelectItem key={provider} value={provider}>
                 {provider}
@@ -176,7 +176,7 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
             <SelectValue placeholder="Volatilite" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tüm Volatiliteler</SelectItem>
+            <SelectItem value="all">Tüm Volatiliteler</SelectItem>
             <SelectItem value="low">Düşük</SelectItem>
             <SelectItem value="medium">Orta</SelectItem>
             <SelectItem value="high">Yüksek</SelectItem>
@@ -202,33 +202,33 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm text-muted-foreground">Aktif filtreler:</span>
           
-          {filters.category && (
-            <Badge variant="secondary" className="gap-1">
-              Kategori: {filters.category}
-              <X 
-                className="w-3 h-3 cursor-pointer hover:text-red-500" 
-                onClick={() => handleFilterChange('category', '')}
-              />
-            </Badge>
-          )}
-          
-          {filters.provider && (
-            <Badge variant="secondary" className="gap-1">
-              Sağlayıcı: {filters.provider}
-              <X 
-                className="w-3 h-3 cursor-pointer hover:text-red-500" 
-                onClick={() => handleFilterChange('provider', '')}
-              />
-            </Badge>
-          )}
-          
-          {filters.volatility && (
+           {filters.category && filters.category !== 'all' && (
+             <Badge variant="secondary" className="gap-1">
+               Kategori: {filters.category}
+               <X 
+                 className="w-3 h-3 cursor-pointer hover:text-red-500" 
+                 onClick={() => handleFilterChange('category', 'all')}
+               />
+             </Badge>
+           )}
+           
+           {filters.provider && filters.provider !== 'all' && (
+             <Badge variant="secondary" className="gap-1">
+               Sağlayıcı: {filters.provider}
+               <X 
+                 className="w-3 h-3 cursor-pointer hover:text-red-500" 
+                 onClick={() => handleFilterChange('provider', 'all')}
+               />
+             </Badge>
+           )}
+           
+           {filters.volatility && filters.volatility !== 'all' && (
             <Badge variant="secondary" className="gap-1">
               Volatilite: {filters.volatility === 'low' ? 'Düşük' : filters.volatility === 'medium' ? 'Orta' : 'Yüksek'}
-              <X 
-                className="w-3 h-3 cursor-pointer hover:text-red-500" 
-                onClick={() => handleFilterChange('volatility', '')}
-              />
+               <X 
+                 className="w-3 h-3 cursor-pointer hover:text-red-500" 
+                 onClick={() => handleFilterChange('volatility', 'all')}
+               />
             </Badge>
           )}
           
