@@ -57,7 +57,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, currentLanguage } = useI18n();
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -441,7 +441,10 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
                 </div>
                 <div>
                   <h3 className="text-2xl font-gaming font-bold text-foreground mb-2">
-                    {t('auth.welcome_title')}
+                    {currentLanguage === 'tr' 
+                      ? <>Gudu<span className="text-accent">bet</span>'ya Hoş Geldiniz!</>
+                      : <>Welcome to Gudu<span className="text-accent">bet</span>!</>
+                    }
                   </h3>
                   <p className="text-muted-foreground">
                     {t('auth.welcome_desc')}
