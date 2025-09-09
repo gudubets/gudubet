@@ -197,6 +197,62 @@ export type Database = {
           },
         ]
       }
+      analytics_events: {
+        Row: {
+          country_code: string | null
+          created_at: string
+          device_type: string | null
+          event_category: string
+          event_name: string
+          event_properties: Json | null
+          id: string
+          ip_address: unknown | null
+          page_url: string | null
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string
+          device_type?: string | null
+          event_category: string
+          event_name: string
+          event_properties?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string
+          device_type?: string | null
+          event_category?: string
+          event_name?: string
+          event_properties?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       betslip_items: {
         Row: {
           betslip_id: string
@@ -410,6 +466,60 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_deliveries: {
+        Row: {
+          campaign_id: string | null
+          clicked_at: string | null
+          created_at: string
+          delivered_at: string | null
+          delivery_status: string | null
+          failure_reason: string | null
+          id: string
+          opened_at: string | null
+          sent_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          clicked_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          delivery_status?: string | null
+          failure_reason?: string | null
+          id?: string
+          opened_at?: string | null
+          sent_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          clicked_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          delivery_status?: string | null
+          failure_reason?: string | null
+          id?: string
+          opened_at?: string | null
+          sent_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_deliveries_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "crm_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_deliveries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       captcha_tokens: {
         Row: {
           created_at: string
@@ -596,6 +706,107 @@ export type Database = {
           related_questions?: string[] | null
           result?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      crm_campaigns: {
+        Row: {
+          campaign_type: string
+          content: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          scheduled_at: string | null
+          target_segments: string[] | null
+          trigger_conditions: Json | null
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_type: string
+          content: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          scheduled_at?: string | null
+          target_segments?: string[] | null
+          trigger_conditions?: Json | null
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_type?: string
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          scheduled_at?: string | null
+          target_segments?: string[] | null
+          trigger_conditions?: Json | null
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_campaigns_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_metrics: {
+        Row: {
+          avg_session_duration: number | null
+          created_at: string
+          dau: number | null
+          game_sessions: number | null
+          ggr: number | null
+          id: string
+          metric_date: string
+          new_registrations: number | null
+          ngr: number | null
+          total_bets: number | null
+          total_deposits: number | null
+          total_wins: number | null
+          total_withdrawals: number | null
+        }
+        Insert: {
+          avg_session_duration?: number | null
+          created_at?: string
+          dau?: number | null
+          game_sessions?: number | null
+          ggr?: number | null
+          id?: string
+          metric_date: string
+          new_registrations?: number | null
+          ngr?: number | null
+          total_bets?: number | null
+          total_deposits?: number | null
+          total_wins?: number | null
+          total_withdrawals?: number | null
+        }
+        Update: {
+          avg_session_duration?: number | null
+          created_at?: string
+          dau?: number | null
+          game_sessions?: number | null
+          ggr?: number | null
+          id?: string
+          metric_date?: string
+          new_registrations?: number | null
+          ngr?: number | null
+          total_bets?: number | null
+          total_deposits?: number | null
+          total_wins?: number | null
+          total_withdrawals?: number | null
         }
         Relationships: []
       }
@@ -1861,6 +2072,60 @@ export type Database = {
           },
         ]
       }
+      seo_pages: {
+        Row: {
+          canonical_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          keywords: string | null
+          language_code: string | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          page_slug: string
+          robots: string | null
+          schema_markup: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          canonical_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          keywords?: string | null
+          language_code?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          page_slug: string
+          robots?: string | null
+          schema_markup?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          canonical_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          keywords?: string | null
+          language_code?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          page_slug?: string
+          robots?: string | null
+          schema_markup?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       slot_game_sessions: {
         Row: {
           created_at: string
@@ -2179,6 +2444,36 @@ export type Database = {
           },
         ]
       }
+      translations: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          language_code: string
+          namespace: string | null
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          language_code: string
+          namespace?: string | null
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          language_code?: string
+          namespace?: string | null
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       user_behavior_logs: {
         Row: {
           action_type: string
@@ -2379,6 +2674,65 @@ export type Database = {
           },
         ]
       }
+      user_ltv: {
+        Row: {
+          days_since_last_activity: number | null
+          first_deposit_at: string | null
+          ggr: number | null
+          id: string
+          is_dormant: boolean | null
+          last_activity_at: string | null
+          net_deposits: number | null
+          total_bets: number | null
+          total_deposits: number | null
+          total_wins: number | null
+          total_withdrawals: number | null
+          updated_at: string
+          user_id: string | null
+          vip_level: string | null
+        }
+        Insert: {
+          days_since_last_activity?: number | null
+          first_deposit_at?: string | null
+          ggr?: number | null
+          id?: string
+          is_dormant?: boolean | null
+          last_activity_at?: string | null
+          net_deposits?: number | null
+          total_bets?: number | null
+          total_deposits?: number | null
+          total_wins?: number | null
+          total_withdrawals?: number | null
+          updated_at?: string
+          user_id?: string | null
+          vip_level?: string | null
+        }
+        Update: {
+          days_since_last_activity?: number | null
+          first_deposit_at?: string | null
+          ggr?: number | null
+          id?: string
+          is_dormant?: boolean | null
+          last_activity_at?: string | null
+          net_deposits?: number | null
+          total_bets?: number | null
+          total_deposits?: number | null
+          total_wins?: number | null
+          total_withdrawals?: number | null
+          updated_at?: string
+          user_id?: string | null
+          vip_level?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_ltv_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_notifications: {
         Row: {
           created_at: string | null
@@ -2521,6 +2875,75 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           velocity_risk_score?: number | null
+        }
+        Relationships: []
+      }
+      user_segment_memberships: {
+        Row: {
+          id: string
+          joined_at: string | null
+          segment_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          joined_at?: string | null
+          segment_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          joined_at?: string | null
+          segment_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_segment_memberships_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "user_segments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_segment_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_segments: {
+        Row: {
+          conditions: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          conditions: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
