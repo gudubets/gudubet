@@ -599,9 +599,106 @@ export type Database = {
         }
         Relationships: []
       }
+      device_fingerprints: {
+        Row: {
+          browser_info: Json | null
+          created_at: string | null
+          fingerprint_hash: string
+          first_seen_at: string | null
+          id: string
+          is_trusted: boolean | null
+          language: string | null
+          last_seen_at: string | null
+          risk_score: number | null
+          screen_resolution: string | null
+          timezone: string | null
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          browser_info?: Json | null
+          created_at?: string | null
+          fingerprint_hash: string
+          first_seen_at?: string | null
+          id?: string
+          is_trusted?: boolean | null
+          language?: string | null
+          last_seen_at?: string | null
+          risk_score?: number | null
+          screen_resolution?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          browser_info?: Json | null
+          created_at?: string | null
+          fingerprint_hash?: string
+          first_seen_at?: string | null
+          id?: string
+          is_trusted?: boolean | null
+          language?: string | null
+          last_seen_at?: string | null
+          risk_score?: number | null
+          screen_resolution?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      fraud_alerts: {
+        Row: {
+          alert_type: string
+          assigned_to: string | null
+          created_at: string | null
+          description: string
+          evidence: Json | null
+          id: string
+          resolution_note: string | null
+          resolved_at: string | null
+          severity: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          assigned_to?: string | null
+          created_at?: string | null
+          description: string
+          evidence?: Json | null
+          id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          severity?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          assigned_to?: string | null
+          created_at?: string | null
+          description?: string
+          evidence?: Json | null
+          id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          severity?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       fraud_rules: {
         Row: {
           action: string
+          auto_action: string | null
           conditions: Json
           created_at: string | null
           id: string
@@ -609,11 +706,15 @@ export type Database = {
           name: string
           priority: number | null
           risk_score_impact: number | null
+          rule_category: string | null
           rule_type: string
+          threshold_count: number | null
+          time_window_hours: number | null
           updated_at: string | null
         }
         Insert: {
           action: string
+          auto_action?: string | null
           conditions: Json
           created_at?: string | null
           id?: string
@@ -621,11 +722,15 @@ export type Database = {
           name: string
           priority?: number | null
           risk_score_impact?: number | null
+          rule_category?: string | null
           rule_type: string
+          threshold_count?: number | null
+          time_window_hours?: number | null
           updated_at?: string | null
         }
         Update: {
           action?: string
+          auto_action?: string | null
           conditions?: Json
           created_at?: string | null
           id?: string
@@ -633,7 +738,10 @@ export type Database = {
           name?: string
           priority?: number | null
           risk_score_impact?: number | null
+          rule_category?: string | null
           rule_type?: string
+          threshold_count?: number | null
+          time_window_hours?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -963,6 +1071,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ip_analysis: {
+        Row: {
+          city: string | null
+          country_code: string | null
+          created_at: string | null
+          id: string
+          ip_address: unknown
+          is_datacenter: boolean | null
+          is_proxy: boolean | null
+          is_tor: boolean | null
+          is_vpn: boolean | null
+          last_checked_at: string | null
+          provider_data: Json | null
+          region: string | null
+          risk_score: number | null
+          threat_level: string | null
+          timezone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          city?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address: unknown
+          is_datacenter?: boolean | null
+          is_proxy?: boolean | null
+          is_tor?: boolean | null
+          is_vpn?: boolean | null
+          last_checked_at?: string | null
+          provider_data?: Json | null
+          region?: string | null
+          risk_score?: number | null
+          threat_level?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          city?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown
+          is_datacenter?: boolean | null
+          is_proxy?: boolean | null
+          is_tor?: boolean | null
+          is_vpn?: boolean | null
+          last_checked_at?: string | null
+          provider_data?: Json | null
+          region?: string | null
+          risk_score?: number | null
+          threat_level?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       leagues: {
         Row: {
@@ -2014,6 +2179,51 @@ export type Database = {
           },
         ]
       }
+      user_behavior_logs: {
+        Row: {
+          action_type: string
+          amount: number | null
+          created_at: string | null
+          currency: string | null
+          device_fingerprint: string | null
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          risk_flags: string[] | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          risk_flags?: string[] | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          risk_flags?: string[] | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_bonuses: {
         Row: {
           awarded_at: string | null
@@ -2256,6 +2466,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_risk_profiles: {
+        Row: {
+          assessment_history: Json | null
+          automated_actions: Json | null
+          behavioral_risk_score: number | null
+          created_at: string | null
+          device_risk_score: number | null
+          geo_risk_score: number | null
+          id: string
+          kyc_risk_score: number | null
+          last_assessment_at: string | null
+          manual_overrides: Json | null
+          overall_risk_score: number | null
+          payment_risk_score: number | null
+          risk_level: string | null
+          updated_at: string | null
+          user_id: string
+          velocity_risk_score: number | null
+        }
+        Insert: {
+          assessment_history?: Json | null
+          automated_actions?: Json | null
+          behavioral_risk_score?: number | null
+          created_at?: string | null
+          device_risk_score?: number | null
+          geo_risk_score?: number | null
+          id?: string
+          kyc_risk_score?: number | null
+          last_assessment_at?: string | null
+          manual_overrides?: Json | null
+          overall_risk_score?: number | null
+          payment_risk_score?: number | null
+          risk_level?: string | null
+          updated_at?: string | null
+          user_id: string
+          velocity_risk_score?: number | null
+        }
+        Update: {
+          assessment_history?: Json | null
+          automated_actions?: Json | null
+          behavioral_risk_score?: number | null
+          created_at?: string | null
+          device_risk_score?: number | null
+          geo_risk_score?: number | null
+          id?: string
+          kyc_risk_score?: number | null
+          last_assessment_at?: string | null
+          manual_overrides?: Json | null
+          overall_risk_score?: number | null
+          payment_risk_score?: number | null
+          risk_level?: string | null
+          updated_at?: string | null
+          user_id?: string
+          velocity_risk_score?: number | null
+        }
+        Relationships: []
       }
       user_sessions: {
         Row: {
