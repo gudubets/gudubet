@@ -158,7 +158,7 @@ export type Database = {
           is_active: boolean | null
           last_login_at: string | null
           password_hash: string
-          role_type: Database["public"]["Enums"]["admin_role_new"] | null
+          role_type: Database["public"]["Enums"]["admin_role"] | null
           updated_at: string
         }
         Insert: {
@@ -171,7 +171,7 @@ export type Database = {
           is_active?: boolean | null
           last_login_at?: string | null
           password_hash: string
-          role_type?: Database["public"]["Enums"]["admin_role_new"] | null
+          role_type?: Database["public"]["Enums"]["admin_role"] | null
           updated_at?: string
         }
         Update: {
@@ -184,7 +184,7 @@ export type Database = {
           is_active?: boolean | null
           last_login_at?: string | null
           password_hash?: string
-          role_type?: Database["public"]["Enums"]["admin_role_new"] | null
+          role_type?: Database["public"]["Enums"]["admin_role"] | null
           updated_at?: string
         }
         Relationships: [
@@ -1593,21 +1593,21 @@ export type Database = {
           granted_by: string | null
           id: string
           permission: Database["public"]["Enums"]["admin_permission"]
-          role: Database["public"]["Enums"]["admin_role_new"]
+          role: Database["public"]["Enums"]["admin_role"]
         }
         Insert: {
           granted_at?: string | null
           granted_by?: string | null
           id?: string
           permission: Database["public"]["Enums"]["admin_permission"]
-          role: Database["public"]["Enums"]["admin_role_new"]
+          role: Database["public"]["Enums"]["admin_role"]
         }
         Update: {
           granted_at?: string | null
           granted_by?: string | null
           id?: string
           permission?: Database["public"]["Enums"]["admin_permission"]
-          role?: Database["public"]["Enums"]["admin_role_new"]
+          role?: Database["public"]["Enums"]["admin_role"]
         }
         Relationships: [
           {
@@ -2412,13 +2412,7 @@ export type Database = {
         | "admin_management"
         | "system_settings"
         | "audit_logs"
-      admin_role: "super_admin" | "admin" | "finance_admin" | "support_admin"
-      admin_role_new:
-        | "super_admin"
-        | "finance"
-        | "crm"
-        | "support"
-        | "moderator"
+      admin_role: "super_admin" | "finance" | "crm" | "support" | "moderator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2568,8 +2562,7 @@ export const Constants = {
         "system_settings",
         "audit_logs",
       ],
-      admin_role: ["super_admin", "admin", "finance_admin", "support_admin"],
-      admin_role_new: ["super_admin", "finance", "crm", "support", "moderator"],
+      admin_role: ["super_admin", "finance", "crm", "support", "moderator"],
     },
   },
 } as const
