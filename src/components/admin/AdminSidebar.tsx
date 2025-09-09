@@ -9,7 +9,8 @@ import {
   DollarSign,
   ChevronLeft,
   ChevronRight,
-  Settings
+  Settings,
+  CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -64,6 +65,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       icon: DollarSign,
       href: '/admin/finance',
       active: location.pathname === '/admin/finance'
+    },
+    {
+      title: 'Para Çekme',
+      icon: CreditCard,
+      href: '/admin/withdrawals',
+      active: location.pathname === '/admin/withdrawals'
     },
     {
       title: 'Bakiye Yönetimi',

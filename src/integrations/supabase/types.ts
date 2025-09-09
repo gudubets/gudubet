@@ -1317,6 +1317,42 @@ export type Database = {
           },
         ]
       }
+      payment_methods: {
+        Row: {
+          account_info: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          is_verified: boolean
+          method_type: string
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_info: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          method_type: string
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_info?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          method_type?: string
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payment_providers: {
         Row: {
           api_endpoint: string | null
@@ -1420,13 +1456,6 @@ export type Database = {
             columns: ["payment_id"]
             isOneToOne: false
             referencedRelation: "payments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_webhooks_withdrawal_id_fkey"
-            columns: ["withdrawal_id"]
-            isOneToOne: false
-            referencedRelation: "withdrawals"
             referencedColumns: ["id"]
           },
         ]
@@ -2341,95 +2370,172 @@ export type Database = {
         }
         Relationships: []
       }
-      withdrawals: {
+      withdrawal_limits: {
         Row: {
-          amount: number
-          approved_at: string | null
-          auto_approved: boolean | null
-          bank_details: Json | null
-          completed_at: string | null
-          created_at: string | null
-          currency: string | null
+          created_at: string
+          daily_limit: number
           id: string
-          kyc_required: boolean | null
-          kyc_status: string | null
-          net_amount: number | null
-          processed_at: string | null
-          processing_fee: number | null
-          provider_reference: string | null
-          rejected_at: string | null
-          review_note: string | null
-          reviewer_id: string | null
-          risk_flags: string[] | null
-          risk_score: number | null
-          status: string | null
-          updated_at: string | null
+          max_withdrawal: number
+          min_withdrawal: number
+          monthly_limit: number
+          updated_at: string
           user_id: string
-          withdrawal_method: string
+          weekly_limit: number
         }
         Insert: {
-          amount: number
-          approved_at?: string | null
-          auto_approved?: boolean | null
-          bank_details?: Json | null
-          completed_at?: string | null
-          created_at?: string | null
-          currency?: string | null
+          created_at?: string
+          daily_limit?: number
           id?: string
-          kyc_required?: boolean | null
-          kyc_status?: string | null
-          net_amount?: number | null
-          processed_at?: string | null
-          processing_fee?: number | null
-          provider_reference?: string | null
-          rejected_at?: string | null
-          review_note?: string | null
-          reviewer_id?: string | null
-          risk_flags?: string[] | null
-          risk_score?: number | null
-          status?: string | null
-          updated_at?: string | null
+          max_withdrawal?: number
+          min_withdrawal?: number
+          monthly_limit?: number
+          updated_at?: string
           user_id: string
-          withdrawal_method: string
+          weekly_limit?: number
         }
         Update: {
-          amount?: number
-          approved_at?: string | null
-          auto_approved?: boolean | null
-          bank_details?: Json | null
-          completed_at?: string | null
-          created_at?: string | null
-          currency?: string | null
+          created_at?: string
+          daily_limit?: number
           id?: string
-          kyc_required?: boolean | null
-          kyc_status?: string | null
-          net_amount?: number | null
+          max_withdrawal?: number
+          min_withdrawal?: number
+          monthly_limit?: number
+          updated_at?: string
+          user_id?: string
+          weekly_limit?: number
+        }
+        Relationships: []
+      }
+      withdrawal_rules: {
+        Row: {
+          action: string
+          conditions: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          priority: number
+          rule_type: string
+          updated_at: string
+        }
+        Insert: {
+          action: string
+          conditions: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number
+          rule_type: string
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          conditions?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number
+          rule_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      withdrawals: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          approved_at: string | null
+          completed_at: string | null
+          created_at: string
+          currency: string
+          fee_amount: number
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          net_amount: number
+          payment_method_id: string | null
+          processed_at: string | null
+          provider_reference: string | null
+          provider_response: Json | null
+          rejection_reason: string | null
+          requested_at: string
+          requires_kyc: boolean
+          requires_manual_review: boolean
+          reviewed_at: string | null
+          reviewer_id: string | null
+          risk_flags: string[] | null
+          risk_score: number
+          status: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          approved_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          fee_amount?: number
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          net_amount: number
+          payment_method_id?: string | null
           processed_at?: string | null
-          processing_fee?: number | null
           provider_reference?: string | null
-          rejected_at?: string | null
-          review_note?: string | null
+          provider_response?: Json | null
+          rejection_reason?: string | null
+          requested_at?: string
+          requires_kyc?: boolean
+          requires_manual_review?: boolean
+          reviewed_at?: string | null
           reviewer_id?: string | null
           risk_flags?: string[] | null
-          risk_score?: number | null
-          status?: string | null
-          updated_at?: string | null
+          risk_score?: number
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          approved_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          fee_amount?: number
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          net_amount?: number
+          payment_method_id?: string | null
+          processed_at?: string | null
+          provider_reference?: string | null
+          provider_response?: Json | null
+          rejection_reason?: string | null
+          requested_at?: string
+          requires_kyc?: boolean
+          requires_manual_review?: boolean
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          risk_flags?: string[] | null
+          risk_score?: number
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
           user_id?: string
-          withdrawal_method?: string
         }
         Relationships: [
           {
-            foreignKeyName: "fk_withdrawals_reviewer_id"
-            columns: ["reviewer_id"]
+            foreignKeyName: "withdrawals_payment_method_id_fkey"
+            columns: ["payment_method_id"]
             isOneToOne: false
-            referencedRelation: "admins"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_withdrawals_user_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "payment_methods"
             referencedColumns: ["id"]
           },
         ]

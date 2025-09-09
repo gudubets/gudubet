@@ -41,13 +41,32 @@ interface Payment {
 
 interface Withdrawal {
   id: string;
+  user_id: string;
+  payment_method_id?: string;
   amount: number;
   currency: string;
-  status: string;
-  withdrawal_method: string;
-  created_at: string;
+  fee_amount: number;
   net_amount: number;
-  processing_fee: number;
+  status: 'pending' | 'reviewing' | 'approved' | 'rejected' | 'processing' | 'completed' | 'failed';
+  provider_reference?: string;
+  provider_response?: any;
+  risk_score: number;
+  risk_flags: string[];
+  requires_kyc: boolean;
+  requires_manual_review: boolean;
+  reviewer_id?: string;
+  reviewed_at?: string;
+  admin_note?: string;
+  rejection_reason?: string;
+  requested_at: string;
+  approved_at?: string;
+  processed_at?: string;
+  completed_at?: string;
+  ip_address?: string;
+  user_agent?: string;
+  metadata: any;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function PaymentMethods() {
@@ -626,13 +645,13 @@ export default function PaymentMethods() {
                     recentWithdrawals.map((withdrawal) => (
                       <div key={withdrawal.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                         <div>
-                          <div className="font-medium">₺{withdrawal.amount.toLocaleString()}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {withdrawal.withdrawal_method.replace("_", " ")} • {new Date(withdrawal.created_at).toLocaleDateString()}
-                          </div>
+                        <div className="font-medium">₺{withdrawal.amount.toLocaleString()}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {withdrawal.status} • {new Date(withdrawal.created_at).toLocaleDateString()}
+                        </div>
                           {withdrawal.net_amount && (
                             <div className="text-xs text-muted-foreground">
-                              Net: ₺{withdrawal.net_amount.toLocaleString()} (Fee: ₺{withdrawal.processing_fee.toLocaleString()})
+                              Net: ₺{withdrawal.net_amount.toLocaleString()} (Fee: ₺{withdrawal.fee_amount.toLocaleString()})
                             </div>
                           )}
                         </div>

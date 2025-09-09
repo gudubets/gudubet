@@ -2,210 +2,313 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface WithdrawalRequest {
-  amount: number;
-  currency?: string;
-  withdrawal_method: string;
-  bank_details?: {
-    iban?: string;
-    bank_name?: string;
-    account_holder?: string;
-    swift_code?: string;
-  };
-  e_wallet_details?: {
-    wallet_type?: string;
-    wallet_address?: string;
-  };
+interface ProcessWithdrawalRequest {
+  withdrawal_id: string;
+}
+
+interface ProcessWithdrawalResponse {
+  success: boolean;
+  message: string;
+  withdrawal_id?: string;
+  transaction_id?: string;
+  error?: string;
 }
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Create Supabase client
+    // Initialize Supabase client with service role key
     const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      { auth: { persistSession: false } }
     );
 
-    // Get authenticated user
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user } } = await supabaseClient.auth.getUser(token);
-    
-    if (!user) {
-      throw new Error("User not authenticated");
+    // Authenticate admin user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('No authorization header provided');
     }
 
-    // Get user from users table
-    const { data: userData } = await supabaseClient
-      .from("users")
-      .select("id, balance, bonus_balance, kyc_status")
-      .eq("auth_user_id", user.id)
+    const token = authHeader.replace('Bearer ', '');
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    if (userError || !userData.user) {
+      throw new Error('User not authenticated');
+    }
+
+    // Verify admin privileges
+    const { data: adminData, error: adminError } = await supabaseClient
+      .from('admins')
+      .select('id, role_type, is_active')
+      .eq('id', userData.user.id)
       .single();
 
-    if (!userData) {
-      throw new Error("User profile not found");
+    if (adminError || !adminData || !adminData.is_active) {
+      throw new Error('Insufficient privileges');
     }
 
-    const { amount, currency = "TRY", withdrawal_method, bank_details, e_wallet_details } = await req.json() as WithdrawalRequest;
+    console.log(`Processing withdrawal - Admin: ${adminData.id}`);
 
-    // Validate input
-    if (!amount || amount <= 0) {
-      throw new Error("Invalid amount");
+    // Parse request body
+    const { withdrawal_id }: ProcessWithdrawalRequest = await req.json();
+
+    if (!withdrawal_id) {
+      throw new Error('withdrawal_id is required');
     }
 
-    if (!withdrawal_method) {
-      throw new Error("Withdrawal method is required");
+    // Get withdrawal details
+    const { data: withdrawal, error: withdrawalError } = await supabaseClient
+      .from('withdrawals')
+      .select(`
+        *,
+        users!inner(id, email, first_name, last_name, balance),
+        payment_methods(id, method_type, provider, account_info)
+      `)
+      .eq('id', withdrawal_id)
+      .single();
+
+    if (withdrawalError || !withdrawal) {
+      throw new Error('Withdrawal not found');
     }
 
-    // Check if user has sufficient balance
-    if (userData.balance < amount) {
-      throw new Error("Insufficient balance");
+    console.log(`Found withdrawal: ${withdrawal.id}, Status: ${withdrawal.status}, Amount: ${withdrawal.amount}`);
+
+    // Check if withdrawal is in approved status
+    if (withdrawal.status !== 'approved') {
+      throw new Error('Withdrawal must be approved before processing');
     }
 
-    // Check KYC status
-    if (userData.kyc_status !== "verified" && amount > 1000) {
-      throw new Error("KYC verification required for withdrawals over 1000 TRY");
+    // Check user balance
+    const userBalance = withdrawal.users?.balance || 0;
+    if (userBalance < withdrawal.amount) {
+      throw new Error('Insufficient user balance');
     }
 
-    // Check for existing pending withdrawals
-    const { data: pendingWithdrawals } = await supabaseClient
-      .from("withdrawals")
-      .select("amount")
-      .eq("user_id", userData.id)
-      .eq("status", "pending");
+    // Update withdrawal status to processing
+    const { error: updateError } = await supabaseClient
+      .from('withdrawals')
+      .update({
+        status: 'processing',
+        processed_at: new Date().toISOString(),
+        metadata: {
+          ...withdrawal.metadata,
+          processing_started_at: new Date().toISOString(),
+          processed_by: adminData.id
+        }
+      })
+      .eq('id', withdrawal_id);
 
-    const totalPendingAmount = pendingWithdrawals?.reduce((sum, w) => sum + parseFloat(w.amount), 0) || 0;
-
-    if (totalPendingAmount + amount > userData.balance) {
-      throw new Error("Total pending withdrawals exceed available balance");
+    if (updateError) {
+      throw new Error(`Failed to update withdrawal status: ${updateError.message}`);
     }
 
-    // Get user's IP address for fraud detection
-    const ip_address = req.headers.get("CF-Connecting-IP") || req.headers.get("X-Forwarded-For") || "127.0.0.1";
+    console.log(`Updated withdrawal status to processing`);
 
-    // Calculate risk score for withdrawal
-    const { data: riskScore } = await supabaseClient.rpc("calculate_payment_risk_score", {
-      _user_id: userData.id,
-      _amount: amount,
-      _currency: currency,
-      _ip_address: ip_address
+    // Simulate payment processing based on provider
+    let providerResponse;
+    let transactionId;
+    let processingSuccess = true;
+
+    try {
+      const paymentMethod = withdrawal.payment_methods;
+      if (!paymentMethod) {
+        throw new Error('Payment method not found');
+      }
+
+      // Generate transaction ID
+      transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      console.log(`Processing payment via ${paymentMethod.provider} for method ${paymentMethod.method_type}`);
+
+      // Simulate provider-specific processing
+      switch (paymentMethod.provider.toLowerCase()) {
+        case 'stripe':
+          // Simulate Stripe payout processing
+          providerResponse = {
+            id: transactionId,
+            status: 'pending',
+            amount: withdrawal.amount,
+            currency: withdrawal.currency,
+            method: 'bank_transfer',
+            estimated_arrival: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+          };
+          break;
+
+        case 'iyzico':
+          // Simulate iyzico payout processing
+          providerResponse = {
+            payoutId: transactionId,
+            status: 'WAITING_FOR_APPROVAL',
+            amount: withdrawal.amount,
+            currency: withdrawal.currency,
+            payoutMethod: paymentMethod.method_type
+          };
+          break;
+
+        case 'paytr':
+          // Simulate PayTR payout processing
+          providerResponse = {
+            merchant_oid: transactionId,
+            status: 'success',
+            amount: withdrawal.amount * 100, // PayTR uses kuruş
+            currency: withdrawal.currency
+          };
+          break;
+
+        default:
+          // Generic provider simulation
+          providerResponse = {
+            id: transactionId,
+            status: 'processing',
+            amount: withdrawal.amount,
+            currency: withdrawal.currency
+          };
+      }
+
+      console.log(`Provider response:`, providerResponse);
+
+      // Simulate processing delay (remove in production)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // In a real implementation, you would make actual API calls to payment providers here
+      // For simulation, we'll randomly succeed/fail based on risk score
+      const shouldFail = withdrawal.risk_score > 80 && Math.random() < 0.3;
+      
+      if (shouldFail) {
+        processingSuccess = false;
+        throw new Error('Provider rejected the transaction due to high risk');
+      }
+
+    } catch (providerError) {
+      console.error('Provider processing failed:', providerError);
+      processingSuccess = false;
+      
+      // Update withdrawal status to failed
+      await supabaseClient
+        .from('withdrawals')
+        .update({
+          status: 'failed',
+          provider_response: {
+            error: providerError.message,
+            failed_at: new Date().toISOString()
+          },
+          metadata: {
+            ...withdrawal.metadata,
+            processing_failed_at: new Date().toISOString(),
+            failure_reason: providerError.message
+          }
+        })
+        .eq('id', withdrawal_id);
+
+      throw new Error(`Payment processing failed: ${providerError.message}`);
+    }
+
+    if (processingSuccess) {
+      // Deduct amount from user balance
+      const newBalance = userBalance - withdrawal.amount;
+      
+      const { error: balanceUpdateError } = await supabaseClient
+        .from('users')
+        .update({ balance: newBalance })
+        .eq('id', withdrawal.user_id);
+
+      if (balanceUpdateError) {
+        console.error('Failed to update user balance:', balanceUpdateError);
+        
+        // Revert withdrawal status
+        await supabaseClient
+          .from('withdrawals')
+          .update({
+            status: 'approved',
+            processed_at: null,
+            metadata: {
+              ...withdrawal.metadata,
+              balance_update_failed: true,
+              error: balanceUpdateError.message
+            }
+          })
+          .eq('id', withdrawal_id);
+
+        throw new Error('Failed to update user balance');
+      }
+
+      console.log(`Updated user balance from ${userBalance} to ${newBalance}`);
+
+      // Update withdrawal status to completed
+      const { error: completionError } = await supabaseClient
+        .from('withdrawals')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          provider_reference: transactionId,
+          provider_response: providerResponse,
+          metadata: {
+            ...withdrawal.metadata,
+            completed_at: new Date().toISOString(),
+            transaction_id: transactionId,
+            provider_response: providerResponse
+          }
+        })
+        .eq('id', withdrawal_id);
+
+      if (completionError) {
+        console.error('Failed to update withdrawal completion:', completionError);
+        throw new Error('Failed to mark withdrawal as completed');
+      }
+
+      console.log(`Withdrawal ${withdrawal_id} completed successfully`);
+
+      // Log admin activity
+      await supabaseClient
+        .from('admin_activities')
+        .insert({
+          admin_id: adminData.id,
+          action_type: 'withdrawal_processed',
+          target_type: 'withdrawal',
+          target_id: withdrawal_id,
+          description: `Processed withdrawal of ₺${withdrawal.amount} for user ${withdrawal.users?.email}`,
+          metadata: {
+            withdrawal_id,
+            user_id: withdrawal.user_id,
+            amount: withdrawal.amount,
+            transaction_id: transactionId,
+            provider: paymentMethod?.provider
+          }
+        });
+    }
+
+    const response: ProcessWithdrawalResponse = {
+      success: true,
+      message: 'Withdrawal processed successfully',
+      withdrawal_id: withdrawal_id,
+      transaction_id: transactionId
+    };
+
+    return new Response(JSON.stringify(response), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
     });
 
-    // Determine if auto-approval is possible
-    const auto_approved = amount <= 500 && userData.kyc_status === "verified" && (riskScore || 0) < 30;
-
-    // Calculate processing fee (example: 1% or minimum 5 TRY)
-    const processing_fee = Math.max(amount * 0.01, 5);
-    const net_amount = amount - processing_fee;
-
-    // Prepare withdrawal details based on method
-    let withdrawal_details = {};
-    if (withdrawal_method === "bank_transfer" && bank_details) {
-      withdrawal_details = {
-        iban: bank_details.iban,
-        bank_name: bank_details.bank_name,
-        account_holder: bank_details.account_holder,
-        swift_code: bank_details.swift_code
-      };
-    } else if (withdrawal_method === "e_wallet" && e_wallet_details) {
-      withdrawal_details = {
-        wallet_type: e_wallet_details.wallet_type,
-        wallet_address: e_wallet_details.wallet_address
-      };
-    }
-
-    // Create withdrawal record
-    const { data: withdrawal, error: withdrawalError } = await supabaseClient
-      .from("withdrawals")
-      .insert({
-        user_id: userData.id,
-        amount,
-        currency,
-        withdrawal_method,
-        bank_details: withdrawal_details,
-        status: auto_approved ? "approved" : "pending",
-        risk_score: riskScore || 0,
-        kyc_status: userData.kyc_status,
-        processing_fee,
-        net_amount,
-        auto_approved,
-        approved_at: auto_approved ? new Date().toISOString() : null
-      })
-      .select()
-      .single();
-
-    if (withdrawalError) {
-      console.error("Withdrawal creation error:", withdrawalError);
-      throw new Error("Failed to create withdrawal request");
-    }
-
-    // If auto-approved, update user balance immediately
-    if (auto_approved) {
-      await supabaseClient
-        .from("users")
-        .update({
-          balance: userData.balance - amount
-        })
-        .eq("id", userData.id);
-    }
-
-    // Log activity
-    await supabaseClient
-      .from("admin_activities")
-      .insert({
-        admin_id: user.id,
-        action_type: "withdrawal_requested",
-        description: `Withdrawal of ${amount} ${currency} requested via ${withdrawal_method}`,
-        target_type: "withdrawal",
-        target_id: withdrawal.id,
-        metadata: {
-          amount,
-          currency,
-          withdrawal_method,
-          auto_approved,
-          risk_score: riskScore,
-          processing_fee,
-          net_amount
-        }
-      });
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        withdrawal_id: withdrawal.id,
-        status: withdrawal.status,
-        auto_approved,
-        processing_fee,
-        net_amount,
-        risk_score: riskScore,
-        estimated_processing_time: withdrawal_method === "bank_transfer" ? "1-3 business days" : "24 hours"
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
-    );
-
   } catch (error) {
-    console.error("Withdrawal processing error:", error);
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: error.message
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      }
-    );
+    console.error('Error in process-withdrawal function:', error);
+    
+    const response: ProcessWithdrawalResponse = {
+      success: false,
+      message: 'Processing failed',
+      error: error.message
+    };
+
+    return new Response(JSON.stringify(response), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500,
+    });
   }
 });
