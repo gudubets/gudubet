@@ -279,29 +279,29 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     <div className="space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-gaming font-bold text-foreground mb-2">
-          Hesap Bilgileri
+          {t('auth.account_info')}
         </h2>
         <p className="text-muted-foreground">
-          Giriş yapacağınız hesap bilgilerinizi oluşturunuz
+          {t('auth.account_info_desc')}
         </p>
       </div>
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">E-posta Adresi *</Label>
+          <Label htmlFor="email">{t('auth.email_address')} *</Label>
           <Input
             id="email"
             type="email"
             value={formData.email}
             onChange={(e) => updateFormData('email', e.target.value)}
             className={errors.email ? 'border-destructive' : ''}
-            placeholder="ornek@email.com"
+            placeholder={t('auth.email_placeholder')}
           />
           {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Şifre *</Label>
+          <Label htmlFor="password">{t('auth.password')} *</Label>
           <div className="relative">
             <Input
               id="password"
@@ -309,7 +309,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
               value={formData.password}
               onChange={(e) => updateFormData('password', e.target.value)}
               className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
-              placeholder="En az 8 karakter"
+              placeholder={t('auth.password_placeholder')}
             />
             <button
               type="button"
@@ -323,7 +323,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Şifre Tekrarı *</Label>
+          <Label htmlFor="confirmPassword">{t('auth.confirm_password')} *</Label>
           <div className="relative">
             <Input
               id="confirmPassword"
@@ -331,7 +331,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
               value={formData.confirmPassword}
               onChange={(e) => updateFormData('confirmPassword', e.target.value)}
               className={errors.confirmPassword ? 'border-destructive pr-10' : 'pr-10'}
-              placeholder="Şifrenizi tekrar giriniz"
+              placeholder={t('auth.confirm_password_placeholder')}
             />
             <button
               type="button"
@@ -345,12 +345,12 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="promoCode">Promosyon Kodu (Opsiyonel)</Label>
+          <Label htmlFor="promoCode">{t('auth.promo_code')}</Label>
           <Input
             id="promoCode"
             value={formData.promoCode}
             onChange={(e) => updateFormData('promoCode', e.target.value)}
-            placeholder="Promosyon kodunuz varsa giriniz"
+            placeholder={t('auth.promo_code_placeholder')}
           />
         </div>
       </div>
@@ -361,65 +361,65 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     <div className="space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-gaming font-bold text-foreground mb-2">
-          Adres Bilgileri
+          {t('auth.address_info')}
         </h2>
         <p className="text-muted-foreground">
-          İkamet adres bilgilerinizi giriniz
+          {t('auth.address_info_desc')}
         </p>
       </div>
 
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="country">Ülke *</Label>
+            <Label htmlFor="country">{t('auth.country')} *</Label>
             <Select value={formData.country} onValueChange={(value) => updateFormData('country', value)}>
               <SelectTrigger className={errors.country ? 'border-destructive' : ''}>
-                <SelectValue placeholder="Ülke seçiniz" />
+                <SelectValue placeholder={t('auth.country_placeholder')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="turkey">Türkiye</SelectItem>
-                <SelectItem value="usa">Amerika Birleşik Devletleri</SelectItem>
-                <SelectItem value="germany">Almanya</SelectItem>
-                <SelectItem value="france">Fransa</SelectItem>
-                <SelectItem value="uk">Birleşik Krallık</SelectItem>
+                <SelectItem value="turkey">{t('auth.country_turkey')}</SelectItem>
+                <SelectItem value="usa">{t('auth.country_usa')}</SelectItem>
+                <SelectItem value="germany">{t('auth.country_germany')}</SelectItem>
+                <SelectItem value="france">{t('auth.country_france')}</SelectItem>
+                <SelectItem value="uk">{t('auth.country_uk')}</SelectItem>
               </SelectContent>
             </Select>
             {errors.country && <p className="text-sm text-destructive">{errors.country}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="city">Şehir *</Label>
+            <Label htmlFor="city">{t('auth.city')} *</Label>
             <Input
               id="city"
               value={formData.city}
               onChange={(e) => updateFormData('city', e.target.value)}
               className={errors.city ? 'border-destructive' : ''}
-              placeholder="Şehir"
+              placeholder={t('auth.city_placeholder')}
             />
             {errors.city && <p className="text-sm text-destructive">{errors.city}</p>}
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="address">Adres *</Label>
+          <Label htmlFor="address">{t('auth.address')} *</Label>
           <Input
             id="address"
             value={formData.address}
             onChange={(e) => updateFormData('address', e.target.value)}
             className={errors.address ? 'border-destructive' : ''}
-            placeholder="Mahalle, Sokak, Bina No"
+            placeholder={t('auth.address_placeholder')}
           />
           {errors.address && <p className="text-sm text-destructive">{errors.address}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="postalCode">Posta Kodu *</Label>
+          <Label htmlFor="postalCode">{t('auth.postal_code')} *</Label>
           <Input
             id="postalCode"
             value={formData.postalCode}
             onChange={(e) => updateFormData('postalCode', e.target.value)}
             className={errors.postalCode ? 'border-destructive' : ''}
-            placeholder="34000"
+            placeholder={t('auth.postal_code_placeholder')}
           />
           {errors.postalCode && <p className="text-sm text-destructive">{errors.postalCode}</p>}
         </div>
@@ -441,10 +441,10 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
                 </div>
                 <div>
                   <h3 className="text-2xl font-gaming font-bold text-foreground mb-2">
-                    SportsBet Pro'ya Hoş Geldiniz!
+                    {t('auth.welcome_title')}
                   </h3>
                   <p className="text-muted-foreground">
-                    En iyi bahis deneyimi için hesabınızı oluşturun
+                    {t('auth.welcome_desc')}
                   </p>
                 </div>
                 <div className="flex justify-center space-x-2">
@@ -469,10 +469,10 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-lg font-bold text-foreground mb-2">
-              Hesap Oluştur
+              {t('auth.create_account_mobile')}
             </h3>
             <p className="text-sm text-muted-foreground mb-3">
-              En iyi bahis deneyimi için kayıt olun
+              {t('auth.create_account_mobile_desc')}
             </p>
             <div className="flex justify-center space-x-2">
               {[1, 2, 3].map((step) => (
@@ -525,7 +525,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
                 className="gap-2 text-xs md:text-sm px-3 md:px-4"
               >
                 <ChevronLeft className="w-3 h-3 md:w-4 md:h-4" />
-                Geri
+                {t('auth.back')}
               </Button>
 
               {currentStep < 3 ? (
@@ -533,7 +533,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
                   onClick={nextStep}
                   className="gap-2 text-xs md:text-sm px-3 md:px-4"
                 >
-                  İleri
+                  {t('auth.next')}
                   <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
                 </Button>
               ) : (
@@ -545,12 +545,12 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
                   {isLoading ? (
                     <>
                       <RefreshCw className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
-                      Kaydediliyor...
+                      {t('auth.saving')}
                     </>
                   ) : (
                     <>
                       <CheckCircle className="w-3 h-3 md:w-4 md:h-4" />
-                      Kaydı Tamamla
+                      {t('auth.complete_registration')}
                     </>
                   )}
                 </Button>
