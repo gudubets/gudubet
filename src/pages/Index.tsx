@@ -13,7 +13,9 @@ const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const {
+    t
+  } = useI18n();
   return <div className="min-h-screen bg-black">
       <Header />
       
@@ -22,9 +24,9 @@ const Index = () => {
         {/* Hero Section - Animated Advertisement Slider */}
         <div className="relative">
           <Carousel className="h-80 md:h-96" opts={{
-            loop: true,
-            duration: 30
-          }}>
+          loop: true,
+          duration: 30
+        }}>
             <CarouselContent className="h-full">
               {/* Slide 1 - Main Bonus Banner */}
               <CarouselItem>
@@ -48,10 +50,7 @@ const Index = () => {
                         </h2>
                       </div>
                       <div className="flex justify-center items-center w-full">
-                        <Button 
-                          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
-                          onClick={() => setIsRegistrationModalOpen(true)}
-                        >
+                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform" onClick={() => setIsRegistrationModalOpen(true)}>
                           {t('sign_up')}
                         </Button>
                       </div>
@@ -85,16 +84,15 @@ const Index = () => {
                           <div className="text-3xl mb-1">💎</div>
                           <div className="text-lg font-bold text-yellow-300">%25</div>
                         </div>
-                        <div className="text-center animate-fade-in" style={{animationDelay: '0.2s'}}>
+                        <div className="text-center animate-fade-in" style={{
+                        animationDelay: '0.2s'
+                      }}>
                           <div className="text-3xl mb-1">🎁</div>
                           <div className="text-lg font-bold text-yellow-300">BONUS</div>
                         </div>
                       </div>
-                      <Button 
-                        className="bg-purple-500 hover:bg-purple-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
-                        onClick={() => navigate('/vip')}
-                      >
-                        {t('become_vip')}
+                      <Button className="bg-purple-500 hover:bg-purple-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform" onClick={() => navigate('/vip')}>
+                        VIP OL
                       </Button>
                     </div>
                     <div className="flex-1 flex justify-center items-center">
@@ -124,11 +122,8 @@ const Index = () => {
                           CASİNO DENEYİMİ
                         </h2>
                       </div>
-                      <Button 
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
-                        onClick={() => navigate('/live-casino')}
-                      >
-                        {t('play')}
+                      <Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform" onClick={() => navigate('/live-casino')}>
+                        OYNA
                       </Button>
                     </div>
                     <div className="flex-1 flex justify-center items-center">
@@ -158,11 +153,8 @@ const Index = () => {
                           BAHİS HEYECANI
                         </h2>
                       </div>
-                      <Button 
-                        className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
-                        onClick={() => navigate('/sports-betting')}
-                      >
-                        {t('place_bet')}
+                      <Button className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform" onClick={() => navigate('/sports-betting')}>
+                        BAHİS YAP
                       </Button>
                     </div>
                   </div>
@@ -190,11 +182,8 @@ const Index = () => {
                         </h2>
                       </div>
                       <p className="text-white text-lg mb-6 animate-fade-in">Büyük ikramiye seni bekliyor!</p>
-                      <Button 
-                        className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
-                        onClick={() => navigate('/casino')}
-                      >
-                        {t('try_luck')}
+                      <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform" onClick={() => navigate('/casino')}>
+                        ŞANSINI DENE
                       </Button>
                     </div>
                   </div>
@@ -222,10 +211,8 @@ const Index = () => {
                         </h2>
                       </div>
                       <p className="text-white text-lg mb-6 animate-fade-in">Her yerden bahis yap, kazan!</p>
-                      <Button 
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
-                      >
-                        {t('download')}
+                      <Button className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform">
+                        İNDİR
                       </Button>
                     </div>
                   </div>
@@ -253,10 +240,8 @@ const Index = () => {
                         </h2>
                       </div>
                       <p className="text-white text-lg mb-6 animate-fade-in">₺100.000 ödül havuzu!</p>
-                      <Button 
-                        className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
-                      >
-                        {t('join')}
+                      <Button className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform">
+                        KATIL
                       </Button>
                     </div>
                   </div>
@@ -284,10 +269,8 @@ const Index = () => {
                         </h2>
                       </div>
                       <p className="text-white text-lg mb-6 animate-fade-in">Kaybettiğin paranın %20'si geri!</p>
-                      <Button 
-                        className="bg-teal-500 hover:bg-teal-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
-                      >
-                        {t('claim')}
+                      <Button className="bg-teal-500 hover:bg-teal-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform">
+                        AL
                       </Button>
                     </div>
                   </div>
@@ -297,9 +280,11 @@ const Index = () => {
             
             {/* Pagination Dots */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-              {Array.from({length: 8}, (_, i) => 
-                <div key={i} className={`w-3 h-3 rounded-full bg-white/50 animate-pulse`} style={{animationDelay: `${i * 0.2}s`}}></div>
-              )}
+              {Array.from({
+              length: 8
+            }, (_, i) => <div key={i} className={`w-3 h-3 rounded-full bg-white/50 animate-pulse`} style={{
+              animationDelay: `${i * 0.2}s`
+            }}></div>)}
             </div>
           </Carousel>
         </div>
@@ -309,9 +294,7 @@ const Index = () => {
           {/* Address Bar */}
           <div className="bg-gradient-to-r from-yellow-600 to-orange-500 rounded-lg p-4 mb-6 text-center">
             <p className="text-black font-semibold">
-              {t('current_address_text').split('{link}')[0]}
-              <span className="bg-yellow-300 px-2 py-1 rounded">t.ly/gudubetadres</span>
-              {t('current_address_text').split('{link}')[1]}
+              Güncel adresimiz için: <span className="bg-yellow-300 px-2 py-1 rounded">t.ly/gudubetadres</span> linkini kullanınız
             </p>
           </div>
 
@@ -327,14 +310,16 @@ const Index = () => {
                     <p className="text-sm opacity-90">+200K ABONE</p>
                     <p className="text-xs opacity-75 mt-2">CASİBOM TELEGRAM'DA →</p>
                   </div>
-                  <div className="text-6xl opacity-80">📱</div>
+                  <div className="text-6xl opacity-80">GUDUBET TELEGRAM'DA →</div>
                 </div>
               </CardContent>
             </Card>
 
             {/* VIP Program */}
             <Card className="bg-gradient-to-r from-green-600 to-emerald-500 border-none text-white overflow-hidden">
-              <CardContent className="p-6 relative bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url(${treasureImage})`}}>
+              <CardContent className="p-6 relative bg-cover bg-center bg-no-repeat" style={{
+              backgroundImage: `url(${treasureImage})`
+            }}>
                 <div className="text-center">
                   <div className="flex justify-center space-x-4 mb-4">
                     <div className="text-center">
@@ -350,10 +335,7 @@ const Index = () => {
                       <div className="text-sm font-bold">%25</div>
                     </div>
                   </div>
-                  <Button 
-                    className="bg-white text-green-600 font-bold hover:bg-gray-100"
-                    onClick={() => navigate('/vip')}
-                  >
+                  <Button className="bg-white text-green-600 font-bold hover:bg-gray-100" onClick={() => navigate('/vip')}>
                     VIP PROGRAMI →
                   </Button>
                 </div>
@@ -424,10 +406,7 @@ const Index = () => {
       <Footer />
 
       {/* Registration Modal */}
-      <RegistrationModal 
-        isOpen={isRegistrationModalOpen} 
-        onClose={() => setIsRegistrationModalOpen(false)} 
-      />
+      <RegistrationModal isOpen={isRegistrationModalOpen} onClose={() => setIsRegistrationModalOpen(false)} />
 
       {/* Floating Support Button */}
       <FloatingSupportButton />
