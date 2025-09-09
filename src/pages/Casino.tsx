@@ -1,307 +1,290 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Search, 
-  Star, 
-  Play, 
-  TrendingUp, 
-  Zap,
-  Filter,
-  Grid3X3,
-  List
-} from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { GameGrid } from '@/components/games/GameGrid';
+import { GameFilters } from '@/components/games/GameFilters';
+import { useCasinoGames } from '@/hooks/useCasinoGames';
+import { useGameFavorites } from '@/hooks/useGameFavorites';
+import { Play, Star, TrendingUp, Sparkles, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-interface SlotGame {
-  id: string;
-  name: string;
-  slug: string;
+interface FilterOptions {
+  category: string;
   provider: string;
-  rtp: number;
-  min_bet: number;
-  max_bet: number;
-  thumbnail_url?: string;
-  is_active: boolean;
+  volatility: string;
+  sortBy: string;
+  showFavorites: boolean;
+  showNew: boolean;
+  showPopular: boolean;
+  showFeatured: boolean;
 }
 
 const Casino = () => {
-  const [games, setGames] = useState<SlotGame[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  
+  const {
+    games,
+    filteredGames,
+    categories,
+    providers,
+    loading,
+    filterGames,
+    incrementPlayCount,
+    getFeaturedGames,
+    getPopularGames,
+    getNewGames
+  } = useCasinoGames();
 
-  const categories = [
-    { id: 'all', name: 'Hepsi', icon: '🎮' },
-    { id: 'slots', name: 'Slot', icon: '🎰' },
-    { id: 'table', name: 'Masa Oyunları', icon: '🃏' },
-    { id: 'jackpot', name: 'Jackpot', icon: '💎' },
-    { id: 'new', name: 'Yeni', icon: '⭐' },
-    { id: 'popular', name: 'Popüler', icon: '🔥' },
-  ];
+  const { favorites, toggleFavorite } = useGameFavorites();
 
-  // Load slot games from database
-  useEffect(() => {
-    loadSlotGames();
-  }, []);
-
-  const loadSlotGames = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('slot_games')
-        .select('*')
-        .eq('is_active', true)
-        .order('name');
-
-      if (error) throw error;
-
-      setGames(data || []);
-    } catch (error) {
-      console.error('Error loading slot games:', error);
-      toast.error('Oyunlar yüklenirken hata oluştu');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Filter games based on search and category
-  const filteredGames = games.filter(game => {
-    const matchesSearch = game.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         game.provider.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    let matchesCategory = true;
-    if (selectedCategory !== 'all') {
-      if (selectedCategory === 'slots') {
-        matchesCategory = true; // All our games are slots for now
-      } else if (selectedCategory === 'popular') {
-        matchesCategory = game.provider === 'Pragmatic Play'; // Mark Pragmatic Play as popular
-      } else if (selectedCategory === 'new') {
-        matchesCategory = game.provider === 'Gudubet'; // Mark our own games as new
-      }
-    }
-    
-    return matchesSearch && matchesCategory;
+  const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [filters, setFilters] = useState<FilterOptions>({
+    category: '',
+    provider: '',
+    volatility: '',
+    sortBy: '',
+    showFavorites: false,
+    showNew: false,
+    showPopular: false,
+    showFeatured: false
   });
 
-  const playGame = (gameSlug: string) => {
-    navigate(`/slot/${gameSlug}`);
+  // Filter games whenever search term or filters change
+  useEffect(() => {
+    filterGames(searchTerm, filters, favorites);
+  }, [searchTerm, filters, favorites, filterGames]);
+
+  const handleFavoriteToggle = async (gameId: string, isFavorite: boolean) => {
+    await toggleFavorite(gameId, 'casino');
   };
+
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (filters.category) count++;
+    if (filters.provider) count++;
+    if (filters.volatility) count++;
+    if (filters.showFavorites) count++;
+    if (filters.showNew) count++;
+    if (filters.showPopular) count++;
+    if (filters.showFeatured) count++;
+    return count;
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      category: '',
+      provider: '',
+      volatility: '',
+      sortBy: '',
+      showFavorites: false,
+      showNew: false,
+      showPopular: false,
+      showFeatured: false
+    });
+    setSearchTerm('');
+  };
+
+  const featuredGames = getFeaturedGames(6);
+  const popularGames = getPopularGames(6);
+  const newGames = getNewGames(6);
 
   return (
     <div className="min-h-screen bg-black">
       <Header />
       
-      {/* Header */}
-      <div className="bg-muted/30 border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <main className="container mx-auto px-4 py-8">
+        {/* Hero Banner */}
+        <section className="mb-12">
+          <div className="bg-gradient-to-r from-purple-900 via-blue-900 to-indigo-900 rounded-2xl p-8 md:p-12 text-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+            <div className="relative z-10">
+              <h1 className="text-4xl md:text-6xl font-gaming font-bold mb-4">
+                🎰 Casino
+              </h1>
+              <p className="text-xl md:text-2xl mb-6 text-white/90">
+                En iyi slot oyunları ve casino deneyimi
+              </p>
+              <div className="flex items-center gap-4 flex-wrap">
+                <Badge className="bg-yellow-500 text-black">
+                  <Star className="w-3 h-3 mr-1" />
+                  {featuredGames.length} Öne Çıkan Oyun
+                </Badge>
+                <Badge className="bg-green-500">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  {newGames.length} Yeni Oyun
+                </Badge>
+                <Badge className="bg-blue-500">
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                  {popularGames.length} Popüler Oyun
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Quick Categories */}
+        <section className="mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card 
+              className="group cursor-pointer hover:shadow-lg hover:shadow-yellow-500/20 transition-all duration-300 bg-gray-900 border-gray-700" 
+              onClick={() => setFilters({...filters, showFeatured: true})}
+            >
+              <CardContent className="p-6 text-center">
+                <Star className="w-8 h-8 mx-auto mb-2 text-yellow-500 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold text-white">Öne Çıkan</h3>
+                <p className="text-sm text-gray-400">{featuredGames.length} oyun</p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="group cursor-pointer hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 bg-gray-900 border-gray-700"
+              onClick={() => setFilters({...filters, showPopular: true})}
+            >
+              <CardContent className="p-6 text-center">
+                <TrendingUp className="w-8 h-8 mx-auto mb-2 text-blue-500 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold text-white">Popüler</h3>
+                <p className="text-sm text-gray-400">{popularGames.length} oyun</p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="group cursor-pointer hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 bg-gray-900 border-gray-700"
+              onClick={() => setFilters({...filters, showNew: true})}
+            >
+              <CardContent className="p-6 text-center">
+                <Sparkles className="w-8 h-8 mx-auto mb-2 text-green-500 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold text-white">Yeni Oyunlar</h3>
+                <p className="text-sm text-gray-400">{newGames.length} oyun</p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="group cursor-pointer hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300 bg-gray-900 border-gray-700"
+              onClick={() => setFilters({...filters, showFavorites: true})}
+            >
+              <CardContent className="p-6 text-center">
+                <Heart className="w-8 h-8 mx-auto mb-2 text-red-500 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold text-white">Favorilerim</h3>
+                <p className="text-sm text-gray-400">{favorites.length} oyun</p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Game Filters */}
+        <section className="mb-8">
+          <GameFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            filters={filters}
+            onFiltersChange={setFilters}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            categories={categories}
+            providers={providers}
+            activeFiltersCount={getActiveFiltersCount()}
+            onClearFilters={clearFilters}
+          />
+        </section>
+
+        {/* Games Grid */}
+        <section>
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Casino Oyunları</h1>
-              <p className="text-muted-foreground">
+              <h2 className="text-2xl font-bold text-white">
+                {searchTerm ? `"${searchTerm}" için sonuçlar` : 'Tüm Oyunlar'}
+              </h2>
+              <p className="text-gray-400">
                 {filteredGames.length} oyun bulundu
               </p>
             </div>
             
-            {/* Search and Filters */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-              </div>
-              
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Oyun ara..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-64"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-6">
-        {/* Category Filter */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2 mb-4">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                className="flex items-center gap-2"
-                onClick={() => setSelectedCategory(category.id)}
-              >
-                <span>{category.icon}</span>
-                {category.name}
-                {category.id !== 'all' && (
-                  <Badge variant="secondary" className="ml-1">
-                    {category.id === 'new' 
-                      ? games.filter(g => g.provider === 'Gudubet').length
-                      : category.id === 'popular' 
-                      ? games.filter(g => g.provider === 'Pragmatic Play').length
-                      : category.id === 'slots'
-                      ? games.length
-                      : games.length
-                    }
-                  </Badge>
-                )}
+            {getActiveFiltersCount() > 0 && (
+              <Button variant="outline" onClick={clearFilters}>
+                Filtreleri Temizle ({getActiveFiltersCount()})
               </Button>
-            ))}
+            )}
           </div>
-          
-          {/* Providers */}
-          <div className="flex flex-wrap gap-2">
-            <span className="text-sm text-muted-foreground mr-2">Sağlayıcılar:</span>
-            {Array.from(new Set(games.map(g => g.provider))).map(provider => (
-              <Badge key={provider} variant="outline" className="text-xs">
-                {provider} ({games.filter(g => g.provider === provider).length})
-              </Badge>
-            ))}
-          </div>
-        </div>
 
-        {/* Main Content - Games */}
-        <div className="w-full">
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                <p className="mt-2 text-muted-foreground">Oyunlar yükleniyor...</p>
-              </div>
-            ) : (
-              <>
-                {viewMode === 'grid' ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                    {filteredGames.map((game) => (
-                      <Card key={game.id} className="group hover:shadow-lg transition-all duration-200 hover:scale-105 bg-black border-gray-800">
-                        <CardContent className="p-0">
-                          <div className="relative">
-                            <img
-                              src={game.thumbnail_url || '/placeholder.svg'}
-                              alt={game.name}
-                              className="w-full h-32 object-cover rounded-t-lg"
-                            />
-                            
-                            {/* Overlay */}
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-t-lg">
-                              <Button
-                                size="sm"
-                                onClick={() => playGame(game.slug)}
-                                className="bg-primary hover:bg-primary/90"
-                              >
-                                <Play className="w-4 h-4 mr-1" />
-                                Oyna
-                              </Button>
-                            </div>
-                            
-                            {/* Badges */}
-                            <div className="absolute top-2 left-2 flex gap-1">
-                              {game.provider === 'Gudubet' && (
-                                <Badge className="bg-green-500 text-xs">
-                                  Yeni
-                                </Badge>
-                              )}
-                              {game.provider === 'Pragmatic Play' && (
-                                <Badge className="bg-red-500 text-xs">
-                                  Popüler
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="p-3">
-                            <h3 className="font-medium text-sm mb-1 text-white truncate">
-                              {game.name}
-                            </h3>
-                            <p className="text-xs text-gray-400 mb-2">
-                              {game.provider}
-                            </p>
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-gray-400">RTP:</span>
-                              <span className="text-green-400">{game.rtp}%</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {filteredGames.map((game) => (
-                      <Card key={game.id} className="group hover:shadow-lg transition-shadow bg-black border-gray-800">
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-4">
-                            <img
-                              src={game.thumbnail_url || '/placeholder.svg'}
-                              alt={game.name}
-                              className="w-16 h-16 object-cover rounded"
-                            />
-                            
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-medium text-white">{game.name}</h3>
-                                {game.provider === 'Gudubet' && (
-                                  <Badge className="bg-green-500 text-xs">Yeni</Badge>
-                                )}
-                                {game.provider === 'Pragmatic Play' && (
-                                  <Badge className="bg-red-500 text-xs">Popüler</Badge>
-                                )}
-                              </div>
-                              <p className="text-sm text-gray-400 mb-1">{game.provider}</p>
-                              <div className="flex items-center gap-4 text-sm text-gray-400">
-                                <span>Kategori: Slot Oyunları</span>
-                                <span className="text-green-400">RTP: {game.rtp}%</span>
-                              </div>
-                            </div>
-                            
-                            <Button
-                              onClick={() => playGame(game.slug)}
-                              className="bg-primary hover:bg-primary/90"
-                            >
-                              <Play className="w-4 h-4 mr-1" />
-                              Oyna
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
+          <GameGrid
+            games={filteredGames.map(game => ({
+              id: game.id,
+              name: game.name,
+              slug: game.slug,
+              provider: game.provider || 'Unknown',
+              category: game.category || 'slot',
+              thumbnail_url: game.thumbnail_url,
+              rtp_percentage: game.rtp_percentage,
+              volatility: game.volatility as 'low' | 'medium' | 'high',
+              min_bet: game.min_bet,
+              max_bet: game.max_bet,
+              is_featured: game.is_featured,
+              is_new: game.is_new,
+              is_popular: game.is_popular,
+              play_count: game.play_count,
+              jackpot_amount: game.jackpot_amount
+            }))}
+            loading={loading}
+            onFavoriteToggle={handleFavoriteToggle}
+            favorites={favorites}
+            viewMode={viewMode}
+          />
+        </section>
 
-                {filteredGames.length === 0 && (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">
-                      Arama kriterlerinize uygun oyun bulunamadı.
-                    </p>
-                  </div>
-                )}
-                </>
-              )}
+        {/* No games found */}
+        {!loading && filteredGames.length === 0 && (
+          <div className="text-center py-12">
+            <Play className="mx-auto h-16 w-16 text-gray-600 mb-4" />
+            <h3 className="text-xl font-semibold mb-2 text-white">Oyun bulunamadı</h3>
+            <p className="text-gray-400 mb-4">
+              {searchTerm 
+                ? `"${searchTerm}" aramanız için sonuç bulunamadı.`
+                : 'Seçtiğiniz filtrelere uygun oyun bulunmuyor.'
+              }
+            </p>
+            <Button onClick={clearFilters} variant="outline">
+              Filtreleri Temizle
+            </Button>
           </div>
-        </div>
+        )}
+
+        {/* Game Statistics */}
+        {!loading && games.length > 0 && (
+          <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="bg-gray-900 border-gray-700">
+              <CardContent className="p-6 text-center">
+                <div className="text-2xl font-bold text-white mb-2">{games.length}</div>
+                <div className="text-sm text-gray-400">Toplam Oyun</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gray-900 border-gray-700">
+              <CardContent className="p-6 text-center">
+                <div className="text-2xl font-bold text-white mb-2">{providers.length}</div>
+                <div className="text-sm text-gray-400">Oyun Sağlayıcısı</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gray-900 border-gray-700">
+              <CardContent className="p-6 text-center">
+                <div className="text-2xl font-bold text-white mb-2">{featuredGames.length}</div>
+                <div className="text-sm text-gray-400">Öne Çıkan Oyun</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gray-900 border-gray-700">
+              <CardContent className="p-6 text-center">
+                <div className="text-2xl font-bold text-white mb-2">{favorites.length}</div>
+                <div className="text-sm text-gray-400">Favori Oyunlarım</div>
+              </CardContent>
+            </Card>
+          </section>
+        )}
+      </main>
 
       <Footer />
     </div>

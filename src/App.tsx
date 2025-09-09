@@ -35,6 +35,7 @@ import AdminBalance from "./pages/admin/AdminBalance";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminCompetitorAnalysis from "./pages/admin/AdminCompetitorAnalysis";
 import AdminGameProviders from "./pages/admin/AdminGameProviders";
+import Game from "./pages/Game";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
           <Route path="/live-support" element={<LiveSupport />} />
           <Route path="/deposit-withdrawal" element={<DepositWithdrawal />} />
           <Route path="/slot/:gameSlug" element={<SlotGame />} />
+          <Route path="/game/:gameSlug" element={<Game />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
