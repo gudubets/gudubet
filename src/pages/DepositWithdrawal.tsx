@@ -267,6 +267,126 @@ const DepositWithdrawal = () => {
                       </Select>
                     </div>
 
+                    {/* Dinamik Hesap Detay Formları */}
+                    {withdrawalMethod && (
+                      <div className="space-y-4 p-4 bg-muted/30 rounded-lg border">
+                        <Label className="text-sm font-medium">Hesap Bilgileri</Label>
+                        
+                        {withdrawalMethod === 'iban' && (
+                          <>
+                            <div>
+                              <Label htmlFor="bankName">Banka Adı</Label>
+                              <Input
+                                id="bankName"
+                                placeholder="Örn: Türkiye İş Bankası"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="iban">IBAN</Label>
+                              <Input
+                                id="iban"
+                                placeholder="TR00 0000 0000 0000 0000 0000 00"
+                                maxLength={32}
+                                required
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="accountHolder">Hesap Sahibi</Label>
+                              <Input
+                                id="accountHolder"
+                                placeholder="Ad Soyad (TC Kimlik ile aynı)"
+                                required
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        {withdrawalMethod === 'papara' && (
+                          <>
+                            <div>
+                              <Label htmlFor="paparaNumber">Papara Numarası</Label>
+                              <Input
+                                id="paparaNumber"
+                                placeholder="1234567890"
+                                maxLength={10}
+                                required
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="paparaName">Papara Hesap Adı</Label>
+                              <Input
+                                id="paparaName"
+                                placeholder="TC Kimlik ile aynı ad soyad"
+                                required
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        {(withdrawalMethod?.startsWith('crypto-') || withdrawalMethod === 'crypto-other') && (
+                          <>
+                            <div>
+                              <Label htmlFor="walletAddress">Cüzdan Adresi</Label>
+                              <Input
+                                id="walletAddress"
+                                placeholder={
+                                  withdrawalMethod === 'crypto-btc' ? 'bc1...' :
+                                  withdrawalMethod === 'crypto-eth' ? '0x...' :
+                                  withdrawalMethod === 'crypto-usdt' ? '0x... (ERC-20)' :
+                                  'Cüzdan adresi giriniz'
+                                }
+                                required
+                              />
+                            </div>
+                            {withdrawalMethod === 'crypto-other' && (
+                              <div>
+                                <Label htmlFor="cryptoType">Kripto Para Türü</Label>
+                                <Input
+                                  id="cryptoType"
+                                  placeholder="Örn: DOGE, LTC, XRP"
+                                  required
+                                />
+                              </div>
+                            )}
+                            <div>
+                              <Label htmlFor="networkType">Ağ Türü</Label>
+                              <Select>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Ağ seçiniz" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {withdrawalMethod === 'crypto-btc' && (
+                                    <SelectItem value="bitcoin">Bitcoin Network</SelectItem>
+                                  )}
+                                  {(withdrawalMethod === 'crypto-eth' || withdrawalMethod === 'crypto-usdt') && (
+                                    <>
+                                      <SelectItem value="ethereum">Ethereum (ERC-20)</SelectItem>
+                                      <SelectItem value="bsc">Binance Smart Chain (BEP-20)</SelectItem>
+                                      <SelectItem value="polygon">Polygon (MATIC)</SelectItem>
+                                    </>
+                                  )}
+                                  {withdrawalMethod === 'crypto-other' && (
+                                    <>
+                                      <SelectItem value="mainnet">Ana Ağ (Mainnet)</SelectItem>
+                                      <SelectItem value="erc20">Ethereum (ERC-20)</SelectItem>
+                                      <SelectItem value="bep20">Binance Smart Chain (BEP-20)</SelectItem>
+                                    </>
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded p-3">
+                              <p className="text-sm text-orange-700 dark:text-orange-300">
+                                ⚠️ Kripto para transferlerinde ağ türünü doğru seçtiğinizden emin olun. 
+                                Yanlış ağ seçimi para kaybına neden olabilir.
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+
                     <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Clock className="w-4 h-4 text-yellow-600" />
