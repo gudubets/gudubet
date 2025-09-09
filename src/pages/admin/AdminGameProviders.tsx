@@ -16,11 +16,15 @@ import { toast } from 'sonner';
 
 interface ProviderFormData {
   name: string;
+  slug: string;
   provider_type: 'external' | 'custom';
   api_endpoint: string;
   api_key: string;
   status: 'active' | 'inactive' | 'maintenance';
   logo_url: string;
+  website_url: string;
+  is_active: boolean;
+  sort_order: number;
 }
 
 interface ProviderConfig {
@@ -50,11 +54,15 @@ const AdminGameProviders = () => {
 
   const [formData, setFormData] = useState<ProviderFormData>({
     name: '',
+    slug: '',
     provider_type: 'external',
     api_endpoint: '',
     api_key: '',
     status: 'active',
-    logo_url: ''
+    logo_url: '',
+    website_url: '',
+    is_active: true,
+    sort_order: 0
   });
 
   const [configData, setConfigData] = useState<ProviderConfig>({
@@ -71,17 +79,27 @@ const AdminGameProviders = () => {
       return;
     }
 
+    // Generate slug from name if not provided
+    const slug = formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
     setIsSubmitting(true);
     try {
-      await addProvider(formData);
+      await addProvider({
+        ...formData,
+        slug
+      });
       setIsAddDialogOpen(false);
       setFormData({
         name: '',
+        slug: '',
         provider_type: 'external',
         api_endpoint: '',
         api_key: '',
         status: 'active',
-        logo_url: ''
+        logo_url: '',
+        website_url: '',
+        is_active: true,
+        sort_order: 0
       });
     } catch (error) {
       console.error('Provider add error:', error);
@@ -236,15 +254,25 @@ const AdminGameProviders = () => {
                 />
               </div>
               
-              <div>
-                <Label htmlFor="logo_url">Logo URL</Label>
-                <Input
-                  id="logo_url"
-                  value={formData.logo_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, logo_url: e.target.value }))}
-                  placeholder="https://example.com/logo.png"
-                />
-              </div>
+                <div>
+                  <Label htmlFor="logo_url">Logo URL</Label>
+                  <Input
+                    id="logo_url"
+                    value={formData.logo_url}
+                    onChange={(e) => setFormData(prev => ({ ...prev, logo_url: e.target.value }))}
+                    placeholder="https://example.com/logo.png"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="website_url">Website URL</Label>
+                  <Input
+                    id="website_url"
+                    value={formData.website_url}
+                    onChange={(e) => setFormData(prev => ({ ...prev, website_url: e.target.value }))}
+                    placeholder="https://provider-website.com"
+                  />
+                </div>
             </div>
             
             <DialogFooter>

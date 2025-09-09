@@ -8,7 +8,8 @@ import {
   Gift, 
   DollarSign,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -45,6 +46,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       icon: Gamepad2,
       href: '/admin/game-sessions',
       active: location.pathname === '/admin/game-sessions'
+    },
+    {
+      title: 'Oyun Sağlayıcıları',
+      icon: Settings,
+      href: '/admin/game-providers',
+      active: location.pathname === '/admin/game-providers'
     },
     {
       title: 'Bonuslar',

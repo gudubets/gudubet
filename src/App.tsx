@@ -34,6 +34,7 @@ import AdminManagement from "./pages/admin/AdminManagement";
 import AdminBalance from "./pages/admin/AdminBalance";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminCompetitorAnalysis from "./pages/admin/AdminCompetitorAnalysis";
+import AdminGameProviders from "./pages/admin/AdminGameProviders";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="users" element={<AdminUsers />} />
             <Route path="bets" element={<AdminBets />} />
             <Route path="game-sessions" element={<AdminGameSessions />} />
+            <Route path="game-providers" element={<AdminGameProviders />} />
             <Route path="bonuses" element={<AdminBonuses />} />
             <Route path="finance" element={<AdminFinance />} />
             <Route path="balance" element={<AdminBalance />} />

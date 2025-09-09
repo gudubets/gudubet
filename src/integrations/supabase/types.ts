@@ -638,37 +638,102 @@ export type Database = {
         }
         Relationships: []
       }
+      game_provider_configs: {
+        Row: {
+          created_at: string
+          demo_mode: boolean
+          id: string
+          max_bet_amount: number | null
+          min_bet_amount: number | null
+          provider_id: string
+          return_url: string | null
+          session_timeout: number | null
+          supported_currencies: string[]
+          supported_languages: string[]
+          updated_at: string
+          webhook_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          demo_mode?: boolean
+          id?: string
+          max_bet_amount?: number | null
+          min_bet_amount?: number | null
+          provider_id: string
+          return_url?: string | null
+          session_timeout?: number | null
+          supported_currencies?: string[]
+          supported_languages?: string[]
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          demo_mode?: boolean
+          id?: string
+          max_bet_amount?: number | null
+          min_bet_amount?: number | null
+          provider_id?: string
+          return_url?: string | null
+          session_timeout?: number | null
+          supported_currencies?: string[]
+          supported_languages?: string[]
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_provider_configs_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "game_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_providers: {
         Row: {
+          api_endpoint: string | null
+          api_key: string | null
           created_at: string | null
           id: string
           is_active: boolean | null
           logo_url: string | null
           name: string
+          provider_type: string | null
           slug: string
           sort_order: number | null
+          status: string | null
           updated_at: string | null
           website_url: string | null
         }
         Insert: {
+          api_endpoint?: string | null
+          api_key?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
           logo_url?: string | null
           name: string
+          provider_type?: string | null
           slug: string
           sort_order?: number | null
+          status?: string | null
           updated_at?: string | null
           website_url?: string | null
         }
         Update: {
+          api_endpoint?: string | null
+          api_key?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
           logo_url?: string | null
           name?: string
+          provider_type?: string | null
           slug?: string
           sort_order?: number | null
+          status?: string | null
           updated_at?: string | null
           website_url?: string | null
         }
