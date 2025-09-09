@@ -2219,7 +2219,34 @@ export type Database = {
       }
     }
     Enums: {
+      admin_permission:
+        | "user_management"
+        | "user_ban"
+        | "user_kyc"
+        | "finance_approval"
+        | "deposit_approval"
+        | "withdrawal_approval"
+        | "bonus_create"
+        | "bonus_manage"
+        | "bonus_delete"
+        | "game_management"
+        | "game_publish"
+        | "game_unpublish"
+        | "category_management"
+        | "report_access"
+        | "financial_reports"
+        | "user_reports"
+        | "game_reports"
+        | "admin_management"
+        | "system_settings"
+        | "audit_logs"
       admin_role: "super_admin" | "admin" | "finance_admin" | "support_admin"
+      admin_role_new:
+        | "super_admin"
+        | "finance"
+        | "crm"
+        | "support"
+        | "moderator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2347,7 +2374,30 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      admin_permission: [
+        "user_management",
+        "user_ban",
+        "user_kyc",
+        "finance_approval",
+        "deposit_approval",
+        "withdrawal_approval",
+        "bonus_create",
+        "bonus_manage",
+        "bonus_delete",
+        "game_management",
+        "game_publish",
+        "game_unpublish",
+        "category_management",
+        "report_access",
+        "financial_reports",
+        "user_reports",
+        "game_reports",
+        "admin_management",
+        "system_settings",
+        "audit_logs",
+      ],
       admin_role: ["super_admin", "admin", "finance_admin", "support_admin"],
+      admin_role_new: ["super_admin", "finance", "crm", "support", "moderator"],
     },
   },
 } as const
