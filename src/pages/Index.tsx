@@ -309,7 +309,9 @@ const Index = () => {
           {/* Address Bar */}
           <div className="bg-gradient-to-r from-yellow-600 to-orange-500 rounded-lg p-4 mb-6 text-center">
             <p className="text-black font-semibold">
-              Güncel adresimiz için: <span className="bg-yellow-300 px-2 py-1 rounded">t.ly/gudubetadres</span> linkini kullanınız
+              {t('current_address_text').split('{link}')[0]}
+              <span className="bg-yellow-300 px-2 py-1 rounded">t.ly/gudubetadres</span>
+              {t('current_address_text').split('{link}')[1]}
             </p>
           </div>
 
