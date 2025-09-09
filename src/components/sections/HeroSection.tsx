@@ -8,13 +8,16 @@ import {
   Award,
   ArrowRight 
 } from 'lucide-react';
+import { useI18n } from '@/hooks/useI18n';
 import heroImage from '@/assets/hero-sports.jpg';
 
 const HeroSection = () => {
+  const { t } = useI18n();
+  
   const stats = [
-    { label: 'Aktif Kullanıcı', value: '50K+', icon: Users },
-    { label: 'Günlük Bahis', value: '₺2M+', icon: TrendingUp },
-    { label: 'Kazanan Oranı', value: '%94', icon: Award },
+    { label: t('hero.active_users'), value: '50K+', icon: Users },
+    { label: t('hero.daily_bets'), value: '₺2M+', icon: TrendingUp },
+    { label: t('hero.win_rate'), value: '%94', icon: Award },
   ];
 
   const featuredMatches = [
@@ -55,29 +58,28 @@ const HeroSection = () => {
             <div className="space-y-4">
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                 <Play className="w-3 h-3 mr-1" />
-                Canlı Bahis & Casino
+                {t('hero.live_betting_casino')}
               </Badge>
               
               <h1 className="text-5xl lg:text-7xl font-gaming font-bold leading-tight">
-                <span className="gradient-text-primary">Kazanmaya</span>
+                <span className="gradient-text-primary">{t('hero.ready_to_win')}</span>
                 <br />
-                <span className="text-foreground">Hazır mısın?</span>
+                <span className="text-foreground">{t('hero.are_you_ready')}</span>
               </h1>
               
               <p className="text-xl text-muted-foreground max-w-lg">
-                Türkiye'nin en güvenilir bahis platformunda spor bahisleri, 
-                canlı casino ve slot oyunları ile büyük kazançlar seni bekliyor.
+                {t('hero.description')}
               </p>
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="bg-gradient-primary hover:opacity-90 text-white font-semibold h-14 px-8">
-                Hemen Başla
+                {t('hero.start_now')}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               <Button variant="outline" size="lg" className="h-14 px-8">
-                Demo Oyna
+                {t('hero.play_demo')}
               </Button>
             </div>
 
@@ -104,8 +106,8 @@ const HeroSection = () => {
             <Card className="gaming-card-premium p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold">Öne Çıkan Maçlar</h3>
-                  <Badge variant="secondary">Güncel</Badge>
+                  <h3 className="text-xl font-semibold">{t('hero.featured_matches')}</h3>
+                  <Badge variant="secondary">{t('hero.current')}</Badge>
                 </div>
 
                 <div className="space-y-4">
@@ -117,7 +119,7 @@ const HeroSection = () => {
                             <h4 className="font-semibold">{match.teams}</h4>
                             {match.isLive && (
                               <Badge variant="destructive" className="live-indicator">
-                                CANLI
+                                {t('hero.live')}
                               </Badge>
                             )}
                           </div>
@@ -152,7 +154,7 @@ const HeroSection = () => {
                 </div>
 
                 <Button className="w-full bg-gradient-success hover:opacity-90">
-                  Tüm Maçları Gör
+                  {t('hero.see_all_matches')}
                 </Button>
               </div>
             </Card>
