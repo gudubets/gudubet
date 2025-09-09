@@ -2,3 +2,12 @@ project_id = "ziiwapwvyavfakeuhvpt"
 
 [functions.sports-proxy]
 verify_jwt = false
+
+[functions.create-payment]
+verify_jwt = true
+
+[functions.process-withdrawal]
+verify_jwt = true
+
+[functions.payment-webhook]
+verify_jwt = false

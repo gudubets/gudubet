@@ -2195,6 +2195,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["admin_role"]
       }
+      get_withdrawal_stats: {
+        Args: { date_filter: string }
+        Returns: {
+          high_risk_count: number
+          total_approved_amount_today: number
+          total_approved_today: number
+          total_pending: number
+          total_pending_amount: number
+        }[]
+      }
       has_admin_permission: {
         Args: { _admin_id: string; _permission: string }
         Returns: boolean

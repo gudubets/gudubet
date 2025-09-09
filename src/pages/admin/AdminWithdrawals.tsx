@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Check, X, Eye, AlertTriangle, DollarSign, Clock, Users } from "lucide-react";
+import { Check, X, Eye, AlertTriangle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { logAdminActivity, ACTIVITY_TYPES } from "@/utils/adminActivityLogger";
 
@@ -134,36 +133,36 @@ export default function AdminWithdrawals() {
   const { data: stats } = useQuery({
     queryKey: ["withdrawal-stats"],
     queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
-
-      const { data, error } = await supabase.rpc("get_withdrawal_stats", {
-        date_filter: today
-      }).single();
+      const { data, error } = await supabase
+        .from("withdrawals")
+        .select("amount, status, risk_score, created_at");
 
       if (error) {
         console.error("Stats error:", error);
-        // Fallback: calculate stats manually
-        const { data: allWithdrawals } = await supabase
-          .from("withdrawals")
-          .select("amount, status, risk_score, created_at");
-
-        const pending = allWithdrawals?.filter(w => w.status === "pending") || [];
-        const approvedToday = allWithdrawals?.filter(w => 
-          w.status === "approved" && 
-          w.created_at.startsWith(today)
-        ) || [];
-        const highRisk = allWithdrawals?.filter(w => w.risk_score >= 70) || [];
-
         return {
-          total_pending: pending.length,
-          total_pending_amount: pending.reduce((sum, w) => sum + w.amount, 0),
-          total_approved_today: approvedToday.length,
-          total_approved_amount_today: approvedToday.reduce((sum, w) => sum + w.amount, 0),
-          high_risk_count: highRisk.length
+          total_pending: 0,
+          total_pending_amount: 0,
+          total_approved_today: 0,
+          total_approved_amount_today: 0,
+          high_risk_count: 0
         } as WithdrawalStats;
       }
 
-      return data as WithdrawalStats;
+      const today = new Date().toISOString().split('T')[0];
+      const pending = data?.filter(w => w.status === "pending") || [];
+      const approvedToday = data?.filter(w => 
+        w.status === "approved" && 
+        w.created_at.startsWith(today)
+      ) || [];
+      const highRisk = data?.filter(w => w.risk_score >= 70) || [];
+
+      return {
+        total_pending: pending.length,
+        total_pending_amount: pending.reduce((sum, w) => sum + w.amount, 0),
+        total_approved_today: approvedToday.length,
+        total_approved_amount_today: approvedToday.reduce((sum, w) => sum + w.amount, 0),
+        high_risk_count: highRisk.length
+      } as WithdrawalStats;
     },
     enabled: hasAccess === true,
   });
@@ -307,286 +306,282 @@ export default function AdminWithdrawals() {
 
   if (hasAccess === false) {
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground">
-                Access denied. You need admin privileges to view this page.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </AdminLayout>
+      <div className="flex items-center justify-center min-h-screen">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">
+              Access denied. You need admin privileges to view this page.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Withdrawal Management</h1>
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Withdrawal Management</h1>
+      </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats?.total_pending || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                ₺{(stats?.total_pending_amount || 0).toLocaleString()}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Approved Today</CardTitle>
-              <Check className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats?.total_approved_today || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                ₺{(stats?.total_approved_amount_today || 0).toLocaleString()}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">High Risk</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-destructive">
-                {stats?.high_risk_count || 0}
-              </div>
-              <p className="text-xs text-muted-foreground">Requires review</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters */}
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
-          <CardHeader>
-            <CardTitle>Filters</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Input
-                placeholder="Search by email or username"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                  <SelectItem value="processing">Processing</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={methodFilter} onValueChange={setMethodFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Methods" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Methods</SelectItem>
-                  <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="e_wallet">E-Wallet</SelectItem>
-                  <SelectItem value="crypto">Cryptocurrency</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={riskFilter} onValueChange={setRiskFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Risk Levels" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Risk Levels</SelectItem>
-                  <SelectItem value="low">Low Risk</SelectItem>
-                  <SelectItem value="medium">Medium Risk</SelectItem>
-                  <SelectItem value="high">High Risk</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <div className="text-2xl font-bold">{stats?.total_pending || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              ₺{(stats?.total_pending_amount || 0).toLocaleString()}
+            </p>
           </CardContent>
         </Card>
 
-        {/* Withdrawals Table */}
         <Card>
-          <CardHeader>
-            <CardTitle>Withdrawal Requests</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Approved Today</CardTitle>
+            <Check className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Method</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Risk</TableHead>
-                  <TableHead>KYC</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {withdrawals.map((withdrawal) => (
-                  <TableRow key={withdrawal.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">
-                          {withdrawal.users.first_name} {withdrawal.users.last_name}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {withdrawal.users.email}
-                        </div>
+            <div className="text-2xl font-bold">{stats?.total_approved_today || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              ₺{(stats?.total_approved_amount_today || 0).toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">High Risk</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-destructive">
+              {stats?.high_risk_count || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">Requires review</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Filters</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Input
+              placeholder="Search by email or username"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="processing">Processing</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={methodFilter} onValueChange={setMethodFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Methods" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Methods</SelectItem>
+                <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                <SelectItem value="e_wallet">E-Wallet</SelectItem>
+                <SelectItem value="crypto">Cryptocurrency</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={riskFilter} onValueChange={setRiskFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Risk Levels" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Risk Levels</SelectItem>
+                <SelectItem value="low">Low Risk</SelectItem>
+                <SelectItem value="medium">Medium Risk</SelectItem>
+                <SelectItem value="high">High Risk</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Withdrawals Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Withdrawal Requests</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Risk</TableHead>
+                <TableHead>KYC</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {withdrawals.map((withdrawal) => (
+                <TableRow key={withdrawal.id}>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">
+                        {withdrawal.users.first_name} {withdrawal.users.last_name}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">
-                          ₺{withdrawal.amount.toLocaleString()}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Net: ₺{withdrawal.net_amount?.toLocaleString()}
-                        </div>
+                      <div className="text-sm text-muted-foreground">
+                        {withdrawal.users.email}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {withdrawal.withdrawal_method.replace("_", " ")}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(withdrawal.status)}</TableCell>
-                    <TableCell>{getRiskBadge(withdrawal.risk_score)}</TableCell>
-                    <TableCell>
-                      <Badge variant={withdrawal.kyc_status === "verified" ? "default" : "secondary"}>
-                        {withdrawal.kyc_status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(withdrawal.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>Withdrawal Details</DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <label className="text-sm font-medium">Amount</label>
-                                  <p>₺{withdrawal.amount.toLocaleString()}</p>
-                                </div>
-                                <div>
-                                  <label className="text-sm font-medium">Net Amount</label>
-                                  <p>₺{withdrawal.net_amount?.toLocaleString()}</p>
-                                </div>
-                                <div>
-                                  <label className="text-sm font-medium">Processing Fee</label>
-                                  <p>₺{withdrawal.processing_fee?.toLocaleString()}</p>
-                                </div>
-                                <div>
-                                  <label className="text-sm font-medium">Risk Score</label>
-                                  <p>{withdrawal.risk_score}/100</p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">
+                        ₺{withdrawal.amount.toLocaleString()}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Net: ₺{withdrawal.net_amount?.toLocaleString()}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {withdrawal.withdrawal_method.replace("_", " ")}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(withdrawal.status)}</TableCell>
+                  <TableCell>{getRiskBadge(withdrawal.risk_score)}</TableCell>
+                  <TableCell>
+                    <Badge variant={withdrawal.kyc_status === "verified" ? "default" : "secondary"}>
+                      {withdrawal.kyc_status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(withdrawal.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Withdrawal Details</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="text-sm font-medium">Amount</label>
+                                <p>₺{withdrawal.amount.toLocaleString()}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Net Amount</label>
+                                <p>₺{withdrawal.net_amount?.toLocaleString()}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Processing Fee</label>
+                                <p>₺{withdrawal.processing_fee?.toLocaleString()}</p>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Risk Score</label>
+                                <p>{withdrawal.risk_score}/100</p>
+                              </div>
+                            </div>
+                            
+                            {withdrawal.bank_details && (
+                              <div>
+                                <label className="text-sm font-medium">Bank Details</label>
+                                <div className="bg-muted p-3 rounded-md mt-2">
+                                  <pre className="text-sm">
+                                    {JSON.stringify(withdrawal.bank_details, null, 2)}
+                                  </pre>
                                 </div>
                               </div>
-                              
-                              {withdrawal.bank_details && (
-                                <div>
-                                  <label className="text-sm font-medium">Bank Details</label>
-                                  <div className="bg-muted p-3 rounded-md mt-2">
-                                    <pre className="text-sm">
-                                      {JSON.stringify(withdrawal.bank_details, null, 2)}
-                                    </pre>
-                                  </div>
-                                </div>
-                              )}
+                            )}
 
-                              {withdrawal.review_note && (
-                                <div>
-                                  <label className="text-sm font-medium">Review Note</label>
-                                  <p className="mt-1">{withdrawal.review_note}</p>
-                                </div>
-                              )}
-                            </div>
-                          </DialogContent>
-                        </Dialog>
+                            {withdrawal.review_note && (
+                              <div>
+                                <label className="text-sm font-medium">Review Note</label>
+                                <p className="mt-1">{withdrawal.review_note}</p>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
 
-                        {withdrawal.status === "pending" && (
-                          <>
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={() => handleReview(withdrawal, "approve")}
-                              disabled={approveWithdrawalMutation.isPending}
-                            >
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => handleReview(withdrawal, "reject")}
-                              disabled={rejectWithdrawalMutation.isPending}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                      {withdrawal.status === "pending" && (
+                        <>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleReview(withdrawal, "approve")}
+                            disabled={approveWithdrawalMutation.isPending}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleReview(withdrawal, "reject")}
+                            disabled={rejectWithdrawalMutation.isPending}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-        {/* Review Dialog */}
-        <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Review Withdrawal</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Textarea
-                placeholder="Add a review note (optional)"
-                value={reviewNote}
-                onChange={(e) => setReviewNote(e.target.value)}
-              />
-              <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsReviewDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
+      {/* Review Dialog */}
+      <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Review Withdrawal</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Textarea
+              placeholder="Add a review note (optional)"
+              value={reviewNote}
+              onChange={(e) => setReviewNote(e.target.value)}
+            />
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsReviewDialogOpen(false)}
+              >
+                Cancel
+              </Button>
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </AdminLayout>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
