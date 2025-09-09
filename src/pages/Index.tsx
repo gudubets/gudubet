@@ -7,11 +7,13 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 import { RegistrationModal } from '@/components/auth/RegistrationModal';
 import FloatingSupportButton from '@/components/ui/floating-support-button';
+import { useI18n } from '@/hooks/useI18n';
 import treasureImage from '@/assets/treasure.png';
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { t } = useI18n();
   return <div className="min-h-screen bg-black">
       <Header />
       
@@ -50,7 +52,7 @@ const Index = () => {
                           className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
                           onClick={() => setIsRegistrationModalOpen(true)}
                         >
-                          ÜYE OL
+                          {t('sign_up')}
                         </Button>
                       </div>
                     </div>
