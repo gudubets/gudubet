@@ -19,9 +19,7 @@ interface BetSelection {
   matchId: string;
   matchName: string;
   selection: string;
-  selectionName: string;
   odds: number;
-  market: string;
 }
 
 interface ConfirmedBet {
@@ -67,169 +65,171 @@ const BettingSlip: React.FC<BettingSlipProps> = ({
 
   if (isMobile) {
     return (
-      <div className="p-4">
-        {/* Mobile Header */}
-        <div 
-          className="flex items-center justify-between cursor-pointer"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          <div className="flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-primary" />
-            <span className="font-semibold">
-              {activeTab === 'betslip' ? 'Kupon' : 'Bahislerim'}
-            </span>
-            <Badge variant="secondary">
-              {activeTab === 'betslip' ? betSlip.length : confirmedBets.length}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-2">
-            {activeTab === 'betslip' && (
-              <span className="text-sm font-bold text-primary">
-                ₺{potentialWin.toFixed(2)}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
+        <div className="p-4">
+          {/* Mobile Header */}
+          <div 
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            <div className="flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-primary" />
+              <span className="font-semibold">
+                {activeTab === 'betslip' ? 'Kupon' : 'Bahislerim'}
               </span>
-            )}
-            <Button variant="ghost" size="sm">
-              {isExpanded ? '▼' : '▲'}
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile Tabs */}
-        {isExpanded && (
-          <div className="mt-4">
-            <div className="flex gap-1 mb-4 bg-muted rounded-lg p-1">
-              <Button
-                variant={activeTab === 'betslip' ? 'default' : 'ghost'}
-                size="sm"
-                className="flex-1"
-                onClick={() => onTabChange('betslip')}
-              >
-                Kupon ({betSlip.length})
-              </Button>
-              <Button
-                variant={activeTab === 'mybets' ? 'default' : 'ghost'}
-                size="sm"
-                className="flex-1"
-                onClick={() => onTabChange('mybets')}
-              >
-                Bahislerim ({confirmedBets.length})
+              <Badge variant="secondary">
+                {activeTab === 'betslip' ? betSlip.length : confirmedBets.length}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              {activeTab === 'betslip' && betSlip.length > 0 && (
+                <span className="text-sm font-bold text-primary">
+                  ₺{potentialWin.toFixed(2)}
+                </span>
+              )}
+              <Button variant="ghost" size="sm">
+                {isExpanded ? '▼' : '▲'}
               </Button>
             </div>
-
-            {activeTab === 'betslip' ? (
-              <div className="space-y-4">
-                {betSlip.length === 0 ? (
-                  <div className="text-center py-4 text-muted-foreground">
-                    <Calculator className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Bahis yapmak için oranlara tıklayın</p>
-                  </div>
-                ) : (
-                  <>
-                    {/* Bet List */}
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
-                      {betSlip.map((bet, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-lg">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{bet.matchName}</p>
-                            <p className="text-xs text-muted-foreground">{bet.selectionName}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-primary">{bet.odds.toFixed(2)}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => onRemoveBet(index)}
-                            >
-                              <X className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Stake Input */}
-                    <div className="space-y-2">
-                      <Input
-                        type="number"
-                        placeholder="Bahis tutarı (₺)"
-                        value={stakeAmount}
-                        onChange={(e) => onStakeChange(e.target.value)}
-                      />
-                      <div className="flex gap-1 flex-wrap">
-                        {quickStakeAmounts.map((amount) => (
-                          <Button
-                            key={amount}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => onStakeChange(amount.toString())}
-                            className="text-xs"
-                          >
-                            ₺{amount}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Summary */}
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Toplam Oran:</span>
-                        <span className="font-bold">{totalOdds.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-primary font-bold">
-                        <span>Olası Kazanç:</span>
-                        <span>₺{potentialWin.toFixed(2)}</span>
-                      </div>
-                    </div>
-
-                    {/* Confirm Button */}
-                    <Button 
-                      className="w-full bg-green-600 hover:bg-green-700" 
-                      onClick={onConfirmBet}
-                      disabled={betSlip.length === 0 || !stakeAmount}
-                    >
-                      <Receipt className="w-4 h-4 mr-2" />
-                      Canlı Bahsi Onayla
-                    </Button>
-                  </>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {confirmedBets.length === 0 ? (
-                  <div className="text-center py-4 text-muted-foreground">
-                    <History className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Henüz onaylanmış bahsiniz bulunmuyor</p>
-                  </div>
-                ) : (
-                  confirmedBets.map((bet) => (
-                    <div key={bet.id} className="p-3 bg-muted rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <p className="font-medium text-sm">Bahis #{bet.id.slice(-4)}</p>
-                          <p className="text-xs text-muted-foreground">{bet.date}</p>
-                        </div>
-                        <Badge variant="secondary">{bet.status}</Badge>
-                      </div>
-                      <div className="space-y-1">
-                        {bet.bets.map((b, i) => (
-                          <div key={i} className="text-xs">
-                            <span className="font-medium">{b.matchName}</span>
-                            <span className="text-muted-foreground"> - {b.selectionName} ({b.odds.toFixed(2)})</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex justify-between text-sm mt-2 pt-2 border-t">
-                        <span>₺{bet.stakeAmount} → ₺{bet.potentialWin.toFixed(2)}</span>
-                        <span className="font-bold">Oran: {bet.totalOdds.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
           </div>
-        )}
+
+          {/* Mobile Tabs */}
+          {isExpanded && (
+            <div className="mt-4 max-h-80 overflow-y-auto">
+              <div className="flex gap-1 mb-4 bg-muted rounded-lg p-1">
+                <Button
+                  variant={activeTab === 'betslip' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => onTabChange('betslip')}
+                >
+                  Kupon ({betSlip.length})
+                </Button>
+                <Button
+                  variant={activeTab === 'mybets' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => onTabChange('mybets')}
+                >
+                  Bahislerim ({confirmedBets.length})
+                </Button>
+              </div>
+
+              {activeTab === 'betslip' ? (
+                <div className="space-y-4">
+                  {betSlip.length === 0 ? (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <Calculator className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Bahis yapmak için oranlara tıklayın</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Bet List */}
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {betSlip.map((bet, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-lg">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{bet.matchName}</p>
+                              <p className="text-xs text-muted-foreground">{bet.selection}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-primary">{bet.odds.toFixed(2)}</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onRemoveBet(index)}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Stake Input */}
+                      <div className="space-y-2">
+                        <Input
+                          type="number"
+                          placeholder="Bahis tutarı (₺)"
+                          value={stakeAmount}
+                          onChange={(e) => onStakeChange(e.target.value)}
+                        />
+                        <div className="flex gap-1 flex-wrap">
+                          {quickStakeAmounts.map((amount) => (
+                            <Button
+                              key={amount}
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onStakeChange(amount.toString())}
+                              className="text-xs"
+                            >
+                              ₺{amount}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Summary */}
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span>Toplam Oran:</span>
+                          <span className="font-bold">{totalOdds.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-primary font-bold">
+                          <span>Olası Kazanç:</span>
+                          <span>₺{potentialWin.toFixed(2)}</span>
+                        </div>
+                      </div>
+
+                      {/* Confirm Button */}
+                      <Button 
+                        className="w-full bg-green-600 hover:bg-green-700" 
+                        onClick={onConfirmBet}
+                        disabled={betSlip.length === 0 || !stakeAmount}
+                      >
+                        <Receipt className="w-4 h-4 mr-2" />
+                        Bahsi Onayla
+                      </Button>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {confirmedBets.length === 0 ? (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <History className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Henüz onaylanmış bahsiniz bulunmuyor</p>
+                    </div>
+                  ) : (
+                    confirmedBets.map((bet) => (
+                      <div key={bet.id} className="p-3 bg-muted rounded-lg">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <p className="font-medium text-sm">Bahis #{bet.id.slice(-4)}</p>
+                            <p className="text-xs text-muted-foreground">{bet.date}</p>
+                          </div>
+                          <Badge variant="secondary">{bet.status}</Badge>
+                        </div>
+                        <div className="space-y-1">
+                          {bet.bets.map((b, i) => (
+                            <div key={i} className="text-xs">
+                              <span className="font-medium">{b.matchName}</span>
+                              <span className="text-muted-foreground"> - {b.selection} ({b.odds.toFixed(2)})</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex justify-between text-sm mt-2 pt-2 border-t">
+                          <span>₺{bet.stakeAmount} → ₺{bet.potentialWin.toFixed(2)}</span>
+                          <span className="font-bold">Oran: {bet.totalOdds.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -282,7 +282,7 @@ const BettingSlip: React.FC<BettingSlipProps> = ({
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{bet.matchName}</p>
-                          <p className="text-xs text-muted-foreground">{bet.market}</p>
+                          <p className="text-xs text-muted-foreground">Maç Sonucu</p>
                         </div>
                         <Button
                           variant="ghost"
@@ -295,7 +295,7 @@ const BettingSlip: React.FC<BettingSlipProps> = ({
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-primary">
-                          {bet.selectionName}
+                          {bet.selection}
                         </span>
                         <Badge variant="outline" className="font-bold">
                           {bet.odds.toFixed(2)}
@@ -365,7 +365,7 @@ const BettingSlip: React.FC<BettingSlipProps> = ({
                 <div className="flex items-start gap-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-yellow-700">
-                    Canlı bahislerde oranlar sürekli değişebilir. Bahis onaylandıktan sonra değişiklik yapılamaz.
+                    Bahislerde oranlar değişebilir. Bahis onaylandıktan sonra değişiklik yapılamaz.
                   </p>
                 </div>
 
@@ -376,7 +376,7 @@ const BettingSlip: React.FC<BettingSlipProps> = ({
                   disabled={betSlip.length === 0 || !stakeAmount || parseFloat(stakeAmount) <= 0}
                 >
                   <Receipt className="w-4 h-4 mr-2" />
-                  Canlı Bahsi Onayla
+                  Bahsi Onayla
                 </Button>
               </>
             )}
@@ -419,7 +419,7 @@ const BettingSlip: React.FC<BettingSlipProps> = ({
                         <div key={i} className="text-xs p-2 bg-background rounded">
                           <p className="font-medium">{b.matchName}</p>
                           <div className="flex justify-between items-center mt-1">
-                            <span className="text-muted-foreground">{b.selectionName}</span>
+                            <span className="text-muted-foreground">{b.selection}</span>
                             <Badge variant="outline" className="text-xs">
                               {b.odds.toFixed(2)}
                             </Badge>
@@ -442,8 +442,8 @@ const BettingSlip: React.FC<BettingSlipProps> = ({
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-muted-foreground">Olası Kazanç</p>
-                        <p className="font-bold text-primary">₺{bet.potentialWin.toFixed(2)}</p>
+                        <div className="text-xs text-muted-foreground">Olası Kazanç</div>
+                        <div className="font-bold text-primary">₺{bet.potentialWin.toFixed(2)}</div>
                       </div>
                     </div>
                   </div>

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
+import BettingSlip from '@/components/betting/BettingSlip';
 import MatchDetailsModal from '@/components/betting/MatchDetailsModal';
 
 interface Match {
@@ -92,104 +93,114 @@ const SportsBetting = () => {
   useEffect(() => {
     const fetchMatches = async () => {
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockMatches: Match[] = [
-        {
-          id: '1',
-          home_team: 'Manchester United',
-          away_team: 'Liverpool',
-          home_score: 0,
-          away_score: 0,
-          match_date: '2024-01-20',
-          match_time: '17:00',
-          sport_type: 'futbol',
-          league: 'Premier League',
-          home_odds: 2.1,
-          draw_odds: 3.2,
-          away_odds: 3.5,
-          is_featured: true,
-          status: 'scheduled',
+      try {
+        // Fetch matches with odds
+        const { data: matchesData, error: matchesError } = await supabase
+          .from('matches')
+          .select(`
+            *,
+            leagues (
+              name,
+              sport_id,
+              sports (name)
+            ),
+            odds (*)
+          `)
+          .eq('status', 'scheduled')
+          .order('match_date', { ascending: true })
+          .limit(10);
+
+        if (matchesError) throw matchesError;
+
+        // Transform data to match interface
+        const transformedMatches: Match[] = (matchesData || []).map(match => ({
+          id: match.id,
+          home_team: match.home_team,
+          away_team: match.away_team,
+          home_team_logo: match.home_team_logo,
+          away_team_logo: match.away_team_logo,
+          home_score: match.home_score || 0,
+          away_score: match.away_score || 0,
+          match_date: new Date(match.match_date).toLocaleDateString('tr-TR'),
+          match_time: new Date(match.match_date).toLocaleTimeString('tr-TR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          sport_type: match.leagues?.sports?.name?.toLowerCase() || 'futbol',
+          league: match.leagues?.name || 'Bilinmeyen Liga',
+          home_odds: match.odds?.find(o => o.selection === '1')?.odds_value || 1.5,
+          draw_odds: match.odds?.find(o => o.selection === 'X')?.odds_value || 3.0,
+          away_odds: match.odds?.find(o => o.selection === '2')?.odds_value || 2.5,
+          is_featured: match.is_featured || false,
+          status: match.status,
           viewers_count: 0,
-          odds: [
-            {
-              id: '1',
-              market_type: '1X2',
-              market_name: 'Maç Sonucu',
-              selection: '1',
-              selection_name: 'Manchester United',
-              odds_value: 2.1,
-              is_active: true
-            },
-            {
-              id: '2',
-              market_type: '1X2',
-              market_name: 'Maç Sonucu',
-              selection: 'X',
-              selection_name: 'Beraberlik',
-              odds_value: 3.2,
-              is_active: true
-            },
-            {
-              id: '3',
-              market_type: '1X2',
-              market_name: 'Maç Sonucu',
-              selection: '2',
-              selection_name: 'Liverpool',
-              odds_value: 3.5,
-              is_active: true
-            }
-          ]
-        },
-        {
-          id: '2',
-          home_team: 'Arsenal',
-          away_team: 'Chelsea',
-          home_score: 0,
-          away_score: 0,
-          match_date: '2024-01-21',
-          match_time: '15:00',
-          sport_type: 'futbol',
-          league: 'Premier League',
-          home_odds: 1.9,
-          draw_odds: 3.4,
-          away_odds: 4.1,
-          is_featured: false,
-          status: 'scheduled',
-          viewers_count: 0,
-          odds: [
-            {
-              id: '4',
-              market_type: '1X2',
-              market_name: 'Maç Sonucu',
-              selection: '1',
-              selection_name: 'Arsenal',
-              odds_value: 1.9,
-              is_active: true
-            },
-            {
-              id: '5',
-              market_type: '1X2',
-              market_name: 'Maç Sonucu',
-              selection: 'X',
-              selection_name: 'Beraberlik',
-              odds_value: 3.4,
-              is_active: true
-            },
-            {
-              id: '6',
-              market_type: '1X2',
-              market_name: 'Maç Sonucu',
-              selection: '2',
-              selection_name: 'Chelsea',
-              odds_value: 4.1,
-              is_active: true
-            }
-          ]
-        }
-      ];
-      
-      setMatches(mockMatches);
+          odds: match.odds?.map(odd => ({
+            id: odd.id,
+            market_type: odd.market_type,
+            market_name: odd.market_name,
+            selection: odd.selection,
+            selection_name: odd.selection === '1' ? match.home_team : 
+                           odd.selection === 'X' ? 'Beraberlik' : 
+                           odd.selection === '2' ? match.away_team : odd.selection,
+            odds_value: odd.odds_value,
+            is_active: odd.is_active
+          })) || []
+        }));
+
+        setMatches(transformedMatches);
+      } catch (error) {
+        console.error('Error fetching matches:', error);
+        // Fall back to mock data if there's an error
+        const mockMatches: Match[] = [
+          {
+            id: '1',
+            home_team: 'Manchester United',
+            away_team: 'Liverpool',
+            home_score: 0,
+            away_score: 0,
+            match_date: new Date().toLocaleDateString('tr-TR'),
+            match_time: '17:00',
+            sport_type: 'futbol',
+            league: 'Premier League',
+            home_odds: 2.1,
+            draw_odds: 3.2,
+            away_odds: 3.5,
+            is_featured: true,
+            status: 'scheduled',
+            viewers_count: 0,
+            odds: [
+              {
+                id: '1',
+                market_type: '1X2',
+                market_name: 'Maç Sonucu',
+                selection: '1',
+                selection_name: 'Manchester United',
+                odds_value: 2.1,
+                is_active: true
+              },
+              {
+                id: '2',
+                market_type: '1X2',
+                market_name: 'Maç Sonucu',
+                selection: 'X',
+                selection_name: 'Beraberlik',
+                odds_value: 3.2,
+                is_active: true
+              },
+              {
+                id: '3',
+                market_type: '1X2',
+                market_name: 'Maç Sonucu',
+                selection: '2',
+                selection_name: 'Liverpool',
+                odds_value: 3.5,
+                is_active: true
+              }
+            ]
+          }
+        ];
+        setMatches(mockMatches);
+      }
       setLoading(false);
     };
 
@@ -231,7 +242,7 @@ const SportsBetting = () => {
   const totalOdds = betSlip.reduce((acc, bet) => acc * bet.odds, 1);
   const potentialWin = parseFloat(stakeAmount) * totalOdds || 0;
 
-  const confirmBet = () => {
+  const confirmBet = async () => {
     if (!stakeAmount || parseFloat(stakeAmount) <= 0) {
       toast({
         title: "Hata",
@@ -250,26 +261,96 @@ const SportsBetting = () => {
       return;
     }
 
-    const confirmedBet: ConfirmedBet = {
-      id: Date.now().toString(),
-      bets: [...betSlip],
-      stakeAmount: parseFloat(stakeAmount),
-      totalOdds: totalOdds,
-      potentialWin: potentialWin,
-      date: new Date().toLocaleString('tr-TR'),
-      status: 'Beklemede'
-    };
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Hata",
+          description: "Bahis yapmak için giriş yapmanız gerekir.",
+          variant: "destructive"
+        });
+        return;
+      }
 
-    setConfirmedBets(prev => [...prev, confirmedBet]);
+      // Get user data
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single();
 
-    toast({
-      title: "Bahis Onaylandı!",
-      description: `${betSlip.length} bahis ile ₺${parseFloat(stakeAmount)} miktarında bahsiniz onaylandı.`,
-    });
+      if (!userData) {
+        toast({
+          title: "Hata",
+          description: "Kullanıcı verisi bulunamadı.",
+          variant: "destructive"
+        });
+        return;
+      }
 
-    setBetSlip([]);
-    setStakeAmount('');
-    setActiveTab('mybets');
+      // Create betslip
+      const { data: betslipData, error: betslipError } = await supabase
+        .from('betslips')
+        .insert({
+          user_id: userData.id,
+          slip_type: betSlip.length === 1 ? 'single' : 'multiple',
+          total_stake: parseFloat(stakeAmount),
+          total_odds: totalOdds,
+          potential_win: potentialWin,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (betslipError) throw betslipError;
+
+      // Create betslip items
+      const betslipItems = betSlip.map(bet => ({
+        betslip_id: betslipData.id,
+        match_id: bet.matchId,
+        odds_id: bet.matchId + '_' + Math.random(), // This should be actual odds ID
+        selection: bet.selection,
+        odds_value: bet.odds,
+        stake: parseFloat(stakeAmount) / betSlip.length, // Equal distribution for now
+        market_type: '1X2',
+        market_name: 'Maç Sonucu'
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('betslip_items')
+        .insert(betslipItems);
+
+      if (itemsError) throw itemsError;
+
+      const confirmedBet: ConfirmedBet = {
+        id: betslipData.id,
+        bets: [...betSlip],
+        stakeAmount: parseFloat(stakeAmount),
+        totalOdds: totalOdds,
+        potentialWin: potentialWin,
+        date: new Date().toLocaleString('tr-TR'),
+        status: 'Beklemede'
+      };
+
+      setConfirmedBets(prev => [...prev, confirmedBet]);
+
+      toast({
+        title: "Bahis Onaylandı!",
+        description: `${betSlip.length} bahis ile ₺${parseFloat(stakeAmount)} miktarında bahsiniz onaylandı.`,
+      });
+
+      setBetSlip([]);
+      setStakeAmount('');
+      setActiveTab('mybets');
+    } catch (error) {
+      console.error('Error creating bet:', error);
+      toast({
+        title: "Hata",
+        description: "Bahis oluşturulurken bir hata oluştu.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -296,153 +377,210 @@ const SportsBetting = () => {
           </div>
         </div>
 
-        {/* Sport Filters */}
+        {/* Main Content */}
         <div className="container mx-auto px-4 py-6">
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-            {sportFilters.map((sport) => (
-              <Button
-                key={sport.id}
-                variant={selectedSport === sport.id ? "default" : "outline"}
-                onClick={() => setSelectedSport(sport.id)}
-                className="whitespace-nowrap"
-              >
-                <span className="mr-2">{sport.icon}</span>
-                {sport.name}
-                {sport.id !== 'hepsi' && (
-                  <Badge variant="secondary" className="ml-2">
-                    {matches.filter(m => m.sport_type === sport.id).length}
-                  </Badge>
-                )}
-              </Button>
-            ))}
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Matches Section */}
+            <div className="lg:col-span-3">
+              {/* Sport Filters */}
+              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                {sportFilters.map((sport) => (
+                  <Button
+                    key={sport.id}
+                    variant={selectedSport === sport.id ? "default" : "outline"}
+                    onClick={() => setSelectedSport(sport.id)}
+                    className="whitespace-nowrap"
+                  >
+                    <span className="mr-2">{sport.icon}</span>
+                    {sport.name}
+                    {sport.id !== 'hepsi' && (
+                      <Badge variant="secondary" className="ml-2">
+                        {matches.filter(m => m.sport_type === sport.id).length}
+                      </Badge>
+                    )}
+                  </Button>
+                ))}
+              </div>
 
-          {/* Loading State */}
-          {loading && (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <p className="mt-2 text-muted-foreground">Maçlar yükleniyor...</p>
-            </div>
-          )}
+              {/* Loading State */}
+              {loading && (
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <p className="mt-2 text-muted-foreground">Maçlar yükleniyor...</p>
+                </div>
+              )}
 
-          {/* Matches List */}
-          <div className="space-y-4">
-            {filteredMatches.map((match) => (
-              <Card key={match.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="text-sm text-muted-foreground">
-                        {match.league}
-                      </div>
-                      {match.is_featured && (
-                        <Badge variant="destructive">
-                          <Star className="w-3 h-3 mr-1" />
-                          Öne Çıkan
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-sm text-muted-foreground">
-                        {match.match_date} - {match.match_time}
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => {
-                          setSelectedMatch(match);
-                          setIsDetailsOpen(true);
-                        }}
-                        className="text-muted-foreground hover:text-foreground"
-                      >
-                        <BarChart3 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div 
-                        className="text-lg font-semibold mb-1 cursor-pointer hover:text-primary transition-colors"
-                        onClick={() => {
-                          setSelectedMatch(match);
-                          setIsDetailsOpen(true);
-                        }}
-                      >
-                        {match.home_team} vs {match.away_team}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => addToBetSlip(match, `${match.home_team} Kazanır`, match.home_odds)}
-                        className="min-w-16"
-                      >
-                        <div className="text-center">
-                          <div className="text-xs">1</div>
-                          <div className="font-bold">{match.home_odds}</div>
-                        </div>
-                      </Button>
-
-                      {match.draw_odds > 0 && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addToBetSlip(match, 'Beraberlik', match.draw_odds)}
-                          className="min-w-16"
-                        >
-                          <div className="text-center">
-                            <div className="text-xs">X</div>
-                            <div className="font-bold">{match.draw_odds}</div>
+              {/* Matches List */}
+              <div className="space-y-4">
+                {filteredMatches.map((match) => (
+                  <Card key={match.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="text-sm text-muted-foreground">
+                            {match.league}
                           </div>
-                        </Button>
-                      )}
-
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => addToBetSlip(match, `${match.away_team} Kazanır`, match.away_odds)}
-                        className="min-w-16"
-                      >
-                        <div className="text-center">
-                          <div className="text-xs">2</div>
-                          <div className="font-bold">{match.away_odds}</div>
+                          {match.is_featured && (
+                            <Badge variant="destructive">
+                              <Star className="w-3 h-3 mr-1" />
+                              Öne Çıkan
+                            </Badge>
+                          )}
                         </div>
-                      </Button>
+                        <div className="flex items-center gap-3">
+                          <div className="text-sm text-muted-foreground">
+                            {match.match_date} - {match.match_time}
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedMatch(match);
+                              setIsDetailsOpen(true);
+                            }}
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            <BarChart3 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedMatch(match);
-                          setIsDetailsOpen(true);
-                        }}
-                        className="text-primary hover:text-primary/80 ml-2"
-                      >
-                        <TrendingUp className="w-4 h-4 mr-1" />
-                        Detaylar
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div 
+                            className="text-lg font-semibold mb-1 cursor-pointer hover:text-primary transition-colors"
+                            onClick={() => {
+                              setSelectedMatch(match);
+                              setIsDetailsOpen(true);
+                            }}
+                          >
+                            {match.home_team} vs {match.away_team}
+                          </div>
+                        </div>
 
-          {!loading && filteredMatches.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                {selectedSport === 'hepsi' 
-                  ? 'Henüz maç bulunmuyor.' 
-                  : `${sportFilters.find(s => s.id === selectedSport)?.name} kategorisinde maç bulunmuyor.`
-                }
-              </p>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addToBetSlip(match, `${match.home_team} Kazanır`, match.home_odds)}
+                            className="min-w-16"
+                          >
+                            <div className="text-center">
+                              <div className="text-xs">1</div>
+                              <div className="font-bold">{match.home_odds}</div>
+                            </div>
+                          </Button>
+
+                          {match.draw_odds > 0 && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addToBetSlip(match, 'Beraberlik', match.draw_odds)}
+                              className="min-w-16"
+                            >
+                              <div className="text-center">
+                                <div className="text-xs">X</div>
+                                <div className="font-bold">{match.draw_odds}</div>
+                              </div>
+                            </Button>
+                          )}
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addToBetSlip(match, `${match.away_team} Kazanır`, match.away_odds)}
+                            className="min-w-16"
+                          >
+                            <div className="text-center">
+                              <div className="text-xs">2</div>
+                              <div className="font-bold">{match.away_odds}</div>
+                            </div>
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedMatch(match);
+                              setIsDetailsOpen(true);
+                            }}
+                            className="text-primary hover:text-primary/80 ml-2"
+                          >
+                            <TrendingUp className="w-4 h-4 mr-1" />
+                            Detaylar
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {!loading && filteredMatches.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">
+                    {selectedSport === 'hepsi' 
+                      ? 'Henüz maç bulunmuyor.' 
+                      : `${sportFilters.find(s => s.id === selectedSport)?.name} kategorisinde maç bulunmuyor.`
+                    }
+                  </p>
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Add BettingSlip Component */}
+            <div className="hidden lg:block lg:col-span-1">
+              <BettingSlip
+                betSlip={betSlip}
+                confirmedBets={confirmedBets}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                stakeAmount={stakeAmount}
+                onStakeChange={setStakeAmount}
+                onRemoveBet={removeFromBetSlip}
+                onConfirmBet={confirmBet}
+                totalOdds={totalOdds}
+                potentialWin={potentialWin}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Add BettingSlip Component */}
+        <div className="hidden lg:block lg:col-span-1">
+          <BettingSlip
+            betSlip={betSlip}
+            confirmedBets={confirmedBets}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            stakeAmount={stakeAmount}
+            onStakeChange={setStakeAmount}
+            onRemoveBet={removeFromBetSlip}
+            onConfirmBet={confirmBet}
+            totalOdds={totalOdds}
+            potentialWin={potentialWin}
+          />
         </div>
       </main>
+
+      {/* Mobile BettingSlip */}
+      {betSlip.length > 0 && (
+        <div className="lg:hidden">
+          <BettingSlip
+            betSlip={betSlip}
+            confirmedBets={confirmedBets}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            stakeAmount={stakeAmount}
+            onStakeChange={setStakeAmount}
+            onRemoveBet={removeFromBetSlip}
+            onConfirmBet={confirmBet}
+            totalOdds={totalOdds}
+            potentialWin={potentialWin}
+            isMobile={true}
+          />
+        </div>
+      )}
 
       <MatchDetailsModal
         match={selectedMatch}
