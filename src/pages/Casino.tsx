@@ -43,9 +43,9 @@ const Casino = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState<FilterOptions>({
-    category: '',
-    provider: '',
-    volatility: '',
+    category: 'all',
+    provider: 'all',
+    volatility: 'all',
     sortBy: '',
     showFavorites: false,
     showNew: false,
@@ -59,14 +59,18 @@ const Casino = () => {
   }, [searchTerm, filters, favorites, filterGames]);
 
   const handleFavoriteToggle = async (gameId: string, isFavorite: boolean) => {
-    await toggleFavorite(gameId, 'casino');
+    const result = await toggleFavorite(gameId, 'casino');
+    if (result) {
+      // Re-filter games to update the view
+      filterGames(searchTerm, filters, favorites);
+    }
   };
 
   const getActiveFiltersCount = () => {
     let count = 0;
-    if (filters.category) count++;
-    if (filters.provider) count++;
-    if (filters.volatility) count++;
+    if (filters.category && filters.category !== 'all') count++;
+    if (filters.provider && filters.provider !== 'all') count++;
+    if (filters.volatility && filters.volatility !== 'all') count++;
     if (filters.showFavorites) count++;
     if (filters.showNew) count++;
     if (filters.showPopular) count++;
@@ -76,9 +80,9 @@ const Casino = () => {
 
   const clearFilters = () => {
     setFilters({
-      category: '',
-      provider: '',
-      volatility: '',
+      category: 'all',
+      provider: 'all',
+      volatility: 'all',
       sortBy: '',
       showFavorites: false,
       showNew: false,
