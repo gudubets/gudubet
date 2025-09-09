@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertTriangle, Shield, Eye, TrendingUp, Users, Globe } from "lucide-react";
-import AdminLayout from "@/components/admin/AdminLayout";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
 import { useToast } from "@/hooks/use-toast";
 
@@ -64,8 +63,19 @@ export default function AdminFraudDetection() {
   const [alertSeverityFilter, setAlertSeverityFilter] = useState<string>("all");
   const [riskLevelFilter, setRiskLevelFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const { isAdmin, loading: accessLoading } = useAdminAccess('admin');
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
+
+  // Get current user
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
+
+  const { isAdmin, loading: accessLoading } = useAdminAccess(user);
 
   // Fetch fraud alerts
   const { data: fraudAlerts = [], isLoading: alertsLoading } = useQuery({
@@ -226,14 +236,13 @@ export default function AdminFraudDetection() {
   if (!isAdmin) return <div>Bu sayfaya erişim yetkiniz bulunmamaktadır.</div>;
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Fraud Tespiti & Risk Yönetimi</h1>
-          <p className="text-muted-foreground">
-            Şüpheli aktiviteleri izleyin ve risk skorlarını yönetin
-          </p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Fraud Tespiti & Risk Yönetimi</h1>
+        <p className="text-muted-foreground">
+          Şüpheli aktiviteleri izleyin ve risk skorlarını yönetin
+        </p>
+      </div>
 
         {/* Statistics Cards */}
         {stats && (
@@ -543,6 +552,5 @@ export default function AdminFraudDetection() {
           </TabsContent>
         </Tabs>
       </div>
-    </AdminLayout>
-  );
-}
+    );
+  }

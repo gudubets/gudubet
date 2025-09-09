@@ -36,6 +36,7 @@ import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminCompetitorAnalysis from "./pages/admin/AdminCompetitorAnalysis";
 import AdminGameProviders from "./pages/admin/AdminGameProviders";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
+import AdminFraudDetection from "./pages/admin/AdminFraudDetection";
 import Game from "./pages/Game";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="bonuses" element={<AdminBonuses />} />
             <Route path="finance" element={<AdminFinance />} />
             <Route path="withdrawals" element={<AdminWithdrawals />} />
+            <Route path="fraud-detection" element={<AdminFraudDetection />} />
             <Route path="balance" element={<AdminBalance />} />
             <Route path="notifications" element={<AdminNotifications />} />
             <Route path="competitor-analysis" element={<AdminCompetitorAnalysis />} />

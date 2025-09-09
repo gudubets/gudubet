@@ -10,7 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Settings,
-  CreditCard
+  CreditCard,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -71,6 +72,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       icon: CreditCard,
       href: '/admin/withdrawals',
       active: location.pathname === '/admin/withdrawals'
+    },
+    {
+      title: 'Risk Yönetimi',
+      icon: Shield,
+      href: '/admin/fraud-detection',
+      active: location.pathname === '/admin/fraud-detection'
     },
     {
       title: 'Bakiye Yönetimi',
