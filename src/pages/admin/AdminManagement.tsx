@@ -67,7 +67,9 @@ const AVAILABLE_PERMISSIONS = [
 const AdminManagement = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
+  const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null);
   const [activitySearchTerm, setActivitySearchTerm] = useState('');
   const [activityFilter, setActivityFilter] = useState<string>('all');
   const [newAdminData, setNewAdminData] = useState({
@@ -258,6 +260,54 @@ const AdminManagement = () => {
       toast({
         title: "Hata",
         description: "İzin güncellenirken bir hata oluştu.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete admin mutation
+  const deleteAdminMutation = useMutation({
+    mutationFn: async (adminId: string) => {
+      // First delete related permissions
+      await supabase
+        .from('admin_permissions')
+        .delete()
+        .eq('admin_id', adminId);
+
+      // Delete admin record
+      const { error } = await supabase
+        .from('admins')
+        .delete()
+        .eq('id', adminId);
+
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ['admins'] });
+      
+      // Log admin activity
+      await logAdminActivity({
+        action_type: ACTIVITY_TYPES.ADMIN_DELETED,
+        description: `Admin silindi: ${adminToDelete?.email}`,
+        target_id: adminToDelete?.id,
+        target_type: 'admin',
+        metadata: { 
+          deleted_admin_email: adminToDelete?.email,
+          deleted_admin_role: adminToDelete?.role_type
+        }
+      });
+      
+      setIsDeleteModalOpen(false);
+      setAdminToDelete(null);
+      toast({
+        title: "Admin silindi",
+        description: "Admin başarıyla silindi.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Hata",
+        description: error.message || "Admin silinirken bir hata oluştu.",
         variant: "destructive",
       });
     },
@@ -454,6 +504,19 @@ const AdminManagement = () => {
                             <Settings className="w-3 h-3 mr-1" />
                             İzinler
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => {
+                              setAdminToDelete(admin);
+                              setIsDeleteModalOpen(true);
+                            }}
+                            disabled={admin.role_type === 'super_admin'}
+                          >
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Sil
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -598,6 +661,59 @@ const AdminManagement = () => {
                   />
                 </div>
               ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Admin Sil</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-3 p-4 bg-red-50 rounded-lg border border-red-200">
+              <Trash2 className="w-8 h-8 text-red-500" />
+              <div>
+                <p className="font-medium text-red-800">Bu işlem geri alınamaz!</p>
+                <p className="text-sm text-red-700">
+                  Bu admini silmek istediğinizden emin misiniz?
+                </p>
+              </div>
+            </div>
+            
+            {adminToDelete && (
+              <div className="space-y-2">
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Silinecek Admin:</p>
+                  <p className="font-medium">{adminToDelete.email}</p>
+                  <p className="text-sm text-gray-500">
+                    {getRoleBadge(adminToDelete.role_type)}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsDeleteModalOpen(false);
+                  setAdminToDelete(null);
+                }}
+                className="flex-1"
+              >
+                İptal
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => adminToDelete && deleteAdminMutation.mutate(adminToDelete.id)}
+                disabled={deleteAdminMutation.isPending}
+                className="flex-1"
+              >
+                {deleteAdminMutation.isPending ? 'Siliniyor...' : 'Sil'}
+              </Button>
             </div>
           </div>
         </DialogContent>
