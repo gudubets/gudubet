@@ -1121,6 +1121,54 @@ export type Database = {
           },
         ]
       }
+      login_attempts: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device_type: string | null
+          email: string
+          failure_reason: string | null
+          id: string
+          ip_address: unknown | null
+          os: string | null
+          success: boolean
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          email: string
+          failure_reason?: string | null
+          id?: string
+          ip_address?: unknown | null
+          os?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          email?: string
+          failure_reason?: string | null
+          id?: string
+          ip_address?: unknown | null
+          os?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           away_score: number | null
@@ -1822,6 +1870,59 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_fees: {
+        Row: {
+          created_at: string
+          currency: string
+          fee_type: string
+          fee_value: number
+          fixed_fee: number | null
+          id: string
+          is_active: boolean | null
+          max_fee: number | null
+          min_fee: number | null
+          provider_id: string | null
+          transaction_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          fee_type: string
+          fee_value: number
+          fixed_fee?: number | null
+          id?: string
+          is_active?: boolean | null
+          max_fee?: number | null
+          min_fee?: number | null
+          provider_id?: string | null
+          transaction_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          fee_type?: string
+          fee_value?: number
+          fixed_fee?: number | null
+          id?: string
+          is_active?: boolean | null
+          max_fee?: number | null
+          min_fee?: number | null
+          provider_id?: string | null
+          transaction_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_fees_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "payment_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
@@ -2413,6 +2514,13 @@ export type Database = {
         | "system_settings"
         | "audit_logs"
       admin_role: "super_admin" | "finance" | "crm" | "support" | "moderator"
+      withdrawal_status:
+        | "pending"
+        | "approved"
+        | "processing"
+        | "completed"
+        | "rejected"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2563,6 +2671,14 @@ export const Constants = {
         "audit_logs",
       ],
       admin_role: ["super_admin", "finance", "crm", "support", "moderator"],
+      withdrawal_status: [
+        "pending",
+        "approved",
+        "processing",
+        "completed",
+        "rejected",
+        "cancelled",
+      ],
     },
   },
 } as const
