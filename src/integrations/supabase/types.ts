@@ -3235,6 +3235,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_daily_metrics: {
+        Args: { target_date?: string }
+        Returns: undefined
+      }
       calculate_payment_risk_score: {
         Args: {
           _amount: number
@@ -3264,6 +3268,20 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["admin_role"]
       }
+      get_dashboard_kpis: {
+        Args: { days_back?: number }
+        Returns: {
+          active_sessions: number
+          active_users_30d: number
+          avg_deposit_amount: number
+          ggr_30d: number
+          new_users_today: number
+          ngr_30d: number
+          total_deposits_30d: number
+          total_users: number
+          total_withdrawals_30d: number
+        }[]
+      }
       get_withdrawal_stats: {
         Args: { date_filter: string }
         Returns: {
@@ -3285,6 +3303,10 @@ export type Database = {
       is_super_admin: {
         Args: { _admin_id: string }
         Returns: boolean
+      }
+      update_user_ltv: {
+        Args: { target_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {

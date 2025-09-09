@@ -10,6 +10,7 @@ import { Menu, X, User as UserIcon, Wallet, Bell } from 'lucide-react';
 import { useUserBalance } from '@/hooks/useUserBalance';
 import { useNotifications } from '@/hooks/useNotifications';
 import NotificationsDropdown from '@/components/ui/notifications-dropdown';
+import LanguageSelector from '@/components/LanguageSelector';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
@@ -96,6 +97,7 @@ const Header = () => {
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-3">
+            <LanguageSelector />
             {!user ? <>
                 <Button variant="outline" onClick={() => setIsLoginModalOpen(true)} className="text-black bg-white border-white hover:bg-gray-100 text-xs px-4 h-8 uppercase font-medium">
                   GİRİŞ

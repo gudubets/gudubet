@@ -86,6 +86,18 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       active: location.pathname === '/admin/balance'
     },
     {
+      title: 'Analitik',
+      icon: BarChart3,
+      href: '/admin/analytics',
+      active: location.pathname === '/admin/analytics'
+    },
+    {
+      title: 'CRM',
+      icon: Users,
+      href: '/admin/crm',
+      active: location.pathname === '/admin/crm'
+    },
+    {
       title: 'Bildirimler',
       icon: Target,
       href: '/admin/notifications',

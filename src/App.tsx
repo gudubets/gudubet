@@ -33,6 +33,8 @@ import AdminFinance from "./pages/admin/AdminFinance";
 import AdminManagement from "./pages/admin/AdminManagement";
 import AdminBalance from "./pages/admin/AdminBalance";
 import AdminNotifications from "./pages/admin/AdminNotifications";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminCRM from "./pages/admin/AdminCRM";
 import AdminCompetitorAnalysis from "./pages/admin/AdminCompetitorAnalysis";
 import AdminGameProviders from "./pages/admin/AdminGameProviders";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
@@ -79,6 +81,8 @@ const App = () => (
             <Route path="fraud-detection" element={<AdminFraudDetection />} />
             <Route path="balance" element={<AdminBalance />} />
             <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="crm" element={<AdminCRM />} />
             <Route path="competitor-analysis" element={<AdminCompetitorAnalysis />} />
             <Route path="management" element={<AdminManagement />} />
           </Route>
