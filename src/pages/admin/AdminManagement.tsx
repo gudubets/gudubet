@@ -17,10 +17,15 @@ import { logAdminActivity, ACTIVITY_TYPES } from '@/utils/adminActivityLogger';
 interface Admin {
   id: string;
   email: string;
-  role: string;
-  role_type: string;
+  role_type: 'super_admin' | 'finance' | 'crm' | 'support' | 'moderator';
   created_at: string;
   updated_at: string;
+  is_active: boolean;
+  department?: string;
+  avatar_url?: string;
+  password_hash: string;
+  last_login_at?: string;
+  created_by?: string;
 }
 
 interface Permission {
@@ -165,7 +170,7 @@ const AdminManagement = () => {
         .from('admins')
         .insert({
           email: adminData.email,
-          role_type: adminData.role_type as 'super_admin' | 'admin' | 'finance_admin' | 'support_admin',
+          role_type: adminData.role_type as 'super_admin' | 'finance' | 'crm' | 'support' | 'moderator',
           password_hash: 'managed_by_auth', // Placeholder since auth handles this
         })
         .select()
@@ -377,9 +382,11 @@ const AdminManagement = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="finance_admin">Finans Admin</SelectItem>
-                    <SelectItem value="support_admin">Destek Admin</SelectItem>
+                    <SelectItem value="super_admin">Super Admin</SelectItem>
+                    <SelectItem value="finance">Finans</SelectItem>
+                    <SelectItem value="crm">CRM</SelectItem>
+                    <SelectItem value="support">Destek</SelectItem>
+                    <SelectItem value="moderator">Moderatör</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -74,7 +74,7 @@ export default function AdminWithdrawals() {
           .eq("id", user.id)
           .single();
 
-        setHasAccess(admin?.role_type === "super_admin" || admin?.role_type === "admin");
+        setHasAccess(admin?.role_type === "super_admin" || admin?.role_type === "finance");
       } catch (error) {
         console.error("Access check error:", error);
         setHasAccess(false);
