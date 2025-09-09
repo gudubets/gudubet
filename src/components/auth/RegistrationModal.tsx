@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronLeft, ChevronRight, CheckCircle, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/hooks/useI18n';
 import { supabase } from '@/integrations/supabase/client';
 
 interface RegistrationModalProps {
@@ -56,6 +57,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useI18n();
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -69,15 +71,15 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     const newErrors: Partial<FormData> = {};
 
     if (step === 1) {
-      if (!formData.firstName.trim()) newErrors.firstName = 'Ad zorunludur';
-      if (!formData.lastName.trim()) newErrors.lastName = 'Soyad zorunludur';
+      if (!formData.firstName.trim()) newErrors.firstName = t('auth.name_required');
+      if (!formData.lastName.trim()) newErrors.lastName = t('auth.surname_required');
       if (!formData.phone.trim()) {
-        newErrors.phone = 'Telefon numarası zorunludur';
+        newErrors.phone = t('auth.phone_required');
       } else if (!/^(\+90|0)?[5][0-9]{9}$/.test(formData.phone.replace(/\s/g, ''))) {
-        newErrors.phone = 'Geçerli bir telefon numarası giriniz (örn: 05xx xxx xx xx)';
+        newErrors.phone = t('auth.phone_invalid');
       }
       if (!formData.birthDate) {
-        newErrors.birthDate = 'Doğum tarihi zorunludur';
+        newErrors.birthDate = t('auth.birth_date_required');
       } else {
         const birthDate = new Date(formData.birthDate);
         const today = new Date();
@@ -89,36 +91,36 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         }
         
         if (age < 18) {
-          newErrors.birthDate = '18 yaşından büyük olmalısınız';
+          newErrors.birthDate = t('auth.age_restriction');
         }
       }
     }
 
     if (step === 2) {
       if (!formData.email.trim()) {
-        newErrors.email = 'E-posta zorunludur';
+        newErrors.email = t('auth.email_required');
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = 'Geçerli bir e-posta adresi giriniz';
+        newErrors.email = t('auth.email_invalid');
       }
       
       if (!formData.password) {
-        newErrors.password = 'Şifre zorunludur';
+        newErrors.password = t('auth.password_required');
       } else if (formData.password.length < 8) {
-        newErrors.password = 'Şifre en az 8 karakter olmalıdır';
+        newErrors.password = t('auth.password_min_length');
       }
       
       if (!formData.confirmPassword) {
-        newErrors.confirmPassword = 'Şifre tekrarı zorunludur';
+        newErrors.confirmPassword = t('auth.password_required');
       } else if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Şifreler eşleşmiyor';
+        newErrors.confirmPassword = t('auth.passwords_not_match');
       }
     }
 
     if (step === 3) {
-      if (!formData.country.trim()) newErrors.country = 'Ülke zorunludur';
-      if (!formData.city.trim()) newErrors.city = 'Şehir zorunludur';
-      if (!formData.address.trim()) newErrors.address = 'Adres zorunludur';
-      if (!formData.postalCode.trim()) newErrors.postalCode = 'Posta kodu zorunludur';
+      if (!formData.country.trim()) newErrors.country = t('auth.country_required');
+      if (!formData.city.trim()) newErrors.city = t('auth.city_required');
+      if (!formData.address.trim()) newErrors.address = t('auth.address_required');
+      if (!formData.postalCode.trim()) newErrors.postalCode = t('auth.postal_code_required');
     }
 
     setErrors(newErrors);
@@ -163,18 +165,18 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       });
 
       if (error) {
-        let errorMessage = 'Kayıt olurken bir hata oluştu';
+        let errorMessage = t('auth.registration_failed');
         
         if (error.message.includes('User already registered')) {
           errorMessage = 'Bu e-posta adresi ile zaten bir hesap mevcut';
         } else if (error.message.includes('Password should be at least')) {
-          errorMessage = 'Şifre en az 6 karakter olmalıdır';
+          errorMessage = t('auth.password_min_length');
         } else if (error.message.includes('Invalid email')) {
-          errorMessage = 'Geçersiz e-posta adresi';
+          errorMessage = t('auth.email_invalid');
         }
 
         toast({
-          title: "Kayıt Başarısız",
+          title: t('auth.registration_failed'),
           description: errorMessage,
           variant: "destructive"
         });
@@ -182,8 +184,8 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       }
 
       toast({
-        title: "Kayıt Başarılı!",
-        description: "Hesabınız başarıyla oluşturuldu. E-posta adresinizi kontrol ediniz.",
+        title: t('auth.registration_success'),
+        description: t('auth.check_email'),
       });
       
       onClose();
@@ -213,16 +215,16 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     <div className="space-y-4 md:space-y-6">
       <div className="text-center mb-4 md:mb-8">
         <h2 className="text-lg md:text-2xl font-gaming font-bold text-foreground mb-2">
-          Kişisel Bilgiler
+          {t('auth.personal_info')}
         </h2>
         <p className="text-sm md:text-base text-muted-foreground">
-          Hesabınızı oluşturmak için kişisel bilgilerinizi giriniz
+          {t('auth.create_account_desc')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
         <div className="space-y-2">
-          <Label htmlFor="firstName" className="text-sm">Ad *</Label>
+          <Label htmlFor="firstName" className="text-sm">{t('auth.first_name')}</Label>
           <Input
             id="firstName"
             value={formData.firstName}
@@ -234,7 +236,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="lastName" className="text-sm">Soyad *</Label>
+          <Label htmlFor="lastName" className="text-sm">{t('auth.last_name')}</Label>
           <Input
             id="lastName"
             value={formData.lastName}
@@ -247,7 +249,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="phone" className="text-sm">Telefon Numarası *</Label>
+        <Label htmlFor="phone" className="text-sm">{t('auth.phone')}</Label>
         <Input
           id="phone"
           type="tel"
@@ -260,7 +262,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="birthDate" className="text-sm">Doğum Tarihi *</Label>
+        <Label htmlFor="birthDate" className="text-sm">{t('auth.birth_date')}</Label>
         <Input
           id="birthDate"
           type="date"

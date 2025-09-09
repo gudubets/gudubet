@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Shield, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/hooks/useI18n';
 import { supabase } from '@/integrations/supabase/client';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 
@@ -70,6 +71,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
   const [captchaData, setCaptchaData] = useState<CaptchaData>(generateCaptcha());
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { toast } = useToast();
+  const { t } = useI18n();
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -88,21 +90,21 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
     const newErrors: Partial<FormData> = {};
 
     if (!formData.email.trim()) {
-      newErrors.email = 'E-posta zorunludur';
+      newErrors.email = t('auth.email_required');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Geçerli bir e-posta adresi giriniz';
+      newErrors.email = t('auth.email_invalid');
     }
 
     if (!formData.password) {
-      newErrors.password = 'Şifre zorunludur';
+      newErrors.password = t('auth.password_required');
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Şifre en az 8 karakter olmalıdır';
+      newErrors.password = t('auth.password_min_length');
     }
 
     if (!formData.captcha) {
-      newErrors.captcha = 'Güvenlik doğrulaması zorunludur';
+      newErrors.captcha = t('auth.captcha_required');
     } else if (parseInt(formData.captcha) !== captchaData.answer) {
-      newErrors.captcha = 'Güvenlik doğrulaması yanlış';
+      newErrors.captcha = t('auth.captcha_wrong');
     }
 
     setErrors(newErrors);
@@ -146,10 +148,10 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
       });
 
       if (error) {
-        let errorMessage = 'Giriş yapılırken bir hata oluştu';
+        let errorMessage = t('auth.login_failed');
         
         if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'E-posta veya şifre hatalı';
+          errorMessage = t('auth.email_invalid');
         } else if (error.message.includes('Email not confirmed')) {
           errorMessage = 'E-posta adresinizi doğrulamanız gerekiyor';
         } else if (error.message.includes('Too many requests')) {
@@ -157,7 +159,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         }
 
         toast({
-          title: "Giriş Başarısız",
+          title: t('auth.login_failed'),
           description: errorMessage,
           variant: "destructive"
         });
@@ -176,8 +178,8 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
           .single();
 
         toast({
-          title: "Giriş Başarılı!",
-          description: adminData ? "Admin paneline yönlendiriliyorsunuz..." : "Hoş geldiniz!",
+          title: t('auth.login_success'),
+          description: adminData ? t('auth.admin_redirect') : t('auth.welcome'),
         });
 
         // Reset form
@@ -197,7 +199,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
     } catch (error) {
       console.error('Login error:', error);
       toast({
-        title: "Giriş Başarısız",
+        title: t('auth.login_failed'),
         description: "Bir hata oluştu. Lütfen tekrar deneyin.",
         variant: "destructive"
       });
@@ -242,10 +244,10 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                 <Shield className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-2xl font-gaming font-bold text-foreground mb-2">
-                Giriş Yap
+                {t('auth.login_title')}
               </h2>
               <p className="text-muted-foreground">
-                Hesabınıza giriş yapın
+                {t('auth.login_description')}
               </p>
             </div>
 
@@ -253,14 +255,14 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email">E-posta Adresi *</Label>
+                <Label htmlFor="email">{t('auth.email_label')}</Label>
                 <Input
                   id="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => updateFormData('email', e.target.value)}
                   className={errors.email ? 'border-destructive' : ''}
-                  placeholder="ornek@email.com"
+                  placeholder={t('auth.email_placeholder')}
                   disabled={isLoading}
                 />
                 {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
@@ -268,7 +270,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
               {/* Password */}
               <div className="space-y-2">
-                <Label htmlFor="password">Şifre *</Label>
+                <Label htmlFor="password">{t('auth.password_label')}</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -276,7 +278,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                     value={formData.password}
                     onChange={(e) => updateFormData('password', e.target.value)}
                     className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
-                    placeholder="En az 8 karakter"
+                    placeholder={t('auth.password_placeholder')}
                     disabled={isLoading}
                   />
                   <button
@@ -293,7 +295,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
               {/* Captcha */}
               <div className="space-y-2">
-                <Label htmlFor="captcha">Güvenlik Doğrulaması *</Label>
+                <Label htmlFor="captcha">{t('auth.captcha_label')}</Label>
                 <div className="flex space-x-2">
                   <div className="flex-1">
                     <div className="bg-muted border border-border rounded-md p-3 text-center font-mono text-lg mb-2">
@@ -305,7 +307,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                       value={formData.captcha}
                       onChange={(e) => updateFormData('captcha', e.target.value)}
                       className={errors.captcha ? 'border-destructive' : ''}
-                      placeholder="Sonucu giriniz"
+                      placeholder={t('auth.captcha_placeholder')}
                       disabled={isLoading}
                     />
                   </div>
@@ -332,10 +334,10 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                 {isLoading ? (
                   <>
                     <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Giriş yapılıyor...
+                    {t('auth.logging_in')}
                   </>
                 ) : (
-                  'Giriş Yap'
+                  t('auth.login_button')
                 )}
               </Button>
 
@@ -347,7 +349,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                   className="text-sm text-primary hover:text-primary/80 underline transition-colors"
                   disabled={isLoading}
                 >
-                  Şifremi Unuttum
+                  {t('auth.forgot_password')}
                 </button>
               </div>
             </form>
