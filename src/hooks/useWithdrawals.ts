@@ -78,9 +78,8 @@ export const useWithdrawals = () => {
         .from('withdrawals')
         .select(`
           *,
-          users!inner(id, email, first_name, last_name),
-          payment_methods(id, method_type, provider, account_info),
-          reviewer:admins(id, email)
+          users!inner(id, email, first_name, last_name, username),
+          payment_methods(id, method_type, provider, account_info)
         `)
         .order('requested_at', { ascending: false });
 

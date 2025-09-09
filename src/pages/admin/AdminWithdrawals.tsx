@@ -116,7 +116,8 @@ export default function AdminWithdrawals() {
         .from("withdrawals")
         .select(`
           *,
-          users!fk_withdrawals_user_id (
+          users!inner (
+            id,
             email,
             first_name,
             last_name,
@@ -202,7 +203,7 @@ export default function AdminWithdrawals() {
         .update({
           status: "approved",
           reviewer_id: user.id,
-          review_note: note,
+          admin_note: note,
           approved_at: new Date().toISOString()
         })
         .eq("id", withdrawalId);
@@ -250,7 +251,7 @@ export default function AdminWithdrawals() {
         .update({
           status: "rejected",
           reviewer_id: user.id,
-          review_note: note,
+          admin_note: note,
           rejected_at: new Date().toISOString()
         })
         .eq("id", withdrawalId);
