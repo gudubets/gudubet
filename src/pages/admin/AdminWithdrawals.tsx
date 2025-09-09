@@ -16,24 +16,48 @@ import { logAdminActivity, ACTIVITY_TYPES } from "@/utils/adminActivityLogger";
 interface Withdrawal {
   id: string;
   user_id: string;
+  payment_method_id?: string;
   amount: number;
   currency: string;
-  withdrawal_method: string;
-  bank_details: any;
-  status: string;
-  reviewer_id?: string;
-  review_note?: string;
+  fee_amount: number;
+  net_amount: number;
+  status: 'pending' | 'reviewing' | 'approved' | 'rejected' | 'processing' | 'completed' | 'failed';
+  provider_reference?: string;
+  provider_response?: any;
   risk_score: number;
   risk_flags: string[];
-  kyc_status: string;
-  processing_fee: number;
-  net_amount: number;
+  requires_kyc: boolean;
+  requires_manual_review: boolean;
+  reviewer_id?: string;
+  reviewed_at?: string;
+  admin_note?: string;
+  rejection_reason?: string;
+  requested_at: string;
+  approved_at?: string;
+  processed_at?: string;
+  completed_at?: string;
+  ip_address?: string;
+  user_agent?: string;
+  metadata: any;
   created_at: string;
-  users: {
+  updated_at: string;
+  
+  // Relations
+  user?: {
+    id: string;
     email: string;
-    first_name: string;
-    last_name: string;
-    username: string;
+    first_name?: string;
+    last_name?: string;
+  };
+  payment_method?: {
+    id: string;
+    method_type: string;
+    provider: string;
+    account_info: any;
+  };
+  reviewer?: {
+    id: string;
+    email: string;
   };
 }
 
@@ -110,7 +134,7 @@ export default function AdminWithdrawals() {
       }
 
       if (methodFilter !== "all") {
-        query = query.eq("withdrawal_method", methodFilter);
+        query = query.eq("payment_method.method_type", methodFilter);
       }
 
       if (riskFilter === "high") {
@@ -443,14 +467,14 @@ export default function AdminWithdrawals() {
               {withdrawals.map((withdrawal) => (
                 <TableRow key={withdrawal.id}>
                   <TableCell>
-                    <div>
-                      <div className="font-medium">
-                        {withdrawal.users.first_name} {withdrawal.users.last_name}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {withdrawal.users.email}
-                      </div>
-                    </div>
+                     <div>
+                       <div className="font-medium">
+                         {withdrawal.user?.first_name} {withdrawal.user?.last_name}
+                       </div>
+                       <div className="text-sm text-muted-foreground">
+                         {withdrawal.user?.email}
+                       </div>
+                     </div>
                   </TableCell>
                   <TableCell>
                     <div>
@@ -462,18 +486,18 @@ export default function AdminWithdrawals() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {withdrawal.withdrawal_method.replace("_", " ")}
-                    </Badge>
-                  </TableCell>
+                   <TableCell>
+                     <Badge variant="outline">
+                       {withdrawal.payment_method?.method_type || 'N/A'}
+                     </Badge>
+                   </TableCell>
                   <TableCell>{getStatusBadge(withdrawal.status)}</TableCell>
                   <TableCell>{getRiskBadge(withdrawal.risk_score)}</TableCell>
-                  <TableCell>
-                    <Badge variant={withdrawal.kyc_status === "verified" ? "default" : "secondary"}>
-                      {withdrawal.kyc_status}
-                    </Badge>
-                  </TableCell>
+                   <TableCell>
+                     <Badge variant={withdrawal.requires_kyc ? "secondary" : "default"}>
+                       {withdrawal.requires_kyc ? "Required" : "Not Required"}
+                     </Badge>
+                   </TableCell>
                   <TableCell>
                     {new Date(withdrawal.created_at).toLocaleDateString()}
                   </TableCell>
@@ -499,33 +523,33 @@ export default function AdminWithdrawals() {
                                 <label className="text-sm font-medium">Net Amount</label>
                                 <p>₺{withdrawal.net_amount?.toLocaleString()}</p>
                               </div>
-                              <div>
-                                <label className="text-sm font-medium">Processing Fee</label>
-                                <p>₺{withdrawal.processing_fee?.toLocaleString()}</p>
-                              </div>
+                               <div>
+                                 <label className="text-sm font-medium">Fee Amount</label>
+                                 <p>₺{withdrawal.fee_amount?.toLocaleString()}</p>
+                               </div>
                               <div>
                                 <label className="text-sm font-medium">Risk Score</label>
                                 <p>{withdrawal.risk_score}/100</p>
                               </div>
                             </div>
-                            
-                            {withdrawal.bank_details && (
-                              <div>
-                                <label className="text-sm font-medium">Bank Details</label>
-                                <div className="bg-muted p-3 rounded-md mt-2">
-                                  <pre className="text-sm">
-                                    {JSON.stringify(withdrawal.bank_details, null, 2)}
-                                  </pre>
-                                </div>
-                              </div>
-                            )}
+                             
+                             {withdrawal.payment_method && (
+                               <div>
+                                 <label className="text-sm font-medium">Payment Method</label>
+                                 <div className="bg-muted p-3 rounded-md mt-2">
+                                   <pre className="text-sm">
+                                     {JSON.stringify(withdrawal.payment_method, null, 2)}
+                                   </pre>
+                                 </div>
+                               </div>
+                             )}
 
-                            {withdrawal.review_note && (
-                              <div>
-                                <label className="text-sm font-medium">Review Note</label>
-                                <p className="mt-1">{withdrawal.review_note}</p>
-                              </div>
-                            )}
+                             {withdrawal.admin_note && (
+                               <div>
+                                 <label className="text-sm font-medium">Admin Note</label>
+                                 <p className="mt-1">{withdrawal.admin_note}</p>
+                               </div>
+                             )}
                           </div>
                         </DialogContent>
                       </Dialog>
