@@ -161,17 +161,6 @@ export const GameGrid: React.FC<GameGridProps> = ({
               )}
             </div>
 
-            {/* Favorite Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-2 right-2 bg-black/20 hover:bg-black/40 text-white"
-              onClick={() => handleFavoriteToggle(game.id)}
-            >
-              <Heart 
-                className={`w-4 h-4 ${favorites.includes(game.id) ? 'fill-red-500 text-red-500' : ''}`} 
-              />
-            </Button>
 
             {/* Jackpot Amount */}
             {game.jackpot_amount && (
@@ -202,10 +191,22 @@ export const GameGrid: React.FC<GameGridProps> = ({
 
           <CardContent className={`p-4 ${viewMode === 'list' ? 'flex-1' : ''}`}>
             <div className="space-y-2">
-              {/* Game Name & Provider */}
-              <div>
-                <h3 className="font-semibold text-sm line-clamp-1">{game.name}</h3>
-                <p className="text-xs text-muted-foreground">{game.provider}</p>
+              {/* Game Name & Provider with Favorite Button */}
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm line-clamp-1">{game.name}</h3>
+                  <p className="text-xs text-muted-foreground">{game.provider}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-1 h-8 w-8 hover:bg-muted/50"
+                  onClick={() => handleFavoriteToggle(game.id)}
+                >
+                  <Heart 
+                    className={`w-4 h-4 ${favorites.includes(game.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground hover:text-red-500'}`} 
+                  />
+                </Button>
               </div>
 
               {/* Game Stats */}
