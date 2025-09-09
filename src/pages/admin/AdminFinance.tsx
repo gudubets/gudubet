@@ -593,57 +593,57 @@ const AdminFinance = () => {
                     <TableCell>
                       {format(new Date(transaction.created_at), "dd.MM.yyyy HH:mm", { locale: tr })}
                     </TableCell>
-                     <TableCell>
-                       {transaction.status === 'pending' && (
-                         <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-green-600 border-green-200 hover:bg-green-50"
-                              onClick={() => updateStatusMutation.mutate({ 
-                                id: transaction.id, 
-                                status: 'approved',
-                                type: transaction.type
-                              })}
-                              disabled={updateStatusMutation.isPending}
-                            >
-                              Onayla
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 border-red-200 hover:bg-red-50"
-                              onClick={() => updateStatusMutation.mutate({ 
-                                id: transaction.id, 
-                                status: 'rejected',
-                                type: transaction.type
-                              })}
-                              disabled={updateStatusMutation.isPending}
-                            >
-                             Reddet
-                           </Button>
-                         </div>
-                       )}
-                       {transaction.status === 'approved' && transaction.type === 'withdraw' && (
-                         <Button
-                           size="sm"
-                           variant="outline"
-                           className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                           onClick={() => updateStatusMutation.mutate({ 
-                             id: transaction.id, 
-                             status: 'completed',
-                             type: transaction.type
-                           })}
-                           disabled={updateStatusMutation.isPending}
-                         >
-                           Tamamla
-                         </Button>
-                       )}
-                       {(transaction.status === 'completed' || transaction.status === 'rejected' || 
-                         (transaction.type === 'deposit' && transaction.status === 'failed')) && (
-                         <span className="text-sm text-muted-foreground">İşlem tamamlandı</span>
-                       )}
-                     </TableCell>
+                    <TableCell>
+                      {transaction.status === 'pending' && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-green-600 border-green-200 hover:bg-green-50"
+                            onClick={() => updateStatusMutation.mutate({ 
+                              id: transaction.id, 
+                              status: 'approved',
+                              type: transaction.type
+                            })}
+                            disabled={updateStatusMutation.isPending}
+                          >
+                            Onayla
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 border-red-200 hover:bg-red-50"
+                            onClick={() => updateStatusMutation.mutate({ 
+                              id: transaction.id, 
+                              status: 'rejected',
+                              type: transaction.type
+                            })}
+                            disabled={updateStatusMutation.isPending}
+                          >
+                            Reddet
+                          </Button>
+                        </div>
+                      )}
+                      {transaction.status === 'approved' && transaction.type === 'withdraw' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                          onClick={() => updateStatusMutation.mutate({ 
+                            id: transaction.id, 
+                            status: 'completed',
+                            type: transaction.type
+                          })}
+                          disabled={updateStatusMutation.isPending}
+                        >
+                          Tamamla
+                        </Button>
+                      )}
+                      {(transaction.status === 'completed' || transaction.status === 'rejected' || 
+                        (transaction.type === 'deposit' && transaction.status === 'failed')) && (
+                        <span className="text-sm text-muted-foreground">İşlem tamamlandı</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
