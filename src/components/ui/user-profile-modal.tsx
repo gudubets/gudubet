@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -103,6 +103,12 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData, currentUser }: U
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md w-full p-0 bg-gradient-to-b from-slate-800 to-slate-900 border-slate-700 text-white">
+        {/* Accessibility titles - visually hidden */}
+        <DialogTitle className="sr-only">Kullanıcı Profili</DialogTitle>
+        <DialogDescription className="sr-only">
+          Kullanıcı bakiyesi, profil bilgileri ve hesap işlemleri
+        </DialogDescription>
+        
         {/* Header Section */}
         <div className="p-4 space-y-4">
           {/* Balance and Deposit Button */}
