@@ -94,7 +94,7 @@ const Index = () => {
                         className="bg-purple-500 hover:bg-purple-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
                         onClick={() => navigate('/vip')}
                       >
-                        VIP OL
+                        {t('become_vip')}
                       </Button>
                     </div>
                     <div className="flex-1 flex justify-center items-center">
@@ -128,7 +128,7 @@ const Index = () => {
                         className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
                         onClick={() => navigate('/live-casino')}
                       >
-                        OYNA
+                        {t('play')}
                       </Button>
                     </div>
                     <div className="flex-1 flex justify-center items-center">
@@ -162,7 +162,7 @@ const Index = () => {
                         className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
                         onClick={() => navigate('/sports-betting')}
                       >
-                        BAHİS YAP
+                        {t('place_bet')}
                       </Button>
                     </div>
                   </div>
@@ -194,7 +194,7 @@ const Index = () => {
                         className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
                         onClick={() => navigate('/casino')}
                       >
-                        ŞANSINI DENE
+                        {t('try_luck')}
                       </Button>
                     </div>
                   </div>
@@ -225,7 +225,7 @@ const Index = () => {
                       <Button 
                         className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
                       >
-                        İNDİR
+                        {t('download')}
                       </Button>
                     </div>
                   </div>
@@ -256,7 +256,7 @@ const Index = () => {
                       <Button 
                         className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
                       >
-                        KATIL
+                        {t('join')}
                       </Button>
                     </div>
                   </div>
@@ -287,7 +287,7 @@ const Index = () => {
                       <Button 
                         className="bg-teal-500 hover:bg-teal-600 text-white font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform"
                       >
-                        AL
+                        {t('claim')}
                       </Button>
                     </div>
                   </div>
