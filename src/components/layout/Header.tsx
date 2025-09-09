@@ -167,6 +167,7 @@ const Header = () => {
           first_name: user.user_metadata?.first_name,
           last_name: user.user_metadata?.last_name
         } : undefined}
+        currentUser={user}
         balanceData={balanceData}
       />
     </header>;

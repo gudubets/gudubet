@@ -11,11 +11,13 @@ import {
   Gift, 
   RotateCw, 
   Clock,
-  LogOut
+  LogOut,
+  Settings
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAdminAccess } from '@/hooks/useAdminAccess';
 
 interface UserBalance {
   balance: number;
@@ -34,11 +36,13 @@ interface UserProfileModalProps {
     last_name?: string;
   };
   balanceData?: UserBalance;
+  currentUser?: any; // Full user object from Supabase
 }
 
-const UserProfileModal = ({ isOpen, onClose, user, balanceData }: UserProfileModalProps) => {
+const UserProfileModal = ({ isOpen, onClose, user, balanceData, currentUser }: UserProfileModalProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isSuperAdmin, loading: adminLoading } = useAdminAccess(currentUser);
 
   const handleLogout = async () => {
     try {
@@ -67,6 +71,11 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData }: UserProfileMod
   const handleAccountClick = () => {
     onClose();
     navigate('/profile');
+  };
+
+  const handleAdminPanelClick = () => {
+    onClose();
+    navigate('/admin');
   };
 
   const getUserDisplayName = () => {
@@ -154,10 +163,23 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData }: UserProfileMod
             <User className="w-4 h-4 mr-2" />
             HESABIM
           </Button>
+          
+          {/* Admin Panel Button - Only show for super admins */}
+          {isSuperAdmin && !adminLoading && (
+            <Button 
+              onClick={handleAdminPanelClick}
+              variant="outline" 
+              className="flex-1 bg-red-500/20 border-red-500/30 text-red-100 hover:bg-red-500/30 font-medium"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              ADMIN PANEL
+            </Button>
+          )}
+          
           <Button 
             onClick={handleLogout}
             variant="outline" 
-            className="flex-1 bg-amber-500/20 border-amber-500/30 text-amber-100 hover:bg-amber-500/30 font-medium"
+            className={`${isSuperAdmin ? 'flex-1' : 'flex-1'} bg-amber-500/20 border-amber-500/30 text-amber-100 hover:bg-amber-500/30 font-medium`}
           >
             <LogOut className="w-4 h-4 mr-2" />
             ÇIKIŞ
