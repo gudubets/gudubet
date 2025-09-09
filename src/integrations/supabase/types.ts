@@ -535,6 +535,45 @@ export type Database = {
         }
         Relationships: []
       }
+      fraud_rules: {
+        Row: {
+          action: string
+          conditions: Json
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          priority: number | null
+          risk_score_impact: number | null
+          rule_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          action: string
+          conditions: Json
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          priority?: number | null
+          risk_score_impact?: number | null
+          rule_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          action?: string
+          conditions?: Json
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          priority?: number | null
+          risk_score_impact?: number | null
+          rule_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       game_providers: {
         Row: {
           created_at: string | null
@@ -1101,6 +1140,207 @@ export type Database = {
           },
         ]
       }
+      payment_providers: {
+        Row: {
+          api_endpoint: string | null
+          config: Json | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          is_sandbox: boolean | null
+          max_amount: number | null
+          min_amount: number | null
+          name: string
+          processing_fee_fixed: number | null
+          processing_fee_percentage: number | null
+          provider_type: string
+          slug: string
+          supported_currencies: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_endpoint?: string | null
+          config?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_sandbox?: boolean | null
+          max_amount?: number | null
+          min_amount?: number | null
+          name: string
+          processing_fee_fixed?: number | null
+          processing_fee_percentage?: number | null
+          provider_type: string
+          slug: string
+          supported_currencies?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_endpoint?: string | null
+          config?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_sandbox?: boolean | null
+          max_amount?: number | null
+          min_amount?: number | null
+          name?: string
+          processing_fee_fixed?: number | null
+          processing_fee_percentage?: number | null
+          provider_type?: string
+          slug?: string
+          supported_currencies?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      payment_webhooks: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          payload: Json
+          payment_id: string | null
+          processed: boolean | null
+          processed_at: string | null
+          provider_slug: string
+          retry_count: number | null
+          signature: string | null
+          webhook_type: string
+          withdrawal_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          payload: Json
+          payment_id?: string | null
+          processed?: boolean | null
+          processed_at?: string | null
+          provider_slug: string
+          retry_count?: number | null
+          signature?: string | null
+          webhook_type: string
+          withdrawal_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          payload?: Json
+          payment_id?: string | null
+          processed?: boolean | null
+          processed_at?: string | null
+          provider_slug?: string
+          retry_count?: number | null
+          signature?: string | null
+          webhook_type?: string
+          withdrawal_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_webhooks_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_webhooks_withdrawal_id_fkey"
+            columns: ["withdrawal_id"]
+            isOneToOne: false
+            referencedRelation: "withdrawals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          failure_reason: string | null
+          fraud_check_status: string | null
+          id: string
+          idempotency_key: string | null
+          payment_data: Json | null
+          payment_method: string
+          processed_at: string | null
+          provider_id: string | null
+          provider_reference: string | null
+          provider_status: string | null
+          risk_flags: string[] | null
+          risk_score: number | null
+          status: string | null
+          three_ds_status: string | null
+          three_ds_url: string | null
+          updated_at: string | null
+          user_id: string
+          webhook_data: Json | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          failure_reason?: string | null
+          fraud_check_status?: string | null
+          id?: string
+          idempotency_key?: string | null
+          payment_data?: Json | null
+          payment_method: string
+          processed_at?: string | null
+          provider_id?: string | null
+          provider_reference?: string | null
+          provider_status?: string | null
+          risk_flags?: string[] | null
+          risk_score?: number | null
+          status?: string | null
+          three_ds_status?: string | null
+          three_ds_url?: string | null
+          updated_at?: string | null
+          user_id: string
+          webhook_data?: Json | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          failure_reason?: string | null
+          fraud_check_status?: string | null
+          id?: string
+          idempotency_key?: string | null
+          payment_data?: Json | null
+          payment_method?: string
+          processed_at?: string | null
+          provider_id?: string | null
+          provider_reference?: string | null
+          provider_status?: string | null
+          risk_flags?: string[] | null
+          risk_score?: number | null
+          status?: string | null
+          three_ds_status?: string | null
+          three_ds_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+          webhook_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_payments_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "payment_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
@@ -1546,6 +1786,62 @@ export type Database = {
           },
         ]
       }
+      user_device_fingerprints: {
+        Row: {
+          country_code: string | null
+          fingerprint_hash: string
+          first_seen_at: string | null
+          id: string
+          ip_address: unknown | null
+          is_trusted: boolean | null
+          language: string | null
+          last_seen_at: string | null
+          screen_resolution: string | null
+          timezone: string | null
+          usage_count: number | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          country_code?: string | null
+          fingerprint_hash: string
+          first_seen_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          is_trusted?: boolean | null
+          language?: string | null
+          last_seen_at?: string | null
+          screen_resolution?: string | null
+          timezone?: string | null
+          usage_count?: number | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          country_code?: string | null
+          fingerprint_hash?: string
+          first_seen_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          is_trusted?: boolean | null
+          language?: string | null
+          last_seen_at?: string | null
+          screen_resolution?: string | null
+          timezone?: string | null
+          usage_count?: number | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_device_fingerprints_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_favorites: {
         Row: {
           created_at: string | null
@@ -1783,11 +2079,114 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawals: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          auto_approved: boolean | null
+          bank_details: Json | null
+          completed_at: string | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          kyc_required: boolean | null
+          kyc_status: string | null
+          net_amount: number | null
+          processed_at: string | null
+          processing_fee: number | null
+          provider_reference: string | null
+          rejected_at: string | null
+          review_note: string | null
+          reviewer_id: string | null
+          risk_flags: string[] | null
+          risk_score: number | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+          withdrawal_method: string
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          auto_approved?: boolean | null
+          bank_details?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          kyc_required?: boolean | null
+          kyc_status?: string | null
+          net_amount?: number | null
+          processed_at?: string | null
+          processing_fee?: number | null
+          provider_reference?: string | null
+          rejected_at?: string | null
+          review_note?: string | null
+          reviewer_id?: string | null
+          risk_flags?: string[] | null
+          risk_score?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+          withdrawal_method: string
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          auto_approved?: boolean | null
+          bank_details?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          kyc_required?: boolean | null
+          kyc_status?: string | null
+          net_amount?: number | null
+          processed_at?: string | null
+          processing_fee?: number | null
+          provider_reference?: string | null
+          rejected_at?: string | null
+          review_note?: string | null
+          reviewer_id?: string | null
+          risk_flags?: string[] | null
+          risk_score?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          withdrawal_method?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_withdrawals_reviewer_id"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_withdrawals_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      calculate_payment_risk_score: {
+        Args: {
+          _amount: number
+          _currency: string
+          _device_fingerprint?: string
+          _ip_address?: unknown
+          _user_id: string
+        }
+        Returns: number
+      }
       cleanup_expired_captcha_tokens: {
         Args: Record<PropertyKey, never>
         Returns: undefined
