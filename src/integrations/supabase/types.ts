@@ -105,33 +105,53 @@ export type Database = {
       }
       admins: {
         Row: {
+          avatar_url: string | null
           created_at: string
+          created_by: string | null
+          department: string | null
           email: string
           id: string
+          is_active: boolean | null
+          last_login_at: string | null
           password_hash: string
-          role: string
-          role_type: Database["public"]["Enums"]["admin_role"] | null
+          role_type: Database["public"]["Enums"]["admin_role_new"] | null
           updated_at: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
+          created_by?: string | null
+          department?: string | null
           email: string
           id?: string
+          is_active?: boolean | null
+          last_login_at?: string | null
           password_hash: string
-          role?: string
-          role_type?: Database["public"]["Enums"]["admin_role"] | null
+          role_type?: Database["public"]["Enums"]["admin_role_new"] | null
           updated_at?: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
+          created_by?: string | null
+          department?: string | null
           email?: string
           id?: string
+          is_active?: boolean | null
+          last_login_at?: string | null
           password_hash?: string
-          role?: string
-          role_type?: Database["public"]["Enums"]["admin_role"] | null
+          role_type?: Database["public"]["Enums"]["admin_role_new"] | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_admins_created_by"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       betslip_items: {
         Row: {
