@@ -68,8 +68,12 @@ const AdminManagement = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSuperAdminDeleteModalOpen, setIsSuperAdminDeleteModalOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
   const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null);
+  const [superAdminToDelete, setSuperAdminToDelete] = useState<Admin | null>(null);
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [deleteConfirmationText, setDeleteConfirmationText] = useState('');
   const [activitySearchTerm, setActivitySearchTerm] = useState('');
   const [activityFilter, setActivityFilter] = useState<string>('all');
   const [newAdminData, setNewAdminData] = useState({
@@ -313,6 +317,85 @@ const AdminManagement = () => {
     },
   });
 
+  // Super Admin delete mutation with extra security
+  const deleteSuperAdminMutation = useMutation({
+    mutationFn: async ({ adminId, password }: { adminId: string; password: string }) => {
+      // First check if there are other super admins
+      const { data: superAdmins, error: countError } = await supabase
+        .from('admins')
+        .select('id')
+        .eq('role_type', 'super_admin')
+        .eq('is_active', true);
+
+      if (countError) throw countError;
+
+      if (superAdmins.length <= 1) {
+        throw new Error('En az bir aktif super admin kalmalıdır!');
+      }
+
+      // Verify current user's password
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Kullanıcı doğrulanamadı');
+
+      // Re-authenticate user to verify password
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: user.email!,
+        password: password,
+      });
+
+      if (authError) throw new Error('Şifre doğrulaması başarısız!');
+
+      // Delete related permissions first
+      await supabase
+        .from('admin_permissions')
+        .delete()
+        .eq('admin_id', adminId);
+
+      // Delete super admin record
+      const { error } = await supabase
+        .from('admins')
+        .delete()
+        .eq('id', adminId)
+        .eq('role_type', 'super_admin');
+
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ['admins'] });
+      
+      // Log critical admin activity
+      await logAdminActivity({
+        action_type: ACTIVITY_TYPES.ADMIN_DELETED,
+        description: `SUPER ADMIN SİLİNDİ: ${superAdminToDelete?.email} - KRİTİK İŞLEM`,
+        target_id: superAdminToDelete?.id,
+        target_type: 'super_admin',
+        metadata: { 
+          deleted_super_admin_email: superAdminToDelete?.email,
+          security_verification: 'password_confirmed',
+          warning_level: 'critical'
+        }
+      });
+      
+      setIsSuperAdminDeleteModalOpen(false);
+      setSuperAdminToDelete(null);
+      setPasswordConfirmation('');
+      setDeleteConfirmationText('');
+      
+      toast({
+        title: "Super Admin Silindi",
+        description: `${superAdminToDelete?.email} başarıyla silindi.`,
+        variant: "destructive",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Hata",
+        description: error.message || "Super admin silinirken bir hata oluştu.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const getRoleBadge = (roleType: string) => {
     switch (roleType) {
       case 'super_admin':
@@ -504,19 +587,33 @@ const AdminManagement = () => {
                             <Settings className="w-3 h-3 mr-1" />
                             İzinler
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => {
-                              setAdminToDelete(admin);
-                              setIsDeleteModalOpen(true);
-                            }}
-                            disabled={admin.role_type === 'super_admin'}
-                          >
-                            <Trash2 className="w-3 h-3 mr-1" />
-                            Sil
-                          </Button>
+                          {admin.role_type === 'super_admin' ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
+                              onClick={() => {
+                                setSuperAdminToDelete(admin);
+                                setIsSuperAdminDeleteModalOpen(true);
+                              }}
+                            >
+                              <Trash2 className="w-3 h-3 mr-1" />
+                              Güvenli Sil
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => {
+                                setAdminToDelete(admin);
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              <Trash2 className="w-3 h-3 mr-1" />
+                              Sil
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -713,6 +810,125 @@ const AdminManagement = () => {
                 className="flex-1"
               >
                 {deleteAdminMutation.isPending ? 'Siliniyor...' : 'Sil'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Super Admin Delete Modal - Extra Security */}
+      <Dialog open={isSuperAdminDeleteModalOpen} onOpenChange={setIsSuperAdminDeleteModalOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              SUPER ADMİN SİL - KRİTİK İŞLEM
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {/* Critical Warning */}
+            <div className="bg-red-100 border-2 border-red-300 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <div className="bg-red-500 text-white rounded-full p-1">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="font-bold text-red-800">⚠️ KRİTİK UYARI ⚠️</p>
+                  <p className="text-sm text-red-700 mt-1">
+                    Bu işlem GERİ ALINAMAZ ve sistem güvenliğini etkileyebilir!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Admin Info */}
+            {superAdminToDelete && (
+              <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                <p className="text-sm text-red-600 font-medium">Silinecek Super Admin:</p>
+                <p className="font-bold text-red-800 text-lg">{superAdminToDelete.email}</p>
+                <div className="mt-2">
+                  {getRoleBadge(superAdminToDelete.role_type)}
+                </div>
+              </div>
+            )}
+
+            {/* Security Steps */}
+            <div className="space-y-4">
+              <div>
+                <Label className="text-red-700 font-medium">
+                  1. Güvenlik Onayı - "DELETE" yazın:
+                </Label>
+                <Input
+                  value={deleteConfirmationText}
+                  onChange={(e) => setDeleteConfirmationText(e.target.value)}
+                  placeholder="DELETE yazın"
+                  className="mt-2 border-red-300 focus:border-red-500"
+                />
+              </div>
+              
+              <div>
+                <Label className="text-red-700 font-medium">
+                  2. Şifre Doğrulaması - Mevcut şifrenizi girin:
+                </Label>
+                <Input
+                  type="password"
+                  value={passwordConfirmation}
+                  onChange={(e) => setPasswordConfirmation(e.target.value)}
+                  placeholder="Mevcut şifreniz"
+                  className="mt-2 border-red-300 focus:border-red-500"
+                />
+              </div>
+            </div>
+
+            {/* Security Checklist */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="font-medium text-yellow-800 mb-2">✓ Güvenlik Kontrolleri:</p>
+              <ul className="text-sm text-yellow-700 space-y-1">
+                <li>• En az 1 super admin sistemde kalacak</li>
+                <li>• Şifre doğrulaması yapılacak</li>
+                <li>• İşlem admin geçmişine kaydedilecek</li>
+                <li>• Tüm ilgili veriler silinecek</li>
+              </ul>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsSuperAdminDeleteModalOpen(false);
+                  setSuperAdminToDelete(null);
+                  setPasswordConfirmation('');
+                  setDeleteConfirmationText('');
+                }}
+                className="flex-1"
+              >
+                İptal Et
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (superAdminToDelete && passwordConfirmation) {
+                    deleteSuperAdminMutation.mutate({
+                      adminId: superAdminToDelete.id,
+                      password: passwordConfirmation
+                    });
+                  }
+                }}
+                disabled={
+                  deleteSuperAdminMutation.isPending || 
+                  deleteConfirmationText !== 'DELETE' || 
+                  !passwordConfirmation.trim()
+                }
+                className="flex-1 bg-red-600 hover:bg-red-700"
+              >
+                {deleteSuperAdminMutation.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Siliniyor...
+                  </div>
+                ) : (
+                  'SUPER ADMİNİ SİL'
+                )}
               </Button>
             </div>
           </div>
