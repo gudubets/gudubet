@@ -308,7 +308,7 @@ const Index = () => {
                     <h3 className="text-2xl font-bold mb-2">KANALA</h3>
                     <h3 className="text-2xl font-bold mb-2">KATIL</h3>
                     <p className="text-sm opacity-90">+200K ABONE</p>
-                    <p className="text-xs opacity-75 mt-2">CASİBOM TELEGRAM'DA →</p>
+                    <p className="text-xs opacity-75 mt-2">{t('gudubet_telegram')}</p>
                   </div>
                   <div className="text-6xl opacity-80">GUDUBET TELEGRAM'DA →</div>
                 </div>
