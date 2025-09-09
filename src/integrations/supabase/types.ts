@@ -2283,9 +2283,20 @@ export type Database = {
         }
         Returns: number
       }
+      check_admin_permission: {
+        Args: {
+          _admin_id: string
+          _permission: Database["public"]["Enums"]["admin_permission"]
+        }
+        Returns: boolean
+      }
       cleanup_expired_captcha_tokens: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_admin_permissions: {
+        Args: { _admin_id: string }
+        Returns: Database["public"]["Enums"]["admin_permission"][]
       }
       get_current_admin_role: {
         Args: Record<PropertyKey, never>
