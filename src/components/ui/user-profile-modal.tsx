@@ -78,6 +78,11 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData, currentUser }: U
     navigate('/admin');
   };
 
+  const handleAdminManagementClick = () => {
+    onClose();
+    navigate('/admin/management');
+  };
+
   const getUserDisplayName = () => {
     if (user?.first_name || user?.last_name) {
       return `${user.first_name || ''} ${user.last_name || ''}`.trim();
@@ -154,36 +159,50 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData, currentUser }: U
         <Separator className="bg-slate-600" />
 
         {/* Bottom Actions */}
-        <div className="p-4 flex items-center gap-3">
-          <Button 
-            onClick={handleAccountClick}
-            variant="outline" 
-            className="flex-1 bg-amber-500/20 border-amber-500/30 text-amber-100 hover:bg-amber-500/30 font-medium"
-          >
-            <User className="w-4 h-4 mr-2" />
-            HESABIM
-          </Button>
-          
-          {/* Admin Panel Button - Only show for super admins */}
+        <div className="p-4 space-y-3">
+          {/* Admin Management Button - Only show for super admins */}
           {isSuperAdmin && !adminLoading && (
             <Button 
-              onClick={handleAdminPanelClick}
+              onClick={handleAdminManagementClick}
               variant="outline" 
-              className="flex-1 bg-red-500/20 border-red-500/30 text-red-100 hover:bg-red-500/30 font-medium"
+              className="w-full bg-blue-500/20 border-blue-500/30 text-blue-100 hover:bg-blue-500/30 font-medium"
             >
               <Settings className="w-4 h-4 mr-2" />
-              ADMIN PANEL
+              ADMİN YÖNETİMİ
             </Button>
           )}
           
-          <Button 
-            onClick={handleLogout}
-            variant="outline" 
-            className={`${isSuperAdmin ? 'flex-1' : 'flex-1'} bg-amber-500/20 border-amber-500/30 text-amber-100 hover:bg-amber-500/30 font-medium`}
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            ÇIKIŞ
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={handleAccountClick}
+              variant="outline" 
+              className="flex-1 bg-amber-500/20 border-amber-500/30 text-amber-100 hover:bg-amber-500/30 font-medium"
+            >
+              <User className="w-4 h-4 mr-2" />
+              HESABIM
+            </Button>
+            
+            {/* Admin Panel Button - Only show for super admins */}
+            {isSuperAdmin && !adminLoading && (
+              <Button 
+                onClick={handleAdminPanelClick}
+                variant="outline" 
+                className="flex-1 bg-red-500/20 border-red-500/30 text-red-100 hover:bg-red-500/30 font-medium"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                ADMIN PANEL
+              </Button>
+            )}
+            
+            <Button 
+              onClick={handleLogout}
+              variant="outline" 
+              className={`${isSuperAdmin ? 'flex-1' : 'flex-1'} bg-amber-500/20 border-amber-500/30 text-amber-100 hover:bg-amber-500/30 font-medium`}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              ÇIKIŞ
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
