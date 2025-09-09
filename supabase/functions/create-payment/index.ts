@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -21,35 +22,31 @@ serve(async (req) => {
   }
 
   try {
-    // Create Supabase client
+    // Create Supabase client using service role key for database operations
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
     );
 
     // Get authenticated user
-    const authHeader = req.headers.get("Authorization")!;
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("No authorization header provided");
+    }
+
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user } } = await supabaseClient.auth.getUser(token);
-    
-    if (!user) {
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    if (userError || !userData.user) {
       throw new Error("User not authenticated");
     }
 
-    // Get user from users table
-    const { data: userData } = await supabaseClient
-      .from("users")
-      .select("id, balance, bonus_balance, kyc_status")
-      .eq("auth_user_id", user.id)
-      .single();
+    const user = userData.user;
 
-    if (!userData) {
-      throw new Error("User profile not found");
-    }
+    // Parse request body
+    const body: PaymentRequest = await req.json();
+    const { amount, currency = "TRY", payment_method, provider_id, return_url } = body;
 
-    const { amount, currency = "TRY", payment_method, provider_id, return_url } = await req.json() as PaymentRequest;
-
-    // Validate input
     if (!amount || amount <= 0) {
       throw new Error("Invalid amount");
     }
@@ -58,165 +55,247 @@ serve(async (req) => {
       throw new Error("Payment method is required");
     }
 
-    // Get user's IP address for fraud detection
-    const ip_address = req.headers.get("CF-Connecting-IP") || req.headers.get("X-Forwarded-For") || "127.0.0.1";
-    const user_agent = req.headers.get("User-Agent") || "";
+    // Get user profile
+    const { data: userProfile, error: profileError } = await supabaseClient
+      .from("users")
+      .select("*")
+      .eq("auth_user_id", user.id)
+      .single();
 
-    // Calculate risk score
-    const { data: riskScore } = await supabaseClient.rpc("calculate_payment_risk_score", {
-      _user_id: userData.id,
-      _amount: amount,
-      _currency: currency,
-      _ip_address: ip_address
-    });
+    if (profileError || !userProfile) {
+      throw new Error("User profile not found");
+    }
 
-    // Generate idempotency key
-    const idempotency_key = `payment_${userData.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Get user IP and User-Agent for fraud detection
+    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+    const userAgent = req.headers.get("user-agent") || "unknown";
 
-    // Get payment provider
-    let provider = null;
+    // Calculate risk score (placeholder for now)
+    let riskScore = 0;
+    try {
+      const { data: riskData } = await supabaseClient.rpc("calculate_payment_risk_score", {
+        p_user_id: userProfile.id,
+        p_amount: amount,
+        p_currency: currency,
+        p_payment_method: payment_method,
+        p_ip_address: ip,
+        p_user_agent: userAgent
+      });
+      riskScore = riskData || 0;
+    } catch (error) {
+      console.log("Risk calculation failed:", error);
+      riskScore = 25; // Default medium risk
+    }
+
+    // Get payment provider if specified
+    let selectedProvider = null;
     if (provider_id) {
-      const { data: providerData } = await supabaseClient
+      const { data: provider } = await supabaseClient
         .from("payment_providers")
         .select("*")
         .eq("id", provider_id)
         .eq("is_active", true)
         .single();
-      provider = providerData;
+      
+      selectedProvider = provider;
     } else {
-      // Default to first available provider for the payment method
-      const { data: providerData } = await supabaseClient
+      // Select first active provider matching payment method
+      const { data: providers } = await supabaseClient
         .from("payment_providers")
         .select("*")
-        .eq("provider_type", payment_method === "credit_card" ? "card" : payment_method)
         .eq("is_active", true)
-        .order("priority", { ascending: true })
-        .limit(1)
-        .single();
-      provider = providerData;
+        .contains("supported_currencies", [currency])
+        .limit(1);
+      
+      selectedProvider = providers?.[0] || null;
     }
 
-    if (!provider) {
-      throw new Error("No available payment provider for this method");
+    if (!selectedProvider) {
+      throw new Error("No suitable payment provider found");
     }
 
-    // Check amount limits
-    if (amount < provider.min_amount || amount > provider.max_amount) {
-      throw new Error(`Amount must be between ${provider.min_amount} and ${provider.max_amount} ${currency}`);
+    // Validate amount against provider limits
+    if (amount < selectedProvider.min_amount || amount > selectedProvider.max_amount) {
+      throw new Error(`Amount must be between ${selectedProvider.min_amount} and ${selectedProvider.max_amount} ${currency}`);
     }
 
     // Create payment record
     const { data: payment, error: paymentError } = await supabaseClient
       .from("payments")
       .insert({
-        user_id: userData.id,
-        provider_id: provider.id,
-        payment_method,
+        user_id: userProfile.id,
         amount,
         currency,
+        payment_method,
+        provider_id: selectedProvider.id,
         status: "pending",
-        idempotency_key,
-        risk_score: riskScore || 0,
-        fraud_check_status: riskScore > 50 ? "manual_review" : "passed",
-        payment_data: {
-          user_agent,
-          ip_address,
-          return_url
+        risk_score: riskScore,
+        fraud_check_status: riskScore > 75 ? "high_risk" : riskScore > 50 ? "medium_risk" : "low_risk",
+        ip_address: ip,
+        user_agent: userAgent,
+        metadata: {
+          provider_name: selectedProvider.name,
+          provider_slug: selectedProvider.slug
         }
       })
       .select()
       .single();
 
     if (paymentError) {
-      console.error("Payment creation error:", paymentError);
-      throw new Error("Failed to create payment record");
+      throw new Error(`Failed to create payment: ${paymentError.message}`);
     }
 
-    // Mock payment processing based on provider
-    let payment_url = null;
-    let provider_reference = null;
+    // Initialize Stripe (will only work when STRIPE_SECRET_KEY is set)
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      // For now, return a mock response when Stripe key is not set
+      const { error: updateError } = await supabaseClient
+        .from("payments")
+        .update({
+          status: "pending",
+          provider_reference: `mock_${Date.now()}`,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", payment.id);
 
-    if (provider.slug === "stripe") {
-      // Mock Stripe integration
-      provider_reference = `pi_mock_${Date.now()}`;
-      payment_url = `https://checkout.stripe.com/pay/mock?payment_intent=${provider_reference}`;
-    } else if (provider.slug === "paytr") {
-      // Mock PayTR integration
-      provider_reference = `paytr_${Date.now()}`;
-      payment_url = `https://www.paytr.com/odeme/mock?token=${provider_reference}`;
-    } else if (provider.slug === "iyzico") {
-      // Mock Iyzico integration
-      provider_reference = `iyz_${Date.now()}`;
-      payment_url = `https://sandbox-api.iyzipay.com/payment/mock?token=${provider_reference}`;
-    } else if (provider.slug === "papara") {
-      // Mock Papara integration
-      provider_reference = `pp_${Date.now()}`;
-      payment_url = `https://merchant.papara.com/payment/mock?id=${provider_reference}`;
-    } else {
-      // Bank transfer - no external URL needed
-      provider_reference = `bt_${Date.now()}`;
-    }
+      if (updateError) {
+        console.error("Failed to update payment:", updateError);
+      }
 
-    // Update payment with provider reference
-    await supabaseClient
-      .from("payments")
-      .update({
-        provider_reference,
-        status: payment_method === "bank_transfer" ? "processing" : "pending"
-      })
-      .eq("id", payment.id);
-
-    // Log activity
-    await supabaseClient
-      .from("admin_activities")
-      .insert({
-        admin_id: user.id,
-        action_type: "payment_initiated",
-        description: `Payment of ${amount} ${currency} initiated via ${payment_method}`,
-        target_type: "payment",
-        target_id: payment.id,
+      // Log admin activity
+      await supabaseClient.from("admin_activities").insert({
+        admin_id: userProfile.id,
+        action: "payment_initiated",
+        entity_type: "payment",
+        entity_id: payment.id,
+        description: `Payment initiated: ${amount} ${currency} via ${selectedProvider.name}`,
         metadata: {
           amount,
           currency,
           payment_method,
-          provider: provider.name,
+          provider: selectedProvider.name,
           risk_score: riskScore
         }
       });
 
-    return new Response(
-      JSON.stringify({
+      return new Response(JSON.stringify({
         success: true,
         payment_id: payment.id,
-        provider_reference,
-        payment_url,
-        status: payment_method === "bank_transfer" ? "processing" : "pending",
-        risk_score: riskScore,
-        fraud_check_status: riskScore > 50 ? "manual_review" : "passed",
-        bank_details: payment_method === "bank_transfer" ? {
-          bank_name: "Example Bank",
-          iban: "TR33 0006 1005 1978 6457 8413 26",
-          account_holder: "Casino Platform Ltd",
-          reference: provider_reference
-        } : null
-      }),
-      {
+        message: "Payment created successfully. Stripe integration pending - please add STRIPE_SECRET_KEY to complete setup.",
+        amount,
+        currency,
+        provider: selectedProvider.name
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
+      });
+    }
+
+    // Process with Stripe
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+
+    // Check if customer exists
+    const customers = await stripe.customers.list({ 
+      email: user.email!,
+      limit: 1 
+    });
+
+    let customerId = null;
+    if (customers.data.length > 0) {
+      customerId = customers.data[0].id;
+    }
+
+    // Convert currency to Stripe format
+    const stripeCurrency = currency.toLowerCase();
+    
+    // Convert amount to smallest currency unit
+    const stripeAmount = Math.round(amount * (stripeCurrency === 'try' ? 100 : stripeCurrency === 'usd' ? 100 : stripeCurrency === 'eur' ? 100 : 100));
+
+    // Create Stripe checkout session
+    const origin = req.headers.get("origin") || "http://localhost:8080";
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      customer_email: customerId ? undefined : user.email!,
+      line_items: [
+        {
+          price_data: {
+            currency: stripeCurrency,
+            product_data: {
+              name: "Deposit",
+              description: `Deposit to your account via ${selectedProvider.name}`,
+            },
+            unit_amount: stripeAmount,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/payment-methods?canceled=true`,
+      metadata: {
+        payment_id: payment.id,
+        user_id: userProfile.id,
+        provider_id: selectedProvider.id
       }
-    );
+    });
+
+    // Update payment with Stripe session info
+    const { error: updateError } = await supabaseClient
+      .from("payments")
+      .update({
+        provider_reference: session.id,
+        metadata: {
+          ...payment.metadata,
+          stripe_session_id: session.id,
+          stripe_session_url: session.url
+        },
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", payment.id);
+
+    if (updateError) {
+      console.error("Failed to update payment:", updateError);
+    }
+
+    // Log admin activity
+    await supabaseClient.from("admin_activities").insert({
+      admin_id: userProfile.id,
+      action: "payment_initiated",
+      entity_type: "payment", 
+      entity_id: payment.id,
+      description: `Payment initiated: ${amount} ${currency} via ${selectedProvider.name}`,
+      metadata: {
+        amount,
+        currency,
+        payment_method,
+        provider: selectedProvider.name,
+        risk_score: riskScore,
+        stripe_session_id: session.id
+      }
+    });
+
+    return new Response(JSON.stringify({
+      success: true,
+      payment_id: payment.id,
+      payment_url: session.url,
+      session_id: session.id,
+      amount,
+      currency,
+      provider: selectedProvider.name
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
 
   } catch (error) {
     console.error("Payment creation error:", error);
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: error.message
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      }
-    );
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    return new Response(JSON.stringify({
+      success: false,
+      error: errorMessage
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 400,
+    });
   }
 });

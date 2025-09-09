@@ -74,6 +74,7 @@ export default function PaymentMethods() {
   const [activeTab, setActiveTab] = useState("deposit");
   const [selectedProvider, setSelectedProvider] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
+  const [currency, setCurrency] = useState<string>("TRY");
   const [withdrawalMethod, setWithdrawalMethod] = useState<string>("");
   const [bankDetails, setBankDetails] = useState({
     iban: "",
@@ -174,7 +175,7 @@ export default function PaymentMethods() {
 
   // Create payment mutation
   const createPaymentMutation = useMutation({
-    mutationFn: async (paymentData: { amount: number; payment_method: string; provider_id?: string }) => {
+    mutationFn: async (paymentData: { amount: number; currency: string; payment_method: string; provider_id?: string }) => {
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: paymentData
       });
@@ -191,9 +192,10 @@ export default function PaymentMethods() {
         window.open(data.payment_url, '_blank');
       }
 
+      const currencySymbol = currency === "TRY" ? "₺" : currency === "USD" ? "$" : "€";
       toast({
         title: "Payment Initiated",
-        description: `Payment of ₺${amount} has been initiated successfully`,
+        description: `Payment of ${currencySymbol}${amount} has been initiated successfully`,
       });
 
       setAmount("");
@@ -260,9 +262,10 @@ export default function PaymentMethods() {
 
     const numAmount = parseFloat(amount);
     if (numAmount < selectedProviderData.min_amount || numAmount > selectedProviderData.max_amount) {
+      const currencySymbol = currency === "TRY" ? "₺" : currency === "USD" ? "$" : "€";
       toast({
         title: "Invalid Amount",
-        description: `Amount must be between ₺${selectedProviderData.min_amount} and ₺${selectedProviderData.max_amount}`,
+        description: `Amount must be between ${currencySymbol}${selectedProviderData.min_amount} and ${currencySymbol}${selectedProviderData.max_amount}`,
         variant: "destructive",
       });
       return;
@@ -270,6 +273,7 @@ export default function PaymentMethods() {
 
     createPaymentMutation.mutate({
       amount: numAmount,
+      currency,
       payment_method: selectedProviderData.provider_type === "card" ? "credit_card" : selectedProviderData.provider_type,
       provider_id: selectedProvider
     });
@@ -416,7 +420,7 @@ export default function PaymentMethods() {
                             <div>
                               <div className="font-medium">{provider.name}</div>
                               <div className="text-sm text-muted-foreground">
-                                ₺{provider.min_amount} - ₺{provider.max_amount.toLocaleString()}
+                                Multiple currencies supported
                               </div>
                             </div>
                           </div>
@@ -426,9 +430,26 @@ export default function PaymentMethods() {
                   </div>
                 </div>
 
+                {/* Currency Selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Currency</label>
+                  <Select value={currency} onValueChange={setCurrency}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="TRY">🇹🇷 Turkish Lira (₺)</SelectItem>
+                      <SelectItem value="USD">🇺🇸 US Dollar ($)</SelectItem>
+                      <SelectItem value="EUR">🇪🇺 Euro (€)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Amount Input */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Amount (TRY)</label>
+                  <label className="text-sm font-medium">
+                    Amount ({currency === "TRY" ? "₺" : currency === "USD" ? "$" : "€"})
+                  </label>
                   <Input
                     type="number"
                     placeholder="Enter amount"
@@ -443,14 +464,17 @@ export default function PaymentMethods() {
                         const provider = providers.find(p => p.id === selectedProvider);
                         if (!provider || quickAmount < provider.min_amount || quickAmount > provider.max_amount) return null;
                         
+                        const currencySymbol = currency === "TRY" ? "₺" : currency === "USD" ? "$" : "€";
+                        const adjustedAmount = currency === "USD" ? Math.round(quickAmount * 0.034) : currency === "EUR" ? Math.round(quickAmount * 0.031) : quickAmount;
+                        
                         return (
                           <Button
                             key={quickAmount}
                             variant="outline"
                             size="sm"
-                            onClick={() => setAmount(quickAmount.toString())}
+                            onClick={() => setAmount(adjustedAmount.toString())}
                           >
-                            ₺{quickAmount}
+                            {currencySymbol}{adjustedAmount}
                           </Button>
                         );
                       })}
