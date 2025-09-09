@@ -18,7 +18,7 @@ import { logAdminActivity, ACTIVITY_TYPES } from '@/utils/adminActivityLogger';
 interface Transaction {
   id: string;
   user_id: string;
-  type: string;
+  type: 'deposit' | 'withdraw';
   amount: number;
   status: string;
   payment_method?: string;
@@ -26,6 +26,7 @@ interface Transaction {
   created_at: string;
   processed_at?: string;
   description?: string;
+  account_details?: any;
   users?: {
     id: string;
     username: string;
@@ -57,10 +58,17 @@ const AdminFinance = () => {
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ['admin-transactions', searchTerm, typeFilter, statusFilter, dateFrom, dateTo],
     queryFn: async () => {
-      let query = supabase
-        .from('transactions')
+      // Fetch payments (deposits)
+      let paymentsQuery = supabase
+        .from('payments')
         .select(`
-          *,
+          id,
+          user_id,
+          amount,
+          status,
+          payment_method,
+          created_at,
+          processed_at,
           users (
             id,
             username,
@@ -71,29 +79,95 @@ const AdminFinance = () => {
         `)
         .order('created_at', { ascending: false });
 
+      // Fetch withdrawals
+      let withdrawalsQuery = supabase
+        .from('withdrawals')
+        .select(`
+          id,
+          user_id,
+          amount,
+          status,
+          withdrawal_method,
+          account_details,
+          created_at,
+          processed_at,
+          users (
+            id,
+            username,
+            email,
+            first_name,
+            last_name
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      // Apply filters to both queries
       if (searchTerm) {
-        query = query.or(`users.username.ilike.%${searchTerm}%,users.email.ilike.%${searchTerm}%`);
-      }
-      
-      if (typeFilter) {
-        query = query.eq('type', typeFilter);
+        paymentsQuery = paymentsQuery.or(`users.username.ilike.%${searchTerm}%,users.email.ilike.%${searchTerm}%`);
+        withdrawalsQuery = withdrawalsQuery.or(`users.username.ilike.%${searchTerm}%,users.email.ilike.%${searchTerm}%`);
       }
       
       if (statusFilter) {
-        query = query.eq('status', statusFilter);
+        paymentsQuery = paymentsQuery.eq('status', statusFilter);
+        withdrawalsQuery = withdrawalsQuery.eq('status', statusFilter);
       }
       
       if (dateFrom) {
-        query = query.gte('created_at', dateFrom.toISOString());
+        paymentsQuery = paymentsQuery.gte('created_at', dateFrom.toISOString());
+        withdrawalsQuery = withdrawalsQuery.gte('created_at', dateFrom.toISOString());
       }
       
       if (dateTo) {
-        query = query.lte('created_at', dateTo.toISOString());
+        paymentsQuery = paymentsQuery.lte('created_at', dateTo.toISOString());
+        withdrawalsQuery = withdrawalsQuery.lte('created_at', dateTo.toISOString());
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as Transaction[];
+      // Execute queries
+      const [paymentsResult, withdrawalsResult] = await Promise.all([
+        paymentsQuery,
+        withdrawalsQuery
+      ]);
+
+      if (paymentsResult.error) throw paymentsResult.error;
+      if (withdrawalsResult.error) throw withdrawalsResult.error;
+
+      // Transform and combine data
+      const payments: Transaction[] = (paymentsResult.data || []).map((payment: any) => ({
+        id: payment.id,
+        user_id: payment.user_id,
+        type: 'deposit' as const,
+        amount: payment.amount,
+        status: payment.status,
+        payment_method: payment.payment_method,
+        created_at: payment.created_at,
+        processed_at: payment.processed_at,
+        users: payment.users
+      }));
+
+      const withdrawals: Transaction[] = (withdrawalsResult.data || []).map((withdrawal: any) => ({
+        id: withdrawal.id,
+        user_id: withdrawal.user_id,
+        type: 'withdraw' as const,
+        amount: withdrawal.amount,
+        status: withdrawal.status,
+        payment_method: withdrawal.withdrawal_method,
+        account_details: withdrawal.account_details,
+        created_at: withdrawal.created_at,
+        processed_at: withdrawal.processed_at,
+        users: withdrawal.users
+      }));
+
+      // Combine and sort by date
+      const allTransactions = [...payments, ...withdrawals];
+      
+      // Apply type filter if specified
+      const filteredTransactions = typeFilter 
+        ? allTransactions.filter(t => t.type === typeFilter)
+        : allTransactions;
+
+      return filteredTransactions.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
     },
     enabled: isSuperAdmin && !isCheckingAccess,
   });
@@ -106,48 +180,86 @@ const AdminFinance = () => {
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
 
-      const { data: dailyTransactions } = await supabase
-        .from('transactions')
-        .select('type, amount, status')
+      // Get daily payments (deposits)
+      const { data: dailyPayments } = await supabase
+        .from('payments')
+        .select('amount, status')
         .gte('created_at', today.toISOString())
         .lt('created_at', tomorrow.toISOString());
 
-      const { data: statusCounts } = await supabase
-        .from('transactions')
+      // Get daily withdrawals
+      const { data: dailyWithdrawals } = await supabase
+        .from('withdrawals')
+        .select('amount, status')
+        .gte('created_at', today.toISOString())
+        .lt('created_at', tomorrow.toISOString());
+
+      // Get all payments status counts
+      const { data: paymentsStatusCounts } = await supabase
+        .from('payments')
         .select('status');
 
-      const dailyDeposits = dailyTransactions
-        ?.filter(t => t.type === 'deposit' && t.status === 'approved')
+      // Get all withdrawals status counts
+      const { data: withdrawalsStatusCounts } = await supabase
+        .from('withdrawals')
+        .select('status');
+
+      const dailyDepositsSum = dailyPayments
+        ?.filter(t => t.status === 'completed')
         .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
-      const dailyWithdrawals = dailyTransactions
-        ?.filter(t => t.type === 'withdraw' && t.status === 'approved')
+      const dailyWithdrawalsSum = dailyWithdrawals
+        ?.filter(t => t.status === 'approved')
         .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
-      const pendingCount = statusCounts?.filter(t => t.status === 'pending').length || 0;
-      const approvedCount = statusCounts?.filter(t => t.status === 'approved').length || 0;
-      const rejectedCount = statusCounts?.filter(t => t.status === 'rejected').length || 0;
+      // Count pending, approved, and rejected across both tables
+      const paymentsPending = paymentsStatusCounts?.filter(t => t.status === 'pending').length || 0;
+      const withdrawalsPending = withdrawalsStatusCounts?.filter(t => t.status === 'pending').length || 0;
+      
+      const paymentsApproved = paymentsStatusCounts?.filter(t => t.status === 'completed').length || 0;
+      const withdrawalsApproved = withdrawalsStatusCounts?.filter(t => t.status === 'approved').length || 0;
+      
+      const paymentsRejected = paymentsStatusCounts?.filter(t => t.status === 'failed').length || 0;
+      const withdrawalsRejected = withdrawalsStatusCounts?.filter(t => t.status === 'rejected').length || 0;
 
       return {
-        dailyDeposits,
-        dailyWithdrawals,
-        pendingCount,
-        approvedCount,
-        rejectedCount,
+        dailyDeposits: dailyDepositsSum,
+        dailyWithdrawals: dailyWithdrawalsSum,
+        pendingCount: paymentsPending + withdrawalsPending,
+        approvedCount: paymentsApproved + withdrawalsApproved,
+        rejectedCount: paymentsRejected + withdrawalsRejected,
       } as DashboardStats;
     },
     enabled: isSuperAdmin && !isCheckingAccess,
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase
-        .from('transactions')
-        .update({ status, processed_at: new Date().toISOString() })
-        .eq('id', id);
+    mutationFn: async ({ id, status, type }: { id: string; status: string; type: 'deposit' | 'withdraw' }) => {
+      let error;
+      
+      if (type === 'deposit') {
+        const updateResult = await supabase
+          .from('payments')
+          .update({ 
+            status: status === 'approved' ? 'completed' : status === 'rejected' ? 'failed' : status,
+            processed_at: new Date().toISOString() 
+          })
+          .eq('id', id);
+        error = updateResult.error;
+      } else {
+        const updateResult = await supabase
+          .from('withdrawals')
+          .update({ 
+            status: status === 'completed' ? 'approved' : status,
+            processed_at: status === 'approved' ? new Date().toISOString() : null,
+            approved_at: status === 'approved' ? new Date().toISOString() : null
+          })
+          .eq('id', id);
+        error = updateResult.error;
+      }
       
       if (error) throw error;
-      return { id, status };
+      return { id, status, type };
     },
     onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-transactions'] });
@@ -446,16 +558,32 @@ const AdminFinance = () => {
               <TableBody>
                 {transactions.map((transaction) => (
                   <TableRow key={transaction.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">
-                          {transaction.users?.username || 'Bilinmiyor'}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {transaction.users?.email}
-                        </div>
-                      </div>
-                    </TableCell>
+                     <TableCell>
+                       <div>
+                         <div className="font-medium">
+                           {transaction.users?.first_name && transaction.users?.last_name 
+                             ? `${transaction.users.first_name} ${transaction.users.last_name}`
+                             : transaction.users?.username || 'Bilinmiyor'
+                           }
+                         </div>
+                         <div className="text-sm text-muted-foreground">
+                           {transaction.users?.email}
+                         </div>
+                         {transaction.account_details && (
+                           <div className="text-xs text-muted-foreground mt-1">
+                             {transaction.type === 'withdraw' && transaction.account_details.iban && 
+                               `IBAN: ${transaction.account_details.iban}`
+                             }
+                             {transaction.type === 'withdraw' && transaction.account_details.papara_number && 
+                               `Papara: ${transaction.account_details.papara_number}`
+                             }
+                             {transaction.type === 'withdraw' && transaction.account_details.wallet_address && 
+                               `Wallet: ${transaction.account_details.wallet_address.slice(0, 10)}...`
+                             }
+                           </div>
+                         )}
+                       </div>
+                     </TableCell>
                     <TableCell>{getTypeBadge(transaction.type)}</TableCell>
                     <TableCell className="font-medium">
                       ₺{Number(transaction.amount).toLocaleString()}
@@ -468,28 +596,30 @@ const AdminFinance = () => {
                     <TableCell>
                       {transaction.status === 'pending' && (
                         <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-600 border-green-200 hover:bg-green-50"
-                            onClick={() => updateStatusMutation.mutate({ 
-                              id: transaction.id, 
-                              status: 'approved' 
-                            })}
-                            disabled={updateStatusMutation.isPending}
-                          >
-                            Onayla
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 border-red-200 hover:bg-red-50"
-                            onClick={() => updateStatusMutation.mutate({ 
-                              id: transaction.id, 
-                              status: 'rejected' 
-                            })}
-                            disabled={updateStatusMutation.isPending}
-                          >
+                           <Button
+                             size="sm"
+                             variant="outline"
+                             className="text-green-600 border-green-200 hover:bg-green-50"
+                             onClick={() => updateStatusMutation.mutate({ 
+                               id: transaction.id, 
+                               status: 'approved',
+                               type: transaction.type
+                             })}
+                             disabled={updateStatusMutation.isPending}
+                           >
+                             Onayla
+                           </Button>
+                           <Button
+                             size="sm"
+                             variant="outline"
+                             className="text-red-600 border-red-200 hover:bg-red-50"
+                             onClick={() => updateStatusMutation.mutate({ 
+                               id: transaction.id, 
+                               status: 'rejected',
+                               type: transaction.type
+                             })}
+                             disabled={updateStatusMutation.isPending}
+                           >
                             Reddet
                           </Button>
                         </div>
