@@ -42,6 +42,10 @@ import AdminFraudDetection from "./pages/admin/AdminFraudDetection";
 import CookiePolicy from "./pages/CookiePolicy";
 import AgeWarning from "./pages/AgeWarning";
 import Game from "./pages/Game";
+import BonusesList from "./pages/admin/bonuses/BonusesList";
+import BonusForm from "./pages/admin/bonuses/BonusForm";
+import MyBonuses from "./pages/user/bonuses/MyBonuses";
+import BonusProgress from "./pages/user/bonuses/BonusProgress";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +77,8 @@ const App = () => (
           <Route path="/deposit-withdrawal" element={<DepositWithdrawal />} />
           <Route path="/slot/:gameSlug" element={<SlotGame />} />
           <Route path="/game/:gameSlug" element={<Game />} />
+          <Route path="/user/bonuses" element={<MyBonuses />} />
+          <Route path="/user/bonuses/progress" element={<BonusProgress />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
@@ -80,6 +86,9 @@ const App = () => (
             <Route path="game-sessions" element={<AdminGameSessions />} />
             <Route path="game-providers" element={<AdminGameProviders />} />
             <Route path="bonuses" element={<AdminBonuses />} />
+            <Route path="bonuses/list" element={<BonusesList />} />
+            <Route path="bonuses/create" element={<BonusForm />} />
+            <Route path="bonuses/:id/edit" element={<BonusForm />} />
             <Route path="finance" element={<AdminFinance />} />
             <Route path="withdrawals" element={<AdminWithdrawals />} />
             <Route path="fraud-detection" element={<AdminFraudDetection />} />
