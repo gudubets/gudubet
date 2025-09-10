@@ -139,6 +139,12 @@ const Footer = () => {
                     alt="Papara" 
                     className="h-full w-full object-cover rounded"
                   />
+                ) : provider === 'PAY' ? (
+                  <img 
+                    src="/lovable-uploads/1f2a654f-a8f3-4da6-91e2-50385bc78663.png" 
+                    alt="PAY" 
+                    className="h-full w-auto object-contain"
+                  />
                 ) : provider === 'bitcoin' ? (
                   <img 
                     src="/lovable-uploads/b309d125-4554-4c9e-b138-1e77bf9c039a.png" 
