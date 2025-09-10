@@ -3977,6 +3977,18 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      fn_bonus_is_eligible: {
+        Args: {
+          p_bonus: string
+          p_deposit_amount: number
+          p_now: string
+          p_user: string
+        }
+        Returns: {
+          eligible: boolean
+          reason: string
+        }[]
+      }
       get_admin_permissions: {
         Args: { _admin_id: string }
         Returns: Database["public"]["Enums"]["admin_permission"][]
