@@ -370,6 +370,45 @@ export type Database = {
           },
         ]
       }
+      bonus_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_type: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          meta: Json | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_type?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          meta?: Json | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_type?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          meta?: Json | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       bonus_campaigns: {
         Row: {
           amount_type: string
@@ -463,6 +502,225 @@ export type Database = {
           usage_limit_per_user?: number | null
           valid_days?: number | null
           wagering_requirement?: number | null
+        }
+        Relationships: []
+      }
+      bonus_events: {
+        Row: {
+          id: string
+          occurred_at: string
+          payload: Json | null
+          type: Database["public"]["Enums"]["bonus_event_type"]
+          user_bonus_id: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          occurred_at?: string
+          payload?: Json | null
+          type: Database["public"]["Enums"]["bonus_event_type"]
+          user_bonus_id?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          occurred_at?: string
+          payload?: Json | null
+          type?: Database["public"]["Enums"]["bonus_event_type"]
+          user_bonus_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bonus_events_user_bonus_id_fkey"
+            columns: ["user_bonus_id"]
+            isOneToOne: false
+            referencedRelation: "user_bonus_tracking"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bonus_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bonus_risk_flags: {
+        Row: {
+          created_at: string
+          id: string
+          reasons: Json | null
+          score: number
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reasons?: Json | null
+          score: number
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reasons?: Json | null
+          score?: number
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bonus_risk_flags_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bonus_rules: {
+        Row: {
+          bonus_id: string
+          created_at: string
+          id: string
+          rules: Json
+          updated_at: string
+        }
+        Insert: {
+          bonus_id: string
+          created_at?: string
+          id?: string
+          rules: Json
+          updated_at?: string
+        }
+        Update: {
+          bonus_id?: string
+          created_at?: string
+          id?: string
+          rules?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bonus_rules_bonus_id_fkey"
+            columns: ["bonus_id"]
+            isOneToOne: false
+            referencedRelation: "bonuses_new"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bonus_wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          currency: string
+          id: string
+          type: Database["public"]["Enums"]["wallet_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          type: Database["public"]["Enums"]["wallet_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          type?: Database["public"]["Enums"]["wallet_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bonus_wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bonuses_new: {
+        Row: {
+          amount_type: string
+          amount_value: number
+          auto_grant: boolean | null
+          code: string | null
+          cooldown_hours: number | null
+          created_at: string
+          description: string | null
+          excluded_providers: Json | null
+          id: string
+          is_active: boolean | null
+          max_cap: number | null
+          max_per_user: number | null
+          min_deposit: number | null
+          name: string
+          requires_code: boolean | null
+          rollover_multiplier: number | null
+          type: Database["public"]["Enums"]["bonus_type_new"]
+          updated_at: string
+          valid_from: string | null
+          valid_to: string | null
+        }
+        Insert: {
+          amount_type: string
+          amount_value: number
+          auto_grant?: boolean | null
+          code?: string | null
+          cooldown_hours?: number | null
+          created_at?: string
+          description?: string | null
+          excluded_providers?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_cap?: number | null
+          max_per_user?: number | null
+          min_deposit?: number | null
+          name: string
+          requires_code?: boolean | null
+          rollover_multiplier?: number | null
+          type: Database["public"]["Enums"]["bonus_type_new"]
+          updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
+        }
+        Update: {
+          amount_type?: string
+          amount_value?: number
+          auto_grant?: boolean | null
+          code?: string | null
+          cooldown_hours?: number | null
+          created_at?: string
+          description?: string | null
+          excluded_providers?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_cap?: number | null
+          max_per_user?: number | null
+          min_deposit?: number | null
+          name?: string
+          requires_code?: boolean | null
+          rollover_multiplier?: number | null
+          type?: Database["public"]["Enums"]["bonus_type_new"]
+          updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
         }
         Relationships: []
       }
@@ -2736,6 +2994,66 @@ export type Database = {
         }
         Relationships: []
       }
+      user_bonus_tracking: {
+        Row: {
+          bonus_id: string
+          created_at: string
+          currency: string
+          expires_at: string | null
+          granted_amount: number
+          id: string
+          last_event_at: string | null
+          progress: number | null
+          remaining_rollover: number | null
+          status: Database["public"]["Enums"]["bonus_status_new"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bonus_id: string
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          granted_amount: number
+          id?: string
+          last_event_at?: string | null
+          progress?: number | null
+          remaining_rollover?: number | null
+          status?: Database["public"]["Enums"]["bonus_status_new"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bonus_id?: string
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          granted_amount?: number
+          id?: string
+          last_event_at?: string | null
+          progress?: number | null
+          remaining_rollover?: number | null
+          status?: Database["public"]["Enums"]["bonus_status_new"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_bonus_tracking_bonus_id_fkey"
+            columns: ["bonus_id"]
+            isOneToOne: false
+            referencedRelation: "bonuses_new"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_bonus_tracking_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_bonuses: {
         Row: {
           awarded_at: string | null
@@ -3292,6 +3610,53 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          direction: Database["public"]["Enums"]["transaction_direction"]
+          id: string
+          ledger_key: string
+          meta: Json | null
+          occurred_at: string
+          ref_id: string | null
+          ref_type: string | null
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          direction: Database["public"]["Enums"]["transaction_direction"]
+          id?: string
+          ledger_key: string
+          meta?: Json | null
+          occurred_at?: string
+          ref_id?: string | null
+          ref_type?: string | null
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          direction?: Database["public"]["Enums"]["transaction_direction"]
+          id?: string
+          ledger_key?: string
+          meta?: Json | null
+          occurred_at?: string
+          ref_id?: string | null
+          ref_type?: string | null
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "bonus_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_logs: {
         Row: {
           created_at: string
@@ -3618,6 +3983,23 @@ export type Database = {
         | "system_settings"
         | "audit_logs"
       admin_role: "super_admin" | "finance" | "crm" | "support" | "moderator"
+      bonus_event_type:
+        | "deposit_made"
+        | "wager_placed"
+        | "wager_voided"
+        | "bonus_granted"
+        | "bonus_progressed"
+        | "bonus_completed"
+        | "bonus_forfeited"
+        | "bonus_expired"
+        | "manual_review_triggered"
+      bonus_status_new:
+        | "eligible"
+        | "active"
+        | "completed"
+        | "forfeited"
+        | "expired"
+      bonus_type_new: "FIRST_DEPOSIT" | "RELOAD" | "CASHBACK" | "FREEBET"
       kyc_document_type:
         | "identity_card"
         | "passport"
@@ -3633,6 +4015,8 @@ export type Database = {
         | "approved"
         | "rejected"
         | "incomplete"
+      transaction_direction: "debit" | "credit"
+      wallet_type: "main" | "bonus"
       withdrawal_status:
         | "pending"
         | "reviewing"
@@ -3791,6 +4175,25 @@ export const Constants = {
         "audit_logs",
       ],
       admin_role: ["super_admin", "finance", "crm", "support", "moderator"],
+      bonus_event_type: [
+        "deposit_made",
+        "wager_placed",
+        "wager_voided",
+        "bonus_granted",
+        "bonus_progressed",
+        "bonus_completed",
+        "bonus_forfeited",
+        "bonus_expired",
+        "manual_review_triggered",
+      ],
+      bonus_status_new: [
+        "eligible",
+        "active",
+        "completed",
+        "forfeited",
+        "expired",
+      ],
+      bonus_type_new: ["FIRST_DEPOSIT", "RELOAD", "CASHBACK", "FREEBET"],
       kyc_document_type: [
         "identity_card",
         "passport",
@@ -3808,6 +4211,8 @@ export const Constants = {
         "rejected",
         "incomplete",
       ],
+      transaction_direction: ["debit", "credit"],
+      wallet_type: ["main", "bonus"],
       withdrawal_status: [
         "pending",
         "reviewing",
