@@ -1340,6 +1340,147 @@ export type Database = {
         }
         Relationships: []
       }
+      kyc_documents: {
+        Row: {
+          created_at: string
+          document_number: string | null
+          document_type: Database["public"]["Enums"]["kyc_document_type"]
+          document_url: string
+          expiry_date: string | null
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["kyc_status_type"]
+          updated_at: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_number?: string | null
+          document_type: Database["public"]["Enums"]["kyc_document_type"]
+          document_url: string
+          expiry_date?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["kyc_status_type"]
+          updated_at?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          document_number?: string | null
+          document_type?: Database["public"]["Enums"]["kyc_document_type"]
+          document_url?: string
+          expiry_date?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["kyc_status_type"]
+          updated_at?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      kyc_limits: {
+        Row: {
+          created_at: string
+          daily_deposit_limit: number
+          daily_withdrawal_limit: number
+          id: string
+          kyc_level: Database["public"]["Enums"]["kyc_level"]
+          monthly_deposit_limit: number
+          monthly_withdrawal_limit: number
+          requires_documents: Database["public"]["Enums"]["kyc_document_type"][]
+          total_balance_limit: number
+          updated_at: string
+          yearly_withdrawal_limit: number
+        }
+        Insert: {
+          created_at?: string
+          daily_deposit_limit?: number
+          daily_withdrawal_limit?: number
+          id?: string
+          kyc_level: Database["public"]["Enums"]["kyc_level"]
+          monthly_deposit_limit?: number
+          monthly_withdrawal_limit?: number
+          requires_documents?: Database["public"]["Enums"]["kyc_document_type"][]
+          total_balance_limit?: number
+          updated_at?: string
+          yearly_withdrawal_limit?: number
+        }
+        Update: {
+          created_at?: string
+          daily_deposit_limit?: number
+          daily_withdrawal_limit?: number
+          id?: string
+          kyc_level?: Database["public"]["Enums"]["kyc_level"]
+          monthly_deposit_limit?: number
+          monthly_withdrawal_limit?: number
+          requires_documents?: Database["public"]["Enums"]["kyc_document_type"][]
+          total_balance_limit?: number
+          updated_at?: string
+          yearly_withdrawal_limit?: number
+        }
+        Relationships: []
+      }
+      kyc_verifications: {
+        Row: {
+          admin_notes: string | null
+          approved_at: string | null
+          created_at: string
+          current_level: Database["public"]["Enums"]["kyc_level"]
+          id: string
+          rejection_reason: string | null
+          requested_level: Database["public"]["Enums"]["kyc_level"]
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["kyc_status_type"]
+          submitted_at: string
+          submitted_documents: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          approved_at?: string | null
+          created_at?: string
+          current_level?: Database["public"]["Enums"]["kyc_level"]
+          id?: string
+          rejection_reason?: string | null
+          requested_level: Database["public"]["Enums"]["kyc_level"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["kyc_status_type"]
+          submitted_at?: string
+          submitted_documents?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          approved_at?: string | null
+          created_at?: string
+          current_level?: Database["public"]["Enums"]["kyc_level"]
+          id?: string
+          rejection_reason?: string | null
+          requested_level?: Database["public"]["Enums"]["kyc_level"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["kyc_status_type"]
+          submitted_at?: string
+          submitted_documents?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leagues: {
         Row: {
           country: string | null
@@ -3010,7 +3151,10 @@ export type Database = {
           email_verified: boolean | null
           first_name: string | null
           id: string
+          kyc_level: Database["public"]["Enums"]["kyc_level"]
+          kyc_rejection_reason: string | null
           kyc_status: string | null
+          kyc_verified_at: string | null
           last_name: string | null
           phone: string | null
           phone_verified: boolean | null
@@ -3030,7 +3174,10 @@ export type Database = {
           email_verified?: boolean | null
           first_name?: string | null
           id?: string
+          kyc_level?: Database["public"]["Enums"]["kyc_level"]
+          kyc_rejection_reason?: string | null
           kyc_status?: string | null
+          kyc_verified_at?: string | null
           last_name?: string | null
           phone?: string | null
           phone_verified?: boolean | null
@@ -3050,7 +3197,10 @@ export type Database = {
           email_verified?: boolean | null
           first_name?: string | null
           id?: string
+          kyc_level?: Database["public"]["Enums"]["kyc_level"]
+          kyc_rejection_reason?: string | null
           kyc_status?: string | null
+          kyc_verified_at?: string | null
           last_name?: string | null
           phone?: string | null
           phone_verified?: boolean | null
@@ -3256,6 +3406,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_kyc_withdrawal_limit: {
+        Args: { _amount: number; _user_id: string }
+        Returns: Json
+      }
       cleanup_expired_captcha_tokens: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -3281,6 +3435,10 @@ export type Database = {
           total_users: number
           total_withdrawals_30d: number
         }[]
+      }
+      get_required_kyc_documents: {
+        Args: { _target_level: Database["public"]["Enums"]["kyc_level"] }
+        Returns: Database["public"]["Enums"]["kyc_document_type"][]
       }
       get_withdrawal_stats: {
         Args: { date_filter: string }
@@ -3332,6 +3490,21 @@ export type Database = {
         | "system_settings"
         | "audit_logs"
       admin_role: "super_admin" | "finance" | "crm" | "support" | "moderator"
+      kyc_document_type:
+        | "identity_card"
+        | "passport"
+        | "driving_license"
+        | "utility_bill"
+        | "bank_statement"
+        | "address_proof"
+        | "selfie_with_id"
+      kyc_level: "level_0" | "level_1" | "level_2" | "level_3"
+      kyc_status_type:
+        | "pending"
+        | "under_review"
+        | "approved"
+        | "rejected"
+        | "incomplete"
       withdrawal_status:
         | "pending"
         | "approved"
@@ -3489,6 +3662,23 @@ export const Constants = {
         "audit_logs",
       ],
       admin_role: ["super_admin", "finance", "crm", "support", "moderator"],
+      kyc_document_type: [
+        "identity_card",
+        "passport",
+        "driving_license",
+        "utility_bill",
+        "bank_statement",
+        "address_proof",
+        "selfie_with_id",
+      ],
+      kyc_level: ["level_0", "level_1", "level_2", "level_3"],
+      kyc_status_type: [
+        "pending",
+        "under_review",
+        "approved",
+        "rejected",
+        "incomplete",
+      ],
       withdrawal_status: [
         "pending",
         "approved",
