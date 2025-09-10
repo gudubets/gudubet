@@ -58,8 +58,8 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
     {
       title: 'Bonuslar',
       icon: Gift,
-      href: '/admin/bonuses',
-      active: location.pathname === '/admin/bonuses'
+      href: '/admin/bonuses/list',
+      active: location.pathname.startsWith('/admin/bonuses')
     },
     {
       title: 'Finans İşlemleri',

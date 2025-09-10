@@ -80,7 +80,6 @@ const App = () => (
             <Route path="bets" element={<AdminBets />} />
             <Route path="game-sessions" element={<AdminGameSessions />} />
             <Route path="game-providers" element={<AdminGameProviders />} />
-            <Route path="bonuses" element={<AdminBonuses />} />
             <Route path="bonuses/list" element={<BonusesList />} />
             <Route path="bonuses/create" element={<BonusForm />} />
             <Route path="bonuses/:id/edit" element={<BonusForm />} />

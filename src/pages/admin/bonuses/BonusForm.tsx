@@ -58,7 +58,7 @@ export default function BonusForm() {
     } else {
       await createM.mutateAsync(values);
     }
-    navigate("/admin/bonuses");
+    navigate("/admin/bonuses/list");
   };
 
   return (

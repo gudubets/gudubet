@@ -9,7 +9,12 @@ export default function BonusesList() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Bonuses</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Bonuses</h1>
+        <Link to="/admin/bonuses/create" className="rounded bg-cyan-500 px-4 py-2 text-slate-900 hover:bg-cyan-600 transition-colors">
+          Create New Bonus
+        </Link>
+      </div>
       <div className="overflow-x-auto rounded-xl border border-slate-800">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-900/50">
@@ -35,7 +40,7 @@ export default function BonusesList() {
                 <td className="px-4 py-2 text-center">{new Date(b.valid_from).toLocaleDateString()} → {new Date(b.valid_to).toLocaleDateString()}</td>
                 <td className="px-4 py-2 text-center">{b.is_active ? "✔" : "✖"}</td>
                 <td className="px-4 py-2 text-right">
-                  <Link to={`/admin/bonuses/${b.id}`} className="rounded border border-slate-700 px-3 py-1 hover:bg-slate-900">Edit</Link>
+                  <Link to={`/admin/bonuses/${b.id}/edit`} className="rounded border border-slate-700 px-3 py-1 hover:bg-slate-900">Edit</Link>
                 </td>
               </tr>
             ))}
