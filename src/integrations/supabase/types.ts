@@ -3655,7 +3655,7 @@ export type Database = {
             foreignKeyName: "wallet_transactions_wallet_id_fkey"
             columns: ["wallet_id"]
             isOneToOne: false
-            referencedRelation: "bonus_wallets"
+            referencedRelation: "wallets"
             referencedColumns: ["id"]
           },
         ]
