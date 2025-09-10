@@ -106,9 +106,19 @@ const Footer = () => {
         {/* Payment Providers */}
         <div className="mb-8">
           <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['PAYco', 'Banka', 'SUPER PAY', 'PEP', 'papara', 'PAY', 'bitcoin', 'Litecoin', 'ethereum', 'VIGO', 'VIGO BONUS'].map((provider, index) => <div key={`payment-${provider}-${index}`} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
-                <span className="text-xs text-gray-300">{provider}</span>
-              </div>)}
+            {['PAYco', 'Banka', 'SUPER PAY', 'PEP', 'papara', 'PAY', 'bitcoin', 'Litecoin', 'ethereum', 'VIGO', 'VIGO BONUS'].map((provider, index) => (
+              <div key={`payment-${provider}-${index}`} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+                {provider === 'PAYco' ? (
+                  <img 
+                    src="/lovable-uploads/e3f1f323-0e0c-4976-879b-1863ddc0b0c5.png" 
+                    alt="PayCo" 
+                    className="h-6 w-auto object-contain"
+                  />
+                ) : (
+                  <span className="text-xs text-gray-300">{provider}</span>
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
