@@ -8,6 +8,7 @@ import Footer from '@/components/sections/Footer';
 import { RegistrationModal } from '@/components/auth/RegistrationModal';
 import FloatingSupportButton from '@/components/ui/floating-support-button';
 import { useI18n } from '@/hooks/useI18n';
+import { Send } from 'lucide-react';
 import treasureImage from '@/assets/treasure.png';
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -310,7 +311,7 @@ const Index = () => {
                     <p className="text-sm opacity-90">+200K ABONE</p>
                     <p className="text-xs opacity-75 mt-2">{t('gudubet_telegram')}</p>
                   </div>
-                  <div className="text-6xl opacity-80">GUDUBET TELEGRAM'DA →</div>
+                  <Send className="w-16 h-16 opacity-80" />
                 </div>
               </CardContent>
             </Card>
