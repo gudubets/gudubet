@@ -40,22 +40,17 @@ const Index = () => {
                   <div className="absolute top-1/3 right-1/4 text-6xl opacity-20 animate-spin">🎰</div>
                   <div className="absolute bottom-1/3 left-1/4 text-4xl opacity-20 animate-pulse">🎲</div>
                   
-                  <div className="relative z-10 h-full flex items-center justify-center px-8 md:px-16">
-                    <div className="w-full flex flex-col items-center justify-center text-center animate-scale-in">
-                      <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 animate-fade-in">
-                        <span className="text-yellow-300 text-6xl md:text-8xl animate-pulse">2000TL</span>
-                      </h1>
-                      <div className="bg-black/80 rounded-lg px-6 py-3 inline-block mb-6 animate-slide-in-right">
-                        <h2 className="text-xl md:text-2xl font-bold text-yellow-300">
-                          HOŞ GELDİN BONUSU
-                        </h2>
-                      </div>
-                      <div className="flex justify-center items-center w-full">
-                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform" onClick={() => setIsRegistrationModalOpen(true)}>
-                          {t('sign_up')}
-                        </Button>
-                      </div>
-                    </div>
+                  <div className="relative z-10 h-full flex items-center justify-center px-8 md:px-16 cursor-pointer" onClick={() => setIsRegistrationModalOpen(true)}>
+                    <img 
+                      src="/lovable-uploads/a579f7c8-2d42-41b3-ae52-4d8d7ccd17d0.png" 
+                      alt="Gudubet Hoşgeldin Bonusu 500 TL" 
+                      className="w-full h-full object-cover object-center rounded-lg"
+                      style={{ 
+                        maxHeight: '100%',
+                        maxWidth: '100%',
+                        imageRendering: 'crisp-edges'
+                      }}
+                    />
                   </div>
                 </div>
               </CarouselItem>
