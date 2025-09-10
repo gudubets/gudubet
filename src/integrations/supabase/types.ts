@@ -3923,52 +3923,22 @@ export type Database = {
     Views: {
       admin_users: {
         Row: {
-          address: string | null
-          city: string | null
-          country: string | null
           created_at: string | null
-          date_of_birth: string | null
-          first_name: string | null
           id: string | null
-          last_name: string | null
-          phone: string | null
-          phone_verified: boolean | null
-          postal_code: string | null
           role: string | null
           updated_at: string | null
-          user_id: string | null
         }
         Insert: {
-          address?: string | null
-          city?: string | null
-          country?: string | null
           created_at?: string | null
-          date_of_birth?: string | null
-          first_name?: string | null
           id?: string | null
-          last_name?: string | null
-          phone?: string | null
-          phone_verified?: boolean | null
-          postal_code?: string | null
           role?: string | null
           updated_at?: string | null
-          user_id?: string | null
         }
         Update: {
-          address?: string | null
-          city?: string | null
-          country?: string | null
           created_at?: string | null
-          date_of_birth?: string | null
-          first_name?: string | null
           id?: string | null
-          last_name?: string | null
-          phone?: string | null
-          phone_verified?: boolean | null
-          postal_code?: string | null
           role?: string | null
           updated_at?: string | null
-          user_id?: string | null
         }
         Relationships: []
       }
