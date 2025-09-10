@@ -400,20 +400,20 @@ const AdminGameProviders = () => {
                   </div>
                 )}
                 
-                <div className="flex space-x-2">
+                <div className="grid grid-cols-3 gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleTestProvider(provider.id)}
                     disabled={isTesting === provider.id}
-                    className="flex-1"
+                    className="w-full"
                   >
                     {isTesting === provider.id ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
                     ) : (
-                      <TestTube className="mr-2 h-4 w-4" />
+                      <TestTube className="h-4 w-4" />
                     )}
-                    Test Et
+                    <span className="sr-only">Test Et</span>
                   </Button>
                   
                   <Button
@@ -421,23 +421,24 @@ const AdminGameProviders = () => {
                     size="sm"
                     onClick={() => handleGetProviderGames(provider.id)}
                     disabled={isLoadingGames}
-                    className="flex-1"
+                    className="w-full"
                   >
                     {isLoadingGames ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
                     ) : (
-                      <List className="mr-2 h-4 w-4" />
+                      <List className="h-4 w-4" />
                     )}
-                    Oyunları Listele
+                    <span className="sr-only">Oyunları Listele</span>
                   </Button>
                   
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleConfigureProvider(provider.id)}
+                    className="w-full"
                   >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Yapılandır
+                    <Settings className="h-4 w-4" />
+                    <span className="sr-only">Yapılandır</span>
                   </Button>
                 </div>
               </div>
