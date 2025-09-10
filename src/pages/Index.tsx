@@ -44,9 +44,10 @@ const Index = () => {
                     <img 
                       src="/lovable-uploads/603b3294-8cfe-40fc-b77c-07109044758a.png" 
                       alt="Gudubet Hoşgeldin Bonusu 500 TL" 
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-cover"
                       style={{ 
-                        imageRendering: 'crisp-edges'
+                        imageRendering: 'crisp-edges',
+                        objectPosition: 'center top'
                       }}
                     />
                   </div>
