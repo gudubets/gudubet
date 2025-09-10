@@ -139,6 +139,12 @@ const Footer = () => {
                     alt="Papara" 
                     className="h-full w-full object-cover rounded"
                   />
+                ) : provider === 'bitcoin' ? (
+                  <img 
+                    src="/lovable-uploads/b309d125-4554-4c9e-b138-1e77bf9c039a.png" 
+                    alt="Bitcoin" 
+                    className="h-full w-full object-cover rounded"
+                  />
                 ) : (
                   <span className="text-xs text-gray-300">{provider}</span>
                 )}
