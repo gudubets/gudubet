@@ -39,6 +39,8 @@ import AdminCompetitorAnalysis from "./pages/admin/AdminCompetitorAnalysis";
 import AdminGameProviders from "./pages/admin/AdminGameProviders";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminFraudDetection from "./pages/admin/AdminFraudDetection";
+import CookiePolicy from "./pages/CookiePolicy";
+import AgeWarning from "./pages/AgeWarning";
 import Game from "./pages/Game";
 
 const queryClient = new QueryClient();
@@ -66,6 +68,8 @@ const App = () => (
           <Route path="/help-center" element={<HelpCenter />} />
           <Route path="/betting-rules" element={<BettingRules />} />
           <Route path="/live-support" element={<LiveSupport />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/age-warning" element={<AgeWarning />} />
           <Route path="/deposit-withdrawal" element={<DepositWithdrawal />} />
           <Route path="/slot/:gameSlug" element={<SlotGame />} />
           <Route path="/game/:gameSlug" element={<Game />} />

@@ -46,7 +46,13 @@ const Footer = () => {
                 to="/privacy-policy"
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
-                Gizlilik politikası
+                Gizlilik Politikası
+              </Link>
+              <Link 
+                to="/cookie-policy"
+                className="block hover:text-orange-400 transition-colors cursor-pointer"
+              >
+                Çerez Politikası
               </Link>
               <Link 
                 to="/partnership"
@@ -61,6 +67,12 @@ const Footer = () => {
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
                 Sorumlu Oyun
+              </Link>
+              <Link 
+                to="/age-warning"
+                className="block hover:text-orange-400 transition-colors cursor-pointer"
+              >
+                18+ Yaş Uyarısı
               </Link>
             </div>
           </div>
