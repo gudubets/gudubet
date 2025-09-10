@@ -41,12 +41,21 @@ const Index = () => {
                   <div className="absolute bottom-1/3 left-1/4 text-4xl opacity-20 animate-pulse">🎲</div>
                   
                   <div className="relative z-10 h-full flex items-center justify-center px-8 md:px-16">
-                    <img 
-                      src="/lovable-uploads/9f1f4837-099d-455b-8409-e6d37187a5f7.png" 
-                      alt="500₺ Deneme Bonusu - Bonus her alanda geçerlidir" 
-                      className="w-full h-full object-cover rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300"
-                      onClick={() => setIsRegistrationModalOpen(true)}
-                    />
+                    <div className="w-full flex flex-col items-center justify-center text-center animate-scale-in">
+                      <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 animate-fade-in">
+                        <span className="text-yellow-300 text-6xl md:text-8xl animate-pulse">2000TL</span>
+                      </h1>
+                      <div className="bg-black/80 rounded-lg px-6 py-3 inline-block mb-6 animate-slide-in-right">
+                        <h2 className="text-xl md:text-2xl font-bold text-yellow-300">
+                          HOŞ GELDİN BONUSU
+                        </h2>
+                      </div>
+                      <div className="flex justify-center items-center w-full">
+                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 text-lg rounded-full animate-bounce hover:animate-none hover:scale-110 transition-transform" onClick={() => setIsRegistrationModalOpen(true)}>
+                          {t('sign_up')}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CarouselItem>
