@@ -2,7 +2,9 @@ import { Button } from '@/components/ui/button';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MessageCircle, Shield, Award, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import bankLogoCompact from '@/assets/bank-logo-compact.png';
+import { useI18n } from '@/hooks/useI18n';
 const Footer = () => {
+  const { currentLanguage, t } = useI18n();
   return <footer className="bg-black text-white">
       {/* Promotional Banner */}
       <div className="container mx-auto px-4 py-6">
@@ -15,10 +17,16 @@ const Footer = () => {
           <strong style={{
           color: '#fbb204'
         }}>
-            Gudubet™ | Önde Gelen Casino ve Bahis Platformu
+            {currentLanguage === 'tr' 
+              ? 'Gudubet™ | Önde Gelen Casino ve Bahis Platformu'
+              : 'Gudubet™ | Leading Casino and Betting Platform'
+            }
           </strong>
           <br />
-          Gudubet ile en iyi casino ve bahis deneyimini yaşayın! 2000 TL hoş geldin bonusuyla hemen kazanmaya başlayın.
+          {currentLanguage === 'tr'
+            ? 'Gudubet ile en iyi casino ve bahis deneyimini yaşayın! 2000 TL hoş geldin bonusuyla hemen kazanmaya başlayın.'
+            : 'Experience the best casino and betting with Gudubet! Start winning with 2000 TL welcome bonus.'
+          }
         </div>
       </div>
 
@@ -32,33 +40,35 @@ const Footer = () => {
             <div className="text-orange-400">support@gudubet.com</div>
           </div>
 
-          {/* Genel Kurallar */}
+          {/* Legal/General Rules */}
           <div>
-            <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">Genel Kurallar</h3>
+            <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">
+              {currentLanguage === 'tr' ? 'Genel Kurallar' : 'Legal & Rules'}
+            </h3>
             <div className="space-y-2 text-sm">
               <Link 
                 to="/terms-and-conditions"
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
-                Kurallar ve Şartlar
+                {currentLanguage === 'tr' ? 'Kurallar ve Şartlar' : 'Terms & Conditions'}
               </Link>
               <Link 
                 to="/privacy-policy"
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
-                Gizlilik Politikası
+                {currentLanguage === 'tr' ? 'Gizlilik Politikası' : 'Privacy Policy'}
               </Link>
               <Link 
                 to="/cookie-policy"
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
-                Çerez Politikası
+                {currentLanguage === 'tr' ? 'Çerez Politikası' : 'Cookie Policy'}
               </Link>
               <Link 
                 to="/partnership"
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
-                Ortaklık
+                {currentLanguage === 'tr' ? 'Ortaklık' : 'Partnership'}
               </Link>
             </div>
             <div className="space-y-2 text-sm mt-4">
@@ -66,38 +76,40 @@ const Footer = () => {
                 to="/responsible-gaming"
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
-                Sorumlu Oyun
+                {currentLanguage === 'tr' ? 'Sorumlu Oyun' : 'Responsible Gaming'}
               </Link>
               <Link 
                 to="/age-warning"
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
-                18+ Yaş Uyarısı
+                {currentLanguage === 'tr' ? '18+ Yaş Uyarısı' : '18+ Age Warning'}
               </Link>
             </div>
           </div>
 
-          {/* Hakkımızda */}
+          {/* About Us */}
           <div>
-            <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">Hakkımızda</h3>
+            <h3 className="text-orange-400 text-lg font-semibold mb-4 border-b border-orange-400 pb-2">
+              {currentLanguage === 'tr' ? 'Hakkımızda' : 'About Us'}
+            </h3>
             <div className="space-y-2 text-sm">
               <Link 
                 to="/contact-us"
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
-                Bize ulaşın
+                {currentLanguage === 'tr' ? 'Bize ulaşın' : 'Contact Us'}
               </Link>
               <Link 
                 to="/help-center"
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
-                Gudubet Yardım Merkezi
+                {currentLanguage === 'tr' ? 'Gudubet Yardım Merkezi' : 'Gudubet Help Center'}
               </Link>
               <Link 
                 to="/betting-rules"
                 className="block hover:text-orange-400 transition-colors cursor-pointer"
               >
-                Bahis Kuralları
+                {currentLanguage === 'tr' ? 'Bahis Kuralları' : 'Betting Rules'}
               </Link>
             </div>
             
@@ -212,14 +224,20 @@ const Footer = () => {
 
         {/* Legal Text */}
         <div className="text-xs text-gray-400 mb-4">
-          gudubet.com Curaçao yasalarına göre kayıtlı ve 153142 şirket numarasına sahip Seguro N.V. tarafından işletilmektedir. Site GCB tarafından verilen geçerli bir lisansa sahiptir.
+          {currentLanguage === 'tr'
+            ? 'gudubet.com Curaçao yasalarına göre kayıtlı ve 153142 şirket numarasına sahip Seguro N.V. tarafından işletilmektedir. Site GCB tarafından verilen geçerli bir lisansa sahiptir.'
+            : 'gudubet.com is operated by Seguro N.V., registered under Curaçao laws with company number 153142. The site holds a valid license issued by GCB.'
+          }
         </div>
 
         {/* Bottom Copyright */}
         <div className="border-t border-gray-800 pt-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
             <div>
-              © GuduBet. Tüm hakları saklıdır.
+              {currentLanguage === 'tr' 
+                ? '© GuduBet. Tüm hakları saklıdır.'
+                : '© GuduBet. All rights reserved.'
+              }
             </div>
             <div className="flex items-center gap-2">
               <div className="bg-orange-500 rounded-full p-1">

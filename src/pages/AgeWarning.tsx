@@ -6,14 +6,20 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, Shield, UserCheck, Lock, Clock, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SEO from '@/components/SEO';
+import { useI18n } from '@/hooks/useI18n';
 
 const AgeWarning = () => {
+  const { currentLanguage } = useI18n();
+
   return (
     <>
       <SEO 
         pageSlug="age-warning"
-        customTitle="18+ Yaş Uyarısı | GuduBet"
-        customDescription="GuduBet 18 yaş altı kullanıcılar için uygun değildir. Yaş doğrulama ve sorumlu oyun hakkında önemli bilgiler."
+        customTitle={currentLanguage === 'tr' ? "18+ Yaş Uyarısı | GuduBet" : "18+ Age Warning | GuduBet"}
+        customDescription={currentLanguage === 'tr'
+          ? "GuduBet 18 yaş altı kullanıcılar için uygun değildir. Yaş doğrulama ve sorumlu oyun hakkında önemli bilgiler."
+          : "GuduBet is not suitable for users under 18. Important information about age verification and responsible gaming."
+        }
       />
       <div className="min-h-screen bg-background">
         <Header />
@@ -25,25 +31,33 @@ const AgeWarning = () => {
               <div className="bg-red-500 rounded-full p-3">
                 <AlertTriangle className="h-8 w-8 text-white" />
               </div>
-              <h1 className="text-3xl font-bold text-foreground">18+ Yaş Uyarısı</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                {currentLanguage === 'tr' ? '18+ Yaş Uyarısı' : '18+ Age Warning'}
+              </h1>
             </div>
             <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 max-w-2xl mx-auto">
               <p className="text-red-800 dark:text-red-200 font-semibold">
-                Bu site yalnızca 18 yaş ve üzeri kişiler içindir!
+                {currentLanguage === 'tr'
+                  ? 'Bu site yalnızca 18 yaş ve üzeri kişiler içindir!'
+                  : 'This site is only for people 18 years and older!'
+                }
               </p>
               <p className="text-red-700 dark:text-red-300 text-sm mt-1">
-                Reşit olmayan kişilerin siteye erişimi yasaktır.
+                {currentLanguage === 'tr'
+                  ? 'Reşit olmayan kişilerin siteye erişimi yasaktır.'
+                  : 'Access to the site by minors is prohibited.'
+                }
               </p>
             </div>
           </div>
 
           <div className="max-w-4xl mx-auto space-y-6">
-            {/* Ana Uyarı */}
+            {/* Main Warning */}
             <Card className="border-red-200 dark:border-red-800">
               <CardHeader className="bg-red-50 dark:bg-red-950">
                 <CardTitle className="flex items-center gap-2 text-red-800 dark:text-red-200">
                   <UserCheck className="h-6 w-6" />
-                  Yaş Sınırlaması ve Doğrulama
+                  {currentLanguage === 'tr' ? 'Yaş Sınırlaması ve Doğrulama' : 'Age Restriction and Verification'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
@@ -51,186 +65,255 @@ const AgeWarning = () => {
                   <div className="inline-flex items-center justify-center w-24 h-24 bg-red-100 dark:bg-red-900 rounded-full mb-4">
                     <span className="text-3xl font-bold text-red-600 dark:text-red-400">18+</span>
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Reşitlik Zorunluluğu</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {currentLanguage === 'tr' ? 'Reşitlik Zorunluluğu' : 'Legal Age Requirement'}
+                  </h3>
                   <p className="text-muted-foreground">
-                    GuduBet platformunu kullanabilmek için 18 yaşını tamamlamış olmanız gerekmektedir. 
-                    Bu yasal bir zorunluluktur ve istisna kabul edilmez.
+                    {currentLanguage === 'tr'
+                      ? 'GuduBet platformunu kullanabilmek için 18 yaşını tamamlamış olmanız gerekmektedir. Bu yasal bir zorunluluktur ve istisna kabul edilmez.'
+                      : 'You must be 18 years old to use the GuduBet platform. This is a legal requirement and no exceptions are accepted.'
+                    }
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Yaş Doğrulama Süreci */}
+            {/* Age Verification Process */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="h-5 w-5 text-primary" />
-                  Yaş Doğrulama Süreci
+                  {currentLanguage === 'tr' ? 'Yaş Doğrulama Süreci' : 'Age Verification Process'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground">
-                  Hesap oluştururken yaşınızı doğrulamanız gerekir:
+                  {currentLanguage === 'tr'
+                    ? 'Hesap oluştururken yaşınızı doğrulamanız gerekir:'
+                    : 'You need to verify your age when creating an account:'
+                  }
                 </p>
                 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-4 border rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <UserCheck className="h-5 w-5 text-green-500" />
-                      <h4 className="font-semibold">Kimlik Doğrulama</h4>
+                      <h4 className="font-semibold">
+                        {currentLanguage === 'tr' ? 'Kimlik Doğrulama' : 'Identity Verification'}
+                      </h4>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Geçerli bir kimlik belgesi (TC kimlik, pasaport) ile yaşınızı kanıtlamanız gerekir.
+                      {currentLanguage === 'tr'
+                        ? 'Geçerli bir kimlik belgesi (TC kimlik, pasaport) ile yaşınızı kanıtlamanız gerekir.'
+                        : 'You need to prove your age with a valid ID document (ID card, passport).'
+                      }
                     </p>
                   </div>
                   
                   <div className="p-4 border rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <Lock className="h-5 w-5 text-blue-500" />
-                      <h4 className="font-semibold">Güvenli İşlem</h4>
+                      <h4 className="font-semibold">
+                        {currentLanguage === 'tr' ? 'Güvenli İşlem' : 'Secure Process'}
+                      </h4>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Tüm yaş doğrulama işlemleri güvenli ve gizli bir şekilde yapılır.
+                      {currentLanguage === 'tr'
+                        ? 'Tüm yaş doğrulama işlemleri güvenli ve gizli bir şekilde yapılır.'
+                        : 'All age verification processes are conducted securely and confidentially.'
+                      }
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Yasal Uyarılar */}
+            {/* Legal Warnings */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-amber-500" />
-                  Önemli Yasal Uyarılar
+                  {currentLanguage === 'tr' ? 'Önemli Yasal Uyarılar' : 'Important Legal Warnings'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
-                  <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">Yasal Sorumluluk</h4>
+                  <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">
+                    {currentLanguage === 'tr' ? 'Yasal Sorumluluk' : 'Legal Responsibility'}
+                  </h4>
                   <ul className="space-y-2 text-sm text-amber-700 dark:text-amber-300">
-                    <li>• 18 yaş altı kişilerin siteye erişimi kesinlikle yasaktır</li>
-                    <li>• Sahte kimlik bilgileri kullanmak suçtur</li>
-                    <li>• Yaş hilesi yapan hesaplar kalıcı olarak kapatılır</li>
-                    <li>• Veliler çocuklarının internet erişimini kontrol etmelidir</li>
+                    <li>• {currentLanguage === 'tr' 
+                      ? '18 yaş altı kişilerin siteye erişimi kesinlikle yasaktır'
+                      : 'Access to the site by persons under 18 is strictly prohibited'
+                    }</li>
+                    <li>• {currentLanguage === 'tr'
+                      ? 'Sahte kimlik bilgileri kullanmak suçtur'
+                      : 'Using false identity information is a crime'
+                    }</li>
+                    <li>• {currentLanguage === 'tr'
+                      ? 'Yaş hilesi yapan hesaplar kalıcı olarak kapatılır'
+                      : 'Accounts with age fraud are permanently closed'
+                    }</li>
+                    <li>• {currentLanguage === 'tr'
+                      ? 'Veliler çocuklarının internet erişimini kontrol etmelidir'
+                      : 'Parents should control their children\'s internet access'
+                    }</li>
                   </ul>
                 </div>
                 
                 <div className="bg-red-50 dark:bg-red-950 p-4 rounded-lg border border-red-200 dark:border-red-800">
-                  <h4 className="font-semibold text-red-800 dark:text-red-200 mb-2">Cezai Sorumluluk</h4>
+                  <h4 className="font-semibold text-red-800 dark:text-red-200 mb-2">
+                    {currentLanguage === 'tr' ? 'Cezai Sorumluluk' : 'Criminal Liability'}
+                  </h4>
                   <p className="text-sm text-red-700 dark:text-red-300">
-                    18 yaş altı kişilerin kumar oynaması yasa dışıdır. Bu durumda hem kullanıcı hem de 
-                    veliler yasal sorumluluk altına girebilir.
+                    {currentLanguage === 'tr'
+                      ? '18 yaş altı kişilerin kumar oynaması yasa dışıdır. Bu durumda hem kullanıcı hem de veliler yasal sorumluluk altına girebilir.'
+                      : 'Gambling by persons under 18 is illegal. In this case, both the user and parents may be legally liable.'
+                    }
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Ebeveyn Kontrolü */}
+            {/* Parental Control */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="h-5 w-5 text-blue-500" />
-                  Ebeveyn Kontrolü ve Koruma
+                  {currentLanguage === 'tr' ? 'Ebeveyn Kontrolü ve Koruma' : 'Parental Control and Protection'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground">
-                  Ebeveynler çocuklarını korumak için aşağıdaki önlemleri alabilir:
+                  {currentLanguage === 'tr'
+                    ? 'Ebeveynler çocuklarını korumak için aşağıdaki önlemleri alabilir:'
+                    : 'Parents can take the following measures to protect their children:'
+                  }
                 </p>
                 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold mb-2">İnternet Filtreleri</h4>
+                    <h4 className="font-semibold mb-2">
+                      {currentLanguage === 'tr' ? 'İnternet Filtreleri' : 'Internet Filters'}
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      Çocuğunuzun cihazına kumar sitelerini engelleyen filtreler kurun.
+                      {currentLanguage === 'tr'
+                        ? 'Çocuğunuzun cihazına kumar sitelerini engelleyen filtreler kurun.'
+                        : 'Install filters on your child\'s device that block gambling sites.'
+                      }
                     </p>
                   </div>
                   
                   <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold mb-2">Düzenli Kontrol</h4>
+                    <h4 className="font-semibold mb-2">
+                      {currentLanguage === 'tr' ? 'Düzenli Kontrol' : 'Regular Monitoring'}
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      Çocuğunuzun internet aktivitelerini düzenli olarak kontrol edin.
+                      {currentLanguage === 'tr'
+                        ? 'Çocuğunuzun internet aktivitelerini düzenli olarak kontrol edin.'
+                        : 'Regularly monitor your child\'s internet activities.'
+                      }
                     </p>
                   </div>
                   
                   <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold mb-2">Finansal Kontrol</h4>
+                    <h4 className="font-semibold mb-2">
+                      {currentLanguage === 'tr' ? 'Finansal Kontrol' : 'Financial Control'}
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      Banka kartı ve kredi kartı kullanımını kontrol altında tutun.
+                      {currentLanguage === 'tr'
+                        ? 'Banka kartı ve kredi kartı kullanımını kontrol altında tutun.'
+                        : 'Keep debit and credit card usage under control.'
+                      }
                     </p>
                   </div>
                   
                   <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold mb-2">Bilinçlendirme</h4>
+                    <h4 className="font-semibold mb-2">
+                      {currentLanguage === 'tr' ? 'Bilinçlendirme' : 'Education'}
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      Çocuğunuzu kumar riskler konusunda bilinçlendirin.
+                      {currentLanguage === 'tr'
+                        ? 'Çocuğunuzu kumar riskleri konusunda bilinçlendirin.'
+                        : 'Educate your child about gambling risks.'
+                      }
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Sorumlu Oyun */}
+            {/* Responsible Gaming */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-green-500" />
-                  Sorumlu Oyun Taahhüdü
+                  {currentLanguage === 'tr' ? 'Sorumlu Oyun Taahhüdü' : 'Responsible Gaming Commitment'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground">
-                  GuduBet olarak sorumlu oyun politikalarını destekliyoruz:
+                  {currentLanguage === 'tr'
+                    ? 'GuduBet olarak sorumlu oyun politikalarını destekliyoruz:'
+                    : 'As GuduBet, we support responsible gaming policies:'
+                  }
                 </p>
                 
                 <ul className="space-y-2 text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <Shield className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    Yaş doğrulama sistemleri
+                    {currentLanguage === 'tr' ? 'Yaş doğrulama sistemleri' : 'Age verification systems'}
                   </li>
                   <li className="flex items-start gap-2">
                     <Clock className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-                    Oyun süresi sınırlamaları
+                    {currentLanguage === 'tr' ? 'Oyun süresi sınırlamaları' : 'Gaming time limitations'}
                   </li>
                   <li className="flex items-start gap-2">
                     <Lock className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" />
-                    Bahis limiti belirleme
+                    {currentLanguage === 'tr' ? 'Bahis limiti belirleme' : 'Betting limit setting'}
                   </li>
                   <li className="flex items-start gap-2">
                     <UserCheck className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" />
-                    Kendini dışlama seçenekleri
+                    {currentLanguage === 'tr' ? 'Kendini dışlama seçenekleri' : 'Self-exclusion options'}
                   </li>
                 </ul>
                 
                 <div className="pt-4">
                   <Link to="/responsible-gaming">
                     <Button className="w-full md:w-auto">
-                      Sorumlu Oyun Sayfasını Ziyaret Edin
+                      {currentLanguage === 'tr' 
+                        ? 'Sorumlu Oyun Sayfasını Ziyaret Edin'
+                        : 'Visit Responsible Gaming Page'
+                      }
                     </Button>
                   </Link>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Yardım ve Destek */}
+            {/* Help and Support */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Phone className="h-5 w-5 text-primary" />
-                  Yardım ve Destek
+                  {currentLanguage === 'tr' ? 'Yardım ve Destek' : 'Help and Support'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground">
-                  Kumar bağımlılığı ile ilgili yardım için:
+                  {currentLanguage === 'tr'
+                    ? 'Kumar bağımlılığı ile ilgili yardım için:'
+                    : 'For help with gambling addiction:'
+                  }
                 </p>
                 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">Kumar Bağımlıları Derneği</h4>
+                    <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                      {currentLanguage === 'tr' ? 'Kumar Bağımlıları Derneği' : 'Gambling Addicts Association'}
+                    </h4>
                     <p className="text-sm text-blue-700 dark:text-blue-300">
-                      <strong>Telefon:</strong> 0212 292 00 00<br />
+                      <strong>{currentLanguage === 'tr' ? 'Telefon:' : 'Phone:'}</strong> 0212 292 00 00<br />
                       <strong>Web:</strong> www.kumarbagimlilaridernegi.org
                     </p>
                   </div>
@@ -238,8 +321,8 @@ const AgeWarning = () => {
                   <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
                     <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">AMATEM</h4>
                     <p className="text-sm text-green-700 dark:text-green-300">
-                      <strong>Telefon:</strong> 183<br />
-                      <strong>24/7 Destek Hattı</strong>
+                      <strong>{currentLanguage === 'tr' ? 'Telefon:' : 'Phone:'}</strong> 183<br />
+                      <strong>{currentLanguage === 'tr' ? '24/7 Destek Hattı' : '24/7 Support Line'}</strong>
                     </p>
                   </div>
                 </div>
