@@ -113,13 +113,13 @@ const Footer = () => {
                   <img 
                     src="/lovable-uploads/e3f1f323-0e0c-4976-879b-1863ddc0b0c5.png" 
                     alt="PayCo" 
-                    className="h-6 w-auto object-contain"
+                    className="h-6 w-auto object-contain rounded"
                   />
                 ) : provider === 'Banka' ? (
                   <img 
                     src="/lovable-uploads/d69c217a-d016-4085-a2fb-32e5edbf795a.png" 
                     alt="Banka" 
-                    className="w-full h-8 object-contain"
+                    className="w-full h-8 object-contain rounded"
                   />
                 ) : provider === 'SUPER PAY' ? (
                   <img 
