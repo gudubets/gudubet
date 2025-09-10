@@ -47,7 +47,7 @@ const Index = () => {
                       className="w-full h-full object-cover"
                       style={{ 
                         imageRendering: 'crisp-edges',
-                        objectPosition: 'center 20%'
+                        objectPosition: 'center top'
                       }}
                     />
                   </div>
