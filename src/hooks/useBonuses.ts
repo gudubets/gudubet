@@ -162,8 +162,10 @@ export const useUserBonuses = (userId?: string) => {
         .from('user_bonus_tracking')
         .select(`
           *,
-          bonuses_new(*),
-          bonus_rules(*)
+          bonuses_new(
+            *,
+            bonus_rules(*)
+          )
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
@@ -238,8 +240,10 @@ export const useBonusProgress = (userBonusId: string) => {
         .from('user_bonus_tracking')
         .select(`
           *,
-          bonuses_new(*),
-          bonus_rules(*)
+          bonuses_new(
+            *,
+            bonus_rules(*)
+          )
         `)
         .eq('id', userBonusId)
         .single();
