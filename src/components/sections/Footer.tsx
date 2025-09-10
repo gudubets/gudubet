@@ -125,7 +125,7 @@ const Footer = () => {
                   <img 
                     src="/lovable-uploads/4e010e53-eeae-4995-9217-4a4443b976c2.png" 
                     alt="SuperPay" 
-                    className="h-6 w-auto object-contain"
+                    className="h-full w-full object-cover rounded"
                   />
                 ) : (
                   <span className="text-xs text-gray-300">{provider}</span>
