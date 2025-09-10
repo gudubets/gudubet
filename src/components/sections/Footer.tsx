@@ -133,6 +133,12 @@ const Footer = () => {
                     alt="PEP" 
                     className="h-full w-full object-cover rounded"
                   />
+                ) : provider === 'papara' ? (
+                  <img 
+                    src="/lovable-uploads/902957d9-017b-4fed-8e28-fc43872f0ac4.png" 
+                    alt="Papara" 
+                    className="h-full w-full object-cover rounded"
+                  />
                 ) : (
                   <span className="text-xs text-gray-300">{provider}</span>
                 )}
