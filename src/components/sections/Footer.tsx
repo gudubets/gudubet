@@ -107,7 +107,7 @@ const Footer = () => {
         {/* Payment Providers */}
         <div className="mb-8">
           <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['PAYco', 'Banka', 'SUPER PAY', 'PEP', 'papara', 'PAY', 'bitcoin', 'Litecoin', 'ethereum', 'VIGO', 'VIGO BONUS'].map((provider, index) => (
+            {['PAYco', 'Banka', 'SUPER PAY', 'PEP', 'papara', 'PAY', 'bitcoin', 'Litecoin', 'ethereum'].map((provider, index) => (
               <div key={`payment-${provider}-${index}`} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
                 {provider === 'PAYco' ? (
                   <img 
