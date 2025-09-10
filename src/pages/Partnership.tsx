@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
+import { useI18n } from '@/hooks/useI18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,8 @@ import {
 } from 'lucide-react';
 
 const Partnership = () => {
+  const { t } = useI18n();
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
@@ -33,28 +36,28 @@ const Partnership = () => {
           <div className="flex justify-center items-center mb-6">
             <Handshake className="w-16 h-16 text-orange-500 mr-4" />
             <h1 className="text-4xl md:text-6xl font-bold">
-              <span className="text-white">Ortaklık</span>
-              <span className="text-orange-500"> Programı</span>
+              <span className="text-white">{t('partnership.title.part1', 'Partnership')}</span>
+              <span className="text-orange-500"> {t('partnership.title.part2', 'Program')}</span>
             </h1>
           </div>
           <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
-            GuduBet ile ortaklık kurun ve bahis sektöründeki en kazançlı programdan yararlanın
+            {t('partnership.subtitle', 'Partner with GuduBet and benefit from the most profitable program in the betting industry')}
           </p>
           <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 rounded-lg p-6 max-w-2xl mx-auto">
             <p className="text-lg font-semibold text-orange-400">
-              %45'e varan komisyon oranları ile en yüksek kazancı elde edin!
+              {t('partnership.commission.highlight', 'Achieve the highest earnings with commission rates up to 45%!')}
             </p>
           </div>
         </div>
 
-        {/* Avantajlar */}
+        {/* Benefits */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           <Card className="bg-gradient-to-br from-orange-900/50 to-gray-900 border-orange-500/30 text-center">
             <CardContent className="p-6">
               <DollarSign className="w-12 h-12 text-orange-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-orange-400 mb-2">%45 Komisyon</h3>
+              <h3 className="text-xl font-bold text-orange-400 mb-2">{t('partnership.benefits.commission.title', '45% Commission')}</h3>
               <p className="text-gray-300 text-sm">
-                Sektördeki en yüksek komisyon oranları
+                {t('partnership.benefits.commission.desc', 'Highest commission rates in the industry')}
               </p>
             </CardContent>
           </Card>
@@ -62,9 +65,9 @@ const Partnership = () => {
           <Card className="bg-gradient-to-br from-green-900/50 to-gray-900 border-green-500/30 text-center">
             <CardContent className="p-6">
               <Calendar className="w-12 h-12 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-green-400 mb-2">Haftalık Ödeme</h3>
+              <h3 className="text-xl font-bold text-green-400 mb-2">{t('partnership.benefits.payment.title', 'Weekly Payment')}</h3>
               <p className="text-gray-300 text-sm">
-                Kazançlarınızı haftada bir alın
+                {t('partnership.benefits.payment.desc', 'Receive your earnings once a week')}
               </p>
             </CardContent>
           </Card>
@@ -72,9 +75,9 @@ const Partnership = () => {
           <Card className="bg-gradient-to-br from-blue-900/50 to-gray-900 border-blue-500/30 text-center">
             <CardContent className="p-6">
               <BarChart3 className="w-12 h-12 text-blue-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-blue-400 mb-2">Detaylı Raporlar</h3>
+              <h3 className="text-xl font-bold text-blue-400 mb-2">{t('partnership.benefits.reports.title', 'Detailed Reports')}</h3>
               <p className="text-gray-300 text-sm">
-                Gerçek zamanlı istatistikler
+                {t('partnership.benefits.reports.desc', 'Real-time statistics')}
               </p>
             </CardContent>
           </Card>
@@ -82,115 +85,115 @@ const Partnership = () => {
           <Card className="bg-gradient-to-br from-purple-900/50 to-gray-900 border-purple-500/30 text-center">
             <CardContent className="p-6">
               <Users className="w-12 h-12 text-purple-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-purple-400 mb-2">7/24 Destek</h3>
+              <h3 className="text-xl font-bold text-purple-400 mb-2">{t('partnership.benefits.support.title', '24/7 Support')}</h3>
               <p className="text-gray-300 text-sm">
-                Özel affiliate destek ekibi
+                {t('partnership.benefits.support.desc', 'Dedicated affiliate support team')}
               </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Komisyon Yapısı */}
+        {/* Commission Structure */}
         <Card className="bg-gray-900 border-gray-700 mb-12">
           <CardHeader>
             <CardTitle className="flex items-center text-orange-500 text-2xl">
               <TrendingUp className="w-8 h-8 mr-3" />
-              Komisyon Yapısı
+              {t('partnership.commission.title', 'Commission Structure')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-6 bg-gradient-to-br from-orange-500/20 to-yellow-500/20 rounded-lg">
-                <div className="text-3xl font-bold text-orange-400 mb-2">%25</div>
-                <div className="text-white font-semibold mb-2">Başlangıç Komisyonu</div>
-                <div className="text-gray-300 text-sm">0-50 Aktif Oyuncu</div>
+                <div className="text-3xl font-bold text-orange-400 mb-2">25%</div>
+                <div className="text-white font-semibold mb-2">{t('partnership.commission.starter.title', 'Starter Commission')}</div>
+                <div className="text-gray-300 text-sm">{t('partnership.commission.starter.desc', '0-50 Active Players')}</div>
               </div>
 
               <div className="text-center p-6 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-lg">
-                <div className="text-3xl font-bold text-green-400 mb-2">%35</div>
-                <div className="text-white font-semibold mb-2">Orta Seviye</div>
-                <div className="text-gray-300 text-sm">51-200 Aktif Oyuncu</div>
+                <div className="text-3xl font-bold text-green-400 mb-2">35%</div>
+                <div className="text-white font-semibold mb-2">{t('partnership.commission.mid.title', 'Mid Level')}</div>
+                <div className="text-gray-300 text-sm">{t('partnership.commission.mid.desc', '51-200 Active Players')}</div>
               </div>
 
               <div className="text-center p-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg">
-                <div className="text-3xl font-bold text-purple-400 mb-2">%45</div>
-                <div className="text-white font-semibold mb-2">VIP Komisyon</div>
-                <div className="text-gray-300 text-sm">200+ Aktif Oyuncu</div>
+                <div className="text-3xl font-bold text-purple-400 mb-2">45%</div>
+                <div className="text-white font-semibold mb-2">{t('partnership.commission.vip.title', 'VIP Commission')}</div>
+                <div className="text-gray-300 text-sm">{t('partnership.commission.vip.desc', '200+ Active Players')}</div>
               </div>
             </div>
 
             <div className="mt-8 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
               <div className="flex items-center mb-2">
                 <Award className="w-5 h-5 text-blue-400 mr-2" />
-                <span className="text-blue-400 font-semibold">Özel Bonuslar</span>
+                <span className="text-blue-400 font-semibold">{t('partnership.bonus.title', 'Special Bonuses')}</span>
               </div>
               <ul className="text-gray-300 text-sm space-y-1">
-                <li>• İlk 10 oyuncu getiren ortaklar için %5 ek bonus</li>
-                <li>• Aylık 1000€ üzeri kazanç için %10 ekstra komisyon</li>
-                <li>• Yıllık performans bonusu (kazanca göre %20'ye kadar)</li>
+                <li>• {t('partnership.bonus.first10', '5% extra bonus for partners bringing first 10 players')}</li>
+                <li>• {t('partnership.bonus.monthly', '10% extra commission for monthly earnings over €1000')}</li>
+                <li>• {t('partnership.bonus.yearly', 'Annual performance bonus (up to 20% based on earnings)')}</li>
               </ul>
             </div>
           </CardContent>
         </Card>
 
-        {/* Pazarlama Araçları */}
+        {/* Marketing Tools */}
         <Card className="bg-gray-900 border-gray-700 mb-12">
           <CardHeader>
             <CardTitle className="flex items-center text-orange-500 text-2xl">
               <Target className="w-8 h-8 mr-3" />
-              Pazarlama Araçları
+              {t('partnership.marketing.title', 'Marketing Tools')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-xl font-semibold text-white mb-4">Kreatif Materyaller</h3>
+                <h3 className="text-xl font-semibold text-white mb-4">{t('partnership.marketing.creative.title', 'Creative Materials')}</h3>
                 <ul className="space-y-2 text-gray-300">
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    Banner reklamları (çeşitli boyutlarda)
+                    {t('partnership.marketing.creative.banners', 'Banner ads (various sizes)')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    Video reklamlar
+                    {t('partnership.marketing.creative.videos', 'Video ads')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    Email şablonları
+                    {t('partnership.marketing.creative.emails', 'Email templates')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    Sosyal medya içerikleri
+                    {t('partnership.marketing.creative.social', 'Social media content')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    Landing page şablonları
+                    {t('partnership.marketing.creative.landing', 'Landing page templates')}
                   </li>
                 </ul>
               </div>
 
               <div>
-                <h3 className="text-xl font-semibold text-white mb-4">Teknik Destek</h3>
+                <h3 className="text-xl font-semibold text-white mb-4">{t('partnership.marketing.technical.title', 'Technical Support')}</h3>
                 <ul className="space-y-2 text-gray-300">
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    API entegrasyonu
+                    {t('partnership.marketing.technical.api', 'API integration')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    Tracking linkler
+                    {t('partnership.marketing.technical.tracking', 'Tracking links')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    Gerçek zamanlı raporlama
+                    {t('partnership.marketing.technical.reporting', 'Real-time reporting')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    Conversion optimizasyonu
+                    {t('partnership.marketing.technical.optimization', 'Conversion optimization')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    Özelleştirilebilir dashboard
+                    {t('partnership.marketing.technical.dashboard', 'Customizable dashboard')}
                   </li>
                 </ul>
               </div>
@@ -198,21 +201,21 @@ const Partnership = () => {
           </CardContent>
         </Card>
 
-        {/* İletişim ve Başvuru Formu */}
+        {/* Contact and Application Form */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* İletişim Bilgileri */}
+          {/* Contact Information */}
           <Card className="bg-gray-900 border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center text-orange-500">
                 <Mail className="w-6 h-6 mr-3" />
-                İletişim Bilgileri
+                {t('partnership.contact.title', 'Contact Information')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center">
                 <Mail className="w-5 h-5 text-orange-500 mr-3" />
                 <div>
-                  <div className="font-semibold text-white">Affiliate Manager</div>
+                  <div className="font-semibold text-white">{t('partnership.contact.affiliate', 'Affiliate Manager')}</div>
                   <div className="text-gray-300">affiliates@gudubet.com</div>
                 </div>
               </div>
@@ -220,7 +223,7 @@ const Partnership = () => {
               <div className="flex items-center">
                 <Phone className="w-5 h-5 text-orange-500 mr-3" />
                 <div>
-                  <div className="font-semibold text-white">WhatsApp Destek</div>
+                  <div className="font-semibold text-white">{t('partnership.contact.whatsapp', 'WhatsApp Support')}</div>
                   <div className="text-gray-300">+90 555 123 45 67</div>
                 </div>
               </div>
@@ -236,114 +239,110 @@ const Partnership = () => {
               <Separator className="bg-gray-700" />
 
               <div>
-                <h4 className="font-semibold text-white mb-2">Çalışma Saatleri</h4>
-                <p className="text-gray-300 text-sm">Pazartesi - Pazar: 09:00 - 18:00 (GMT+3)</p>
-                <p className="text-gray-300 text-sm">Acil durumlar için 7/24 WhatsApp destek</p>
+                <h4 className="font-semibold text-white mb-2">{t('partnership.contact.hours', 'Working Hours')}</h4>
+                <p className="text-gray-300 text-sm">{t('partnership.contact.schedule', 'Monday - Sunday: 09:00 - 18:00 (GMT+3)')}</p>
+                <p className="text-gray-300 text-sm">{t('partnership.contact.emergency', '24/7 WhatsApp support for emergencies')}</p>
               </div>
             </CardContent>
           </Card>
 
-          {/* Başvuru Formu */}
+          {/* Application Form */}
           <Card className="bg-gray-900 border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center text-orange-500">
                 <Users className="w-6 h-6 mr-3" />
-                Ortaklık Başvurusu
+                {t('partnership.form.title', 'Partnership Application')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="firstName" className="text-sm">Ad *</Label>
-                    <Input id="firstName" placeholder="Adınız" className="mt-1" />
+                    <Label htmlFor="firstName" className="text-sm">{t('partnership.form.firstName', 'First Name')} *</Label>
+                    <Input id="firstName" placeholder={t('partnership.form.firstNamePlaceholder', 'Your First Name')} className="mt-1" />
                   </div>
                   <div>
-                    <Label htmlFor="lastName" className="text-sm">Soyad *</Label>
-                    <Input id="lastName" placeholder="Soyadınız" className="mt-1" />
+                    <Label htmlFor="lastName" className="text-sm">{t('partnership.form.lastName', 'Last Name')} *</Label>
+                    <Input id="lastName" placeholder={t('partnership.form.lastNamePlaceholder', 'Your Last Name')} className="mt-1" />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="email" className="text-sm">E-posta *</Label>
-                  <Input id="email" type="email" placeholder="ornek@email.com" className="mt-1" />
+                  <Label htmlFor="email" className="text-sm">{t('partnership.form.email', 'Email')} *</Label>
+                  <Input id="email" type="email" placeholder={t('partnership.form.emailPlaceholder', 'example@email.com')} className="mt-1" />
                 </div>
 
                 <div>
-                  <Label htmlFor="phone" className="text-sm">Telefon *</Label>
+                  <Label htmlFor="phone" className="text-sm">{t('partnership.form.phone', 'Phone')} *</Label>
                   <Input id="phone" type="tel" placeholder="+90 555 123 45 67" className="mt-1" />
                 </div>
 
                 <div>
-                  <Label htmlFor="website" className="text-sm">Website/Platform</Label>
-                  <Input id="website" placeholder="www.orneksite.com" className="mt-1" />
+                  <Label htmlFor="website" className="text-sm">{t('partnership.form.website', 'Website/Platform')}</Label>
+                  <Input id="website" placeholder={t('partnership.form.websitePlaceholder', 'www.example.com')} className="mt-1" />
                 </div>
 
                 <div>
-                  <Label htmlFor="traffic" className="text-sm">Aylık Trafik</Label>
-                  <Input id="traffic" placeholder="Örn: 10,000 ziyaretçi" className="mt-1" />
+                  <Label htmlFor="traffic" className="text-sm">{t('partnership.form.traffic', 'Monthly Traffic')}</Label>
+                  <Input id="traffic" placeholder={t('partnership.form.trafficPlaceholder', 'e.g: 10,000 visitors')} className="mt-1" />
                 </div>
 
                 <div>
-                  <Label htmlFor="experience" className="text-sm">Affiliate Deneyimi</Label>
+                  <Label htmlFor="experience" className="text-sm">{t('partnership.form.experience', 'Affiliate Experience')}</Label>
                   <Textarea 
                     id="experience" 
-                    placeholder="Daha önce hangi platformlarla çalıştınız? Deneyiminizi kısaca açıklayın."
+                    placeholder={t('partnership.form.experiencePlaceholder', 'Which platforms have you worked with before? Briefly describe your experience.')}
                     className="mt-1"
                     rows={3}
                   />
                 </div>
 
                 <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3">
-                  Başvuru Gönder
+                  {t('partnership.form.submit', 'Submit Application')}
                 </Button>
 
                 <p className="text-xs text-gray-400 text-center">
-                  Başvurunuz 24-48 saat içerisinde değerlendirilecektir.
+                  {t('partnership.form.review', 'Your application will be reviewed within 24-48 hours.')}
                 </p>
               </form>
             </CardContent>
           </Card>
         </div>
 
-        {/* SSS */}
+        {/* FAQ */}
         <Card className="bg-gray-900 border-gray-700">
           <CardHeader>
             <CardTitle className="text-orange-500 text-2xl">
-              Sıkça Sorulan Sorular
+              {t('partnership.faq.title', 'Frequently Asked Questions')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               <div>
-                <h4 className="text-white font-semibold mb-2">Ortaklık programına kimler başvurabilir?</h4>
+                <h4 className="text-white font-semibold mb-2">{t('partnership.faq.q1', 'Who can apply to the partnership program?')}</h4>
                 <p className="text-gray-300 text-sm">
-                  18 yaşını doldurmuş, yasal olarak iş yapabilen herkes başvurabilir. 
-                  Website, blog, sosyal medya hesapları veya email listesi olan kişiler tercih edilir.
+                  {t('partnership.faq.a1', 'Anyone who is 18+ and can legally do business can apply. People with websites, blogs, social media accounts or email lists are preferred.')}
                 </p>
               </div>
 
               <div>
-                <h4 className="text-white font-semibold mb-2">Ödemeler ne zaman yapılır?</h4>
+                <h4 className="text-white font-semibold mb-2">{t('partnership.faq.q2', 'When are payments made?')}</h4>
                 <p className="text-gray-300 text-sm">
-                  Ödemeler her hafta Salı günleri yapılır. Minimum ödeme tutarı 100€'dur. 
-                  Bu tutarı geçmeyen kazançlar bir sonraki haftaya aktarılır.
+                  {t('partnership.faq.a2', 'Payments are made every Tuesday. Minimum payment amount is €100. Earnings that do not exceed this amount are carried over to the next week.')}
                 </p>
               </div>
 
               <div>
-                <h4 className="text-white font-semibold mb-2">Hangi pazarlama yöntemlerini kullanabilirim?</h4>
+                <h4 className="text-white font-semibold mb-2">{t('partnership.faq.q3', 'What marketing methods can I use?')}</h4>
                 <p className="text-gray-300 text-sm">
-                  Yasal olmayan, spam veya yanıltıcı pazarlama yöntemleri dışında 
-                  tüm pazarlama kanallarını kullanabilirsiniz. Detaylar sözleşmede belirtilmiştir.
+                  {t('partnership.faq.a3', 'You can use all marketing channels except illegal, spam or misleading marketing methods. Details are specified in the contract.')}
                 </p>
               </div>
 
               <div>
-                <h4 className="text-white font-semibold mb-2">Komisyon nasıl hesaplanır?</h4>
+                <h4 className="text-white font-semibold mb-2">{t('partnership.faq.q4', 'How is commission calculated?')}</h4>
                 <p className="text-gray-300 text-sm">
-                  Komisyon, getirdiğiniz oyuncuların net kaybına (bahis tutarı - kazanç) göre hesaplanır. 
-                  Aktif oyuncu sayınıza göre komisyon oranınız artar.
+                  {t('partnership.faq.a4', 'Commission is calculated based on the net loss (bet amount - winnings) of the players you bring. Your commission rate increases according to your number of active players.')}
                 </p>
               </div>
             </div>
