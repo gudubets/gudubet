@@ -131,7 +131,7 @@ const Footer = () => {
                   <img 
                     src="/lovable-uploads/8627ae24-cef8-4f70-b840-ca2efba32223.png" 
                     alt="PEP" 
-                    className="h-6 w-auto object-contain"
+                    className="h-full w-full object-cover rounded"
                   />
                 ) : (
                   <span className="text-xs text-gray-300">{provider}</span>
