@@ -6,36 +6,263 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface IPAnalysisRequest {
-  ip_address: string;
-  user_id?: string;
-  action_type?: string;
+interface FraudAnalysisRequest {
+  user_id: string;
+  action_type: 'login' | 'deposit' | 'withdrawal' | 'registration';
   amount?: number;
+  ip_address?: string;
+  user_agent?: string;
   device_fingerprint?: string;
-}
-
-interface IPAPIResponse {
-  status: string;
-  country: string;
-  countryCode: string;
-  region: string;
-  regionName: string;
-  city: string;
-  zip: string;
-  lat: number;
-  lon: number;
-  timezone: string;
-  isp: string;
-  org: string;
-  as: string;
-  query: string;
-  proxy: boolean;
-  hosting: boolean;
+  metadata?: any;
 }
 
 const logStep = (step: string, details?: any) => {
   console.log(`[FRAUD-ANALYSIS] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
 };
+
+// VPN/Proxy detection using IP analysis
+async function detectVPNProxy(ipAddress: string, supabase: any): Promise<{ isVPN: boolean; isProxy: boolean; isTor: boolean; isDatacenter: boolean; countryCode?: string; riskScore: number; }> {
+  try {
+    // Check if IP analysis exists and is recent (less than 24 hours)
+    const { data: existingAnalysis } = await supabase
+      .from("ip_analysis")
+      .select("*")
+      .eq("ip_address", ipAddress)
+      .gte('last_checked_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+      .single();
+
+    if (existingAnalysis) {
+      return {
+        isVPN: existingAnalysis.is_vpn || false,
+        isProxy: existingAnalysis.is_proxy || false,
+        isTor: existingAnalysis.is_tor || false,
+        isDatacenter: existingAnalysis.is_datacenter || false,
+        countryCode: existingAnalysis.country_code,
+        riskScore: existingAnalysis.risk_score || 0
+      };
+    }
+
+    // Fetch IP information from external API
+    const ipResponse = await fetch(`http://ip-api.com/json/${ipAddress}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,proxy,hosting,query`);
+    const ipInfo = await ipResponse.json();
+
+    if (ipInfo.status === 'fail') {
+      throw new Error(`IP API error: ${ipInfo.message || 'Unknown error'}`);
+    }
+
+    // Calculate risk factors
+    let risk_score = 0;
+    let threat_level = 'low';
+    
+    const is_proxy = ipInfo.proxy || false;
+    const is_datacenter = ipInfo.hosting || false;
+    
+    // VPN detection based on ISP/Organization names
+    const vpnKeywords = ['vpn', 'proxy', 'tunnel', 'private', 'anonymous', 'shield', 'secure'];
+    const is_vpn = vpnKeywords.some(keyword => 
+      (ipInfo.isp?.toLowerCase().includes(keyword) || 
+       ipInfo.org?.toLowerCase().includes(keyword))
+    );
+
+    // Risk scoring
+    if (is_proxy) risk_score += 40;
+    if (is_vpn) risk_score += 30; 
+    if (is_datacenter) risk_score += 45;
+
+    // High-risk countries
+    const highRiskCountries = ['AF', 'KP', 'IR', 'SY', 'RU', 'CN'];
+    if (highRiskCountries.includes(ipInfo.countryCode)) {
+      risk_score += 50;
+    }
+
+    // Determine threat level
+    if (risk_score >= 70) threat_level = 'critical';
+    else if (risk_score >= 50) threat_level = 'high';
+    else if (risk_score >= 30) threat_level = 'medium';
+
+    // Store analysis
+    await supabase
+      .from('ip_analysis')
+      .upsert({
+        ip_address: ipAddress,
+        country_code: ipInfo.countryCode,
+        city: ipInfo.city,
+        region: ipInfo.regionName,
+        timezone: ipInfo.timezone,
+        is_vpn,
+        is_proxy,
+        is_tor: false,
+        is_datacenter,
+        risk_score,
+        threat_level,
+        last_checked_at: new Date().toISOString(),
+        provider_data: {
+          isp: ipInfo.isp,
+          org: ipInfo.org,
+          as: ipInfo.as,
+          lat: ipInfo.lat,
+          lon: ipInfo.lon
+        },
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'ip_address' });
+
+    return {
+      isVPN: is_vpn,
+      isProxy: is_proxy,
+      isTor: false,
+      isDatacenter: is_datacenter,
+      countryCode: ipInfo.countryCode,
+      riskScore: risk_score
+    };
+  } catch (error) {
+    console.error("VPN/Proxy detection error:", error);
+    return {
+      isVPN: false,
+      isProxy: false,
+      isTor: false,
+      isDatacenter: false,
+      riskScore: 0
+    };
+  }
+}
+
+// Velocity analysis for rapid actions
+async function analyzeVelocity(userId: string, actionType: string, supabase: any): Promise<{ isViolation: boolean; count: number; timeWindow: string; maxAllowed: number; }> {
+  try {
+    const now = new Date();
+    let timeWindow;
+    let maxCount;
+    
+    // Define velocity rules based on action type
+    switch (actionType) {
+      case 'login':
+        timeWindow = new Date(now.getTime() - 15 * 60 * 1000); // 15 minutes
+        maxCount = 10;
+        break;
+      case 'deposit':
+        timeWindow = new Date(now.getTime() - 60 * 60 * 1000); // 60 minutes
+        maxCount = 5;
+        break;
+      case 'withdrawal':
+        timeWindow = new Date(now.getTime() - 30 * 60 * 1000); // 30 minutes
+        maxCount = 3;
+        break;
+      default:
+        timeWindow = new Date(now.getTime() - 60 * 60 * 1000); // 60 minutes
+        maxCount = 10;
+    }
+
+    // Count recent actions based on type
+    let count = 0;
+    
+    if (actionType === 'login') {
+      const { data: loginAttempts } = await supabase
+        .from("login_attempts")
+        .select("*")
+        .eq("user_id", userId)
+        .gte("created_at", timeWindow.toISOString());
+      count = loginAttempts?.length || 0;
+    } else if (actionType === 'deposit') {
+      const { data: payments } = await supabase
+        .from("payments")
+        .select("*")
+        .eq("user_id", userId)
+        .neq("payment_method", "withdrawal")
+        .gte("created_at", timeWindow.toISOString());
+      count = payments?.length || 0;
+    } else if (actionType === 'withdrawal') {
+      const { data: withdrawals } = await supabase
+        .from("withdrawals")
+        .select("*")
+        .eq("user_id", userId)
+        .gte("created_at", timeWindow.toISOString());
+      count = withdrawals?.length || 0;
+    }
+
+    return {
+      isViolation: count >= maxCount,
+      count,
+      timeWindow: timeWindow.toISOString(),
+      maxAllowed: maxCount
+    };
+  } catch (error) {
+    console.error("Velocity analysis error:", error);
+    return { isViolation: false, count: 0, timeWindow: "", maxAllowed: 0 };
+  }
+}
+
+// Device fingerprint analysis
+async function analyzeDeviceFingerprint(userId: string, deviceFingerprint: string, supabase: any): Promise<{ isSuspicious: boolean; reason?: string; userCount?: number; isNewDevice: boolean; }> {
+  try {
+    if (!deviceFingerprint) {
+      return { isSuspicious: false, isNewDevice: false };
+    }
+
+    // Check how many users are using this device
+    const { data: deviceUsers } = await supabase
+      .from("device_fingerprints")
+      .select("user_id, first_seen_at")
+      .eq("fingerprint_hash", deviceFingerprint);
+
+    const uniqueUsers = new Set(deviceUsers?.map(d => d.user_id) || []);
+    const userCount = uniqueUsers.size;
+
+    // Check if this is a new device for this user
+    const { data: existingFingerprint } = await supabase
+      .from("device_fingerprints")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("fingerprint_hash", deviceFingerprint)
+      .single();
+
+    const isNewDevice = !existingFingerprint;
+
+    // Update or create device fingerprint record
+    if (isNewDevice) {
+      await supabase
+        .from("device_fingerprints")
+        .insert({
+          user_id: userId,
+          fingerprint_hash: deviceFingerprint,
+          first_seen_at: new Date().toISOString(),
+          last_seen_at: new Date().toISOString(),
+          usage_count: 1
+        });
+    } else {
+      await supabase
+        .from("device_fingerprints")
+        .update({
+          last_seen_at: new Date().toISOString(),
+          usage_count: existingFingerprint.usage_count + 1
+        })
+        .eq("id", existingFingerprint.id);
+    }
+
+    // Flag suspicious patterns
+    if (userCount > 3) {
+      return { 
+        isSuspicious: true, 
+        reason: "Device used by multiple users", 
+        userCount,
+        isNewDevice
+      };
+    }
+
+    if (isNewDevice) {
+      return { 
+        isSuspicious: true, 
+        reason: "New device detected", 
+        userCount,
+        isNewDevice
+      };
+    }
+
+    return { isSuspicious: false, userCount, isNewDevice };
+  } catch (error) {
+    console.error("Device fingerprint analysis error:", error);
+    return { isSuspicious: false, isNewDevice: false };
+  }
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -43,241 +270,199 @@ serve(async (req) => {
   }
 
   try {
-    logStep("Starting fraud analysis");
-
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      { auth: { persistSession: false } }
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { ip_address, user_id, action_type, amount, device_fingerprint }: IPAnalysisRequest = await req.json();
-    
-    if (!ip_address) {
-      throw new Error('IP address is required');
+    const { user_id, action_type, amount, ip_address, user_agent, device_fingerprint, metadata } = 
+      await req.json() as FraudAnalysisRequest;
+
+    if (!user_id) {
+      throw new Error('User ID is required');
     }
 
-    logStep("Analyzing IP", { ip_address, user_id, action_type });
+    logStep("Fraud analysis started", { user_id, action_type, amount });
 
-    // Check if IP analysis already exists and is recent (less than 24 hours old)
-    const { data: existingAnalysis } = await supabaseClient
-      .from('ip_analysis')
-      .select('*')
-      .eq('ip_address', ip_address)
-      .gte('last_checked_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-      .single();
+    let totalRiskScore = 0;
+    const violations: any[] = [];
+    let requiresManualReview = false;
 
-    let ipData;
-    
-    if (existingAnalysis) {
-      logStep("Using existing IP analysis", { id: existingAnalysis.id });
-      ipData = existingAnalysis;
-    } else {
-      logStep("Fetching new IP analysis from external API");
-
-      // Fetch IP information from ip-api.com (free tier)
-      const ipResponse = await fetch(`http://ip-api.com/json/${ip_address}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,proxy,hosting,query`);
-      const ipInfo: IPAPIResponse = await ipResponse.json();
-
-      if (ipInfo.status === 'fail') {
-        throw new Error(`IP API error: ${ipInfo.message || 'Unknown error'}`);
-      }
-
-      logStep("IP API response received", { country: ipInfo.country, city: ipInfo.city, proxy: ipInfo.proxy, hosting: ipInfo.hosting });
-
-      // Calculate risk factors
-      let risk_score = 0;
-      let threat_level = 'low';
+    // 1. VPN/Proxy Detection
+    if (ip_address) {
+      const vpnAnalysis = await detectVPNProxy(ip_address, supabase);
       
-      // VPN/Proxy detection (basic)
-      const is_proxy = ipInfo.proxy || false;
-      const is_datacenter = ipInfo.hosting || false;
-      
-      // Simple VPN detection based on ISP/Organization names
-      const vpnKeywords = ['vpn', 'proxy', 'tunnel', 'private', 'anonymous', 'shield', 'secure'];
-      const is_vpn = vpnKeywords.some(keyword => 
-        (ipInfo.isp?.toLowerCase().includes(keyword) || 
-         ipInfo.org?.toLowerCase().includes(keyword))
-      );
-
-      // Risk scoring
-      if (is_proxy) risk_score += 40;
-      if (is_vpn) risk_score += 30; 
-      if (is_datacenter) risk_score += 45;
-
-      // High-risk countries (basic list)
-      const highRiskCountries = ['AF', 'KP', 'IR', 'SY', 'RU', 'CN'];
-      if (highRiskCountries.includes(ipInfo.countryCode)) {
-        risk_score += 50;
+      if (vpnAnalysis.isVPN || vpnAnalysis.isProxy || vpnAnalysis.isTor || vpnAnalysis.isDatacenter) {
+        totalRiskScore += vpnAnalysis.riskScore;
+        requiresManualReview = true;
+        violations.push({
+          rule_type: "ip_analysis",
+          severity: "high",
+          details: vpnAnalysis,
+          risk_score: vpnAnalysis.riskScore
+        });
+        logStep("VPN/Proxy violation detected", vpnAnalysis);
       }
+    }
 
-      // Determine threat level
-      if (risk_score >= 70) threat_level = 'critical';
-      else if (risk_score >= 50) threat_level = 'high';
-      else if (risk_score >= 30) threat_level = 'medium';
+    // 2. Velocity Analysis
+    const velocityAnalysis = await analyzeVelocity(user_id, action_type, supabase);
+    if (velocityAnalysis.isViolation) {
+      const riskImpact = action_type === 'withdrawal' ? 75 : 
+                         action_type === 'deposit' ? 70 : 60;
+      totalRiskScore += riskImpact;
+      requiresManualReview = true;
+      violations.push({
+        rule_type: "velocity",
+        severity: "high",
+        details: velocityAnalysis,
+        risk_score: riskImpact
+      });
+      logStep("Velocity violation detected", velocityAnalysis);
+    }
 
-      // Store IP analysis in database
-      const { data: newAnalysis, error: insertError } = await supabaseClient
-        .from('ip_analysis')
-        .upsert({
-          ip_address,
-          country_code: ipInfo.countryCode,
-          city: ipInfo.city,
-          region: ipInfo.regionName,
-          timezone: ipInfo.timezone,
-          is_vpn,
-          is_proxy,
-          is_tor: false, // Would need specialized API for Tor detection
-          is_datacenter,
-          risk_score,
-          threat_level,
-          last_checked_at: new Date().toISOString(),
-          provider_data: {
-            isp: ipInfo.isp,
-            org: ipInfo.org,
-            as: ipInfo.as,
-            lat: ipInfo.lat,
-            lon: ipInfo.lon
+    // 3. Device Fingerprint Analysis
+    if (device_fingerprint) {
+      const deviceAnalysis = await analyzeDeviceFingerprint(user_id, device_fingerprint, supabase);
+      
+      if (deviceAnalysis.isSuspicious) {
+        const riskImpact = deviceAnalysis.reason === "Device used by multiple users" ? 70 : 
+                          deviceAnalysis.reason === "New device detected" ? 65 : 50;
+        totalRiskScore += riskImpact;
+        
+        if (riskImpact >= 65) {
+          requiresManualReview = true;
+        }
+        
+        violations.push({
+          rule_type: "device_fingerprint",
+          severity: riskImpact >= 65 ? "high" : "medium",
+          details: deviceAnalysis,
+          risk_score: riskImpact
+        });
+        logStep("Device fingerprint violation detected", deviceAnalysis);
+      }
+    }
+
+    // 4. Combined Rules Check
+    if (violations.some(v => v.rule_type === "ip_analysis") && 
+        violations.some(v => v.rule_type === "velocity")) {
+      totalRiskScore += 20; // Bonus risk for multiple red flags
+      requiresManualReview = true;
+      logStep("Multiple violations detected - escalating to manual review");
+    }
+
+    // Cap risk score at 100
+    totalRiskScore = Math.min(totalRiskScore, 100);
+
+    // Create fraud incident if violations detected
+    if (violations.length > 0) {
+      const { data: incident } = await supabase
+        .from("fraud_incidents")
+        .insert({
+          user_id,
+          incident_type: action_type,
+          severity: totalRiskScore >= 80 ? 'critical' : 
+                   totalRiskScore >= 60 ? 'high' : 
+                   totalRiskScore >= 40 ? 'medium' : 'low',
+          details: {
+            action_type,
+            amount,
+            ip_address,
+            user_agent,
+            device_fingerprint,
+            violations,
+            metadata
           },
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'ip_address' })
+          risk_score: totalRiskScore,
+          status: requiresManualReview ? 'open' : 'resolved',
+          auto_resolved: !requiresManualReview
+        })
         .select()
         .single();
 
-      if (insertError) {
-        logStep("Error inserting IP analysis", insertError);
-        throw insertError;
-      }
+      logStep("Fraud incident created", { incident_id: incident?.id, severity: incident?.severity });
 
-      ipData = newAnalysis;
-      logStep("IP analysis stored", { id: newAnalysis.id, risk_score, threat_level });
-    }
+      // Update user's fraud status if manual review is required
+      if (requiresManualReview) {
+        await supabase
+          .from("users")
+          .update({
+            fraud_status: "flagged",
+            last_fraud_check: new Date().toISOString()
+          })
+          .eq("id", user_id);
 
-    // Log user behavior if user_id is provided
-    if (user_id) {
-      const behaviorData = {
-        user_id,
-        action_type: action_type || 'general',
-        ip_address,
-        device_fingerprint,
-        amount,
-        currency: 'TRY',
-        metadata: {
-          ip_analysis_id: ipData.id,
-          country: ipData.country_code,
-          city: ipData.city
-        },
-        risk_flags: []
-      };
-
-      // Add risk flags based on IP analysis
-      if (ipData.is_vpn) behaviorData.risk_flags.push('vpn_usage');
-      if (ipData.is_proxy) behaviorData.risk_flags.push('proxy_usage');
-      if (ipData.is_datacenter) behaviorData.risk_flags.push('datacenter_ip');
-      if (ipData.risk_score >= 50) behaviorData.risk_flags.push('high_risk_ip');
-
-      const { error: behaviorError } = await supabaseClient
-        .from('user_behavior_logs')
-        .insert(behaviorData);
-
-      if (behaviorError) {
-        logStep("Error logging user behavior", behaviorError);
-      } else {
-        logStep("User behavior logged");
-      }
-
-      // Create fraud alerts for high-risk activities
-      if (ipData.risk_score >= 60) {
-        const alertDescription = `High-risk IP activity detected from ${ipData.city}, ${ipData.country_code}`;
-        const evidence = {
-          ip_address,
-          risk_score: ipData.risk_score,
-          threat_level: ipData.threat_level,
-          is_vpn: ipData.is_vpn,
-          is_proxy: ipData.is_proxy,
-          is_datacenter: ipData.is_datacenter,
-          action_type,
-          amount
-        };
-
-        const { error: alertError } = await supabaseClient
-          .from('fraud_alerts')
+        // Create fraud alert for admins
+        await supabase
+          .from("fraud_alerts")
           .insert({
             user_id,
-            alert_type: 'ip_analysis',
-            severity: ipData.threat_level,
-            description: alertDescription,
-            evidence
+            alert_type: "fraud_detection",
+            severity: totalRiskScore >= 80 ? 'high' : 'medium',
+            description: `Fraud detected: ${violations.map(v => v.rule_type).join(", ")} - Risk Score: ${totalRiskScore}`,
+            evidence: {
+              violations,
+              action_type,
+              amount,
+              ip_address,
+              total_risk_score: totalRiskScore
+            },
+            status: 'open'
           });
 
-        if (alertError) {
-          logStep("Error creating fraud alert", alertError);
-        } else {
-          logStep("Fraud alert created");
-        }
+        logStep("User flagged for manual review", { user_id, fraud_status: "flagged" });
       }
-
-      // Update or create user risk profile
-      if (amount && amount > 0) {
-        const comprehensiveRiskScore = await supabaseClient.rpc('calculate_comprehensive_risk_score', {
-          _user_id: user_id,
-          _amount: amount,
-          _currency: 'TRY',
-          _ip_address: ip_address,
-          _device_fingerprint: device_fingerprint,
-          _action_type: action_type || 'general'
-        });
-
-        if (comprehensiveRiskScore.data !== null) {
-          logStep("Comprehensive risk score calculated", { score: comprehensiveRiskScore.data });
-          
-          const riskLevel = comprehensiveRiskScore.data >= 70 ? 'critical' :
-                           comprehensiveRiskScore.data >= 50 ? 'high' :
-                           comprehensiveRiskScore.data >= 30 ? 'medium' : 'low';
-
-          await supabaseClient
-            .from('user_risk_profiles')
-            .upsert({
-              user_id,
-              overall_risk_score: comprehensiveRiskScore.data,
-              risk_level: riskLevel,
-              geo_risk_score: ipData.risk_score,
-              last_assessment_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            }, { onConflict: 'user_id' });
-        }
-      }
+    } else {
+      // Update last fraud check for clean users
+      await supabase
+        .from("users")
+        .update({
+          last_fraud_check: new Date().toISOString()
+        })
+        .eq("id", user_id);
+      
+      logStep("No violations detected - user clean");
     }
 
-    logStep("Analysis completed successfully");
-
-    return new Response(JSON.stringify({
-      success: true,
-      ip_analysis: {
-        ip_address: ipData.ip_address,
-        country_code: ipData.country_code,
-        city: ipData.city,
-        is_vpn: ipData.is_vpn,
-        is_proxy: ipData.is_proxy,
-        is_datacenter: ipData.is_datacenter,
-        risk_score: ipData.risk_score,
-        threat_level: ipData.threat_level
-      }
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
+    logStep("Fraud analysis completed", { 
+      risk_score: totalRiskScore, 
+      manual_review: requiresManualReview,
+      violations_count: violations.length 
     });
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        risk_score: totalRiskScore,
+        requires_manual_review: requiresManualReview,
+        violations_count: violations.length,
+        violations,
+        action_required: requiresManualReview ? "manual_review" : "none",
+        analysis_summary: {
+          vpn_proxy_detected: violations.some(v => v.rule_type === "ip_analysis"),
+          velocity_violation: violations.some(v => v.rule_type === "velocity"),
+          device_suspicious: violations.some(v => v.rule_type === "device_fingerprint")
+        }
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
 
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
+    logStep("ERROR", { message: error.message });
     
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: errorMessage 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
   }
 });

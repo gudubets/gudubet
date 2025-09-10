@@ -906,6 +906,79 @@ export type Database = {
         }
         Relationships: []
       }
+      fraud_incidents: {
+        Row: {
+          auto_resolved: boolean | null
+          created_at: string
+          details: Json
+          id: string
+          incident_type: string
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          risk_score: number | null
+          rule_id: string | null
+          severity: string | null
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          auto_resolved?: boolean | null
+          created_at?: string
+          details?: Json
+          id?: string
+          incident_type: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          risk_score?: number | null
+          rule_id?: string | null
+          severity?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          auto_resolved?: boolean | null
+          created_at?: string
+          details?: Json
+          id?: string
+          incident_type?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          risk_score?: number | null
+          rule_id?: string | null
+          severity?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fraud_incidents_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fraud_incidents_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "fraud_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fraud_incidents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fraud_rules: {
         Row: {
           action: string
@@ -3153,11 +3226,13 @@ export type Database = {
           email: string
           email_verified: boolean | null
           first_name: string | null
+          fraud_status: string | null
           id: string
           kyc_level: Database["public"]["Enums"]["kyc_level"]
           kyc_rejection_reason: string | null
           kyc_status: string | null
           kyc_verified_at: string | null
+          last_fraud_check: string | null
           last_name: string | null
           phone: string | null
           phone_verified: boolean | null
@@ -3176,11 +3251,13 @@ export type Database = {
           email: string
           email_verified?: boolean | null
           first_name?: string | null
+          fraud_status?: string | null
           id?: string
           kyc_level?: Database["public"]["Enums"]["kyc_level"]
           kyc_rejection_reason?: string | null
           kyc_status?: string | null
           kyc_verified_at?: string | null
+          last_fraud_check?: string | null
           last_name?: string | null
           phone?: string | null
           phone_verified?: boolean | null
@@ -3199,11 +3276,13 @@ export type Database = {
           email?: string
           email_verified?: boolean | null
           first_name?: string | null
+          fraud_status?: string | null
           id?: string
           kyc_level?: Database["public"]["Enums"]["kyc_level"]
           kyc_rejection_reason?: string | null
           kyc_status?: string | null
           kyc_verified_at?: string | null
+          last_fraud_check?: string | null
           last_name?: string | null
           phone?: string | null
           phone_verified?: boolean | null
