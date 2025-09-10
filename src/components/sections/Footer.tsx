@@ -123,7 +123,7 @@ const Footer = () => {
                   />
                 ) : provider === 'SUPER PAY' ? (
                   <img 
-                    src="/lovable-uploads/9eeea46a-a5dc-4772-b83f-000cb6ba41e6.png" 
+                    src="/lovable-uploads/ab55ebd3-75b5-4a59-b202-3c0becd68f0f.png" 
                     alt="SuperPay" 
                     className="h-6 w-auto object-contain"
                   />
