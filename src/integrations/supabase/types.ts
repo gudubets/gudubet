@@ -3437,7 +3437,9 @@ export type Database = {
         }[]
       }
       get_required_kyc_documents: {
-        Args: { _target_level: Database["public"]["Enums"]["kyc_level"] }
+        Args:
+          | { _target_level: Database["public"]["Enums"]["kyc_level"] }
+          | { _target_level: string }
         Returns: Database["public"]["Enums"]["kyc_document_type"][]
       }
       get_withdrawal_stats: {
