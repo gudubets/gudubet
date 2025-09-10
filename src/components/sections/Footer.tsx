@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MessageCircle, Shield, Award, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import bankLogoCompact from '@/assets/bank-logo-compact.png';
 const Footer = () => {
   return <footer className="bg-black text-white">
       {/* Promotional Banner */}
@@ -116,7 +117,7 @@ const Footer = () => {
                   />
                 ) : provider === 'Banka' ? (
                   <img 
-                    src="/lovable-uploads/4c51f21f-3296-43ad-a69c-ffa33e6a36a8.png" 
+                    src={bankLogoCompact} 
                     alt="Banka" 
                     className="h-6 w-auto object-contain"
                   />
