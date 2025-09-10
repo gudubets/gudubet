@@ -4023,6 +4023,10 @@ export type Database = {
         Args: { check_user_id?: string }
         Returns: boolean
       }
+      is_current_user_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_current_user_super_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -4034,6 +4038,10 @@ export type Database = {
       update_user_ltv: {
         Args: { target_user_id: string }
         Returns: undefined
+      }
+      user_exists: {
+        Args: { user_uuid: string }
+        Returns: boolean
       }
     }
     Enums: {
