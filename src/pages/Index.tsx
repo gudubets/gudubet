@@ -40,14 +40,12 @@ const Index = () => {
                   <div className="absolute top-1/3 right-1/4 text-6xl opacity-20 animate-spin">🎰</div>
                   <div className="absolute bottom-1/3 left-1/4 text-4xl opacity-20 animate-pulse">🎲</div>
                   
-                  <div className="relative z-10 h-full flex items-center justify-center px-8 md:px-16 cursor-pointer" onClick={() => setIsRegistrationModalOpen(true)}>
+                  <div className="relative z-10 h-full w-full cursor-pointer" onClick={() => setIsRegistrationModalOpen(true)}>
                     <img 
                       src="/lovable-uploads/a579f7c8-2d42-41b3-ae52-4d8d7ccd17d0.png" 
                       alt="Gudubet Hoşgeldin Bonusu 500 TL" 
-                      className="w-full h-full object-cover object-center rounded-lg"
+                      className="w-full h-full object-cover"
                       style={{ 
-                        maxHeight: '100%',
-                        maxWidth: '100%',
                         imageRendering: 'crisp-edges'
                       }}
                     />
