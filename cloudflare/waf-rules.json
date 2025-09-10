@@ -1,84 +1,258 @@
 {
   "waf_rules": [
     {
-      "name": "Rate Limiting - Login Attempts",
-      "description": "Limit login attempts to prevent brute force attacks",
+      "name": "Casino - Login Protection",
+      "description": "Protect login endpoints from brute force attacks",
       "rule": {
-        "expression": "(http.request.uri.path contains \"/auth/login\" or http.request.uri.path contains \"/api/auth/login\") and (rate(5m) > 10)",
+        "expression": "(http.request.uri.path contains \"/auth/login\" or http.request.uri.path contains \"/api/auth/login\") and (rate(5m) > 8)",
         "action": "block",
-        "characteristics": ["ip.src"]
+        "characteristics": ["ip.src"],
+        "priority": 1
       }
     },
     {
-      "name": "Rate Limiting - API Calls",
-      "description": "General API rate limiting",
+      "name": "Casino - Admin Panel Protection", 
+      "description": "Enhanced protection for admin panel access",
       "rule": {
-        "expression": "http.request.uri.path contains \"/api/\" and (rate(1m) > 60)",
-        "action": "challenge",
-        "characteristics": ["ip.src"]
+        "expression": "http.request.uri.path contains \"/admin\" and (rate(1h) > 50)",
+        "action": "managed_challenge",
+        "characteristics": ["ip.src"],
+        "priority": 2
       }
     },
     {
-      "name": "Rate Limiting - Payment Endpoints",
+      "name": "Casino - Payment Endpoint Security",
       "description": "Strict rate limiting for payment operations",
       "rule": {
-        "expression": "(http.request.uri.path contains \"/api/payments\" or http.request.uri.path contains \"/api/withdrawals\") and (rate(5m) > 5)",
+        "expression": "(http.request.uri.path contains \"/api/payments\" or http.request.uri.path contains \"/api/withdrawals\" or http.request.uri.path contains \"/functions/v1/create-payment\" or http.request.uri.path contains \"/functions/v1/process-withdrawal\") and (rate(5m) > 3)",
         "action": "block",
-        "characteristics": ["ip.src"]
+        "characteristics": ["ip.src"],
+        "priority": 1
       }
     },
     {
-      "name": "Bot Protection",
-      "description": "Block known bad bots and scrapers",
+      "name": "Casino - Fraud Detection API",
+      "description": "Protect fraud detection endpoints",
       "rule": {
-        "expression": "(cf.client.bot) and not (cf.verified_bot_category in {\"Search Engine\" \"Social Media\"})",
-        "action": "block"
+        "expression": "http.request.uri.path contains \"/functions/v1/fraud-analysis\" and (rate(1m) > 10)",
+        "action": "managed_challenge", 
+        "characteristics": ["ip.src"],
+        "priority": 3
       }
     },
     {
-      "name": "Geo Blocking",
-      "description": "Block traffic from restricted countries",
+      "name": "Casino - Game Session Protection",
+      "description": "Prevent game session abuse",
       "rule": {
-        "expression": "ip.geoip.country in {\"US\" \"GB\" \"FR\"}",
-        "action": "block"
+        "expression": "(http.request.uri.path contains \"/api/game-sessions\" or http.request.uri.path contains \"/functions/v1/slot-game\") and (rate(1m) > 30)",
+        "action": "js_challenge",
+        "characteristics": ["ip.src"],
+        "priority": 4
       }
     },
     {
-      "name": "SQL Injection Protection",
-      "description": "Block common SQL injection patterns",
+      "name": "Casino - Registration Rate Limit",
+      "description": "Limit account registrations",
       "rule": {
-        "expression": "http.request.body contains \"union select\" or http.request.body contains \"drop table\" or http.request.uri.query contains \"' or '1'='1\"",
-        "action": "block"
+        "expression": "http.request.uri.path contains \"/auth/register\" and (rate(1h) > 5)",
+        "action": "managed_challenge",
+        "characteristics": ["ip.src"],
+        "priority": 2
       }
     },
     {
-      "name": "XSS Protection",
-      "description": "Block cross-site scripting attempts",
+      "name": "Casino - Geo Compliance",
+      "description": "Block traffic from restricted jurisdictions", 
       "rule": {
-        "expression": "http.request.body contains \"<script\" or http.request.uri.query contains \"javascript:\" or http.request.headers[\"referer\"] contains \"<script\"",
-        "action": "block"
+        "expression": "ip.geoip.country in {\"US\" \"AU\" \"BE\" \"BG\" \"CZ\" \"DK\" \"EE\" \"ES\" \"FR\" \"IT\" \"LV\" \"LT\" \"NL\" \"PL\" \"PT\" \"RO\" \"SE\" \"SK\" \"GB\"}",
+        "action": "block",
+        "priority": 1
+      }
+    },
+    {
+      "name": "Casino - Advanced Bot Protection",
+      "description": "Block malicious bots and scrapers",
+      "rule": {
+        "expression": "(cf.client.bot and not cf.verified_bot_category in {\"Search Engine\" \"Accessibility\"}) or (http.user_agent contains \"curl\" or http.user_agent contains \"wget\" or http.user_agent contains \"python\" or http.user_agent eq \"\")",
+        "action": "block",
+        "priority": 3
+      }
+    },
+    {
+      "name": "Casino - SQL Injection Advanced",
+      "description": "Enhanced SQL injection protection for casino data",
+      "rule": {
+        "expression": "any(http.request.body.form.values[*] contains sql.injection_attack) or any(http.request.uri.args.values[*] contains sql.injection_attack) or http.request.body matches \"(?i)(union\\s+select|drop\\s+table|truncate\\s+table|insert\\s+into|delete\\s+from|update\\s+set)\"",
+        "action": "block",
+        "priority": 1
+      }
+    },
+    {
+      "name": "Casino - XSS Protection Enhanced",
+      "description": "Advanced XSS protection for gaming platform",
+      "rule": {
+        "expression": "any(http.request.body.form.values[*] contains xss.libinjection) or any(http.request.uri.args.values[*] contains xss.libinjection) or http.request.body matches \"(?i)(<script|javascript:|vbscript:|onload=|onerror=|onclick=)\"",
+        "action": "block",
+        "priority": 1
+      }
+    },
+    {
+      "name": "Casino - Suspicious User Agent",
+      "description": "Block suspicious user agents commonly used in attacks",
+      "rule": {
+        "expression": "http.user_agent matches \"(?i)(masscan|nmap|sqlmap|nikto|w3af|acunetix|burp|owasp)\" or len(http.user_agent) lt 10 or len(http.user_agent) gt 512",
+        "action": "block",
+        "priority": 2
+      }
+    },
+    {
+      "name": "Casino - Large Request Protection",
+      "description": "Block unusually large requests that might indicate attacks",
+      "rule": {
+        "expression": "http.request.body.size gt 1048576 or len(http.request.uri.query) gt 2048",
+        "action": "block",
+        "priority": 3
+      }
+    }
+  ],
+  "rate_limiting_rules": [
+    {
+      "name": "Casino - Global API Rate Limit",
+      "description": "General API protection across all endpoints",
+      "rule": {
+        "expression": "http.request.uri.path contains \"/api/\" or http.request.uri.path contains \"/functions/\"",
+        "rate_limit": {
+          "threshold": 100,
+          "period": 60,
+          "action": "managed_challenge",
+          "counting_expression": "ip.src",
+          "mitigation_timeout": 300
+        }
+      }
+    },
+    {
+      "name": "Casino - Authentication Rate Limit",
+      "description": "Strict limits on authentication attempts",
+      "rule": {
+        "expression": "http.request.uri.path matches \".*/auth/(login|register|reset-password).*\"",
+        "rate_limit": {
+          "threshold": 5,
+          "period": 300,
+          "action": "block",
+          "counting_expression": "ip.src",
+          "mitigation_timeout": 3600
+        }
+      }
+    },
+    {
+      "name": "Casino - Financial Transaction Limits",
+      "description": "Ultra-strict limits for payment processing",
+      "rule": {
+        "expression": "http.request.uri.path matches \".*(payment|deposit|withdraw|transaction).*\"",
+        "rate_limit": {
+          "threshold": 3,
+          "period": 300,
+          "action": "block", 
+          "counting_expression": "ip.src",
+          "mitigation_timeout": 1800
+        }
+      }
+    },
+    {
+      "name": "Casino - Game Launch Protection",
+      "description": "Prevent rapid game launching abuse",
+      "rule": {
+        "expression": "http.request.uri.path contains \"/slot/\" or http.request.uri.path contains \"/game/\"",
+        "rate_limit": {
+          "threshold": 20,
+          "period": 60,
+          "action": "js_challenge",
+          "counting_expression": "ip.src",
+          "mitigation_timeout": 300
+        }
       }
     }
   ],
   "cache_rules": [
     {
-      "name": "Static Assets Cache",
-      "description": "Cache static assets for optimal performance",
+      "name": "Casino - Static Assets Long Cache",
+      "description": "Long-term caching for static assets",
       "rule": {
-        "expression": "http.request.uri.path matches \"\\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$\"",
-        "cache_level": "cache_everything",
-        "edge_cache_ttl": 31536000,
-        "browser_cache_ttl": 86400
+        "expression": "http.request.uri.path matches \"\\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp|avif)$\"",
+        "cache_settings": {
+          "cache_level": "cache_everything",
+          "edge_cache_ttl": 31536000,
+          "browser_cache_ttl": 86400,
+          "cache_key_fields": {
+            "query_string": {"ignore": true},
+            "headers": {"check_presence": ["Accept-Encoding"]}
+          }
+        }
       }
     },
     {
-      "name": "API Response Cache",
-      "description": "Cache certain API responses",
+      "name": "Casino - Game Assets Cache",
+      "description": "Cache game-related static content",
       "rule": {
-        "expression": "http.request.uri.path contains \"/api/games\" or http.request.uri.path contains \"/api/providers\"",
-        "cache_level": "cache_everything",
-        "edge_cache_ttl": 300,
-        "browser_cache_ttl": 60
+        "expression": "http.request.uri.path matches \".*\\.(json|xml)$\" and (http.request.uri.path contains \"/games/\" or http.request.uri.path contains \"/assets/\")",
+        "cache_settings": {
+          "cache_level": "cache_everything",
+          "edge_cache_ttl": 3600,
+          "browser_cache_ttl": 1800
+        }
+      }
+    },
+    {
+      "name": "Casino - API Response Cache",
+      "description": "Selective API response caching",
+      "rule": {
+        "expression": "(http.request.uri.path contains \"/api/games\" or http.request.uri.path contains \"/api/providers\") and http.request.method eq \"GET\"",
+        "cache_settings": {
+          "cache_level": "cache_everything",
+          "edge_cache_ttl": 300,
+          "browser_cache_ttl": 60,
+          "cache_key_fields": {
+            "query_string": {"include": ["category", "provider", "limit"]},
+            "headers": {"check_presence": ["Authorization"]}
+          }
+        }
+      }
+    },
+    {
+      "name": "Casino - Public Pages Cache",
+      "description": "Cache public informational pages",
+      "rule": {
+        "expression": "http.request.uri.path in {\"/\" \"/about\" \"/terms\" \"/privacy\" \"/help\" \"/contact\"} and http.request.method eq \"GET\"",
+        "cache_settings": {
+          "cache_level": "cache_everything", 
+          "edge_cache_ttl": 1800,
+          "browser_cache_ttl": 900
+        }
+      }
+    },
+    {
+      "name": "Casino - Bypass Cache for Dynamic Content",
+      "description": "Ensure user-specific content is never cached",
+      "rule": {
+        "expression": "http.request.uri.path contains \"/admin\" or http.request.uri.path contains \"/profile\" or http.request.uri.path contains \"/dashboard\" or any(http.request.headers[\"authorization\"][*] ne \"\")",
+        "cache_settings": {
+          "cache_level": "bypass"
+        }
+      }
+    }
+  ],
+  "security_headers": [
+    {
+      "name": "Casino - Security Headers",
+      "description": "Essential security headers for casino application",
+      "headers": {
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.supabase.co *.vercel.app; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: *.supabase.co; connect-src 'self' *.supabase.co wss://*.supabase.co; frame-ancestors 'none';",
+        "Permissions-Policy": "geolocation=(), microphone=(), camera=(), payment=(self)"
       }
     }
   ]

@@ -1,0 +1,279 @@
+{
+  "notifications": [
+    {
+      "name": "Casino - DDoS Attack Alert",
+      "description": "Alert when DDoS attack is detected",
+      "filters": {
+        "services": ["zone"],
+        "alert_type": "dos_attack_l4"
+      },
+      "destinations": [
+        {
+          "type": "email",
+          "email": "security@yourdomain.com"
+        },
+        {
+          "type": "webhook",
+          "url": "https://yourdomain.com/api/alerts/ddos"
+        }
+      ]
+    },
+    {
+      "name": "Casino - WAF High Block Rate",
+      "description": "Alert when WAF blocking rate exceeds threshold",
+      "filters": {
+        "services": ["zone"],
+        "alert_type": "waf_alerts"
+      },
+      "destinations": [
+        {
+          "type": "email",
+          "email": "security@yourdomain.com"
+        }
+      ]
+    },
+    {
+      "name": "Casino - Origin Server Down",
+      "description": "Alert when origin server becomes unavailable",
+      "filters": {
+        "services": ["zone"],
+        "alert_type": "universal_ssl_event_type",
+        "where": "health_check_status eq \"Unhealthy\""
+      },
+      "destinations": [
+        {
+          "type": "email",
+          "email": "ops@yourdomain.com"
+        },
+        {
+          "type": "pagerduty",
+          "integration_key": "YOUR_PAGERDUTY_KEY"
+        }
+      ]
+    },
+    {
+      "name": "Casino - High Error Rate",
+      "description": "Alert when 5xx error rate exceeds 5%",
+      "filters": {
+        "services": ["zone"],
+        "alert_type": "traffic_anomalies",
+        "where": "error_rate_5xx gt 5"
+      },
+      "destinations": [
+        {
+          "type": "email",
+          "email": "ops@yourdomain.com"
+        }
+      ]
+    },
+    {
+      "name": "Casino - Geographic Compliance Violation",
+      "description": "Alert for traffic from restricted countries bypassing blocks",
+      "filters": {
+        "services": ["zone"],
+        "alert_type": "firewall_events_anomaly",
+        "where": "country in (\"US\", \"GB\", \"AU\")"
+      },
+      "destinations": [
+        {
+          "type": "email",
+          "email": "compliance@yourdomain.com"
+        }
+      ]
+    }
+  ],
+  "analytics_queries": [
+    {
+      "name": "Security Events Dashboard",
+      "description": "Real-time security events monitoring",
+      "query": {
+        "metrics": ["requests", "threats", "bandwidth"],
+        "dimensions": ["country", "threat_type", "action_taken"],
+        "filters": "security_level neq 'allow'",
+        "time_range": "1h"
+      }
+    },
+    {
+      "name": "Performance Monitoring",
+      "description": "Cache performance and response times",
+      "query": {
+        "metrics": ["cache_hit_ratio", "response_time_p95", "bandwidth_saved"],
+        "dimensions": ["cache_status", "content_type"],
+        "time_range": "24h"
+      }
+    },
+    {
+      "name": "Gaming Traffic Analysis",
+      "description": "Analysis of gaming-specific traffic patterns",
+      "query": {
+        "metrics": ["requests", "unique_visitors", "page_views"],
+        "dimensions": ["path", "user_agent_browser", "device_type"],
+        "filters": "path matches '/game|/slot|/casino'",
+        "time_range": "7d"
+      }
+    }
+  ],
+  "health_checks": [
+    {
+      "name": "Casino Main Site",
+      "description": "Health check for main casino site",
+      "check_regions": ["WNAM", "ENAM", "WEU", "EEU", "SEAS"],
+      "type": "HTTPS",
+      "method": "GET",
+      "path": "/health",
+      "expected_codes": "200",
+      "expected_body": "healthy",
+      "interval": 60,
+      "retries": 2,
+      "timeout": 5,
+      "follow_redirects": false,
+      "allow_insecure": false
+    },
+    {
+      "name": "Casino API Health",
+      "description": "Health check for API endpoints",
+      "check_regions": ["WNAM", "ENAM", "WEU"],
+      "type": "HTTPS",
+      "method": "GET",
+      "path": "/api/health",
+      "expected_codes": "200",
+      "expected_body": "{\"status\":\"ok\"}",
+      "interval": 60,
+      "retries": 2,
+      "timeout": 10,
+      "headers": {
+        "User-Agent": "Cloudflare-Health-Check"
+      }
+    },
+    {
+      "name": "Casino Supabase Functions",
+      "description": "Health check for Supabase edge functions",
+      "check_regions": ["WNAM", "ENAM"],
+      "type": "HTTPS",
+      "method": "POST",
+      "path": "/functions/v1/health-check",
+      "expected_codes": "200",
+      "interval": 300,
+      "retries": 1,
+      "timeout": 15,
+      "headers": {
+        "Authorization": "Bearer anon-key"
+      }
+    }
+  ],
+  "load_balancer_config": {
+    "pools": [
+      {
+        "name": "casino-primary-pool",
+        "description": "Primary origin pool for casino platform",
+        "origins": [
+          {
+            "name": "primary-origin",
+            "address": "origin.yourdomain.com",
+            "weight": 1,
+            "enabled": true,
+            "header": {
+              "Host": ["yourdomain.com"]
+            }
+          }
+        ],
+        "check_regions": ["WNAM", "ENAM", "WEU"],
+        "monitor": "casino-main-monitor",
+        "notification_email": "ops@yourdomain.com"
+      },
+      {
+        "name": "casino-failover-pool",
+        "description": "Failover pool for casino platform",
+        "origins": [
+          {
+            "name": "backup-origin",
+            "address": "backup.yourdomain.com",
+            "weight": 1,
+            "enabled": true
+          }
+        ],
+        "check_regions": ["WNAM", "ENAM"],
+        "monitor": "casino-backup-monitor"
+      }
+    ],
+    "load_balancer": {
+      "name": "casino-lb",
+      "description": "Main load balancer for casino platform",
+      "default_pools": ["casino-primary-pool"],
+      "fallback_pool": "casino-failover-pool",
+      "region_pools": {
+        "WNAM": ["casino-primary-pool"],
+        "ENAM": ["casino-primary-pool"],
+        "WEU": ["casino-primary-pool"]
+      },
+      "pop_pools": {},
+      "proxied": true,
+      "enabled": true,
+      "ttl": 30,
+      "steering_policy": "dynamic_latency"
+    }
+  },
+  "security_monitoring": {
+    "log_retention_days": 30,
+    "log_export": {
+      "enabled": true,
+      "destination_conf": "s3://security-logs-bucket/cloudflare/",
+      "logpull_options": "timestamps=rfc3339&CVE-2021-44228=true",
+      "fields": [
+        "ClientIP",
+        "ClientRequestHost",
+        "ClientRequestMethod",
+        "ClientRequestURI",
+        "EdgeResponseStatus",
+        "EdgeServerIP",
+        "RayID",
+        "SecurityLevel",
+        "WAFAction",
+        "WAFFlags",
+        "WAFMatchedVar",
+        "WAFProfile",
+        "WAFRuleID",
+        "WAFRuleMessage"
+      ]
+    },
+    "custom_rules": [
+      {
+        "name": "Casino Payment Anomaly Detection",
+        "description": "Detect unusual payment patterns",
+        "expression": "http.request.uri.path contains \"/api/payments\" and cf.threat_score gt 50",
+        "action": "log",
+        "enabled": true
+      },
+      {
+        "name": "Casino Large Bet Detection",
+        "description": "Log large betting activities for compliance",
+        "expression": "http.request.body contains \"bet_amount\" and cf.threat_score gt 10",
+        "action": "log",
+        "enabled": true
+      }
+    ]
+  },
+  "performance_optimization": {
+    "argo": {
+      "enabled": true,
+      "tiered_caching": true
+    },
+    "minification": {
+      "html": "on",
+      "css": "on",
+      "js": "on"
+    },
+    "compression": {
+      "brotli": "on",
+      "gzip": "on"
+    },
+    "http3": "on",
+    "zero_rtt": "on",
+    "websockets": "on",
+    "image_optimization": {
+      "polish": "lossy",
+      "webp": "on",
+      "avif": "on"
+    }
+  }
+}
