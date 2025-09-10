@@ -149,7 +149,7 @@ const Footer = () => {
                   <img 
                     src="/lovable-uploads/18eee11b-4a02-40bc-9ef7-fdcad384ea3f.png" 
                     alt="Litecoin" 
-                    className="h-full w-full object-cover rounded"
+                    className="h-full w-auto object-contain"
                   />
                 ) : (
                   <span className="text-xs text-gray-300">{provider}</span>
