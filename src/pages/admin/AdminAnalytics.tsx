@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useI18n } from '@/hooks/useI18n';
-import AdminLayout from '@/components/admin/AdminLayout';
+
 import {
   BarChart,
   Bar,
@@ -83,8 +83,7 @@ const AdminAnalytics = () => {
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
@@ -422,7 +421,6 @@ const AdminAnalytics = () => {
           </div>
         )}
       </div>
-    </AdminLayout>
   );
 };
 
