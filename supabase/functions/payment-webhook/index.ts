@@ -1,373 +1,252 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-signature",
 };
 
-interface WebhookPayload {
+interface PaymentWebhookData {
+  user_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  provider_ref: string;
+  method: string;
   provider: string;
-  transaction_id: string;
-  reference_id?: string;
-  status: 'success' | 'failed' | 'pending' | 'cancelled';
-  amount?: number;
-  currency?: string;
-  fee?: number;
-  metadata?: any;
-  timestamp?: string;
 }
-
-interface WithdrawalUpdate {
-  status: 'processing' | 'completed' | 'failed';
-  provider_response?: any;
-  completed_at?: string;
-  processed_at?: string;
-}
-
-// Webhook signature verification functions
-const verifyStripeSignature = (payload: string, signature: string, secret: string): boolean => {
-  try {
-    const expectedSignature = createHmac("sha256", secret).update(payload).digest("hex");
-    const providedSignature = signature.replace("sha256=", "");
-    return expectedSignature === providedSignature;
-  } catch {
-    return false;
-  }
-};
-
-const verifyPayTRSignature = (payload: any, signature: string, secret: string): boolean => {
-  try {
-    // PayTR uses MD5 hash of specific fields
-    const hashString = `${payload.merchant_oid}${payload.status}${payload.total_amount}${secret}`;
-    const expectedHash = createHmac("md5", "").update(hashString).digest("hex");
-    return expectedHash === signature;
-  } catch {
-    return false;
-  }
-};
-
-const verifyIyzicoSignature = (payload: string, signature: string, secret: string): boolean => {
-  try {
-    const expectedSignature = createHmac("sha1", secret).update(payload).digest("base64");
-    return expectedSignature === signature;
-  } catch {
-    return false;
-  }
-};
-
-const verifyPaparaSignature = (payload: any, signature: string, secret: string): boolean => {
-  try {
-    // Papara uses HMAC-SHA256 of specific fields
-    const dataToSign = `${payload.id}${payload.status}${payload.amount}${secret}`;
-    const expectedSignature = createHmac("sha256", secret).update(dataToSign).digest("hex");
-    return expectedSignature === signature;
-  } catch {
-    return false;
-  }
-};
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (req.method !== "POST") {
-    return new Response(
-      JSON.stringify({ error: "Method not allowed" }),
-      { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
-
   try {
-    // Initialize Supabase client with service role key
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error("Missing Supabase configuration");
-    }
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { persistSession: false }
-    });
-
-    const url = new URL(req.url);
-    const provider = url.searchParams.get("provider") || "unknown";
-    
+    // HMAC signature verification
+    const signature = req.headers.get("x-signature");
     const body = await req.text();
-    const signature = req.headers.get("signature") || req.headers.get("x-signature") || req.headers.get("x-hub-signature-256") || "";
+    const secret = Deno.env.get("PAYMENT_WEBHOOK_SECRET") ?? "";
 
-    console.log(`Webhook received from ${provider}`);
-
-    // Get provider webhook secret for signature verification
-    const webhookSecrets = {
-      stripe: Deno.env.get("STRIPE_WEBHOOK_SECRET"),
-      paytr: Deno.env.get("PAYTR_WEBHOOK_SECRET"),
-      iyzico: Deno.env.get("IYZICO_WEBHOOK_SECRET"),
-      papara: Deno.env.get("PAPARA_WEBHOOK_SECRET"),
-    };
-
-    const webhookSecret = webhookSecrets[provider as keyof typeof webhookSecrets];
-    if (!webhookSecret) {
-      throw new Error(`Webhook secret not configured for provider: ${provider}`);
-    }
-
-    // Parse webhook data
-    let webhookData;
-    try {
-      webhookData = JSON.parse(body);
-    } catch {
-      throw new Error("Invalid JSON payload");
-    }
-
-    // Verify signature based on provider
-    let signatureValid = false;
-    switch (provider) {
-      case "stripe":
-        signatureValid = verifyStripeSignature(body, signature, webhookSecret);
-        break;
-      case "paytr":
-        signatureValid = verifyPayTRSignature(webhookData, signature, webhookSecret);
-        break;
-      case "iyzico":
-        signatureValid = verifyIyzicoSignature(body, signature, webhookSecret);
-        break;
-      case "papara":
-        signatureValid = verifyPaparaSignature(webhookData, signature, webhookSecret);
-        break;
-      default:
-        throw new Error(`Unknown payment provider: ${provider}`);
-    }
-
-    if (!signatureValid) {
-      console.error(`Invalid signature for ${provider} webhook`);
-      throw new Error("Invalid webhook signature");
-    }
-
-    // Create idempotency key from webhook data
-    const idempotencyKey = createHmac("sha256", "webhook-idempotency")
-      .update(`${provider}-${JSON.stringify(webhookData)}`)
-      .digest("hex");
-
-    // Check if webhook was already processed (idempotency check)
-    const { data: existingWebhook } = await supabaseClient
-      .from("payment_webhooks")
-      .select("id, processed, payment_id")
-      .eq("idempotency_key", idempotencyKey)
-      .single();
-
-    if (existingWebhook?.processed) {
-      console.log(`Webhook already processed with idempotency key: ${idempotencyKey}`);
-      return new Response(
-        JSON.stringify({
-          success: true,
-          message: "Webhook already processed",
-          payment_id: existingWebhook.payment_id
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
+    if (signature) {
+      const expectedSignature = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(secret),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
       );
+      
+      const calculatedSignature = await crypto.subtle.sign(
+        "HMAC",
+        expectedSignature,
+        new TextEncoder().encode(body)
+      );
+      
+      const calculatedHex = Array.from(new Uint8Array(calculatedSignature))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      if (signature !== `sha256=${calculatedHex}`) {
+        console.error("Invalid signature");
+        return new Response("Unauthorized", { status: 401, headers: corsHeaders });
+      }
     }
 
-    // Log webhook for debugging (with idempotency key)
-    const { data: webhookLog } = await supabaseClient
-      .from("payment_webhooks")
-      .insert({
-        provider_slug: provider,
-        webhook_type: "payment_status",
-        payload: webhookData,
-        signature,
+    const paymentData: PaymentWebhookData = JSON.parse(body);
+    const idempotencyKey = req.headers.get("idempotency-key") || `${paymentData.provider_ref}_${Date.now()}`;
+
+    console.log(`Processing payment webhook: ${JSON.stringify(paymentData)}`);
+
+    // Insert/update payment record
+    const { data: payment, error: paymentError } = await supabaseClient
+      .from("payments")
+      .upsert({
+        user_id: paymentData.user_id,
+        provider: paymentData.provider,
+        method: paymentData.method,
+        amount: paymentData.amount,
+        currency: paymentData.currency,
+        status: paymentData.status,
+        provider_ref: paymentData.provider_ref,
         idempotency_key: idempotencyKey,
-        processed: false
+        meta: { webhook_received_at: new Date().toISOString() }
+      }, { 
+        onConflict: "idempotency_key",
+        ignoreDuplicates: false 
       })
       .select()
       .single();
 
-    let paymentId = null;
-    let newStatus = "pending";
-
-    // Extract payment data based on provider
-    switch (provider) {
-      case "stripe":
-        if (webhookData.type === "payment_intent.succeeded") {
-          paymentId = webhookData.data.object.metadata?.payment_id;
-          newStatus = "completed";
-        } else if (webhookData.type === "payment_intent.payment_failed") {
-          paymentId = webhookData.data.object.metadata?.payment_id;
-          newStatus = "failed";
-        }
-        break;
-
-      case "paytr":
-        paymentId = webhookData.merchant_oid;
-        if (webhookData.status === "success") {
-          newStatus = "completed";
-        } else {
-          newStatus = "failed";
-        }
-        break;
-
-      case "iyzico":
-        paymentId = webhookData.paymentId;
-        if (webhookData.status === "success") {
-          newStatus = "completed";
-        } else {
-          newStatus = "failed";
-        }
-        break;
-
-      case "papara":
-        paymentId = webhookData.id;
-        if (webhookData.status === 1) { // 1 = success in Papara
-          newStatus = "completed";
-        } else {
-          newStatus = "failed";
-        }
-        break;
+    if (paymentError) {
+      console.error("Payment insert error:", paymentError);
+      return new Response(JSON.stringify({ error: paymentError.message }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     }
 
-    if (!paymentId) {
-      throw new Error("Payment ID not found in webhook");
-    }
-
-    // Find payment by provider reference
-    const { data: payment } = await supabaseClient
-      .from("payments")
-      .select("*, users!fk_payments_user_id(id, auth_user_id, balance)")
-      .eq("provider_reference", paymentId)
-      .single();
-
-    if (!payment) {
-      throw new Error(`Payment not found for reference: ${paymentId}`);
-    }
-
-    // Check if payment is already in final state (additional idempotency check)
-    if (payment.status === "completed" || payment.status === "failed") {
-      console.log(`Payment ${payment.id} already in final state: ${payment.status}`);
-      
-      // Mark webhook as processed
+    // If payment is confirmed, trigger bonus logic
+    if (paymentData.status === "confirmed") {
+      // Create deposit event
       await supabaseClient
-        .from("payment_webhooks")
-        .update({
-          processed: true,
-          payment_id: payment.id,
-          processed_at: new Date().toISOString()
-        })
-        .eq("id", webhookLog.id);
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          message: "Payment already processed",
-          payment_id: payment.id,
-          status: payment.status
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    }
-
-    // Update payment status
-    const updateData: any = {
-      status: newStatus,
-      provider_status: JSON.stringify(webhookData),
-      webhook_data: webhookData,
-      processed_at: new Date().toISOString()
-    };
-
-    if (newStatus === "failed" && webhookData.error) {
-      updateData.failure_reason = webhookData.error.message || webhookData.error;
-    }
-
-    const { error: updateError } = await supabaseClient
-      .from("payments")
-      .update(updateData)
-      .eq("id", payment.id);
-
-    if (updateError) {
-      throw new Error(`Failed to update payment: ${updateError.message}`);
-    }
-
-    // If payment is completed, update user balance
-    if (newStatus === "completed") {
-      const { error: balanceError } = await supabaseClient
-        .from("users")
-        .update({
-          balance: parseFloat(payment.users.balance) + parseFloat(payment.amount)
-        })
-        .eq("id", payment.user_id);
-
-      if (balanceError) {
-        console.error("Failed to update user balance:", balanceError);
-        throw new Error(`Failed to update user balance: ${balanceError.message}`);
-      }
-
-      // Log successful deposit
-      await supabaseClient
-        .from("admin_activities")
+        .from("bonus_events")
         .insert({
-          admin_id: payment.users.auth_user_id,
-          action_type: "payment_completed",
-          description: `Payment of ${payment.amount} ${payment.currency} completed successfully`,
-          target_type: "payment",
-          target_id: payment.id,
-          metadata: {
-            provider: provider,
-            amount: payment.amount,
-            currency: payment.currency,
-            idempotency_key: idempotencyKey
+          user_id: paymentData.user_id,
+          type: "deposit_made",
+          payload: {
+            payment_id: payment.id,
+            amount: paymentData.amount,
+            currency: paymentData.currency,
+            method: paymentData.method
           }
         });
+
+      // Check for eligible bonuses
+      const { data: eligibleBonuses } = await supabaseClient
+        .from("bonuses_new")
+        .select(`
+          *,
+          bonus_rules(*)
+        `)
+        .eq("is_active", true)
+        .eq("auto_grant", true)
+        .lte("min_deposit", paymentData.amount)
+        .or(`valid_from.is.null,valid_from.lte.${new Date().toISOString()}`)
+        .or(`valid_to.is.null,valid_to.gte.${new Date().toISOString()}`);
+
+      // Grant first eligible bonus
+      if (eligibleBonuses && eligibleBonuses.length > 0) {
+        const bonus = eligibleBonuses[0];
+        let bonusAmount = 0;
+
+        if (bonus.amount_type === "percent") {
+          bonusAmount = (paymentData.amount * bonus.amount_value) / 100;
+          if (bonus.max_cap) {
+            bonusAmount = Math.min(bonusAmount, bonus.max_cap);
+          }
+        } else {
+          bonusAmount = bonus.amount_value;
+        }
+
+        // Check if user already has this bonus
+        const { data: existingBonus } = await supabaseClient
+          .from("user_bonus_tracking")
+          .select("*")
+          .eq("user_id", paymentData.user_id)
+          .eq("bonus_id", bonus.id)
+          .in("status", ["eligible", "active"])
+          .maybeSingle();
+
+        if (!existingBonus) {
+          // Create user bonus
+          const { data: userBonus, error: bonusError } = await supabaseClient
+            .from("user_bonus_tracking")
+            .insert({
+              user_id: paymentData.user_id,
+              bonus_id: bonus.id,
+              status: "active",
+              granted_amount: bonusAmount,
+              remaining_rollover: bonusAmount * bonus.rollover_multiplier,
+              currency: paymentData.currency,
+              expires_at: bonus.valid_days ? 
+                new Date(Date.now() + bonus.valid_days * 24 * 60 * 60 * 1000).toISOString() : 
+                null
+            })
+            .select()
+            .single();
+
+          if (!bonusError && userBonus) {
+            // Ensure user has bonus wallet
+            await supabaseClient
+              .from("bonus_wallets")
+              .upsert({
+                user_id: paymentData.user_id,
+                type: "bonus",
+                currency: paymentData.currency
+              }, {
+                onConflict: "user_id,type,currency",
+                ignoreDuplicates: true
+              });
+
+            // Get bonus wallet
+            const { data: bonusWallet } = await supabaseClient
+              .from("bonus_wallets")
+              .select("*")
+              .eq("user_id", paymentData.user_id)
+              .eq("type", "bonus")
+              .eq("currency", paymentData.currency)
+              .single();
+
+            if (bonusWallet) {
+              // Add bonus to wallet (double-entry)
+              await supabaseClient
+                .from("wallet_transactions")
+                .insert({
+                  wallet_id: bonusWallet.id,
+                  direction: "credit",
+                  amount: bonusAmount,
+                  ref_type: "bonus_granted",
+                  ref_id: userBonus.id,
+                  ledger_key: `bonus_grant_${userBonus.id}`,
+                  meta: { 
+                    bonus_id: bonus.id,
+                    payment_id: payment.id,
+                    bonus_type: bonus.type
+                  }
+                });
+
+              // Log bonus granted event
+              await supabaseClient
+                .from("bonus_events")
+                .insert({
+                  user_id: paymentData.user_id,
+                  user_bonus_id: userBonus.id,
+                  type: "bonus_granted",
+                  payload: {
+                    bonus_id: bonus.id,
+                    amount: bonusAmount,
+                    rollover_requirement: bonusAmount * bonus.rollover_multiplier
+                  }
+                });
+
+              // Audit log
+              await supabaseClient
+                .from("bonus_audit_logs")
+                .insert({
+                  actor_type: "system",
+                  action: "bonus_auto_granted",
+                  entity_type: "user_bonus",
+                  entity_id: userBonus.id,
+                  meta: {
+                    user_id: paymentData.user_id,
+                    bonus_id: bonus.id,
+                    amount: bonusAmount,
+                    trigger: "deposit_made"
+                  }
+                });
+            }
+          }
+        }
+      }
     }
 
-    // Mark webhook as processed
-    await supabaseClient
-      .from("payment_webhooks")
-      .update({
-        processed: true,
-        payment_id: payment.id,
-        processed_at: new Date().toISOString()
-      })
-      .eq("id", webhookLog.id);
+    console.log(`Payment webhook processed successfully for user ${paymentData.user_id}`);
 
-    console.log(`Webhook processed successfully for payment ${payment.id}, new status: ${newStatus}`);
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        payment_id: payment.id,
-        status: newStatus,
-        idempotency_key: idempotencyKey
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
-    );
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
 
   } catch (error) {
-    console.error("Webhook processing error:", error);
-    
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: error.message
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      }
-    );
+    console.error("Payment webhook error:", error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
   }
 });
