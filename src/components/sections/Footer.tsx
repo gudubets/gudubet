@@ -114,6 +114,12 @@ const Footer = () => {
                     alt="PayCo" 
                     className="h-6 w-auto object-contain"
                   />
+                ) : provider === 'Banka' ? (
+                  <img 
+                    src="/lovable-uploads/4c51f21f-3296-43ad-a69c-ffa33e6a36a8.png" 
+                    alt="Banka" 
+                    className="h-6 w-auto object-contain"
+                  />
                 ) : (
                   <span className="text-xs text-gray-300">{provider}</span>
                 )}
