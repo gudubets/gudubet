@@ -1,250 +1,209 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// functions/process-wager-progress/index.ts
+// deno-lint-ignore-file no-explicit-any
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface WagerProgressData {
-  user_id: string;
-  amount: number;
-  category: string;
-  provider: string;
-  game_id?: string;
-  wager_id: string;
-  is_void?: boolean;
-  currency?: string;
-}
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  { auth: { persistSession: false } }
+);
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    const wagerData: WagerProgressData = await req.json();
-    
-    console.log(`Processing wager progress: ${JSON.stringify(wagerData)}`);
-
-    // Get user's active bonuses
-    const { data: activeBonuses, error: bonusError } = await supabaseClient
-      .from("user_bonus_tracking")
-      .select(`
-        *,
-        bonuses_new!inner(*),
-        bonus_rules!inner(*)
-      `)
-      .eq("user_id", wagerData.user_id)
-      .eq("status", "active")
-      .gt("remaining_rollover", 0);
-
-    if (bonusError) {
-      throw new Error(`Error fetching active bonuses: ${bonusError.message}`);
-    }
-
-    if (!activeBonuses || activeBonuses.length === 0) {
-      return new Response(JSON.stringify({ 
-        message: "No active bonuses with rollover requirements" 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
+    if (req.method !== "POST") {
+      return new Response("Method Not Allowed", { 
+        status: 405,
+        headers: corsHeaders
       });
     }
 
-    // Process each active bonus
-    for (const userBonus of activeBonuses) {
-      const bonus = userBonus.bonuses_new;
-      const rules = userBonus.bonus_rules[0]; // Assuming one rule set per bonus
+    const body = await req.json() as {
+      user_id: string;
+      amount: number;
+      category: string;
+      provider?: string;
+      wager_id?: string;
+      is_void?: boolean;
+    };
 
-      // Get category weight from rules
-      let categoryWeight = 1.0;
-      if (rules?.rules?.category_weights) {
-        categoryWeight = rules.rules.category_weights[wagerData.category] || 0;
-      }
+    console.log("Processing wager progress:", body);
 
-      // Check if provider/game is excluded
-      if (rules?.rules?.blacklist_games?.includes(`${wagerData.provider}-*`) ||
-          rules?.rules?.blacklist_games?.includes(`${wagerData.provider}-${wagerData.game_id}`)) {
-        categoryWeight = 0;
-      }
+    // aktif bonusu çek
+    const { data: ub } = await supabase
+      .from("user_bonus_tracking")
+      .select("*")
+      .eq("user_id", body.user_id)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-      // Calculate progress contribution
-      const progressContribution = wagerData.is_void ? 
-        -Math.min(wagerData.amount * categoryWeight, userBonus.progress) : // Void: reduce progress
-        wagerData.amount * categoryWeight; // Normal: add progress
+    if (!ub) {
+      console.log("No active bonus found");
+      return new Response(JSON.stringify({ ok: true, noActiveBonus: true }), { 
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
 
-      const newProgress = Math.max(0, userBonus.progress + progressContribution);
-      const newRemainingRollover = Math.max(0, userBonus.remaining_rollover - progressContribution);
+    if (body.is_void) {
+      console.log("Wager is void, skipping progress");
+      return new Response(JSON.stringify({ ok: true, void: true }), { 
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
 
-      // Update user bonus progress
-      const { data: updatedBonus, error: updateError } = await supabaseClient
-        .from("user_bonus_tracking")
-        .update({
-          progress: newProgress,
-          remaining_rollover: newRemainingRollover,
-          last_event_at: new Date().toISOString()
-        })
-        .eq("id", userBonus.id)
-        .select()
-        .single();
+    // bonus kurallarını al → category_weights
+    const { data: rule } = await supabase
+      .from("bonus_rules")
+      .select("rules")
+      .eq("bonus_id", ub.bonus_id)
+      .maybeSingle();
 
-      if (updateError) {
-        console.error(`Error updating bonus progress: ${updateError.message}`);
-        continue;
-      }
+    const weights = rule?.rules?.category_weights ?? { 
+      slots: 1.0, 
+      live: 0.1, 
+      casino: 0.8, 
+      sports: 0.3 
+    };
+    const weight = Number(weights[body.category] ?? 0);
+    const progressInc = Math.max(0, body.amount * weight);
 
-      // Log wager event
-      await supabaseClient
-        .from("bonus_events")
-        .insert({
-          user_id: wagerData.user_id,
-          user_bonus_id: userBonus.id,
-          type: wagerData.is_void ? "wager_voided" : "wager_placed",
-          payload: {
-            wager_id: wagerData.wager_id,
-            amount: wagerData.amount,
-            category: wagerData.category,
-            provider: wagerData.provider,
-            game_id: wagerData.game_id,
-            category_weight: categoryWeight,
-            progress_contribution: progressContribution,
-            new_progress: newProgress,
-            remaining_rollover: newRemainingRollover
+    console.log(`Weight for ${body.category}: ${weight}, Progress increment: ${progressInc}`);
+
+    // yeni progress/remaining
+    const newProgress = Number(ub.wagered_amount || 0) + progressInc;
+    const newRemaining = Math.max(0, Number(ub.required_wagering) - newProgress);
+
+    const updates: any = {
+      wagered_amount: newProgress,
+      remaining_wagering: newRemaining,
+      updated_at: new Date().toISOString(),
+    };
+
+    let completed = false;
+    if (newRemaining <= 0) {
+      updates.status = "completed";
+      updates.completed_at = new Date().toISOString();
+      completed = true;
+    }
+
+    const { error: updErr } = await supabase
+      .from("user_bonus_tracking")
+      .update(updates)
+      .eq("id", ub.id);
+
+    if (updErr) {
+      console.error("Update error:", updErr);
+      throw updErr;
+    }
+
+    // event log
+    await supabase.from("bonus_events").insert({
+      user_id: body.user_id,
+      user_bonus_id: ub.id,
+      type: completed ? "bonus_completed" : "bonus_progressed",
+      payload: { 
+        progressInc, 
+        category: body.category, 
+        wager_id: body.wager_id,
+        newProgress,
+        newRemaining
+      },
+    });
+
+    // tamamlandıysa bonus cüzdandan ana cüzdana aktar
+    if (completed) {
+      console.log("Bonus completed, transferring funds");
+      
+      // bonus cüzdanını bul
+      const { data: bonusWallet } = await supabase
+        .from("bonus_wallets")
+        .select("*")
+        .eq("user_id", body.user_id)
+        .eq("type", "deposit_bonus")
+        .maybeSingle();
+
+      if (bonusWallet && bonusWallet.balance > 0) {
+        const amountToMove = bonusWallet.balance;
+        
+        // Bonus cüzdandan çek
+        await supabase.from("wallet_transactions").insert({
+          wallet_id: bonusWallet.id,
+          direction: "debit",
+          amount: amountToMove,
+          transaction_type: "bonus_conversion",
+          description: "Bonus converted to real money",
+          metadata: { 
+            user_bonus_id: ub.id,
+            from: "bonus",
+            to: "main"
           }
         });
 
-      // Check if bonus is completed
-      if (newRemainingRollover <= 0 && userBonus.status === "active") {
-        // Mark as completed
-        await supabaseClient
-          .from("user_bonus_tracking")
-          .update({
-            status: "completed"
-          })
-          .eq("id", userBonus.id);
-
-        // Transfer bonus amount from bonus wallet to main wallet
-        const { data: bonusWallet } = await supabaseClient
-          .from("bonus_wallets")
-          .select("*")
-          .eq("user_id", wagerData.user_id)
-          .eq("type", "bonus")
-          .eq("currency", userBonus.currency || "TRY")
+        // Kullanıcının ana bakiyesini güncelle
+        const { data: user } = await supabase
+          .from("users")
+          .select("balance")
+          .eq("id", body.user_id)
           .single();
 
-        const { data: mainWallet } = await supabaseClient
-          .from("bonus_wallets")
-          .select("*")
-          .eq("user_id", wagerData.user_id)
-          .eq("type", "main")
-          .eq("currency", userBonus.currency || "TRY")
-          .single();
-
-        if (bonusWallet && mainWallet) {
-          const transferAmount = Math.min(userBonus.granted_amount, bonusWallet.balance);
-          
-          if (transferAmount > 0) {
-            // Debit from bonus wallet
-            await supabaseClient
-              .from("wallet_transactions")
-              .insert({
-                wallet_id: bonusWallet.id,
-                direction: "debit",
-                amount: transferAmount,
-                ref_type: "bonus_completed",
-                ref_id: userBonus.id,
-                ledger_key: `bonus_complete_debit_${userBonus.id}`,
-                meta: {
-                  bonus_id: bonus.id,
-                  transfer_to_main: true
-                }
-              });
-
-            // Credit to main wallet
-            await supabaseClient
-              .from("wallet_transactions")
-              .insert({
-                wallet_id: mainWallet.id,
-                direction: "credit",
-                amount: transferAmount,
-                ref_type: "bonus_completed",
-                ref_id: userBonus.id,
-                ledger_key: `bonus_complete_credit_${userBonus.id}`,
-                meta: {
-                  bonus_id: bonus.id,
-                  transfer_from_bonus: true
-                }
-              });
-          }
+        if (user) {
+          await supabase
+            .from("users")
+            .update({ 
+              balance: Number(user.balance) + amountToMove,
+              updated_at: new Date().toISOString()
+            })
+            .eq("id", body.user_id);
         }
 
-        // Log bonus completed event
-        await supabaseClient
-          .from("bonus_events")
-          .insert({
-            user_id: wagerData.user_id,
-            user_bonus_id: userBonus.id,
-            type: "bonus_completed",
-            payload: {
-              bonus_id: bonus.id,
-              completed_at: new Date().toISOString(),
-              final_progress: newProgress,
-              transferred_amount: Math.min(userBonus.granted_amount, bonusWallet?.balance || 0)
-            }
-          });
+        // Bonus completion event
+        await supabase.from("bonus_events").insert({
+          user_id: body.user_id,
+          user_bonus_id: ub.id,
+          type: "bonus_funds_transferred",
+          payload: { 
+            amount: amountToMove,
+            from: "bonus_wallet",
+            to: "main_balance"
+          },
+        });
 
-        // Audit log
-        await supabaseClient
-          .from("bonus_audit_logs")
-          .insert({
-            actor_type: "system",
-            action: "bonus_completed",
-            entity_type: "user_bonus",
-            entity_id: userBonus.id,
-            meta: {
-              user_id: wagerData.user_id,
-              bonus_id: bonus.id,
-              final_progress: newProgress
-            }
-          });
-
-        console.log(`Bonus ${userBonus.id} completed for user ${wagerData.user_id}`);
-      } else {
-        // Log progress update
-        await supabaseClient
-          .from("bonus_events")
-          .insert({
-            user_id: wagerData.user_id,
-            user_bonus_id: userBonus.id,
-            type: "bonus_progressed",
-            payload: {
-              progress_before: userBonus.progress,
-              progress_after: newProgress,
-              rollover_before: userBonus.remaining_rollover,
-              rollover_after: newRemainingRollover,
-              wager_amount: wagerData.amount,
-              category_weight: categoryWeight
-            }
-          });
+        console.log(`Transferred ${amountToMove} from bonus to main wallet`);
       }
     }
 
-    console.log(`Wager progress processed for user ${wagerData.user_id}`);
-
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    console.log("Wager progress processed successfully");
+    return new Response(JSON.stringify({ 
+      ok: true, 
+      completed, 
+      newProgress, 
+      newRemaining,
+      progressInc,
+      weight
+    }), { 
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
-  } catch (error) {
-    console.error("Wager progress error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (e) {
+    console.error("Error processing wager progress:", e);
+    return new Response(JSON.stringify({ error: "Server Error", details: e.message }), { 
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });
