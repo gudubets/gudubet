@@ -149,6 +149,7 @@ export interface BonusFormData {
 
 export interface BonusClaimRequest {
   bonus_id: string;
+  deposit_amount?: number;
   code?: string;
 }
 

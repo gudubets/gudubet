@@ -312,3 +312,30 @@ export const useWalletTransactions = (walletId?: string) => {
     enabled: !!walletId
   });
 };
+
+// Bonus Events
+export const useBonusEvents = (userId?: string, userBonusId?: string) => {
+  return useQuery({
+    queryKey: ['bonusEvents', userId, userBonusId],
+    queryFn: async () => {
+      if (!userId) return [];
+      
+      let query = supabase
+        .from('bonus_events')
+        .select('*')
+        .eq('user_id', userId);
+      
+      if (userBonusId) {
+        query = query.eq('user_bonus_id', userBonusId);
+      }
+      
+      const { data, error } = await query
+        .order('occurred_at', { ascending: false })
+        .limit(50);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId
+  });
+};
