@@ -151,6 +151,12 @@ const Footer = () => {
                     alt="Litecoin" 
                     className="h-full w-auto object-contain"
                   />
+                ) : provider === 'ethereum' ? (
+                  <img 
+                    src="/lovable-uploads/a1446f55-3168-4b98-8c46-44246d579061.png" 
+                    alt="Ethereum" 
+                    className="h-full w-auto object-contain"
+                  />
                 ) : (
                   <span className="text-xs text-gray-300">{provider}</span>
                 )}
