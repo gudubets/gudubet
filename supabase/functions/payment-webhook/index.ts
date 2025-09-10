@@ -1,6 +1,29 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { createHmac } from "https://deno.land/std@0.190.0/crypto/mod.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+interface WebhookPayload {
+  provider: string;
+  transaction_id: string;
+  reference_id?: string;
+  status: 'success' | 'failed' | 'pending' | 'cancelled';
+  amount?: number;
+  currency?: string;
+  fee?: number;
+  metadata?: any;
+  timestamp?: string;
+}
+
+interface WithdrawalUpdate {
+  status: 'processing' | 'completed' | 'failed';
+  provider_response?: any;
+  completed_at?: string;
+  processed_at?: string;
+}
 
 // Webhook signature verification functions
 const verifyStripeSignature = (payload: string, signature: string, secret: string): boolean => {
@@ -55,12 +78,25 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    // Create Supabase client with service role for webhook processing
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ error: "Method not allowed" }),
+      { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
+  }
+
+  try {
+    // Initialize Supabase client with service role key
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error("Missing Supabase configuration");
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false }
+    });
 
     const url = new URL(req.url);
     const provider = url.searchParams.get("provider") || "unknown";

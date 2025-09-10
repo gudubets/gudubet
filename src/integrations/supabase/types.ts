@@ -3292,6 +3292,50 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          payload: Json
+          processed_at: string
+          provider: string
+          status: string
+          transaction_id: string
+          withdrawal_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          payload: Json
+          processed_at?: string
+          provider: string
+          status?: string
+          transaction_id: string
+          withdrawal_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          payload?: Json
+          processed_at?: string
+          provider?: string
+          status?: string
+          transaction_id?: string
+          withdrawal_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_logs_withdrawal_id_fkey"
+            columns: ["withdrawal_id"]
+            isOneToOne: false
+            referencedRelation: "withdrawals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       withdrawal_limits: {
         Row: {
           created_at: string
@@ -3591,11 +3635,12 @@ export type Database = {
         | "incomplete"
       withdrawal_status:
         | "pending"
+        | "reviewing"
         | "approved"
+        | "rejected"
         | "processing"
         | "completed"
-        | "rejected"
-        | "cancelled"
+        | "failed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3765,11 +3810,12 @@ export const Constants = {
       ],
       withdrawal_status: [
         "pending",
+        "reviewing",
         "approved",
+        "rejected",
         "processing",
         "completed",
-        "rejected",
-        "cancelled",
+        "failed",
       ],
     },
   },

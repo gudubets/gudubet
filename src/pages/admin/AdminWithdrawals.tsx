@@ -797,12 +797,23 @@ export default function AdminWithdrawals() {
               </div>
             )}
             
-            <Textarea
-              placeholder="İnceleme notu ekleyin (zorunlu)"
-              value={reviewNote}
-              onChange={(e) => setReviewNote(e.target.value)}
-              required
-            />
+            <div>
+              <label className="text-sm font-medium text-red-500">
+                Admin Notu <span className="text-red-500">*</span>
+              </label>
+              <Textarea
+                placeholder={reviewAction === "approve" 
+                  ? "Onay nedeni... (zorunlu)" 
+                  : "Red nedeni... (zorunlu)"}
+                value={reviewNote}
+                onChange={(e) => setReviewNote(e.target.value)}
+                required
+                className={!reviewNote.trim() ? "border-red-300" : ""}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Bu alan zorunludur ve işlem geçmişinde görünecektir.
+              </p>
+            </div>
             
             <div className="flex justify-end space-x-2">
               <Button
