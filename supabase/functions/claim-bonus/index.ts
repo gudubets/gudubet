@@ -1,245 +1,137 @@
-import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+// deno-lint-ignore-file no-explicit-any
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+type ClaimBody = {
+  bonus_id: string;
+  deposit_amount?: number; // optional (percent tipinde gerekli)
+  code?: string; // requires_code ise gerekebilir
 };
 
-interface ClaimRequest {
-  bonus_id: string;
-  deposit_amount?: number;
-  code?: string;
+const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+
+async function getUserIdFromAuth(req: Request): Promise<string | null> {
+  const auth = req.headers.get("authorization");
+  if (!auth) return null;
+  const token = auth.replace(/^Bearer\s+/i, "");
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data?.user) return null;
+  return data.user.id;
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-    );
+    if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
+    const userId = await getUserIdFromAuth(req);
+    if (!userId) return new Response("Unauthorized", { status: 401 });
 
-    const authHeader = req.headers.get('Authorization')!;
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
+    const body = (await req.json()) as ClaimBody;
+    if (!body.bonus_id) return new Response("Missing bonus_id", { status: 400 });
 
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
-      );
-    }
-
-    const { bonus_id, deposit_amount = 0, code }: ClaimRequest = await req.json();
-
-    // Get bonus details
-    const { data: bonus, error: bonusError } = await supabaseClient
-      .from('bonuses_new')
-      .select('*')
-      .eq('id', bonus_id)
-      .eq('is_active', true)
+    // Bonus'u çek
+    const { data: bonus, error: bErr } = await supabase
+      .from("bonuses_new")
+      .select("*")
+      .eq("id", body.bonus_id)
+      .eq("is_active", true)
+      .lte("valid_from", new Date().toISOString())
+      .gte("valid_to", new Date().toISOString())
       .single();
+    if (bErr || !bonus) return new Response("Bonus not available", { status: 400 });
 
-    if (bonusError || !bonus) {
-      return new Response(
-        JSON.stringify({ error: 'Bonus not found or inactive' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
+    if (bonus.requires_code && (!body.code || body.code !== bonus.code)) {
+      return new Response("Invalid code", { status: 400 });
     }
 
-    // Check date validity
-    const now = new Date();
-    if (bonus.valid_from && new Date(bonus.valid_from) > now) {
-      return new Response(
-        JSON.stringify({ error: 'Bonus not yet active' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
-    if (bonus.valid_to && new Date(bonus.valid_to) < now) {
-      return new Response(
-        JSON.stringify({ error: 'Bonus expired' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
-
-    // Check code requirement
-    if (bonus.requires_code && bonus.code !== code) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid bonus code' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
-
-    // Check minimum deposit
-    if (deposit_amount < (bonus.min_deposit || 0)) {
-      return new Response(
-        JSON.stringify({ error: 'Minimum deposit requirement not met' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
-
-    // Get user profile
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('id')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError || !profile) {
-      return new Response(
-        JSON.stringify({ error: 'User profile not found' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
-
-    // Check max per user
-    const { count: existingCount } = await supabaseClient
-      .from('user_bonus_tracking')
-      .select('*', { count: 'exact' })
-      .eq('user_id', profile.id)
-      .eq('bonus_id', bonus_id)
-      .in('status', ['active', 'completed', 'forfeited', 'expired']);
-
-    if (existingCount && existingCount >= (bonus.max_per_user || 1)) {
-      return new Response(
-        JSON.stringify({ error: 'Maximum bonus claims exceeded' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
-
-    // Check cooldown
-    if (bonus.cooldown_hours > 0) {
-      const cooldownDate = new Date(now.getTime() - bonus.cooldown_hours * 60 * 60 * 1000);
-      const { data: recentBonus } = await supabaseClient
-        .from('user_bonus_tracking')
-        .select('created_at')
-        .eq('user_id', profile.id)
-        .eq('bonus_id', bonus_id)
-        .gte('created_at', cooldownDate.toISOString())
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (recentBonus) {
-        return new Response(
-          JSON.stringify({ error: 'Cooldown period active' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-        );
+    // Eligibility (basit)
+    if (bonus.max_per_user && bonus.max_per_user > 0) {
+      const { data: cnt } = await supabase
+        .from("user_bonus_tracking")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("bonus_id", bonus.id);
+      if ((cnt?.length ?? 0) >= bonus.max_per_user) {
+        return new Response("Max per user exceeded", { status: 400 });
       }
     }
 
-    // Calculate granted amount
-    let granted_amount = 0;
-    if (bonus.amount_type === 'percent') {
-      granted_amount = Math.min(
-        (deposit_amount * bonus.amount_value) / 100,
-        bonus.max_cap || Number.MAX_SAFE_INTEGER
-      );
-    } else {
-      granted_amount = Math.min(
-        bonus.amount_value,
-        bonus.max_cap || bonus.amount_value
-      );
+    // granted_amount hesapla
+    const deposit = Number(body.deposit_amount || 0);
+    let granted = 0;
+    if (bonus.amount_type === "percent") {
+      if (deposit <= 0) return new Response("deposit_amount required for percent bonus", { status: 400 });
+      granted = Math.min((deposit * Number(bonus.amount_value)) / 100, Number(bonus.max_cap || deposit));
+    } else { // fixed
+      granted = Number(bonus.amount_value);
+      if (bonus.max_cap) granted = Math.min(granted, Number(bonus.max_cap));
     }
 
-    const remaining_rollover = granted_amount * (bonus.rollover_multiplier || 0);
-
-    // Get or create bonus wallet
-    let { data: wallet } = await supabaseClient
-      .from('wallets')
-      .select('id')
-      .eq('user_id', profile.id)
-      .eq('type', 'bonus')
-      .single();
-
-    if (!wallet) {
-      const { data: newWallet, error: walletError } = await supabaseClient
-        .from('wallets')
-        .insert({
-          user_id: profile.id,
-          type: 'bonus',
-          balance: 0,
-          currency: 'TRY'
-        })
-        .select('id')
-        .single();
-
-      if (walletError) {
-        throw walletError;
-      }
-      wallet = newWallet;
+    if (Number(bonus.min_deposit || 0) > 0 && deposit < Number(bonus.min_deposit)) {
+      return new Response("Below min_deposit", { status: 400 });
     }
 
-    // Create user bonus tracking
-    const { data: userBonus, error: trackingError } = await supabaseClient
-      .from('user_bonus_tracking')
+    const rolloverTarget = Number(granted) * Number(bonus.rollover_multiplier || 0);
+
+    // user_bonus_tracking: active
+    const { data: ub, error: ubErr } = await supabase
+      .from("user_bonus_tracking")
       .insert({
-        user_id: profile.id,
-        bonus_id: bonus_id,
-        status: 'active',
-        granted_amount: granted_amount,
-        remaining_rollover: remaining_rollover,
+        user_id: userId,
+        bonus_id: bonus.id,
+        status: "active",
+        granted_amount: granted,
+        remaining_rollover: rolloverTarget,
         progress: 0,
-        currency: 'TRY'
+        currency: bonus.currency || "TRY",
+        expires_at: bonus.valid_to,
+        last_event_at: new Date().toISOString(),
       })
-      .select('id')
+      .select("*")
       .single();
+    if (ubErr) throw ubErr;
 
-    if (trackingError) {
-      throw trackingError;
+    // Bonus cüzdanı kredi
+    const { data: bw } = await supabase
+      .from("wallets")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("type", "bonus")
+      .maybeSingle();
+
+    let bonusWalletId = bw?.id as string | undefined;
+    if (!bonusWalletId) {
+      const { data: newW } = await supabase
+        .from("wallets")
+        .insert({ user_id: userId, type: "bonus", currency: bonus.currency || "TRY" })
+        .select("*")
+        .single();
+      bonusWalletId = newW?.id;
     }
 
-    // Add wallet transaction
-    await supabaseClient
-      .from('wallet_transactions')
-      .insert({
-        wallet_id: wallet.id,
-        direction: 'credit',
-        amount: granted_amount,
-        ref_type: 'bonus_claim',
-        ref_id: userBonus.id,
-        ledger_key: `bonus_grant_${userBonus.id}`,
-        meta: {
-          bonus_id: bonus_id,
-          user_bonus_id: userBonus.id,
-          deposit_amount: deposit_amount
-        }
+    if (granted > 0 && bonusWalletId) {
+      await supabase.from("wallet_transactions").insert({
+        wallet_id: bonusWalletId,
+        direction: "credit",
+        amount: granted,
+        ref_type: "bonus_claim",
+        ref_id: ub.id,
+        ledger_key: "BONUS_GRANT",
+        meta: { bonus_id: bonus.id },
       });
+    }
 
-    // Log bonus event
-    await supabaseClient
-      .from('bonus_events')
-      .insert({
-        user_id: profile.id,
-        user_bonus_id: userBonus.id,
-        type: 'bonus_granted',
-        payload: {
-          bonus_id: bonus_id,
-          granted_amount: granted_amount,
-          deposit_amount: deposit_amount,
-          code: code
-        }
-      });
+    await supabase.from("bonus_events").insert({
+      user_id: userId,
+      user_bonus_id: ub.id,
+      type: "bonus_granted",
+      payload: { origin: "claim", granted },
+    });
 
-    return new Response(
-      JSON.stringify({
-        ok: true,
-        user_bonus_id: userBonus.id,
-        granted: granted_amount
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
-  } catch (error) {
-    console.error('Error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-    );
+    return new Response(JSON.stringify({ ok: true, user_bonus_id: ub.id, granted }), { status: 200 });
+  } catch (e) {
+    console.error(e);
+    return new Response("Server Error", { status: 500 });
   }
 });

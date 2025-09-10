@@ -72,11 +72,6 @@ const App = () => (
           <Route path="/help-center" element={<HelpCenter />} />
           <Route path="/betting-rules" element={<BettingRules />} />
           <Route path="/live-support" element={<LiveSupport />} />
-          <Route path="/cookie-policy" element={<CookiePolicy />} />
-          <Route path="/age-warning" element={<AgeWarning />} />
-          <Route path="/deposit-withdrawal" element={<DepositWithdrawal />} />
-          <Route path="/slot/:gameSlug" element={<SlotGame />} />
-          <Route path="/game/:gameSlug" element={<Game />} />
           <Route path="/user/bonuses" element={<MyBonuses />} />
           <Route path="/user/bonuses/progress" element={<BonusProgress />} />
           <Route path="/admin" element={<AdminLayout />}>

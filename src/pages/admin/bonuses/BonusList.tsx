@@ -46,7 +46,7 @@ export const BonusList: React.FC<BonusListProps> = ({ onCreateNew, onEdit }) => 
     try {
       await updateBonus.mutateAsync({
         id: bonus.id,
-        data: { is_active: !bonus.is_active }
+        is_active: !bonus.is_active
       });
     } catch (error) {
       console.error('Error toggling bonus status:', error);
