@@ -141,7 +141,7 @@ export const useGameProviders = () => {
   const testProvider = async (id: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('test-game-provider', {
-        body: { providerId: id }
+        body: { providerId: id, action: 'test' }
       });
 
       if (error) throw error;
@@ -155,6 +155,48 @@ export const useGameProviders = () => {
       return data;
     } catch (err: any) {
       toast.error('Sağlayıcı test edilirken hata oluştu');
+      throw err;
+    }
+  };
+
+  const getProviderGames = async (id: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('test-game-provider', {
+        body: { providerId: id, action: 'getGames' }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast.success('Oyun listesi başarıyla alındı');
+        return data.games || [];
+      } else {
+        toast.error(`Oyun listesi alınamadı: ${data.error}`);
+        return [];
+      }
+    } catch (err: any) {
+      toast.error('Oyun listesi alınırken hata oluştu');
+      throw err;
+    }
+  };
+
+  const launchProviderGame = async (providerId: string, gameId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('test-game-provider', {
+        body: { providerId, action: 'launchGame', gameId }
+      });
+
+      if (error) throw error;
+
+      if (data.success && data.launchUrl) {
+        toast.success('Oyun URL\'si oluşturuldu');
+        return data.launchUrl;
+      } else {
+        toast.error(`Oyun başlatılamadı: ${data.error}`);
+        return null;
+      }
+    } catch (err: any) {
+      toast.error('Oyun başlatılırken hata oluştu');
       throw err;
     }
   };
@@ -201,6 +243,8 @@ export const useGameProviders = () => {
     updateProvider,
     deleteProvider,
     testProvider,
+    getProviderGames,
+    launchProviderGame,
     getProviderConfig,
     updateProviderConfig
   };

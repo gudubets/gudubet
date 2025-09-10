@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { GameProviderManager } from '@/components/games/GameProviderManager';
+import { ProviderGamesList } from '@/components/games/ProviderGamesList';
 import { useGameProviders } from '@/hooks/useGameProviders';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { Plus, Settings, TestTube, Activity, AlertTriangle } from 'lucide-react';
+import { Plus, Settings, TestTube, Activity, AlertTriangle, List, Play } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProviderFormData {
@@ -42,15 +43,20 @@ const AdminGameProviders = () => {
     addProvider, 
     updateProvider, 
     testProvider,
+    getProviderGames,
+    launchProviderGame,
     getProviderConfig,
     updateProviderConfig
   } = useGameProviders();
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
+  const [isGamesDialogOpen, setIsGamesDialogOpen] = useState(false);
   const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTesting, setIsTesting] = useState<string | null>(null);
+  const [isLoadingGames, setIsLoadingGames] = useState(false);
+  const [providerGames, setProviderGames] = useState<any[]>([]);
 
   const [formData, setFormData] = useState<ProviderFormData>({
     name: '',
@@ -154,6 +160,31 @@ const AdminGameProviders = () => {
     } finally {
       setIsTesting(null);
     }
+  };
+
+  const handleGetProviderGames = async (providerId: string) => {
+    setIsLoadingGames(true);
+    setSelectedProviderId(providerId);
+    try {
+      const games = await getProviderGames(providerId);
+      setProviderGames(games);
+      setIsGamesDialogOpen(true);
+    } catch (error) {
+      console.error('Get games error:', error);
+      setProviderGames([]);
+    } finally {
+      setIsLoadingGames(false);
+    }
+  };
+
+  const handleCloseGamesDialog = () => {
+    setIsGamesDialogOpen(false);
+    setSelectedProviderId(null);
+    setProviderGames([]);
+  };
+
+  const handleLaunchGame = async (providerId: string, gameId: string) => {
+    return await launchProviderGame(providerId, gameId);
   };
 
   const getProviderStats = () => {
@@ -384,11 +415,26 @@ const AdminGameProviders = () => {
                     )}
                     Test Et
                   </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleGetProviderGames(provider.id)}
+                    disabled={isLoadingGames}
+                    className="flex-1"
+                  >
+                    {isLoadingGames ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                    ) : (
+                      <List className="mr-2 h-4 w-4" />
+                    )}
+                    Oyunları Listele
+                  </Button>
+                  
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleConfigureProvider(provider.id)}
-                    className="flex-1"
                   >
                     <Settings className="mr-2 h-4 w-4" />
                     Yapılandır
@@ -507,6 +553,32 @@ const AdminGameProviders = () => {
               {isSubmitting ? 'Kaydediliyor...' : 'Kaydet'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Provider Games Dialog */}
+      <Dialog open={isGamesDialogOpen} onOpenChange={handleCloseGamesDialog}>
+        <DialogContent className="max-w-6xl w-full h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <List className="h-5 w-5" />
+              Sağlayıcı Oyunları: {selectedProvider?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Sağlayıcıdan alınan oyun listesi ve test başlatma
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-auto">
+            {selectedProviderId && (
+              <ProviderGamesList
+                providerId={selectedProviderId}
+                providerName={selectedProvider?.name || ''}
+                games={providerGames}
+                onLaunchGame={handleLaunchGame}
+              />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

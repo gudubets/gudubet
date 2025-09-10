@@ -8,6 +8,8 @@ const corsHeaders = {
 
 interface TestProviderRequest {
   providerId: string;
+  action?: 'test' | 'getGames' | 'launchGame';
+  gameId?: string;
 }
 
 interface TestProviderResponse {
@@ -15,6 +17,8 @@ interface TestProviderResponse {
   error?: string;
   provider?: any;
   connectionStatus?: string;
+  games?: any[];
+  launchUrl?: string;
 }
 
 serve(async (req) => {
@@ -50,7 +54,7 @@ serve(async (req) => {
       throw new Error('Admin access required');
     }
 
-    const { providerId }: TestProviderRequest = await req.json();
+    const { providerId, action = 'test', gameId }: TestProviderRequest = await req.json();
 
     if (!providerId) {
       throw new Error('Provider ID is required');
@@ -69,47 +73,122 @@ serve(async (req) => {
       throw new Error('Provider not found');
     }
 
-    // Simulate provider connection test
+    // Handle different actions
     let connectionStatus = 'unknown';
     let testSuccess = false;
+    let games: any[] = [];
+    let launchUrl = '';
 
     try {
       // For external providers, we would typically make API calls here
       if (provider.provider_type === 'external') {
-        if (provider.api_endpoint) {
-          // Simulate API test with timeout
-          await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
-              reject(new Error('Connection timeout'));
-            }, 5000);
-
-            // Simulate random success/failure for demo
-            const success = Math.random() > 0.3; // 70% success rate
-            
-            setTimeout(() => {
-              clearTimeout(timeout);
-              if (success) {
-                resolve(true);
-              } else {
-                reject(new Error('API connection failed'));
-              }
-            }, 1000 + Math.random() * 2000); // 1-3 seconds delay
-          });
-          
-          connectionStatus = 'connected';
-          testSuccess = true;
-        } else {
+        if (!provider.api_endpoint) {
           throw new Error('API endpoint not configured');
         }
+
+        switch (action) {
+          case 'test':
+            // Simulate connection test
+            await new Promise((resolve, reject) => {
+              const timeout = setTimeout(() => {
+                reject(new Error('Connection timeout'));
+              }, 5000);
+
+              // Simulate random success/failure for demo
+              const success = Math.random() > 0.3; // 70% success rate
+              
+              setTimeout(() => {
+                clearTimeout(timeout);
+                if (success) {
+                  resolve(true);
+                } else {
+                  reject(new Error('API connection failed'));
+                }
+              }, 1000 + Math.random() * 2000); // 1-3 seconds delay
+            });
+            
+            connectionStatus = 'connected';
+            testSuccess = true;
+            break;
+
+          case 'getGames':
+            // Simulate game list retrieval
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
+            
+            // Mock game list based on provider
+            games = [
+              {
+                id: `${provider.slug}-game-1`,
+                name: `${provider.name} Slot 1`,
+                type: 'slot',
+                thumbnail: `/placeholder.svg`,
+                rtp: 96.5,
+                volatility: 'medium'
+              },
+              {
+                id: `${provider.slug}-game-2`,
+                name: `${provider.name} Blackjack`,
+                type: 'table',
+                thumbnail: `/placeholder.svg`,
+                rtp: 99.5,
+                volatility: 'low'
+              },
+              {
+                id: `${provider.slug}-game-3`,
+                name: `${provider.name} Roulette`,
+                type: 'live',
+                thumbnail: `/placeholder.svg`,
+                rtp: 97.3,
+                volatility: 'medium'
+              }
+            ];
+            
+            connectionStatus = 'connected';
+            testSuccess = true;
+            break;
+
+          case 'launchGame':
+            if (!gameId) {
+              throw new Error('Game ID is required for launch action');
+            }
+            
+            // Simulate launch URL generation
+            await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+            
+            // Mock launch URL
+            launchUrl = `${provider.api_endpoint}/launch?game=${gameId}&mode=demo&token=demo_token_${Date.now()}`;
+            
+            connectionStatus = 'connected';
+            testSuccess = true;
+            break;
+
+          default:
+            throw new Error(`Unknown action: ${action}`);
+        }
       } else {
-        // Custom provider - always pass for now
+        // Custom provider - simulate success
         connectionStatus = 'available';
         testSuccess = true;
+        
+        if (action === 'getGames') {
+          games = [
+            {
+              id: 'custom-slot-1',
+              name: 'Custom Mega Slots',
+              type: 'slot',
+              thumbnail: `/placeholder.svg`,
+              rtp: 95.0,
+              volatility: 'high'
+            }
+          ];
+        } else if (action === 'launchGame' && gameId) {
+          launchUrl = `/slot-game/${gameId}`;
+        }
       }
     } catch (error) {
       connectionStatus = 'failed';
       testSuccess = false;
-      console.error('Provider test failed:', error);
+      console.error('Provider operation failed:', error);
     }
 
     const response: TestProviderResponse = {
@@ -121,7 +200,9 @@ serve(async (req) => {
         status: provider.status
       },
       connectionStatus,
-      error: testSuccess ? undefined : `Connection test failed: ${connectionStatus}`
+      games: games.length > 0 ? games : undefined,
+      launchUrl: launchUrl || undefined,
+      error: testSuccess ? undefined : `Operation failed: ${connectionStatus}`
     };
 
     return new Response(JSON.stringify(response), {
