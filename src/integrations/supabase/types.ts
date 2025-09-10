@@ -1929,6 +1929,7 @@ export type Database = {
           created_at: string | null
           error_message: string | null
           id: string
+          idempotency_key: string | null
           payload: Json
           payment_id: string | null
           processed: boolean | null
@@ -1943,6 +1944,7 @@ export type Database = {
           created_at?: string | null
           error_message?: string | null
           id?: string
+          idempotency_key?: string | null
           payload: Json
           payment_id?: string | null
           processed?: boolean | null
@@ -1957,6 +1959,7 @@ export type Database = {
           created_at?: string | null
           error_message?: string | null
           id?: string
+          idempotency_key?: string | null
           payload?: Json
           payment_id?: string | null
           processed?: boolean | null
