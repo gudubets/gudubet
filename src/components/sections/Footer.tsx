@@ -143,7 +143,7 @@ const Footer = () => {
                   <img 
                     src="/lovable-uploads/1f2a654f-a8f3-4da6-91e2-50385bc78663.png" 
                     alt="PAY" 
-                    className="h-full w-auto object-contain"
+                    className="h-full w-auto object-contain rounded"
                   />
                 ) : provider === 'bitcoin' ? (
                   <img 
@@ -155,13 +155,13 @@ const Footer = () => {
                   <img 
                     src="/lovable-uploads/18eee11b-4a02-40bc-9ef7-fdcad384ea3f.png" 
                     alt="Litecoin" 
-                    className="h-full w-auto object-contain"
+                    className="h-full w-auto object-contain rounded"
                   />
                 ) : provider === 'ethereum' ? (
                   <img 
                     src="/lovable-uploads/a1446f55-3168-4b98-8c46-44246d579061.png" 
                     alt="Ethereum" 
-                    className="h-full w-auto object-contain"
+                    className="h-full w-auto object-contain rounded"
                   />
                 ) : (
                   <span className="text-xs text-gray-300">{provider}</span>
