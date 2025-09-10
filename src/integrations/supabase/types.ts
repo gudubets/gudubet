@@ -615,6 +615,13 @@ export type Database = {
             referencedRelation: "bonuses_new"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bonus_rules_bonus_id_fkey"
+            columns: ["bonus_id"]
+            isOneToOne: false
+            referencedRelation: "v_bonus_costs"
+            referencedColumns: ["bonus_id"]
+          },
         ]
       }
       bonus_wallets: {
@@ -3049,6 +3056,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "user_bonus_tracking_bonus_id_fkey"
+            columns: ["bonus_id"]
+            isOneToOne: false
+            referencedRelation: "v_bonus_costs"
+            referencedColumns: ["bonus_id"]
+          },
+          {
             foreignKeyName: "user_bonus_tracking_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -3941,6 +3955,42 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      v_bonus_costs: {
+        Row: {
+          bonus_id: string | null
+          completed_total: number | null
+          forfeited_total: number | null
+          granted_total: number | null
+          name: string | null
+        }
+        Relationships: []
+      }
+      v_bonus_kpis: {
+        Row: {
+          active_count: number | null
+          bonus_id: string | null
+          completed_count: number | null
+          day: string | null
+          total_granted: number | null
+          unlocked_amount: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_bonus_tracking_bonus_id_fkey"
+            columns: ["bonus_id"]
+            isOneToOne: false
+            referencedRelation: "bonuses_new"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_bonus_tracking_bonus_id_fkey"
+            columns: ["bonus_id"]
+            isOneToOne: false
+            referencedRelation: "v_bonus_costs"
+            referencedColumns: ["bonus_id"]
+          },
+        ]
       }
     }
     Functions: {
