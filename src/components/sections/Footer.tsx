@@ -117,7 +117,7 @@ const Footer = () => {
                   />
                 ) : provider === 'Banka' ? (
                   <img 
-                    src="/lovable-uploads/cb1be11f-1020-4d7c-ab3e-f0e4fce23cc7.png" 
+                    src="/lovable-uploads/d69c217a-d016-4085-a2fb-32e5edbf795a.png" 
                     alt="Banka" 
                     className="h-full w-full object-cover rounded"
                   />
