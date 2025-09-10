@@ -416,16 +416,26 @@ export default function AdminWithdrawals() {
 
   const confirmReview = () => {
     if (!selectedWithdrawal || !reviewAction) return;
+    
+    // Mandatory note validation
+    if (!reviewNote.trim()) {
+      toast({
+        title: "Hata",
+        description: "Not alanı zorunludur",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (reviewAction === "approve") {
       approveWithdrawalMutation.mutate({
         withdrawalId: selectedWithdrawal.id,
-        note: reviewNote || "Admin tarafından onaylandı"
+        note: reviewNote.trim()
       });
     } else {
       rejectWithdrawalMutation.mutate({
         withdrawalId: selectedWithdrawal.id,
-        note: reviewNote || "Admin tarafından reddedildi"
+        note: reviewNote.trim()
       });
     }
   };
