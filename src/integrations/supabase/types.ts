@@ -2411,6 +2411,7 @@ export type Database = {
           phone: string | null
           phone_verified: boolean | null
           postal_code: string | null
+          role: string
           updated_at: string | null
           user_id: string
         }
@@ -2426,6 +2427,7 @@ export type Database = {
           phone?: string | null
           phone_verified?: boolean | null
           postal_code?: string | null
+          role?: string
           updated_at?: string | null
           user_id: string
         }
@@ -2441,6 +2443,7 @@ export type Database = {
           phone?: string | null
           phone_verified?: boolean | null
           postal_code?: string | null
+          role?: string
           updated_at?: string | null
           user_id?: string
         }
@@ -3657,6 +3660,44 @@ export type Database = {
           },
         ]
       }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string | null
+          currency: string
+          id: string
+          type: Database["public"]["Enums"]["wallet_type"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string | null
+          currency?: string
+          id?: string
+          type: Database["public"]["Enums"]["wallet_type"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string | null
+          currency?: string
+          id?: string
+          type?: Database["public"]["Enums"]["wallet_type"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_logs: {
         Row: {
           created_at: string
@@ -3905,6 +3946,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      current_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_admin_permissions: {
         Args: { _admin_id: string }
         Returns: Database["public"]["Enums"]["admin_permission"][]
@@ -3947,6 +3992,10 @@ export type Database = {
         Args: { _admin_id: string; _permission: string }
         Returns: boolean
       }
+      is_admin: {
+        Args: { check_user_id?: string }
+        Returns: boolean
+      }
       is_current_user_super_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -3983,6 +4032,7 @@ export type Database = {
         | "system_settings"
         | "audit_logs"
       admin_role: "super_admin" | "finance" | "crm" | "support" | "moderator"
+      amount_type: "percent" | "fixed"
       bonus_event_type:
         | "deposit_made"
         | "wager_placed"
@@ -4015,7 +4065,10 @@ export type Database = {
         | "approved"
         | "rejected"
         | "incomplete"
+      payment_status: "pending" | "confirmed" | "failed"
+      risk_status: "none" | "review" | "limited" | "blocked"
       transaction_direction: "debit" | "credit"
+      tx_direction: "debit" | "credit"
       wallet_type: "main" | "bonus"
       withdrawal_status:
         | "pending"
@@ -4175,6 +4228,7 @@ export const Constants = {
         "audit_logs",
       ],
       admin_role: ["super_admin", "finance", "crm", "support", "moderator"],
+      amount_type: ["percent", "fixed"],
       bonus_event_type: [
         "deposit_made",
         "wager_placed",
@@ -4211,7 +4265,10 @@ export const Constants = {
         "rejected",
         "incomplete",
       ],
+      payment_status: ["pending", "confirmed", "failed"],
+      risk_status: ["none", "review", "limited", "blocked"],
       transaction_direction: ["debit", "credit"],
+      tx_direction: ["debit", "credit"],
       wallet_type: ["main", "bonus"],
       withdrawal_status: [
         "pending",
