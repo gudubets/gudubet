@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AdminLayoutProps {
   children?: React.ReactNode;
@@ -11,9 +12,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // TODO: Implement admin logout logic
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      navigate('/');
+    }
   };
 
   const toggleSidebar = () => {
