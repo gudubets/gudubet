@@ -17,19 +17,20 @@ export const useAdminAccess = (user: User | null) => {
       }
 
       try {
-        // Use the security definer function to avoid RLS issues
-        const { data, error } = await supabase.rpc('check_user_admin_status', {
-          check_user_id: user.id
-        });
+        // Check if user exists in admins table
+        const { data: adminData, error } = await supabase
+          .from('admins')
+          .select('role_type, is_active')
+          .eq('id', user.id)
+          .single();
 
         if (error) {
-          console.error('Error checking admin access:', error);
+          // User not in admins table or error occurred
           setIsAdmin(false);
           setIsSuperAdmin(false);
-        } else if (data && data.length > 0) {
-          const adminStatus = data[0];
-          setIsAdmin(adminStatus.is_admin || false);
-          setIsSuperAdmin(adminStatus.is_super_admin || false);
+        } else if (adminData && adminData.is_active) {
+          setIsAdmin(true);
+          setIsSuperAdmin(adminData.role_type === 'super_admin');
         } else {
           setIsAdmin(false);
           setIsSuperAdmin(false);
@@ -44,7 +45,7 @@ export const useAdminAccess = (user: User | null) => {
     };
 
     checkAdminAccess();
-  }, [user?.id]); // Only depend on user ID, not the whole user object
+  }, [user]);
 
   return { isAdmin, isSuperAdmin, loading };
 };
