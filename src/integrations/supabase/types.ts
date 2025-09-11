@@ -4168,6 +4168,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["admin_role"]
       }
+      get_current_user_admin_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          is_admin: boolean
+          is_super_admin: boolean
+          role_type: string
+        }[]
+      }
       get_dashboard_kpis: {
         Args: { days_back?: number }
         Returns: {
