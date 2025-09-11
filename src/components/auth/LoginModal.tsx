@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/hooks/useI18n';
 import { supabase } from '@/integrations/supabase/client';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
+import { usePasswordSecurity } from '@/hooks/usePasswordSecurity';
+import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -72,9 +74,16 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { toast } = useToast();
   const { t } = useI18n();
+  const { passwordStrength, updatePasswordStrength } = usePasswordSecurity();
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Şifre değiştiğinde güvenlik kontrolü yap
+    if (field === 'password') {
+      updatePasswordStrength(value);
+    }
+    
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -99,6 +108,9 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
       newErrors.password = t('auth.password_required');
     } else if (formData.password.length < 8) {
       newErrors.password = t('auth.password_min_length');
+    } else if (formData.password.length >= 8 && !passwordStrength.isSecure) {
+      // Login'de daha esnek olabiliriz ama uyarı verelim
+      // newErrors.password = 'Şifreniz güvenli değil, yeni bir şifre belirlemeyi düşünün';
     }
 
     if (!formData.captcha) {
@@ -289,9 +301,15 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
+                  </div>
+                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                  {/* Login'de sadece bilgilendirici şekilde gösterelim */}
+                  {formData.password.length >= 8 && !passwordStrength.isSecure && (
+                    <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      💡 Şifrenizi güvenliğiniz için daha güçlü bir şifre ile değiştirmeyi düşünün
+                    </div>
+                  )}
                 </div>
-                {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-              </div>
 
               {/* Captcha */}
               <div className="space-y-2">

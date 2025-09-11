@@ -8,6 +8,8 @@ import { ChevronLeft, ChevronRight, CheckCircle, Eye, EyeOff, RefreshCw } from '
 import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/hooks/useI18n';
 import { supabase } from '@/integrations/supabase/client';
+import { usePasswordSecurity } from '@/hooks/usePasswordSecurity';
+import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
 
 interface RegistrationModalProps {
   isOpen: boolean;
@@ -58,9 +60,16 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { t, currentLanguage } = useI18n();
+  const { passwordStrength, updatePasswordStrength } = usePasswordSecurity();
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Şifre değiştiğinde güvenlik kontrolü yap
+    if (field === 'password') {
+      updatePasswordStrength(value);
+    }
+    
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -107,6 +116,8 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         newErrors.password = t('auth.password_required');
       } else if (formData.password.length < 8) {
         newErrors.password = t('auth.password_min_length');
+      } else if (!passwordStrength.isSecure) {
+        newErrors.password = 'Şifre yeterince güçlü değil. Lütfen daha güvenli bir şifre seçin.';
       }
       
       if (!formData.confirmPassword) {
@@ -320,6 +331,10 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             </button>
           </div>
           {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+          <PasswordStrengthIndicator 
+            strength={passwordStrength} 
+            password={formData.password} 
+          />
         </div>
 
         <div className="space-y-2">
