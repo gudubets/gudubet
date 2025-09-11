@@ -1,3 +1,4 @@
+import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,13 +45,31 @@ export default function BonusForm() {
     }
   });
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: existing });
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   // set default values when existing loaded
-  if (existing && !Object.keys(errors).length) {
-    // Simple guard to avoid infinite reset
-    (reset as any)(existing);
-  }
+  React.useEffect(() => {
+    if (existing) {
+      reset({
+        name: existing.name,
+        description: existing.description,
+        type: existing.type as "FIRST_DEPOSIT" | "RELOAD" | "CASHBACK" | "FREEBET",
+        amount_type: existing.amount_type as "percent" | "fixed",
+        amount_value: existing.amount_value,
+        max_cap: existing.max_cap,
+        min_deposit: existing.min_deposit,
+        rollover_multiplier: existing.rollover_multiplier,
+        auto_grant: existing.auto_grant,
+        requires_code: existing.requires_code,
+        code: existing.code,
+        valid_from: existing.valid_from,
+        valid_to: existing.valid_to,
+        max_per_user: existing.max_per_user,
+        cooldown_hours: existing.cooldown_hours,
+        is_active: existing.is_active
+      });
+    }
+  }, [existing, reset]);
 
   const onSubmit = async (values: FormValues) => {
     if (id) {

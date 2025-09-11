@@ -22,7 +22,7 @@ export const useBonuses = useAdminBonuses;
 export function useCreateBonus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<Bonus>): Promise<Bonus> => {
+    mutationFn: async (payload: any): Promise<Bonus> => {
       const { data, error } = await supabase.from("bonuses_new").insert(payload).select("*").single();
       if (error) throw error;
       return data as Bonus;
@@ -34,7 +34,7 @@ export function useCreateBonus() {
 export function useUpdateBonus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...patch }: Partial<Bonus> & { id: string }): Promise<Bonus> => {
+    mutationFn: async ({ id, ...patch }: any): Promise<Bonus> => {
       const { data, error } = await supabase.from("bonuses_new").update(patch).eq("id", id).select("*").single();
       if (error) throw error;
       return data as Bonus;

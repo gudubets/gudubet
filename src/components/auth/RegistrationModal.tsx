@@ -241,7 +241,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             value={formData.firstName}
             onChange={(e) => updateFormData('firstName', e.target.value)}
             className={errors.firstName ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
-            placeholder="Adınız"
+            
           />
           {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
         </div>
@@ -253,7 +253,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             value={formData.lastName}
             onChange={(e) => updateFormData('lastName', e.target.value)}
             className={errors.lastName ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
-            placeholder="Soyadınız"
+            
           />
           {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
         </div>
@@ -267,7 +267,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
           value={formData.phone}
           onChange={(e) => updateFormData('phone', e.target.value)}
           className={errors.phone ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
-          placeholder="05xx xxx xx xx"
+          
         />
         {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
       </div>
@@ -409,7 +409,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
               value={formData.city}
               onChange={(e) => updateFormData('city', e.target.value)}
               className={errors.city ? 'border-destructive' : ''}
-              placeholder={t('auth.city_placeholder')}
+              
             />
             {errors.city && <p className="text-sm text-destructive">{errors.city}</p>}
           </div>
@@ -422,7 +422,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             value={formData.address}
             onChange={(e) => updateFormData('address', e.target.value)}
             className={errors.address ? 'border-destructive' : ''}
-            placeholder={t('auth.address_placeholder')}
+            
           />
           {errors.address && <p className="text-sm text-destructive">{errors.address}</p>}
         </div>
@@ -434,7 +434,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             value={formData.postalCode}
             onChange={(e) => updateFormData('postalCode', e.target.value)}
             className={errors.postalCode ? 'border-destructive' : ''}
-            placeholder={t('auth.postal_code_placeholder')}
+            
           />
           {errors.postalCode && <p className="text-sm text-destructive">{errors.postalCode}</p>}
         </div>

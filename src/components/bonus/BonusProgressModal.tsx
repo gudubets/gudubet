@@ -50,7 +50,7 @@ export const BonusProgressModal: React.FC<BonusProgressModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Gift className="h-5 w-5" />
-            {bonusProgress.bonuses_new?.name}
+            Bonus Detayları
           </DialogTitle>
         </DialogHeader>
 
@@ -115,54 +115,19 @@ export const BonusProgressModal: React.FC<BonusProgressModalProps> = ({
             </Card>
           </div>
 
-          {/* Bonus Rules */}
-          {bonusProgress.bonuses_new?.bonus_rules && bonusProgress.bonuses_new.bonus_rules.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Bonus Kuralları</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {bonusProgress.bonuses_new.bonus_rules[0]?.rules && 
-                   typeof bonusProgress.bonuses_new.bonus_rules[0].rules === 'object' &&
-                   (bonusProgress.bonuses_new.bonus_rules[0].rules as any)?.category_weights && (
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Oyun Kategorisi Katkıları</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {Object.entries((bonusProgress.bonuses_new.bonus_rules[0].rules as any).category_weights).map(([category, weight]) => (
-                          <div key={category} className="flex justify-between items-center p-2 bg-muted rounded text-sm">
-                            <span className="capitalize">{category.replace('_', ' ')}</span>
-                            <span className="font-medium">{((weight as number) * 100).toFixed(0)}%</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {bonusProgress.bonuses_new.bonus_rules[0]?.rules && 
-                   typeof bonusProgress.bonuses_new.bonus_rules[0].rules === 'object' &&
-                   (bonusProgress.bonuses_new.bonus_rules[0].rules as any)?.eligible_games && 
-                   Array.isArray((bonusProgress.bonuses_new.bonus_rules[0].rules as any).eligible_games) && (
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Uygun Oyunlar</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {((bonusProgress.bonuses_new.bonus_rules[0].rules as any).eligible_games as string[]).slice(0, 10).map((game, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {game}
-                          </Badge>
-                        ))}
-                        {((bonusProgress.bonuses_new.bonus_rules[0].rules as any).eligible_games as string[]).length > 10 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{((bonusProgress.bonuses_new.bonus_rules[0].rules as any).eligible_games as string[]).length - 10} daha
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  )}
+          {/* Bonus Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Bonus Bilgileri</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-sm text-muted-foreground">
+                  Bonus detayları ve kuralları burada görüntülenecek.
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Recent Activity */}
           <Card>
