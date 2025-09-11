@@ -42,7 +42,7 @@ const Index = () => {
                   
                   <div className="relative z-10 h-full w-full cursor-pointer" onClick={() => setIsRegistrationModalOpen(true)}>
                     <img 
-                      src="/lovable-uploads/820d571f-8704-4eaf-8b48-fa3174655991.png" 
+                      src="/lovable-uploads/ea4401d0-dccf-4923-b1f3-c6fe9f5412a8.png" 
                       alt="Gudubet Hoşgeldin Bonusu 500 TL" 
                       className="w-full h-full object-cover"
                       style={{ 
