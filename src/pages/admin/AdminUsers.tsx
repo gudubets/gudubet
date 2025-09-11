@@ -49,6 +49,28 @@ const AdminUsers = () => {
 
   useEffect(() => {
     loadUsers();
+
+    // Setup realtime subscription for wallet balance updates
+    const channel = supabase
+      .channel('admin-wallets-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'wallets',
+          filter: 'type=eq.main'
+        },
+        () => {
+          // Reload users when wallet balances change
+          loadUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [searchQuery]);
 
   const loadUsers = async () => {
@@ -72,22 +94,38 @@ const AdminUsers = () => {
 
       if (profilesError) throw profilesError;
 
+      // Get wallet balances for all users
+      const { data: walletsData, error: walletsError } = await supabase
+        .from('wallets')
+        .select('user_id, balance')
+        .eq('type', 'main');
+
+      if (walletsError) throw walletsError;
+
       // Create a map of profiles by user_id for quick lookup
       const profilesMap = new Map();
       profilesData?.forEach(profile => {
         profilesMap.set(profile.id, profile);
       });
+
+      // Create a map of balances by user_id for quick lookup
+      const balancesMap = new Map();
+      walletsData?.forEach(wallet => {
+        balancesMap.set(wallet.user_id, wallet.balance || 0);
+      });
       
       // Transform data to match User interface
       const transformedUsers = authData?.map((user: any) => {
         const profile = profilesMap.get(user.id);
+        const balance = balancesMap.get(user.id) || 0;
+        
         return {
           id: user.id,
           first_name: profile?.first_name || 'İsim yok',
           last_name: profile?.last_name || '',
           email: user.email || '',
           phone: profile?.phone || '',
-          balance: 0,
+          balance: balance,
           status: (profile?.banned_until && new Date(profile.banned_until) > new Date()) ? 'banned' : 'active',
           created_at: profile?.created_at || new Date().toISOString()
         };
