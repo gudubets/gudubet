@@ -44,7 +44,14 @@ export default function BonusForm() {
     }
   });
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: existing });
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({ 
+    resolver: zodResolver(schema), 
+    defaultValues: existing ? {
+      ...existing,
+      amount_type: existing.amount_type as "percent" | "fixed",
+      type: existing.type as "FIRST_DEPOSIT" | "RELOAD" | "CASHBACK" | "FREEBET"
+    } : undefined
+  });
 
   // set default values when existing loaded
   if (existing && !Object.keys(errors).length) {
@@ -56,7 +63,7 @@ export default function BonusForm() {
     if (id) {
       await updateM.mutateAsync({ id, ...values });
     } else {
-      await createM.mutateAsync(values);
+      await createM.mutateAsync(values as any);
     }
     navigate("/admin/bonuses/list");
   };
