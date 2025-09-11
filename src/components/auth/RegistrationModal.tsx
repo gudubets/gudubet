@@ -474,7 +474,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl md:h-[700px] h-[95vh] max-h-[95vh] p-0 overflow-hidden bg-background border border-border w-[95vw] md:w-auto">
+      <DialogContent className="max-w-4xl md:h-[800px] h-[95vh] max-h-[95vh] p-0 overflow-hidden bg-background border border-border w-[95vw] md:w-auto">
         <div className="flex h-full md:flex-row flex-col">
           {/* Left Side - Animation Area - Hidden on mobile */}
           <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-primary/10 to-accent/10 relative overflow-hidden">
@@ -537,8 +537,8 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
           </div>
 
           {/* Right Side - Form */}
-          <div className="md:w-1/2 w-full p-3 md:p-8 flex flex-col flex-1">
-            <div className="flex-1 overflow-y-auto">
+          <div className="md:w-1/2 w-full p-3 md:p-8 flex flex-col flex-1 min-h-0">
+            <div className="flex-1 overflow-y-auto pb-4">
               <div 
                 className={`transition-all duration-500 ease-in-out transform ${
                   currentStep === 1 ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 absolute'
