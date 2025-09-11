@@ -1,18 +1,53 @@
+// deno-lint-ignore-file no-explicit-any
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+type Method = 'bank' | 'papara' | 'crypto';
+
+type ReqBody = {
+  amount: number;
+  method: Method; // 'bank' | 'papara' | 'crypto'
+  currency?: string;
+  // bank
+  iban?: string;
+  // papara
+  papara_id?: string; // numeric id
+  phone?: string;     // +90...
+  // crypto
+  asset?: string;     // BTC, ETH, USDT
+  network?: string;   // BTC, ETH, TRC20, BEP20, SOL, MATIC
+  address?: string;
+  tag?: string;       // memo/tag optional
+};
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface WithdrawalRequest {
-  amount: number;
-  currency?: string;
-  payment_method_id?: string;
-  bank_name?: string;
-  iban?: string;
-  account_holder?: string;
+const sUrl = Deno.env.get('SUPABASE_URL')!;
+const sKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const sb = createClient(sUrl, sKey, { auth: { persistSession: false } });
+
+async function getUserId(req: Request) {
+  const auth = req.headers.get('authorization');
+  if (!auth) return null;
+  const token = auth.replace(/^Bearer\s+/i, '');
+  const { data, error } = await sb.auth.getUser(token);
+  if (error || !data?.user) return null;
+  return data.user.id as string;
+}
+
+function isTRIBAN(v?: string) {
+  return !!v && /^TR\d{24}$/i.test(v.replace(/\s+/g,''));
+}
+
+function isPhone(v?: string) {
+  return !!v && /^\+?[0-9]{10,14}$/.test(v);
+}
+
+function isPaparaId(v?: string) {
+  return !!v && /^[0-9]{6,12}$/.test(v);
 }
 
 serve(async (req) => {
@@ -22,51 +57,26 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, serviceKey);
+    if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405, headers: corsHeaders });
+    const userId = await getUserId(req);
+    if (!userId) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
-    // Get user from auth header
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "Yetkilendirme başlığı eksik" }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const body = await req.json() as ReqBody;
+    const amount = Number(body.amount || 0);
+    if (!amount || amount <= 0) return new Response(JSON.stringify({ error: 'Invalid amount' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Geçersiz yetkilendirme" }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (req.method !== "POST") {
-      return new Response(
-        JSON.stringify({ error: "Sadece POST method destekleniyor" }),
-        { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const body: WithdrawalRequest = await req.json();
-    
-    // Validate input
-    if (!body.amount || body.amount <= 0) {
-      return new Response(
-        JSON.stringify({ error: "Geçerli bir miktar giriniz" }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // risk: blocked kullanıcı çekim açamaz
+    const { data: lastRisk } = await sb
+      .from('risk_flags').select('status')
+      .eq('user_id', userId).order('created_at', { ascending: false })
+      .limit(1).maybeSingle();
+    if (lastRisk?.status === 'blocked') return new Response(JSON.stringify({ error: 'User blocked' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
     // Get user profile to check for user_id
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await sb
       .from("users")
       .select("id, balance, kyc_level, kyc_status")
-      .eq("auth_user_id", user.id)
+      .eq("auth_user_id", userId)
       .single();
 
     if (profileError || !profile) {
@@ -76,104 +86,62 @@ serve(async (req) => {
       );
     }
 
-    // Check if user has sufficient balance
-    if (profile.balance < body.amount) {
-      return new Response(
-        JSON.stringify({ error: "Yetersiz bakiye" }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check KYC requirements for large amounts
-    if (body.amount > 1000 && profile.kyc_level === 'level_0') {
-      return new Response(
-        JSON.stringify({ 
-          error: "1000 TL üzeri çekimler için KYC doğrulaması gereklidir",
-          requires_kyc: true 
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check for existing pending withdrawals
-    const { data: pendingWithdrawals } = await supabase
-      .from("withdrawals")
-      .select("id")
-      .eq("user_id", profile.id)
-      .eq("status", "pending");
-
-    if (pendingWithdrawals && pendingWithdrawals.length > 0) {
-      return new Response(
-        JSON.stringify({ error: "Bekleyen çekim talebiniz bulunmaktadır" }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // method-specific validation + payout_details
+    let payout: Record<string, any> = {};
+    if (body.method === 'bank') {
+      if (!isTRIBAN(body.iban)) return new Response(JSON.stringify({ error: 'Invalid IBAN' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      payout = { method: 'bank', iban: body.iban?.replace(/\s+/g,'').toUpperCase() };
+    } else if (body.method === 'papara') {
+      if (!(isPaparaId(body.papara_id) || isPhone(body.phone))) {
+        return new Response(JSON.stringify({ error: 'Papara id or phone required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      payout = { method: 'papara', papara_id: body.papara_id ?? null, phone: body.phone ?? null };
+    } else if (body.method === 'crypto') {
+      const allowedAssets = ['BTC','ETH','USDT'];
+      const allowedNetworks = ['BTC','ETH','TRC20','BEP20','SOL','MATIC'];
+      if (!body.asset || !allowedAssets.includes(body.asset.toUpperCase()))
+        return new Response(JSON.stringify({ error: 'Unsupported asset' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      if (!body.network || !allowedNetworks.includes(body.network.toUpperCase()))
+        return new Response(JSON.stringify({ error: 'Unsupported network' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      if (!body.address || body.address.length < 10)
+        return new Response(JSON.stringify({ error: 'Invalid address' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      payout = { method: 'crypto', asset: body.asset.toUpperCase(), network: body.network.toUpperCase(), address: body.address, tag: body.tag ?? null };
+    } else {
+      return new Response(JSON.stringify({ error: 'Unsupported method' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     // Calculate fees (simple 2% fee for now)
-    const feeAmount = body.amount * 0.02;
-    const netAmount = body.amount - feeAmount;
+    const feeAmount = amount * 0.02;
 
-    // Create withdrawal request
-    const { data: withdrawal, error: withdrawalError } = await supabase
-      .from("withdrawals")
+    // talep oluştur
+    const { data: wd, error: wdErr } = await sb
+      .from('withdrawals')
       .insert({
         user_id: profile.id,
-        amount: body.amount,
-        currency: body.currency || "TRY",
-        fee_amount: feeAmount,
-        net_amount: netAmount,
-        status: "pending",
-        risk_score: 0, // Will be calculated by triggers
-        risk_flags: [],
-        requires_kyc: body.amount > 1000 && profile.kyc_level === 'level_0',
-        requires_manual_review: body.amount > 5000,
-        metadata: {
-          bank_name: body.bank_name,
-          iban: body.iban,
-          account_holder: body.account_holder,
-          request_ip: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-          user_agent: req.headers.get("user-agent")
-        }
+        amount,
+        currency: body.currency ?? 'TRY',
+        status: 'pending',
+        method: body.method,
+        payout_details: payout,
+        network: payout.network ?? null,
+        asset: payout.asset ?? null,
+        fee: feeAmount
       })
-      .select()
-      .single();
+      .select('*').single();
+    if (wdErr) throw wdErr;
 
-    if (withdrawalError) {
-      console.error("Withdrawal creation error:", withdrawalError);
-      return new Response(
-        JSON.stringify({ error: "Çekim talebi oluşturulamadı" }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Log the activity
-    await supabase.from("admin_activities").insert({
-      admin_id: user.id,
-      action_type: "withdrawal_requested",
-      description: `Çekim talebi oluşturuldu: ${body.amount} ${body.currency || 'TRY'}`,
-      target_type: "withdrawal",
-      target_id: withdrawal.id,
-      metadata: {
-        amount: body.amount,
-        currency: body.currency || 'TRY',
-        user_id: profile.id
-      }
+    await sb.from('audit_logs').insert({
+      actor_type: 'user', actor_id: userId, action: 'withdraw_request',
+      entity_type: 'withdrawal', entity_id: wd.id, meta: { method: body.method, payout }
     });
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        withdrawal_id: withdrawal.id,
-        message: "Çekim talebiniz başarıyla oluşturuldu"
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
-  } catch (error) {
-    console.error("Error in withdraw-request function:", error);
-    return new Response(
-      JSON.stringify({ error: "Sunucu hatası" }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ 
+      success: true, 
+      withdrawal_id: wd.id,
+      message: "Çekim talebiniz başarıyla oluşturuldu"
+    }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  } catch (e) {
+    console.error(e);
+    return new Response(JSON.stringify({ error: 'Server Error' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });

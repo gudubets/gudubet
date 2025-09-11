@@ -3932,16 +3932,22 @@ export type Database = {
           admin_note: string | null
           amount: number
           approved_at: string | null
+          asset: string | null
           completed_at: string | null
           created_at: string
           currency: string
+          fee: number
           fee_amount: number
           id: string
           ip_address: unknown | null
           metadata: Json | null
+          method: Database["public"]["Enums"]["withdrawal_method"]
           net_amount: number
+          network: string | null
           payment_method_id: string | null
+          payout_details: Json | null
           processed_at: string | null
+          provider_ref: string | null
           provider_reference: string | null
           provider_response: Json | null
           rejection_reason: string | null
@@ -3953,6 +3959,7 @@ export type Database = {
           risk_flags: string[] | null
           risk_score: number
           status: string
+          tx_hash: string | null
           updated_at: string
           user_agent: string | null
           user_id: string
@@ -3961,16 +3968,22 @@ export type Database = {
           admin_note?: string | null
           amount: number
           approved_at?: string | null
+          asset?: string | null
           completed_at?: string | null
           created_at?: string
           currency?: string
+          fee?: number
           fee_amount?: number
           id?: string
           ip_address?: unknown | null
           metadata?: Json | null
+          method?: Database["public"]["Enums"]["withdrawal_method"]
           net_amount: number
+          network?: string | null
           payment_method_id?: string | null
+          payout_details?: Json | null
           processed_at?: string | null
+          provider_ref?: string | null
           provider_reference?: string | null
           provider_response?: Json | null
           rejection_reason?: string | null
@@ -3982,6 +3995,7 @@ export type Database = {
           risk_flags?: string[] | null
           risk_score?: number
           status?: string
+          tx_hash?: string | null
           updated_at?: string
           user_agent?: string | null
           user_id: string
@@ -3990,16 +4004,22 @@ export type Database = {
           admin_note?: string | null
           amount?: number
           approved_at?: string | null
+          asset?: string | null
           completed_at?: string | null
           created_at?: string
           currency?: string
+          fee?: number
           fee_amount?: number
           id?: string
           ip_address?: unknown | null
           metadata?: Json | null
+          method?: Database["public"]["Enums"]["withdrawal_method"]
           net_amount?: number
+          network?: string | null
           payment_method_id?: string | null
+          payout_details?: Json | null
           processed_at?: string | null
+          provider_ref?: string | null
           provider_reference?: string | null
           provider_response?: Json | null
           rejection_reason?: string | null
@@ -4011,6 +4031,7 @@ export type Database = {
           risk_flags?: string[] | null
           risk_score?: number
           status?: string
+          tx_hash?: string | null
           updated_at?: string
           user_agent?: string | null
           user_id?: string
@@ -4267,6 +4288,7 @@ export type Database = {
       transaction_direction: "debit" | "credit"
       tx_direction: "debit" | "credit"
       wallet_type: "main" | "bonus"
+      withdrawal_method: "bank" | "papara" | "crypto"
       withdrawal_status:
         | "pending"
         | "reviewing"
@@ -4467,6 +4489,7 @@ export const Constants = {
       transaction_direction: ["debit", "credit"],
       tx_direction: ["debit", "credit"],
       wallet_type: ["main", "bonus"],
+      withdrawal_method: ["bank", "papara", "crypto"],
       withdrawal_status: [
         "pending",
         "reviewing",
