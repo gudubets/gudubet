@@ -17,18 +17,19 @@ export const useAdminAccess = (user: User | null) => {
       }
 
       try {
-        const { data: adminData, error } = await supabase
-          .from('admins')
-          .select('role_type, is_active')
-          .eq('id', user.id)
-          .single();
+        // Use the security definer function to avoid RLS issues
+        const { data, error } = await supabase.rpc('check_user_admin_status', {
+          check_user_id: user.id
+        });
 
-        if (error || !adminData) {
+        if (error) {
+          console.error('Error checking admin access:', error);
           setIsAdmin(false);
           setIsSuperAdmin(false);
-        } else if (adminData.is_active) {
-          setIsAdmin(true);
-          setIsSuperAdmin(adminData.role_type === 'super_admin');
+        } else if (data && data.length > 0) {
+          const adminStatus = data[0];
+          setIsAdmin(adminStatus.is_admin || false);
+          setIsSuperAdmin(adminStatus.is_super_admin || false);
         } else {
           setIsAdmin(false);
           setIsSuperAdmin(false);
