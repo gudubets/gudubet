@@ -226,16 +226,16 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     <div className="space-y-4 md:space-y-6">
       <div className="text-center mb-4 md:mb-8">
         <h2 className="text-lg md:text-2xl font-gaming font-bold text-foreground mb-2">
-          {t('auth.personal_info')}
+          Kişisel Bilgiler
         </h2>
         <p className="text-sm md:text-base text-muted-foreground">
-          {t('auth.create_account_desc')}
+          Hesabınızı oluşturmak için gerekli bilgileri giriniz
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
         <div className="space-y-2">
-          <Label htmlFor="firstName" className="text-sm">{t('auth.first_name')}</Label>
+          <Label htmlFor="firstName" className="text-sm">Ad</Label>
           <Input
             id="firstName"
             value={formData.firstName}
@@ -247,7 +247,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="lastName" className="text-sm">{t('auth.last_name')}</Label>
+          <Label htmlFor="lastName" className="text-sm">Soyad</Label>
           <Input
             id="lastName"
             value={formData.lastName}
@@ -260,7 +260,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="phone" className="text-sm">{t('auth.phone')}</Label>
+        <Label htmlFor="phone" className="text-sm">Telefon</Label>
         <Input
           id="phone"
           type="tel"
@@ -273,7 +273,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="birthDate" className="text-sm">{t('auth.birth_date')}</Label>
+        <Label htmlFor="birthDate" className="text-sm">Doğum Tarihi</Label>
         <Input
           id="birthDate"
           type="date"
@@ -290,16 +290,16 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     <div className="space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-gaming font-bold text-foreground mb-2">
-          {t('auth.account_info')}
+          Hesap Bilgileri
         </h2>
         <p className="text-muted-foreground">
-          {t('auth.account_info_desc')}
+          Giriş yapabilmeniz için e-mail ve şifre bilgilerinizi giriniz
         </p>
       </div>
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">{t('auth.email_address')} *</Label>
+          <Label htmlFor="email">E-mail Adresi *</Label>
           <Input
             id="email"
             type="email"
@@ -312,7 +312,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">{t('auth.password')} *</Label>
+          <Label htmlFor="password">Şifre *</Label>
           <div className="relative">
             <Input
               id="password"
@@ -338,7 +338,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword">{t('auth.confirm_password')} *</Label>
+          <Label htmlFor="confirmPassword">Şifre Tekrarı *</Label>
           <div className="relative">
             <Input
               id="confirmPassword"
@@ -360,7 +360,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="promoCode">{t('auth.promo_code')}</Label>
+          <Label htmlFor="promoCode">Promosyon Kodu (Opsiyonel)</Label>
           <Input
             id="promoCode"
             value={formData.promoCode}
@@ -376,34 +376,34 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     <div className="space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-gaming font-bold text-foreground mb-2">
-          {t('auth.address_info')}
+          Adres Bilgileri
         </h2>
         <p className="text-muted-foreground">
-          {t('auth.address_info_desc')}
+          İkamet adresinizi giriniz
         </p>
       </div>
 
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="country">{t('auth.country')} *</Label>
+            <Label htmlFor="country">Ülke *</Label>
             <Select value={formData.country} onValueChange={(value) => updateFormData('country', value)}>
               <SelectTrigger className={errors.country ? 'border-destructive' : ''}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="turkey">{t('auth.country_turkey')}</SelectItem>
-                <SelectItem value="usa">{t('auth.country_usa')}</SelectItem>
-                <SelectItem value="germany">{t('auth.country_germany')}</SelectItem>
-                <SelectItem value="france">{t('auth.country_france')}</SelectItem>
-                <SelectItem value="uk">{t('auth.country_uk')}</SelectItem>
+                <SelectItem value="turkey">Türkiye</SelectItem>
+                <SelectItem value="usa">Amerika Birleşik Devletleri</SelectItem>
+                <SelectItem value="germany">Almanya</SelectItem>
+                <SelectItem value="france">Fransa</SelectItem>
+                <SelectItem value="uk">Birleşik Krallık</SelectItem>
               </SelectContent>
             </Select>
             {errors.country && <p className="text-sm text-destructive">{errors.country}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="city">{t('auth.city')} *</Label>
+            <Label htmlFor="city">Şehir *</Label>
             <Input
               id="city"
               value={formData.city}
@@ -416,7 +416,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="address">{t('auth.address')} *</Label>
+          <Label htmlFor="address">Adres *</Label>
           <Input
             id="address"
             value={formData.address}
@@ -428,7 +428,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="postalCode">{t('auth.postal_code')} *</Label>
+          <Label htmlFor="postalCode">Posta Kodu *</Label>
           <Input
             id="postalCode"
             value={formData.postalCode}
