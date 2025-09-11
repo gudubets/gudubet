@@ -17,20 +17,18 @@ export const useAdminAccess = (user: User | null) => {
       }
 
       try {
-        // Check if user exists in admins table
-        const { data: adminData, error } = await supabase
-          .from('admins')
-          .select('role_type, is_active')
-          .eq('id', user.id)
-          .single();
+        // Use the secure server-side admin validation function
+        const { data: adminStatus, error } = await supabase
+          .rpc('get_current_user_admin_status');
 
         if (error) {
-          // User not in admins table or error occurred
+          console.error('Error checking admin access:', error);
           setIsAdmin(false);
           setIsSuperAdmin(false);
-        } else if (adminData && adminData.is_active) {
-          setIsAdmin(true);
-          setIsSuperAdmin(adminData.role_type === 'super_admin');
+        } else if (adminStatus && adminStatus.length > 0) {
+          const status = adminStatus[0];
+          setIsAdmin(status.is_admin || false);
+          setIsSuperAdmin(status.is_super_admin || false);
         } else {
           setIsAdmin(false);
           setIsSuperAdmin(false);
