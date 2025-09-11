@@ -99,7 +99,9 @@ const App = () => {
             <Route path="game-providers" element={<AdminGameProviders />} />
             <Route path="bonuses/list" element={<BonusesList />} />
             <Route path="bonuses/create" element={<BonusForm />} />
+            <Route path="bonuses/rules" element={<BonusesList />} />
             <Route path="bonuses/:id/edit" element={<BonusForm />} />
+            <Route path="bonuses/:id/rules" element={<BonusRulesEditor />} />
             <Route path="finance" element={<AdminFinance />} />
             <Route path="withdrawals" element={<AdminWithdrawals />} />
             <Route path="fraud-detection" element={<AdminFraudDetection />} />

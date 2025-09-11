@@ -9,6 +9,7 @@ import {
   DollarSign,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Settings,
   CreditCard,
   Shield,
@@ -17,9 +18,13 @@ import {
   Bell,
   UserCheck,
   TrendingUp,
-  Database
+  Database,
+  List,
+  Plus,
+  BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 
 interface AdminSidebarProps {
@@ -29,6 +34,17 @@ interface AdminSidebarProps {
 
 const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
   const location = useLocation();
+  const [openMenus, setOpenMenus] = useState<Set<string>>(new Set(['bonuses']));
+
+  const toggleMenu = (menuKey: string) => {
+    const newOpenMenus = new Set(openMenus);
+    if (newOpenMenus.has(menuKey)) {
+      newOpenMenus.delete(menuKey);
+    } else {
+      newOpenMenus.add(menuKey);
+    }
+    setOpenMenus(newOpenMenus);
+  };
 
   const menuItems = [
     {
@@ -60,13 +76,39 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       icon: Settings,
       href: '/admin/game-providers',
       active: location.pathname === '/admin/game-providers'
-    },
+    }
+  ];
+
+  const menuItemsWithSub = [
     {
+      key: 'bonuses',
       title: 'Bonuslar',
       icon: Gift,
-      href: '/admin/bonuses/list',
-      active: location.pathname.startsWith('/admin/bonuses')
-    },
+      active: location.pathname.startsWith('/admin/bonuses'),
+      subItems: [
+        {
+          title: 'Bonus Listesi',
+          icon: List,
+          href: '/admin/bonuses/list',
+          active: location.pathname === '/admin/bonuses/list'
+        },
+        {
+          title: 'Bonus Oluştur',
+          icon: Plus,
+          href: '/admin/bonuses/create',
+          active: location.pathname === '/admin/bonuses/create'
+        },
+        {
+          title: 'Bonus Kuralları',
+          icon: BookOpen,
+          href: '/admin/bonuses/rules',
+          active: location.pathname.includes('/admin/bonuses') && location.pathname.includes('/rules')
+        }
+      ]
+    }
+  ];
+
+  const bottomMenuItems = [
     {
       title: 'Finans İşlemleri',
       icon: DollarSign,
@@ -163,8 +205,92 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-2 space-y-1">
+      <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+        {/* Normal Menu Items */}
         {menuItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                item.active
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent",
+                isCollapsed ? "justify-center" : "justify-start"
+              )}
+            >
+              <Icon className={cn("w-4 h-4", !isCollapsed && "mr-3")} />
+              {!isCollapsed && <span>{item.title}</span>}
+            </Link>
+          );
+        })}
+
+        {/* Menu Items with Sub-items */}
+        {menuItemsWithSub.map((menuGroup) => {
+          const Icon = menuGroup.icon;
+          const isOpen = openMenus.has(menuGroup.key);
+          
+          return (
+            <Collapsible
+              key={menuGroup.key}
+              open={isOpen}
+              onOpenChange={() => toggleMenu(menuGroup.key)}
+            >
+              <CollapsibleTrigger asChild>
+                <button
+                  className={cn(
+                    "flex items-center w-full px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    menuGroup.active
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent",
+                    isCollapsed ? "justify-center" : "justify-between"
+                  )}
+                >
+                  <div className={cn("flex items-center", isCollapsed ? "justify-center" : "justify-start")}>
+                    <Icon className={cn("w-4 h-4", !isCollapsed && "mr-3")} />
+                    {!isCollapsed && <span>{menuGroup.title}</span>}
+                  </div>
+                  {!isCollapsed && (
+                    <ChevronDown 
+                      className={cn(
+                        "w-4 h-4 transition-transform",
+                        isOpen ? "transform rotate-180" : ""
+                      )} 
+                    />
+                  )}
+                </button>
+              </CollapsibleTrigger>
+              
+              {!isCollapsed && (
+                <CollapsibleContent className="space-y-1">
+                  {menuGroup.subItems.map((subItem) => {
+                    const SubIcon = subItem.icon;
+                    return (
+                      <Link
+                        key={subItem.href}
+                        to={subItem.href}
+                        className={cn(
+                          "flex items-center px-6 py-2 ml-4 rounded-md text-sm transition-colors",
+                          subItem.active
+                            ? "bg-primary/10 text-primary border-l-2 border-primary"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                        )}
+                      >
+                        <SubIcon className="w-3 h-3 mr-3" />
+                        <span>{subItem.title}</span>
+                      </Link>
+                    );
+                  })}
+                </CollapsibleContent>
+              )}
+            </Collapsible>
+          );
+        })}
+
+        {/* Bottom Menu Items */}
+        {bottomMenuItems.map((item) => {
           const Icon = item.icon;
           return (
             <Link
