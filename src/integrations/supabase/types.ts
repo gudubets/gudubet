@@ -4107,6 +4107,14 @@ export type Database = {
         Args: { _amount: number; _user_id: string }
         Returns: Json
       }
+      check_user_admin_status: {
+        Args: { check_user_id: string }
+        Returns: {
+          is_admin: boolean
+          is_super_admin: boolean
+          role_type: string
+        }[]
+      }
       cleanup_expired_captcha_tokens: {
         Args: Record<PropertyKey, never>
         Returns: undefined
