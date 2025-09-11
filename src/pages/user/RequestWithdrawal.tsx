@@ -30,23 +30,24 @@ export default function RequestWithdrawal() {
   const list = useMyWithdrawals();
   const navigate = useNavigate();
 
-  // Get user balance
-  const { data: userBalance } = useQuery({
-    queryKey: ["user-balance"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Kimlik doğrulaması yapılmadı");
+    // Get user balance from wallets
+    const { data: userBalance } = useQuery({
+      queryKey: ["user-balance"],
+      queryFn: async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Kimlik doğrulaması yapılmadı");
 
-      const { data, error } = await supabase
-        .from("users")
-        .select("balance, kyc_level, kyc_status")
-        .eq("auth_user_id", user.id)
-        .single();
+        const { data: walletData, error } = await supabase
+          .from("wallets")
+          .select("balance")
+          .eq("user_id", user.id)
+          .eq("type", "main")
+          .single();
 
-      if (error) throw error;
-      return data;
-    }
-  });
+        if (error) throw error;
+        return walletData;
+      }
+    });
 
   const submit = () => {
     createM.mutate({ amount, method, iban, papara_id: paparaId, phone, asset, network, address, tag }, {
@@ -113,7 +114,7 @@ export default function RequestWithdrawal() {
           <CardContent className="space-y-4">
             {userBalance && (
               <div className="p-4 bg-muted rounded-lg">
-                <p className="text-sm text-muted-foreground">Mevcut Bakiye</p>
+                 <p className="text-sm text-muted-foreground">Mevcut Bakiye</p>
                 <p className="text-2xl font-bold">₺{userBalance.balance?.toLocaleString("tr-TR") || 0}</p>
               </div>
             )}

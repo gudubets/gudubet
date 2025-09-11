@@ -74,15 +74,38 @@ serve(async (req) => {
 
     // Get user profile to check for user_id
     const { data: profile, error: profileError } = await sb
-      .from("users")
-      .select("id, balance, kyc_level, kyc_status")
-      .eq("auth_user_id", userId)
+      .from("profiles")
+      .select("id, user_id")
+      .eq("user_id", userId)
       .single();
 
     if (profileError || !profile) {
       return new Response(
         JSON.stringify({ error: "Kullanıcı profili bulunamadı" }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Get user balance from wallets
+    const { data: walletData, error: walletError } = await sb
+      .from("wallets")
+      .select("balance")
+      .eq("user_id", profile.id)
+      .eq("type", "main")
+      .single();
+
+    if (walletError || !walletData) {
+      return new Response(
+        JSON.stringify({ error: "Bakiye bilgisi bulunamadı" }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const currentBalance = walletData.balance || 0;
+    if (currentBalance < amount) {
+      return new Response(
+        JSON.stringify({ error: "Yetersiz bakiye" }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
