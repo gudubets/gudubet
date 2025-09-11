@@ -109,12 +109,19 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       if (!formData.email.trim()) {
         newErrors.email = "E-mail adresi zorunludur";
       } else {
-        // Daha güçlü email validation + Türkçe karakter kontrolü
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailRegex.test(formData.email)) {
-          newErrors.email = "Geçerli bir e-mail adresi giriniz (Türkçe karakter kullanmayınız)";
-        } else if (formData.email.includes('ı') || formData.email.includes('ş') || formData.email.includes('ğ') || formData.email.includes('ü') || formData.email.includes('ö') || formData.email.includes('ç')) {
-          newErrors.email = "E-mail adresinde Türkçe karakter kullanılamaz (ı,ş,ğ,ü,ö,ç)";
+        // Çok sıkı email validation - sadece ASCII karakterler
+        const email = formData.email.trim().toLowerCase();
+        
+        // ASCII olmayan karakterleri kontrol et
+        const hasNonASCII = /[^\x00-\x7F]/.test(email);
+        if (hasNonASCII) {
+          newErrors.email = "E-mail adresinde Türkçe veya özel karakter kullanılamaz";
+        } else {
+          // Standard email regex
+          const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          if (!emailRegex.test(email)) {
+            newErrors.email = "Geçerli bir e-mail adresi formatı giriniz (örn: ornek@gmail.com)";
+          }
         }
       }
       
@@ -162,9 +169,18 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     setIsLoading(true);
 
     try {
+      console.log('🔍 Registration Debug Info:');
+      console.log('📧 Email:', formData.email);
+      console.log('🔤 Email length:', formData.email.length);
+      console.log('🌐 Email chars:', Array.from(formData.email).map(char => ({ char, code: char.charCodeAt(0) })));
+      
+      // Clean email - remove any invisible characters
+      const cleanEmail = formData.email.trim().toLowerCase().replace(/[^\x00-\x7F]/g, "");
+      console.log('🧹 Cleaned email:', cleanEmail);
+      
       // Sign up user with Supabase Auth
       const { data, error } = await supabase.auth.signUp({
-        email: formData.email.toLowerCase(),
+        email: cleanEmail,
         password: formData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
@@ -181,7 +197,10 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         }
       });
 
+      console.log('📤 Supabase Response:', { data, error });
+
       if (error) {
+        console.error('❌ Registration Error:', error);
         let errorMessage = "Kayıt işlemi başarısız oldu";
         
         if (error.message.includes('User already registered')) {
@@ -189,11 +208,11 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         } else if (error.message.includes('Password should be at least')) {
           errorMessage = 'Şifre en az 8 karakter olmalıdır';
         } else if (error.message.includes('Invalid email') || error.message.includes('invalid format')) {
-          errorMessage = 'E-mail adresi geçersiz format (Türkçe karakter kullanmayınız)';
+          errorMessage = `E-mail adresi geçersiz format. Girilen email: "${formData.email}" - Temizlenmiş: "${cleanEmail}"`;
         } else if (error.message.includes('Unable to validate email')) {
-          errorMessage = 'E-mail adresi doğrulanamadı. Lütfen geçerli bir e-mail adresi giriniz (Türkçe karakter olmadan)';
+          errorMessage = `E-mail adresi doğrulanamadı: "${formData.email}" - Hata: ${error.message}`;
         } else {
-          errorMessage = error.message;
+          errorMessage = `Beklenmeyen hata: ${error.message}`;
         }
 
         toast({
