@@ -17,21 +17,76 @@ interface PaymentWebhookData {
   provider: string;
 }
 
+// Rate limiting store for webhook endpoints
+const webhookRateLimit = new Map<string, { count: number; resetTime: number }>();
+
+function validatePaymentData(data: any): data is PaymentWebhookData {
+  return (
+    typeof data.user_id === 'string' &&
+    typeof data.amount === 'number' &&
+    typeof data.currency === 'string' &&
+    typeof data.status === 'string' &&
+    typeof data.provider_ref === 'string' &&
+    typeof data.method === 'string' &&
+    typeof data.provider === 'string' &&
+    data.amount > 0 &&
+    data.amount <= 1000000 && // Max 1M TRY
+    ['TRY', 'USD', 'EUR'].includes(data.currency) &&
+    ['pending', 'confirmed', 'failed', 'cancelled'].includes(data.status) &&
+    ['bank_transfer', 'credit_card', 'papara', 'crypto'].includes(data.method)
+  );
+}
+
+function sanitizeString(str: string): string {
+  return str.replace(/[<>\"'&]/g, '').substring(0, 255);
+}
+
+function isWebhookRateLimited(ip: string, limit = 10, windowMs = 60000): boolean {
+  const now = Date.now();
+  const ipLimit = webhookRateLimit.get(ip);
+  
+  if (!ipLimit || now > ipLimit.resetTime) {
+    webhookRateLimit.set(ip, { count: 1, resetTime: now + windowMs });
+    return false;
+  }
+  
+  if (ipLimit.count >= limit) {
+    return true;
+  }
+  
+  ipLimit.count++;
+  return false;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Rate limiting by IP
+    const clientIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    if (isWebhookRateLimited(clientIP, 10, 60000)) { // 10 requests per minute per IP
+      return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // HMAC signature verification
+    // HMAC signature verification (REQUIRED)
     const signature = req.headers.get("x-signature");
     const body = await req.text();
     const secret = Deno.env.get("PAYMENT_WEBHOOK_SECRET") ?? "";
+    
+    if (!signature || !secret) {
+      console.error("Missing signature or webhook secret");
+      return new Response("Unauthorized - Missing signature", { status: 401, headers: corsHeaders });
+    }
 
     if (signature) {
       const expectedSignature = await crypto.subtle.importKey(
@@ -58,10 +113,31 @@ serve(async (req) => {
       }
     }
 
-    const paymentData: PaymentWebhookData = JSON.parse(body);
+    const rawPaymentData = JSON.parse(body);
+    
+    // Input validation and sanitization
+    if (!validatePaymentData(rawPaymentData)) {
+      console.error("Invalid payment data:", rawPaymentData);
+      return new Response(JSON.stringify({ error: 'Invalid payment data format' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Sanitize string inputs
+    const paymentData: PaymentWebhookData = {
+      ...rawPaymentData,
+      user_id: sanitizeString(rawPaymentData.user_id),
+      currency: sanitizeString(rawPaymentData.currency),
+      status: sanitizeString(rawPaymentData.status),
+      provider_ref: sanitizeString(rawPaymentData.provider_ref),
+      method: sanitizeString(rawPaymentData.method),
+      provider: sanitizeString(rawPaymentData.provider)
+    };
+
     const idempotencyKey = req.headers.get("idempotency-key") || `${paymentData.provider_ref}_${Date.now()}`;
 
-    console.log(`Processing payment webhook: ${JSON.stringify(paymentData)}`);
+    console.log(`Processing payment webhook for user: ${paymentData.user_id}, amount: ${paymentData.amount}`);
 
     // Insert/update payment record
     const { data: payment, error: paymentError } = await supabaseClient

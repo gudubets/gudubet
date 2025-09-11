@@ -1,7 +1,7 @@
 project_id = "ziiwapwvyavfakeuhvpt"
 
 [functions.sports-proxy]
-verify_jwt = false
+verify_jwt = true
 
 [functions.create-payment]
 verify_jwt = true
@@ -16,4 +16,4 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.process-wager-progress]
-verify_jwt = false
+verify_jwt = true
