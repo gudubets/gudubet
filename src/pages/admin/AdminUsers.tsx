@@ -54,25 +54,44 @@ const AdminUsers = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('admin_list_users', {
+      
+      // Get auth users first
+      const { data: authData, error: authError } = await supabase.rpc('admin_list_users', {
         p_q: searchQuery || null,
         p_limit: 1000,
         p_offset: 0
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
+
+      // Get profiles data to match with auth users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, phone, created_at, banned_until')
+        .order('created_at', { ascending: false });
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of profiles by user_id for quick lookup
+      const profilesMap = new Map();
+      profilesData?.forEach(profile => {
+        profilesMap.set(profile.id, profile);
+      });
       
       // Transform data to match User interface
-      const transformedUsers = data?.map((user: any) => ({
-        id: user.id,
-        first_name: user.email?.split('@')[0] || 'Bilinmiyor', // Email'den isim çıkar
-        last_name: '',
-        email: user.email || '',
-        phone: '',
-        balance: 0,
-        status: user.banned_until && new Date(user.banned_until) > new Date() ? 'banned' : 'active',
-        created_at: new Date().toISOString() // Default date
-      })) || [];
+      const transformedUsers = authData?.map((user: any) => {
+        const profile = profilesMap.get(user.id);
+        return {
+          id: user.id,
+          first_name: profile?.first_name || 'İsim yok',
+          last_name: profile?.last_name || '',
+          email: user.email || '',
+          phone: profile?.phone || '',
+          balance: 0,
+          status: (profile?.banned_until && new Date(profile.banned_until) > new Date()) ? 'banned' : 'active',
+          created_at: profile?.created_at || new Date().toISOString()
+        };
+      }) || [];
       
       setUsers(transformedUsers);
     } catch (error) {
