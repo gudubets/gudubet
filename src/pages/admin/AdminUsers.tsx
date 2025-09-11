@@ -49,18 +49,32 @@ const AdminUsers = () => {
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [searchQuery]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.rpc('admin_list_users', {
+        p_q: searchQuery || null,
+        p_limit: 1000,
+        p_offset: 0
+      });
 
       if (error) throw error;
-      setUsers(data || []);
+      
+      // Transform data to match User interface
+      const transformedUsers = data?.map((user: any) => ({
+        id: user.id,
+        first_name: user.email?.split('@')[0] || 'Bilinmiyor', // Email'den isim çıkar
+        last_name: '',
+        email: user.email || '',
+        phone: '',
+        balance: 0,
+        status: user.banned_until && new Date(user.banned_until) > new Date() ? 'banned' : 'active',
+        created_at: new Date().toISOString() // Default date
+      })) || [];
+      
+      setUsers(transformedUsers);
     } catch (error) {
       console.error('Error loading users:', error);
       toast({
@@ -75,12 +89,15 @@ const AdminUsers = () => {
 
   const updateUserStatus = async (userId: string, newStatus: string) => {
     try {
-      const { error } = await supabase
-        .from('users')
-        .update({ status: newStatus })
-        .eq('id', userId);
+      const bannedUntil = newStatus === 'banned' 
+        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days ban
+        : null;
 
-      if (error) throw error;
+      await supabase.rpc('admin_update_profile', {
+        p_user: userId,
+        p_role: null,
+        p_banned_until: bannedUntil
+      });
 
       setUsers(users.map(user => 
         user.id === userId ? { ...user, status: newStatus } : user
