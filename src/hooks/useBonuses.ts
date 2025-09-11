@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import type { Bonus, UserBonus, BonusFormData } from "@/lib/types/bonus";
+import { supabase } from "../lib/supabase";
+import type { Bonus, UserBonus } from "@/lib/types/bonus";
 
 export function useAdminBonuses() {
   return useQuery({
@@ -22,8 +22,8 @@ export const useBonuses = useAdminBonuses;
 export function useCreateBonus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: BonusFormData): Promise<Bonus> => {
-      const { data, error } = await supabase.from("bonuses_new").insert(payload as any).select("*").single();
+    mutationFn: async (payload: Partial<Bonus>): Promise<Bonus> => {
+      const { data, error } = await supabase.from("bonuses_new").insert(payload).select("*").single();
       if (error) throw error;
       return data as Bonus;
     },
@@ -93,22 +93,16 @@ export const useBonusProgress = (userBonusId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_bonus_tracking")
-        .select(`
-          *,
-          bonuses_new(*)
-        `)
+        .select("*")
         .eq("id", userBonusId)
-        .maybeSingle();
+        .single();
       if (error) throw error;
-      if (!data) throw new Error('Bonus not found');
-      
       return {
         ...data,
         progress_percentage: data.remaining_rollover > 0 
           ? (data.progress / (data.progress + data.remaining_rollover)) * 100 
           : 100,
-        recent_events: [],
-        bonus_rules: [] // Default empty array for now
+        recent_events: []
       };
     },
     enabled: !!userBonusId

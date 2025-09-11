@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateBonus, useUpdateBonus } from "../../../hooks/useBonuses";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "../../../lib/supabase";
 
 const schema = z.object({
   name: z.string().min(2),
@@ -44,14 +44,7 @@ export default function BonusForm() {
     }
   });
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({ 
-    resolver: zodResolver(schema), 
-    defaultValues: existing ? {
-      ...existing,
-      amount_type: existing.amount_type as "percent" | "fixed",
-      type: existing.type as "FIRST_DEPOSIT" | "RELOAD" | "CASHBACK" | "FREEBET"
-    } : undefined
-  });
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: existing });
 
   // set default values when existing loaded
   if (existing && !Object.keys(errors).length) {
@@ -63,7 +56,7 @@ export default function BonusForm() {
     if (id) {
       await updateM.mutateAsync({ id, ...values });
     } else {
-      await createM.mutateAsync(values as any);
+      await createM.mutateAsync(values);
     }
     navigate("/admin/bonuses/list");
   };
