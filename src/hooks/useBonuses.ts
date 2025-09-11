@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import type { Bonus, UserBonus } from "@/lib/types/bonus";
 
 export function useAdminBonuses() {
@@ -22,8 +22,8 @@ export const useBonuses = useAdminBonuses;
 export function useCreateBonus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<Bonus>): Promise<Bonus> => {
-      const { data, error } = await supabase.from("bonuses_new").insert(payload).select("*").single();
+    mutationFn: async (payload: any): Promise<Bonus> => {
+      const { data, error } = await supabase.from("bonuses_new").insert(payload as any).select("*").single();
       if (error) throw error;
       return data as Bonus;
     },
@@ -93,7 +93,13 @@ export const useBonusProgress = (userBonusId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_bonus_tracking")
-        .select("*")
+        .select(`
+          *,
+          bonuses_new (
+            *,
+            bonus_rules (*)
+          )
+        `)
         .eq("id", userBonusId)
         .single();
       if (error) throw error;
