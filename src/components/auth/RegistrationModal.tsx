@@ -107,9 +107,15 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
 
     if (step === 2) {
       if (!formData.email.trim()) {
-        newErrors.email = t('auth.email_required');
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = t('auth.email_invalid');
+        newErrors.email = "E-mail adresi zorunludur";
+      } else {
+        // Daha güçlü email validation + Türkçe karakter kontrolü
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(formData.email)) {
+          newErrors.email = "Geçerli bir e-mail adresi giriniz (Türkçe karakter kullanmayınız)";
+        } else if (formData.email.includes('ı') || formData.email.includes('ş') || formData.email.includes('ğ') || formData.email.includes('ü') || formData.email.includes('ö') || formData.email.includes('ç')) {
+          newErrors.email = "E-mail adresinde Türkçe karakter kullanılamaz (ı,ş,ğ,ü,ö,ç)";
+        }
       }
       
       if (!formData.password) {
@@ -176,18 +182,22 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       });
 
       if (error) {
-        let errorMessage = t('auth.registration_failed');
+        let errorMessage = "Kayıt işlemi başarısız oldu";
         
         if (error.message.includes('User already registered')) {
           errorMessage = 'Bu e-posta adresi ile zaten bir hesap mevcut';
         } else if (error.message.includes('Password should be at least')) {
-          errorMessage = t('auth.password_min_length');
-        } else if (error.message.includes('Invalid email')) {
-          errorMessage = t('auth.email_invalid');
+          errorMessage = 'Şifre en az 8 karakter olmalıdır';
+        } else if (error.message.includes('Invalid email') || error.message.includes('invalid format')) {
+          errorMessage = 'E-mail adresi geçersiz format (Türkçe karakter kullanmayınız)';
+        } else if (error.message.includes('Unable to validate email')) {
+          errorMessage = 'E-mail adresi doğrulanamadı. Lütfen geçerli bir e-mail adresi giriniz (Türkçe karakter olmadan)';
+        } else {
+          errorMessage = error.message;
         }
 
         toast({
-          title: t('auth.registration_failed'),
+          title: "Kayıt Başarısız",
           description: errorMessage,
           variant: "destructive"
         });
@@ -195,8 +205,8 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       }
 
       toast({
-        title: t('auth.registration_success'),
-        description: t('auth.check_email'),
+        title: "Kayıt Başarılı!",
+        description: "Hesabınız başarıyla oluşturuldu. E-posta adresinizi kontrol ediniz.",
       });
       
       onClose();
@@ -299,7 +309,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">E-mail Adresi *</Label>
+          <Label htmlFor="email">E-mail Adresi * <span className="text-xs text-muted-foreground">(Türkçe karakter kullanmayınız)</span></Label>
           <Input
             id="email"
             type="email"
