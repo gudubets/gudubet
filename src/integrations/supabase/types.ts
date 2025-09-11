@@ -615,13 +615,6 @@ export type Database = {
             referencedRelation: "bonuses_new"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "bonus_rules_bonus_id_fkey"
-            columns: ["bonus_id"]
-            isOneToOne: false
-            referencedRelation: "v_bonus_costs"
-            referencedColumns: ["bonus_id"]
-          },
         ]
       }
       bonus_wallets: {
@@ -1678,6 +1671,41 @@ export type Database = {
         }
         Relationships: []
       }
+      ip_blacklist: {
+        Row: {
+          blocked_by: string | null
+          created_at: string | null
+          id: string
+          ip_address: unknown
+          is_active: boolean | null
+          reason: string | null
+        }
+        Insert: {
+          blocked_by?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address: unknown
+          is_active?: boolean | null
+          reason?: string | null
+        }
+        Update: {
+          blocked_by?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown
+          is_active?: boolean | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ip_blacklist_blocked_by_fkey"
+            columns: ["blocked_by"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kyc_documents: {
         Row: {
           created_at: string
@@ -2525,6 +2553,77 @@ export type Database = {
         }
         Relationships: []
       }
+      risk_flags: {
+        Row: {
+          created_at: string | null
+          id: string
+          reasons: Json | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          risk_score: number
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          reasons?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_score?: number
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          reasons?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_score?: number
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risk_flags_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      risk_settings: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       role_permissions: {
         Row: {
           granted_at: string | null
@@ -3054,13 +3153,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "bonuses_new"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_bonus_tracking_bonus_id_fkey"
-            columns: ["bonus_id"]
-            isOneToOne: false
-            referencedRelation: "v_bonus_costs"
-            referencedColumns: ["bonus_id"]
           },
           {
             foreignKeyName: "user_bonus_tracking_user_id_fkey"
@@ -3958,39 +4050,35 @@ export type Database = {
       }
       v_bonus_costs: {
         Row: {
-          bonus_id: string | null
-          completed_total: number | null
-          forfeited_total: number | null
-          granted_total: number | null
-          name: string | null
+          avg_cost_per_grant: number | null
+          bonus_name: string | null
+          completed_count: number | null
+          times_granted: number | null
+          total_cost: number | null
         }
         Relationships: []
       }
       v_bonus_kpis: {
         Row: {
-          active_count: number | null
-          bonus_id: string | null
-          completed_count: number | null
-          day: string | null
-          total_granted: number | null
-          unlocked_amount: number | null
+          active_bonuses: number | null
+          bonus_date: string | null
+          completed_bonus_amount: number | null
+          completed_bonuses: number | null
+          total_bonus_amount: number | null
+          total_bonuses: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_bonus_tracking_bonus_id_fkey"
-            columns: ["bonus_id"]
-            isOneToOne: false
-            referencedRelation: "bonuses_new"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_bonus_tracking_bonus_id_fkey"
-            columns: ["bonus_id"]
-            isOneToOne: false
-            referencedRelation: "v_bonus_costs"
-            referencedColumns: ["bonus_id"]
-          },
-        ]
+        Relationships: []
+      }
+      v_payments_daily: {
+        Row: {
+          avg_amount: number | null
+          payment_date: string | null
+          successful_amount: number | null
+          successful_count: number | null
+          total_amount: number | null
+          transaction_count: number | null
+        }
+        Relationships: []
       }
     }
     Functions: {
@@ -4038,6 +4126,10 @@ export type Database = {
           eligible: boolean
           reason: string
         }[]
+      }
+      fn_risk_compute_payment: {
+        Args: { p_amount: number; p_ip_address: unknown; p_user_id: string }
+        Returns: number
       }
       get_admin_permissions: {
         Args: { _admin_id: string }

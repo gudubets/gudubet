@@ -46,6 +46,8 @@ import BonusesList from "./pages/admin/bonuses/BonusesList";
 import BonusForm from "./pages/admin/bonuses/BonusForm";
 import MyBonuses from "./pages/user/bonuses/MyBonuses";
 import BonusProgress from "./pages/user/bonuses/BonusProgress";
+import AdminRiskQueue from "./pages/admin/AdminRiskQueue";
+import AdminReports from "./pages/admin/AdminReports";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +94,8 @@ const App = () => (
             <Route path="crm" element={<AdminCRM />} />
             <Route path="competitor-analysis" element={<AdminCompetitorAnalysis />} />
             <Route path="management" element={<AdminManagement />} />
+            <Route path="risk-queue" element={<AdminRiskQueue />} />
+            <Route path="reports" element={<AdminReports />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
