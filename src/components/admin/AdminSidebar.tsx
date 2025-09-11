@@ -11,7 +11,13 @@ import {
   ChevronRight,
   Settings,
   CreditCard,
-  Shield
+  Shield,
+  AlertTriangle,
+  FileText,
+  Bell,
+  UserCheck,
+  TrendingUp,
+  Database
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -74,32 +80,44 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       active: location.pathname === '/admin/withdrawals'
     },
     {
+      title: 'Bakiye Yönetimi',
+      icon: Database,
+      href: '/admin/balance',
+      active: location.pathname === '/admin/balance'
+    },
+    {
       title: 'Risk Yönetimi',
       icon: Shield,
       href: '/admin/fraud-detection',
       active: location.pathname === '/admin/fraud-detection'
     },
     {
-      title: 'Bakiye Yönetimi',
-      icon: Users,
-      href: '/admin/balance',
-      active: location.pathname === '/admin/balance'
+      title: 'Risk Kuyruğu',
+      icon: AlertTriangle,
+      href: '/admin/risk-queue',
+      active: location.pathname === '/admin/risk-queue'
+    },
+    {
+      title: 'Raporlar',
+      icon: FileText,
+      href: '/admin/reports',
+      active: location.pathname === '/admin/reports'
     },
     {
       title: 'Analitik',
-      icon: BarChart3,
+      icon: TrendingUp,
       href: '/admin/analytics',
       active: location.pathname === '/admin/analytics'
     },
     {
       title: 'CRM',
-      icon: Users,
+      icon: UserCheck,
       href: '/admin/crm',
       active: location.pathname === '/admin/crm'
     },
     {
       title: 'Bildirimler',
-      icon: Target,
+      icon: Bell,
       href: '/admin/notifications',
       active: location.pathname === '/admin/notifications'
     },
@@ -111,7 +129,7 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
     },
     {
       title: 'Admin Yönetimi',
-      icon: Users,
+      icon: Settings,
       href: '/admin/management',
       active: location.pathname === '/admin/management'
     }
