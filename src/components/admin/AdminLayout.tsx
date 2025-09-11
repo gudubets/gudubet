@@ -23,6 +23,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current session:', session?.user?.email, session?.user?.id);
       setUser(session?.user ?? null);
       setSessionLoading(false);
     };
@@ -31,6 +32,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state change:', event, session?.user?.email);
         setUser(session?.user ?? null);
         setSessionLoading(false);
         
