@@ -473,7 +473,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl md:h-[600px] h-[95vh] max-h-[95vh] p-0 overflow-hidden bg-background border border-border w-[95vw] md:w-auto">
+      <DialogContent className="max-w-4xl md:h-[700px] h-[95vh] max-h-[95vh] p-0 overflow-hidden bg-background border border-border w-[95vw] md:w-auto">
         <div className="flex h-full md:flex-row flex-col">
           {/* Left Side - Animation Area - Hidden on mobile */}
           <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-primary/10 to-accent/10 relative overflow-hidden">
