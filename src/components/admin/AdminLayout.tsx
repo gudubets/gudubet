@@ -47,13 +47,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   useEffect(() => {
     if (!sessionLoading && !adminLoading) {
       if (!user) {
-        navigate('/admin/login');
+        toast.error('Oturum süreniz dolmuş. Lütfen giriş yapın.');
+        navigate('/');
         return;
       }
 
       if (!isAdmin && !isSuperAdmin) {
         toast.error('Bu sayfaya erişim yetkiniz bulunmuyor.');
-        navigate('/admin/login');
+        navigate('/');
         return;
       }
     }

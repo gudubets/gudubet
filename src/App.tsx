@@ -48,7 +48,6 @@ import MyBonuses from "./pages/user/bonuses/MyBonuses";
 import BonusProgress from "./pages/user/bonuses/BonusProgress";
 import AdminRiskQueue from "./pages/admin/AdminRiskQueue";
 import AdminReports from "./pages/admin/AdminReports";
-import AdminLogin from "./pages/admin/AdminLogin";
 
 const queryClient = new QueryClient();
 
@@ -77,7 +76,6 @@ const App = () => (
           <Route path="/live-support" element={<LiveSupport />} />
           <Route path="/user/bonuses" element={<MyBonuses />} />
           <Route path="/user/bonuses/progress" element={<BonusProgress />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
