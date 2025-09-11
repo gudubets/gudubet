@@ -73,17 +73,17 @@ const AdminDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
-      // Load user count
+      // Load user count from profiles
       const { count: userCount } = await supabase
-        .from('users')
+        .from('profiles')
         .select('*', { count: 'exact', head: true });
 
-      // Load total balance
+      // Load total balance from wallets
       const { data: balanceData } = await supabase
-        .from('users')
+        .from('wallets')
         .select('balance');
 
-      const totalBalance = balanceData?.reduce((sum, user) => sum + (user.balance || 0), 0) || 0;
+      const totalBalance = balanceData?.reduce((sum, wallet) => sum + (wallet.balance || 0), 0) || 0;
 
       // Load active bets
       const { count: activeBets } = await supabase

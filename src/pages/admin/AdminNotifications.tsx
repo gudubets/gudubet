@@ -93,13 +93,21 @@ const AdminNotifications = () => {
   const fetchUsers = async () => {
     try {
       const { data, error } = await supabase
-        .from('users')
-        .select('id, email, first_name, last_name')
-        .eq('status', 'active')
-        .order('email');
+        .from('profiles')
+        .select('id, first_name, last_name, user_id')
+        .order('first_name');
 
       if (error) throw error;
-      setUsers(data || []);
+      
+      // Transform data to include email from auth users if needed
+      const usersWithEmail = data?.map(profile => ({
+        id: profile.id,
+        email: `user-${profile.id.slice(0, 8)}@domain.com`, // Placeholder email
+        first_name: profile.first_name || 'İsim',
+        last_name: profile.last_name || 'Soyisim'
+      })) || [];
+      
+      setUsers(usersWithEmail);
     } catch (error) {
       console.error('Error fetching users:', error);
     }

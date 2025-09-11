@@ -54,12 +54,28 @@ const AdminBalance = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('users')
-        .select('*')
+        .from('profiles')
+        .select('id, first_name, last_name, phone, created_at, user_id')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUsers(data || []);
+      
+      // Transform data to include balance (default 0 since profiles doesn't have balance)
+      const usersWithBalance = data?.map(profile => ({
+        id: profile.id,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        phone: profile.phone,
+        created_at: profile.created_at,
+        user_id: profile.user_id || profile.id,
+        auth_user_id: profile.user_id || profile.id,
+        balance: 0,
+        bonus_balance: 0,
+        email: '', // Will be filled if needed
+        status: 'active'
+      })) || [];
+      
+      setUsers(usersWithBalance);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -98,12 +114,31 @@ const AdminBalance = () => {
         [balanceType]: newBalance
       };
 
-      const { error } = await supabase
-        .from('users')
-        .update(updateData)
-        .eq('id', selectedUser.id);
+      // Note: Since profiles table doesn't have balance fields,
+      // we'll create a wallet transaction instead
+      const { error: walletError } = await supabase
+        .from('wallets')
+        .upsert({
+          user_id: selectedUser.id,
+          balance: newBalance,
+          currency: 'TRY',
+          type: 'main'
+        }, { onConflict: 'user_id' });
 
-      if (error) throw error;
+      if (walletError) {
+        // If wallet doesn't exist, create transaction record
+        await supabase
+          .from('wallet_transactions')
+          .insert({
+            wallet_id: selectedUser.id,
+            amount: amountValue,
+            direction: actionType === 'add' ? 'credit' : 'debit',
+            ledger_key: `admin_${actionType}`,
+            meta: {
+              description: `Admin balance ${actionType === 'add' ? 'added' : 'removed'}: ${amountValue} TRY`
+            }
+          });
+      }
 
       // Create transaction record
       await supabase

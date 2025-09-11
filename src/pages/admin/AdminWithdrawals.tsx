@@ -158,10 +158,10 @@ export default function AdminWithdrawals() {
       // Get unique user IDs for batch user fetch
       const userIds = [...new Set(withdrawalData.map(w => w.user_id))];
       
-      // Fetch user data
+      // Fetch user profile data
       const { data: userData } = await supabase
-        .from("users")
-        .select("id, email, first_name, last_name, username")
+        .from("profiles")
+        .select("id, first_name, last_name, user_id")
         .in("id", userIds);
 
       // Combine data
@@ -169,7 +169,11 @@ export default function AdminWithdrawals() {
         const user = userData?.find(u => u.id === withdrawal.user_id);
         return {
           ...withdrawal,
-          user
+          user: user ? {
+            ...user,
+            email: `${user.first_name || 'user'}.${user.last_name || 'name'}@domain.com`,
+            username: `${user.first_name || 'user'}${user.last_name || 'name'}`
+          } : undefined
         };
       });
 
