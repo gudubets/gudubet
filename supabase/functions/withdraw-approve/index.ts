@@ -105,6 +105,8 @@ serve(async (req) => {
 
     // If approved, deduct from user balance
     if (action === 'approve') {
+      console.log('Processing approval for withdrawal:', withdrawal_id, 'amount:', withdrawal.amount, 'user_id:', withdrawal.user_id);
+      
       const { data: wallet, error: walletError } = await sb
         .from('wallets')
         .select('balance')
@@ -112,7 +114,10 @@ serve(async (req) => {
         .eq('type', 'main')
         .single();
 
+      console.log('Wallet query result:', { wallet, walletError });
+
       if (walletError || !wallet) {
+        console.error('Wallet not found:', { walletError, user_id: withdrawal.user_id });
         return new Response(JSON.stringify({ error: 'User wallet not found' }), { 
           status: 404, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -120,8 +125,10 @@ serve(async (req) => {
       }
 
       const newBalance = (wallet.balance || 0) - withdrawal.amount;
+      console.log('Balance calculation:', { currentBalance: wallet.balance, withdrawalAmount: withdrawal.amount, newBalance });
       
       if (newBalance < 0) {
+        console.error('Insufficient balance:', { currentBalance: wallet.balance, withdrawalAmount: withdrawal.amount });
         return new Response(JSON.stringify({ error: 'Insufficient balance' }), { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -135,10 +142,15 @@ serve(async (req) => {
         .eq('user_id', withdrawal.user_id)
         .eq('type', 'main');
 
-      if (balanceError) throw balanceError;
+      console.log('Balance update result:', { balanceError, newBalance });
+
+      if (balanceError) {
+        console.error('Balance update failed:', balanceError);
+        throw balanceError;
+      }
 
       // Create wallet transaction record
-      await sb.from('wallet_transactions').insert({
+      const { error: transactionError } = await sb.from('wallet_transactions').insert({
         user_id: withdrawal.user_id,
         wallet_type: 'main',
         transaction_type: 'withdrawal',
@@ -149,6 +161,12 @@ serve(async (req) => {
         reference_type: 'withdrawal',
         description: `Withdrawal approved: ${withdrawal.amount} TRY`
       });
+
+      console.log('Transaction record result:', { transactionError });
+
+      if (transactionError) {
+        console.error('Failed to create transaction record:', transactionError);
+      }
     }
 
     // Create audit log

@@ -90,7 +90,7 @@ serve(async (req) => {
     const { data: walletData, error: walletError } = await sb
       .from("wallets")
       .select("balance")
-      .eq("user_id", profile.id)
+      .eq("user_id", userId) // Use auth user id directly
       .eq("type", "main")
       .single();
 
@@ -141,7 +141,7 @@ serve(async (req) => {
     const { data: wd, error: wdErr } = await sb
       .from('withdrawals')
       .insert({
-        user_id: profile.id,
+        user_id: userId, // Use auth user id directly, not profile.id
         amount,
         currency: body.currency ?? 'TRY',
         status: 'pending',
