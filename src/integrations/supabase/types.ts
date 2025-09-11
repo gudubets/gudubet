@@ -2482,6 +2482,7 @@ export type Database = {
         Row: {
           address: string | null
           banned_until: string | null
+          birth_date: string | null
           city: string | null
           country: string | null
           created_at: string | null
@@ -2499,6 +2500,7 @@ export type Database = {
         Insert: {
           address?: string | null
           banned_until?: string | null
+          birth_date?: string | null
           city?: string | null
           country?: string | null
           created_at?: string | null
@@ -2516,6 +2518,7 @@ export type Database = {
         Update: {
           address?: string | null
           banned_until?: string | null
+          birth_date?: string | null
           city?: string | null
           country?: string | null
           created_at?: string | null
