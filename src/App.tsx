@@ -2,6 +2,7 @@ import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useSendDeviceFingerprintOnMount } from './hooks/useDeviceFingerprint';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
@@ -26,6 +27,9 @@ import DepositWithdrawal from "./pages/DepositWithdrawal";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminUsersList from "./pages/admin/users/AdminUsersList";
+import DevicesManager from "./pages/admin/risk/DevicesManager";
+import BonusRulesEditor from "./pages/admin/bonuses/BonusRulesEditor";
 import AdminBets from "./pages/admin/AdminBets";
 import AdminGameSessions from "./pages/admin/AdminGameSessions";
 import AdminBonuses from "./pages/admin/AdminBonuses";
@@ -52,13 +56,17 @@ import AdminReports from "./pages/admin/AdminReports";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
+const App = () => {
+  // Initialize device fingerprinting for security tracking
+  useSendDeviceFingerprintOnMount();
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/casino" element={<Casino />} />
           <Route path="/live-casino" element={<LiveCasino />} />
@@ -81,6 +89,9 @@ const App = () => (
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="users-list" element={<AdminUsersList />} />
+            <Route path="devices" element={<DevicesManager />} />
+            <Route path="bonuses/:id/rules" element={<BonusRulesEditor />} />
             <Route path="bets" element={<AdminBets />} />
             <Route path="game-sessions" element={<AdminGameSessions />} />
             <Route path="game-providers" element={<AdminGameProviders />} />
@@ -105,6 +116,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

@@ -1068,6 +1068,51 @@ export type Database = {
         }
         Relationships: []
       }
+      device_events: {
+        Row: {
+          created_at: string | null
+          device_fp: string
+          event: string
+          id: string
+          ip: unknown | null
+          meta: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_fp: string
+          event: string
+          id?: string
+          ip?: unknown | null
+          meta?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_fp?: string
+          event?: string
+          id?: string
+          ip?: unknown | null
+          meta?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       device_fingerprints: {
         Row: {
           browser_info: Json | null
@@ -2436,6 +2481,7 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          banned_until: string | null
           city: string | null
           country: string | null
           created_at: string | null
@@ -2452,6 +2498,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          banned_until?: string | null
           city?: string | null
           country?: string | null
           created_at?: string | null
@@ -2468,6 +2515,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          banned_until?: string | null
           city?: string | null
           country?: string | null
           created_at?: string | null
@@ -3278,6 +3326,69 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_devices: {
+        Row: {
+          created_at: string | null
+          device_fp: string
+          first_seen_ip: unknown | null
+          id: string
+          language: string | null
+          last_seen_ip: unknown | null
+          platform: string | null
+          screen: string | null
+          timezone: string | null
+          trust_score: number
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_fp: string
+          first_seen_ip?: unknown | null
+          id?: string
+          language?: string | null
+          last_seen_ip?: unknown | null
+          platform?: string | null
+          screen?: string | null
+          timezone?: string | null
+          trust_score?: number
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_fp?: string
+          first_seen_ip?: unknown | null
+          id?: string
+          language?: string | null
+          last_seen_ip?: unknown | null
+          platform?: string | null
+          screen?: string | null
+          timezone?: string | null
+          trust_score?: number
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_devices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_devices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -4103,6 +4214,20 @@ export type Database = {
       }
     }
     Functions: {
+      admin_list_users: {
+        Args: { p_limit?: number; p_offset?: number; p_q?: string }
+        Returns: {
+          banned_until: string
+          email: string
+          id: string
+          last_login_at: string
+          role: string
+        }[]
+      }
+      admin_update_profile: {
+        Args: { p_banned_until?: string; p_role?: string; p_user: string }
+        Returns: undefined
+      }
       calculate_daily_metrics: {
         Args: { target_date?: string }
         Returns: undefined
