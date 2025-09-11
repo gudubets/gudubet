@@ -45,7 +45,10 @@ export function useApproveWithdrawal() {
       if (error) throw error;
       return data as { ok: boolean; status: string };
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin','withdrawals'] }); }
+    onSuccess: () => { 
+      qc.invalidateQueries({ queryKey: ['admin','withdrawals'] }); 
+      qc.invalidateQueries({ queryKey: ['user-balance'] });
+    }
   });
 }
 
