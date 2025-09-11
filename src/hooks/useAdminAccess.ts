@@ -9,14 +9,11 @@ export const useAdminAccess = (user: User | null) => {
 
   const checkAdminAccess = useCallback(async () => {
     if (!user) {
-      console.log('No user found in checkAdminAccess');
       setIsAdmin(false);
       setIsSuperAdmin(false);
       setLoading(false);
       return;
     }
-
-    console.log('Checking admin access for user:', user.id, user.email);
 
     try {
       // Check if user exists in admins table
@@ -26,19 +23,14 @@ export const useAdminAccess = (user: User | null) => {
         .eq('id', user.id)
         .single();
 
-      console.log('Admin query result:', { adminData, error });
-
       if (error) {
         // User not in admins table or error occurred
-        console.error('Admin access error:', error);
         setIsAdmin(false);
         setIsSuperAdmin(false);
       } else if (adminData && adminData.is_active) {
-        console.log('User is admin:', adminData.role_type);
         setIsAdmin(true);
         setIsSuperAdmin(adminData.role_type === 'super_admin');
       } else {
-        console.log('User exists but not active or no data');
         setIsAdmin(false);
         setIsSuperAdmin(false);
       }
