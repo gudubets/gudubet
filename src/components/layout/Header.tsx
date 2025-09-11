@@ -112,11 +112,18 @@ const Header = () => {
                   {t('register_button')}
                 </Button>
               </> : <div className="flex items-center space-x-4">
-                <Link to="/deposit-withdrawal" className="flex items-center space-x-2 text-white hover:text-orange-400 transition-colors cursor-pointer">
+                <Link to="/deposit-withdrawal" className="flex items-center space-x-3 text-white hover:text-orange-400 transition-colors cursor-pointer">
                   <Wallet className="h-4 w-4" />
-                  <span className="text-sm">
-                    {balanceData.loading ? '...' : `₺${balanceData.total_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
-                  </span>
+                  <div className="flex flex-col text-sm">
+                    <span>
+                      Ana: ₺{balanceData.loading ? '...' : balanceData.balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                    </span>
+                    {balanceData.bonus_balance > 0 && (
+                      <span className="text-green-400 text-xs">
+                        Bonus: ₺{balanceData.bonus_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                      </span>
+                    )}
+                  </div>
                 </Link>
                 <Link to="/user/withdraw" className="flex items-center space-x-2 text-white hover:text-orange-400 transition-colors cursor-pointer">
                   <CreditCard className="h-4 w-4" />

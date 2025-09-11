@@ -95,7 +95,12 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData, currentUser }: U
     { icon: Crown, label: 'VIP SEVİYENİZ', value: 'SİLVER', color: 'text-silver' },
     { icon: Trophy, label: 'SEVİYE PUANI', value: '1,186.50', color: 'text-green-500' },
     { icon: Zap, label: 'FREESPINS', value: '0', color: 'text-orange-500' },
-    { icon: Gift, label: 'BONUS', value: '0,00₺', color: 'text-purple-500' },
+    { 
+      icon: Gift, 
+      label: 'BONUS', 
+      value: balanceData?.loading ? '...' : `${(balanceData?.bonus_balance || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}₺`, 
+      color: (balanceData?.bonus_balance || 0) > 0 ? 'text-green-500' : 'text-gray-400' 
+    },
     { icon: RotateCw, label: 'TOPLAM ÇEVİRİM', value: 'AKTİF BONUS YOK', color: 'text-gray-400' },
     { icon: Clock, label: 'ÇEVİRİM SÜRESİ', value: 'AKTİF BONUS YOK', color: 'text-gray-400' }
   ];
@@ -113,10 +118,15 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData, currentUser }: U
         <div className="p-4 space-y-4">
           {/* Balance and Deposit Button */}
           <div className="flex items-center gap-3">
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2">
-              <span className="text-white font-medium">
-                {balanceData?.loading ? '...' : `₺${(balanceData?.total_balance || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
-              </span>
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2 min-w-0">
+              <div className="text-white font-medium text-sm">
+                <div>Ana: ₺{balanceData?.loading ? '...' : (balanceData?.balance || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</div>
+                {(balanceData?.bonus_balance || 0) > 0 && (
+                  <div className="text-green-400 text-xs">
+                    Bonus: ₺{(balanceData?.bonus_balance || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
+                  </div>
+                )}
+              </div>
             </div>
             <Button 
               onClick={handleDepositClick}
