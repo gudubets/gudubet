@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import SlotGame from "./pages/SlotGame";
 import DepositWithdrawal from "./pages/DepositWithdrawal";
 import AdminLayout from "./components/admin/AdminLayout";
+import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminBets from "./pages/admin/AdminBets";
@@ -76,6 +77,7 @@ const App = () => (
           <Route path="/live-support" element={<LiveSupport />} />
           <Route path="/user/bonuses" element={<MyBonuses />} />
           <Route path="/user/bonuses/progress" element={<BonusProgress />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
