@@ -6,7 +6,7 @@ import UserProfileModal from '@/components/ui/user-profile-modal';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User as UserIcon, Wallet, Bell } from 'lucide-react';
+import { Menu, X, User as UserIcon, Wallet, Bell, CreditCard } from 'lucide-react';
 import { useUserBalance } from '@/hooks/useUserBalance';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useI18n } from '@/hooks/useI18n';
@@ -117,6 +117,10 @@ const Header = () => {
                   <span className="text-sm">
                     {balanceData.loading ? '...' : `₺${balanceData.total_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`}
                   </span>
+                </Link>
+                <Link to="/user/withdraw" className="flex items-center space-x-2 text-white hover:text-orange-400 transition-colors cursor-pointer">
+                  <CreditCard className="h-4 w-4" />
+                  <span className="text-sm">Çekim</span>
                 </Link>
                 <NotificationsDropdown 
                   notifications={notificationsData.notifications}

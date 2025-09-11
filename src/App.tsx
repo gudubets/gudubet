@@ -46,6 +46,7 @@ import BonusesList from "./pages/admin/bonuses/BonusesList";
 import BonusForm from "./pages/admin/bonuses/BonusForm";
 import MyBonuses from "./pages/user/bonuses/MyBonuses";
 import BonusProgress from "./pages/user/bonuses/BonusProgress";
+import RequestWithdrawal from "./pages/user/RequestWithdrawal";
 import AdminRiskQueue from "./pages/admin/AdminRiskQueue";
 import AdminReports from "./pages/admin/AdminReports";
 
@@ -76,6 +77,7 @@ const App = () => (
           <Route path="/live-support" element={<LiveSupport />} />
           <Route path="/user/bonuses" element={<MyBonuses />} />
           <Route path="/user/bonuses/progress" element={<BonusProgress />} />
+          <Route path="/user/withdraw" element={<RequestWithdrawal />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
