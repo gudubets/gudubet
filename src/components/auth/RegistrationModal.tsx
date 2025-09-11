@@ -389,12 +389,13 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="promoCode">Promosyon Kodu (Opsiyonel)</Label>
+          <Label htmlFor="promoCode" className="text-base font-medium">Promosyon Kodu (Opsiyonel)</Label>
           <Input
             id="promoCode"
             value={formData.promoCode}
             onChange={(e) => updateFormData('promoCode', e.target.value)}
-            
+            className="h-12 text-lg px-4"
+            placeholder="Promosyon kodunuzu giriniz"
           />
         </div>
       </div>
