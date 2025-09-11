@@ -23,11 +23,10 @@ export const useAdminAccess = (user: User | null) => {
         .eq('id', user.id)
         .single();
 
-      if (error) {
-        // User not in admins table or error occurred
+      if (error || !adminData) {
         setIsAdmin(false);
         setIsSuperAdmin(false);
-      } else if (adminData && adminData.is_active) {
+      } else if (adminData.is_active) {
         setIsAdmin(true);
         setIsSuperAdmin(adminData.role_type === 'super_admin');
       } else {
@@ -45,16 +44,7 @@ export const useAdminAccess = (user: User | null) => {
 
   useEffect(() => {
     checkAdminAccess();
-
-    // Set up periodic admin access verification (every 5 minutes)
-    const interval = setInterval(() => {
-      if (user) {
-        checkAdminAccess();
-      }
-    }, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [checkAdminAccess, user]);
+  }, [checkAdminAccess]);
 
   return { isAdmin, isSuperAdmin, loading, refreshAdminAccess: checkAdminAccess };
 };
