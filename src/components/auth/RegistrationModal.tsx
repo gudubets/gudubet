@@ -306,7 +306,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             value={formData.email}
             onChange={(e) => updateFormData('email', e.target.value)}
             className={errors.email ? 'border-destructive' : ''}
-            placeholder={t('auth.email_placeholder')}
+            
           />
           {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
         </div>
@@ -320,7 +320,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
               value={formData.password}
               onChange={(e) => updateFormData('password', e.target.value)}
               className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
-              placeholder={t('auth.password_placeholder')}
+              
             />
             <button
               type="button"
@@ -346,7 +346,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
               value={formData.confirmPassword}
               onChange={(e) => updateFormData('confirmPassword', e.target.value)}
               className={errors.confirmPassword ? 'border-destructive pr-10' : 'pr-10'}
-              placeholder={t('auth.confirm_password_placeholder')}
+              
             />
             <button
               type="button"
@@ -365,7 +365,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             id="promoCode"
             value={formData.promoCode}
             onChange={(e) => updateFormData('promoCode', e.target.value)}
-            placeholder={t('auth.promo_code_placeholder')}
+            
           />
         </div>
       </div>
@@ -389,7 +389,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             <Label htmlFor="country">{t('auth.country')} *</Label>
             <Select value={formData.country} onValueChange={(value) => updateFormData('country', value)}>
               <SelectTrigger className={errors.country ? 'border-destructive' : ''}>
-                <SelectValue placeholder={t('auth.country_placeholder')} />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="turkey">{t('auth.country_turkey')}</SelectItem>
