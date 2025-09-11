@@ -135,6 +135,7 @@ serve(async (req) => {
 
     // Calculate fees (simple 2% fee for now)
     const feeAmount = amount * 0.02;
+    const netAmount = amount - feeAmount;
 
     // talep oluştur
     const { data: wd, error: wdErr } = await sb
@@ -148,7 +149,8 @@ serve(async (req) => {
         payout_details: payout,
         network: payout.network ?? null,
         asset: payout.asset ?? null,
-        fee: feeAmount
+        fee: feeAmount,
+        net_amount: netAmount
       })
       .select('*').single();
     if (wdErr) throw wdErr;
