@@ -563,12 +563,12 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
                   {isLoading ? (
                     <>
                       <RefreshCw className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
-                      {t('auth.saving')}
+                      Kaydediliyor...
                     </>
                   ) : (
                     <>
                       <CheckCircle className="w-3 h-3 md:w-4 md:h-4" />
-                      {t('auth.complete_registration')}
+                      Kayıt Ol
                     </>
                   )}
                 </Button>
