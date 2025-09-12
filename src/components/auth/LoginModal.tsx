@@ -305,6 +305,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                   className={errors.email ? 'border-destructive' : ''}
                   placeholder={t('auth.email_placeholder')}
                   disabled={isLoading}
+                  autoComplete="email"
                 />
                 {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
               </div>
@@ -321,6 +322,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                     className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
                     placeholder={t('auth.password_placeholder')}
                     disabled={isLoading}
+                    autoComplete="current-password"
                   />
                   <button
                     type="button"

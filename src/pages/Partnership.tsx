@@ -259,27 +259,27 @@ const Partnership = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="firstName" className="text-sm">{t('partnership.form.firstName', 'First Name')} *</Label>
-                    <Input id="firstName" placeholder={t('partnership.form.firstNamePlaceholder', 'Your First Name')} className="mt-1" />
+                    <Input id="firstName" placeholder={t('partnership.form.firstNamePlaceholder', 'Your First Name')} className="mt-1" autoComplete="given-name" />
                   </div>
                   <div>
                     <Label htmlFor="lastName" className="text-sm">{t('partnership.form.lastName', 'Last Name')} *</Label>
-                    <Input id="lastName" placeholder={t('partnership.form.lastNamePlaceholder', 'Your Last Name')} className="mt-1" />
+                    <Input id="lastName" placeholder={t('partnership.form.lastNamePlaceholder', 'Your Last Name')} className="mt-1" autoComplete="family-name" />
                   </div>
                 </div>
 
                 <div>
                   <Label htmlFor="email" className="text-sm">{t('partnership.form.email', 'Email')} *</Label>
-                  <Input id="email" type="email" placeholder={t('partnership.form.emailPlaceholder', 'example@email.com')} className="mt-1" />
+                  <Input id="email" type="email" placeholder={t('partnership.form.emailPlaceholder', 'example@email.com')} className="mt-1" autoComplete="email" />
                 </div>
 
                 <div>
                   <Label htmlFor="phone" className="text-sm">{t('partnership.form.phone', 'Phone')} *</Label>
-                  <Input id="phone" type="tel" placeholder="+90 555 123 45 67" className="mt-1" />
+                  <Input id="phone" type="tel" placeholder="+90 555 123 45 67" className="mt-1" autoComplete="tel" />
                 </div>
 
                 <div>
                   <Label htmlFor="website" className="text-sm">{t('partnership.form.website', 'Website/Platform')}</Label>
-                  <Input id="website" placeholder={t('partnership.form.websitePlaceholder', 'www.example.com')} className="mt-1" />
+                  <Input id="website" placeholder={t('partnership.form.websitePlaceholder', 'www.example.com')} className="mt-1" autoComplete="url" />
                 </div>
 
                 <div>

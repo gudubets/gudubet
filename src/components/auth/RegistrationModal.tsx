@@ -331,7 +331,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             value={formData.firstName}
             onChange={(e) => updateFormData('firstName', e.target.value)}
             className={errors.firstName ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
-            
+            autoComplete="given-name"
           />
           {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
         </div>
@@ -343,7 +343,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             value={formData.lastName}
             onChange={(e) => updateFormData('lastName', e.target.value)}
             className={errors.lastName ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
-            
+            autoComplete="family-name"
           />
           {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
         </div>
@@ -357,7 +357,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
           value={formData.phone}
           onChange={(e) => updateFormData('phone', e.target.value)}
           className={errors.phone ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
-          
+          autoComplete="tel"
         />
         {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
       </div>
@@ -370,6 +370,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
           value={formData.birthDate}
           onChange={(e) => updateFormData('birthDate', e.target.value)}
           className={errors.birthDate ? 'border-destructive h-9 md:h-10' : 'h-9 md:h-10'}
+          autoComplete="bday"
         />
         {errors.birthDate && <p className="text-xs text-destructive">{errors.birthDate}</p>}
       </div>
@@ -396,7 +397,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             value={formData.email}
             onChange={(e) => updateFormData('email', e.target.value)}
             className={errors.email ? 'border-destructive' : ''}
-            
+            autoComplete="email"
           />
           {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
         </div>
@@ -410,7 +411,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
               value={formData.password}
               onChange={(e) => updateFormData('password', e.target.value)}
               className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
-              
+              autoComplete="new-password"
             />
             <button
               type="button"
@@ -436,7 +437,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
               value={formData.confirmPassword}
               onChange={(e) => updateFormData('confirmPassword', e.target.value)}
               className={errors.confirmPassword ? 'border-destructive pr-10' : 'pr-10'}
-              
+              autoComplete="new-password"
             />
             <button
               type="button"
@@ -500,7 +501,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
               value={formData.city}
               onChange={(e) => updateFormData('city', e.target.value)}
               className={errors.city ? 'border-destructive' : ''}
-              
+              autoComplete="address-level2"
             />
             {errors.city && <p className="text-sm text-destructive">{errors.city}</p>}
           </div>
@@ -513,7 +514,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             value={formData.address}
             onChange={(e) => updateFormData('address', e.target.value)}
             className={errors.address ? 'border-destructive' : ''}
-            
+            autoComplete="street-address"
           />
           {errors.address && <p className="text-sm text-destructive">{errors.address}</p>}
         </div>
@@ -525,7 +526,7 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             value={formData.postalCode}
             onChange={(e) => updateFormData('postalCode', e.target.value)}
             className={errors.postalCode ? 'border-destructive' : ''}
-            
+            autoComplete="postal-code"
           />
           {errors.postalCode && <p className="text-sm text-destructive">{errors.postalCode}</p>}
         </div>

@@ -109,17 +109,17 @@ const ContactUs = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">{t('contact.form.firstName', 'First Name')} *</Label>
-                    <Input id="firstName" placeholder={t('contact.form.firstNamePlaceholder', 'Your first name')} className="border-primary/20" />
+                    <Input id="firstName" placeholder={t('contact.form.firstNamePlaceholder', 'Your first name')} className="border-primary/20" autoComplete="given-name" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">{t('contact.form.lastName', 'Last Name')} *</Label>
-                    <Input id="lastName" placeholder={t('contact.form.lastNamePlaceholder', 'Your last name')} className="border-primary/20" />
+                    <Input id="lastName" placeholder={t('contact.form.lastNamePlaceholder', 'Your last name')} className="border-primary/20" autoComplete="family-name" />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="email">{t('contact.form.email', 'Email')} *</Label>
-                  <Input id="email" type="email" placeholder="email@example.com" className="border-primary/20" />
+                  <Input id="email" type="email" placeholder="email@example.com" className="border-primary/20" autoComplete="email" />
                 </div>
                 
                 <div className="space-y-2">
