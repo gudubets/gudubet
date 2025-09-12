@@ -331,18 +331,23 @@ export default function AdminWithdrawals() {
       return;
     }
 
-    console.log('Confirming review:', { reviewAction, withdrawalId: selectedWithdrawal.id, note: reviewNote.trim() });
-
+    console.log('🔄 Starting withdrawal approval process for withdrawal ID:', selectedWithdrawal.id, 'Amount:', selectedWithdrawal.amount);
+    
     if (reviewAction === "approve") {
       approveWithdrawalMutation.mutate({
         withdrawal_id: selectedWithdrawal.id,
         note: reviewNote.trim()
       }, {
         onSuccess: (data) => {
-          console.log('Approval success:', data);
+          console.log('✅ Withdrawal approval success:', data);
+          console.log('💰 Balance should be deducted by:', selectedWithdrawal.amount, 'TRY');
+          
+          // Force refresh of all relevant queries
+          queryClient.invalidateQueries({ queryKey: ["admin-withdrawals"] });
+          
           toast({
-            title: "Başarılı",
-            description: "Para çekme talebi onaylandı ve bakiye düşürüldü",
+            title: "Çekim Onaylandı!",
+            description: `${selectedWithdrawal.amount} TRY bakiyeden düşürüldü ve çekim onaylandı`,
           });
           setIsReviewDialogOpen(false);
           setReviewNote("");
@@ -350,7 +355,7 @@ export default function AdminWithdrawals() {
           setReviewAction(null);
         },
         onError: (error: any) => {
-          console.error('Approval error:', error);
+          console.error('❌ Withdrawal approval failed:', error);
           toast({
             title: "Hata",
             description: error.message || "Para çekme onaylanırken hata oluştu",
