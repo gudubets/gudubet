@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Check, X, Eye, AlertTriangle, Clock, History, Filter, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { logAdminActivity, ACTIVITY_TYPES } from "@/utils/adminActivityLogger";
+import { useApproveWithdrawal, useRejectWithdrawal } from "@/hooks/useWithdrawals";
 
 interface User {
   id: string;
@@ -101,6 +102,10 @@ export default function AdminWithdrawals() {
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Use the proper hooks for withdrawal actions
+  const approveWithdrawalMutation = useApproveWithdrawal();
+  const rejectWithdrawalMutation = useRejectWithdrawal();
 
   // Check admin access
   useEffect(() => {
@@ -288,110 +293,6 @@ export default function AdminWithdrawals() {
     window.URL.revokeObjectURL(url);
   };
 
-  // Approve withdrawal mutation
-  const approveWithdrawalMutation = useMutation({
-    mutationFn: async ({ withdrawalId, note }: { withdrawalId: string; note: string }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Kimlik doğrulaması yapılmadı");
-
-      const { error } = await supabase
-        .from("withdrawals")
-        .update({
-          status: "approved",
-          reviewer_id: user.id,
-          admin_note: note,
-          approved_at: new Date().toISOString(),
-          reviewed_at: new Date().toISOString()
-        })
-        .eq("id", withdrawalId);
-
-      if (error) throw error;
-
-      // Log admin activity
-      await logAdminActivity({
-        action_type: ACTIVITY_TYPES.TRANSACTION_APPROVED,
-        description: `Para çekme talebi onaylandı: ${withdrawalId}`,
-        target_type: "withdrawal",
-        target_id: withdrawalId,
-        metadata: { note, action: "approve" }
-      });
-
-      return withdrawalId;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-withdrawals"] });
-      queryClient.invalidateQueries({ queryKey: ["withdrawal-stats"] });
-      queryClient.invalidateQueries({ queryKey: ["withdrawal-audit-logs"] });
-      toast({
-        title: "Başarılı",
-        description: "Para çekme talebi onaylandı",
-      });
-      setIsReviewDialogOpen(false);
-      setReviewNote("");
-      setSelectedWithdrawal(null);
-      setReviewAction(null);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Hata",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Reject withdrawal mutation
-  const rejectWithdrawalMutation = useMutation({
-    mutationFn: async ({ withdrawalId, note }: { withdrawalId: string; note: string }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Kimlik doğrulaması yapılmadı");
-
-      const { error } = await supabase
-        .from("withdrawals")
-        .update({
-          status: "rejected",
-          reviewer_id: user.id,
-          admin_note: note,
-          rejection_reason: note,
-          reviewed_at: new Date().toISOString()
-        })
-        .eq("id", withdrawalId);
-
-      if (error) throw error;
-
-      // Log admin activity
-      await logAdminActivity({
-        action_type: ACTIVITY_TYPES.TRANSACTION_REJECTED,
-        description: `Para çekme talebi reddedildi: ${withdrawalId}`,
-        target_type: "withdrawal",
-        target_id: withdrawalId,
-        metadata: { note, action: "reject" }
-      });
-
-      return withdrawalId;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-withdrawals"] });
-      queryClient.invalidateQueries({ queryKey: ["withdrawal-stats"] });
-      queryClient.invalidateQueries({ queryKey: ["withdrawal-audit-logs"] });
-      toast({
-        title: "Başarılı",
-        description: "Para çekme talebi reddedildi",
-      });
-      setIsReviewDialogOpen(false);
-      setReviewNote("");
-      setSelectedWithdrawal(null);
-      setReviewAction(null);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Hata",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       pending: { variant: "secondary" as const, text: "Bekliyor" },
@@ -433,13 +334,49 @@ export default function AdminWithdrawals() {
 
     if (reviewAction === "approve") {
       approveWithdrawalMutation.mutate({
-        withdrawalId: selectedWithdrawal.id,
+        withdrawal_id: selectedWithdrawal.id,
         note: reviewNote.trim()
+      }, {
+        onSuccess: () => {
+          toast({
+            title: "Başarılı",
+            description: "Para çekme talebi onaylandı ve bakiye düşürüldü",
+          });
+          setIsReviewDialogOpen(false);
+          setReviewNote("");
+          setSelectedWithdrawal(null);
+          setReviewAction(null);
+        },
+        onError: (error: any) => {
+          toast({
+            title: "Hata",
+            description: error.message || "Para çekme onaylanırken hata oluştu",
+            variant: "destructive",
+          });
+        }
       });
     } else {
       rejectWithdrawalMutation.mutate({
-        withdrawalId: selectedWithdrawal.id,
+        withdrawal_id: selectedWithdrawal.id,
         note: reviewNote.trim()
+      }, {
+        onSuccess: () => {
+          toast({
+            title: "Başarılı",
+            description: "Para çekme talebi reddedildi",
+          });
+          setIsReviewDialogOpen(false);
+          setReviewNote("");
+          setSelectedWithdrawal(null);
+          setReviewAction(null);
+        },
+        onError: (error: any) => {
+          toast({
+            title: "Hata",
+            description: error.message || "Para çekme reddedilirken hata oluştu",
+            variant: "destructive",
+          });
+        }
       });
     }
   };
