@@ -128,9 +128,27 @@ serve(async (req) => {
       const newBalance = currentBalance - withdrawal.amount;
       console.log('Balance calculation:', { currentBalance, withdrawalAmount: withdrawal.amount, newBalance });
       
+      // Eksi bakiyeye kesinlikle izin verme - sıkı kontrol
+      if (currentBalance < withdrawal.amount) {
+        console.error('Insufficient balance - strict check:', { 
+          currentBalance, 
+          withdrawalAmount: withdrawal.amount, 
+          difference: currentBalance - withdrawal.amount 
+        });
+        return new Response(JSON.stringify({ 
+          error: 'Yetersiz bakiye! Mevcut bakiye: ₺' + currentBalance.toFixed(2) + ', Talep edilen: ₺' + withdrawal.amount.toFixed(2)
+        }), { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        });
+      }
+      
+      // Çifte kontrol - sonuç bakiye negatif olmamalı
       if (newBalance < 0) {
-        console.error('Insufficient balance:', { currentBalance, withdrawalAmount: withdrawal.amount });
-        return new Response(JSON.stringify({ error: 'Insufficient balance' }), { 
+        console.error('New balance would be negative:', { currentBalance, withdrawalAmount: withdrawal.amount, newBalance });
+        return new Response(JSON.stringify({ 
+          error: 'İşlem yapılamaz - bakiye eksi değer alacak!'
+        }), { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         });
