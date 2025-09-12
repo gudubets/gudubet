@@ -49,32 +49,19 @@ const AdminBalance = () => {
   useEffect(() => {
     fetchUsers();
     
-    // Set up realtime subscription for wallets
+    // Set up realtime subscription for profiles balance changes
     const channel = supabase
       .channel('balance-updates')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'UPDATE',
           schema: 'public',
-          table: 'wallets'
+          table: 'profiles'
         },
         (payload) => {
-          console.log('Wallet update received:', payload);
-          // Refresh users list when wallet data changes
-          fetchUsers();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'wallet_transactions'
-        },
-        (payload) => {
-          console.log('Wallet transaction update received:', payload);
-          // Refresh users list when transactions change
+          console.log('Profile balance update received:', payload);
+          // Refresh users list when profile balance changes
           fetchUsers();
         }
       )
@@ -89,51 +76,30 @@ const AdminBalance = () => {
     try {
       setLoading(true);
       
-      // Get profiles data
+      // Get profiles data directly with balance - same source as other components
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name, phone, created_at, user_id')
+        .select(`
+          id, first_name, last_name, phone, email, balance, bonus_balance, status, 
+          created_at, user_id
+        `)
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
-
-      // Get wallet balances for each user
-      const userIds = profilesData?.map(p => p.id) || [];
-      const { data: walletsData } = await supabase
-        .from('wallets')
-        .select('user_id, balance, type')
-        .in('user_id', userIds);
-
-      // Create wallet balance map
-      const walletMap = new Map();
-      walletsData?.forEach(wallet => {
-        if (!walletMap.has(wallet.user_id)) {
-          walletMap.set(wallet.user_id, { balance: 0, bonus_balance: 0 });
-        }
-        if (wallet.type === 'main') {
-          walletMap.get(wallet.user_id).balance = wallet.balance;
-        } else if (wallet.type === 'bonus') {
-          walletMap.get(wallet.user_id).bonus_balance = wallet.balance;
-        }
-      });
       
-      // Transform data to include balance
-      const usersWithBalance = profilesData?.map(profile => {
-        const walletData = walletMap.get(profile.id) || { balance: 0, bonus_balance: 0 };
-        return {
-          id: profile.id,
-          first_name: profile.first_name,
-          last_name: profile.last_name,
-          phone: profile.phone,
-          created_at: profile.created_at,
-          user_id: profile.user_id || profile.id,
-          balance: walletData.balance,
-          bonus_balance: walletData.bonus_balance,
-          email: '', // Will be filled if needed
-          status: 'active'
-        };
-      }) || [];
-      
+      // Transform profiles data directly - no wallet lookups needed
+      const usersWithBalance = profilesData?.map(profile => ({
+        id: profile.id,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        phone: profile.phone,
+        created_at: profile.created_at,
+        user_id: profile.user_id || profile.id,
+        balance: profile.balance || 0,
+        bonus_balance: profile.bonus_balance || 0,
+        email: profile.email || '',
+        status: profile.status || 'active'
+      })) || [];
       setUsers(usersWithBalance);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -173,18 +139,16 @@ const AdminBalance = () => {
         [balanceType]: newBalance
       };
 
-      // Update wallet balance in real-time
-      const { error: walletError } = await supabase
-        .from('wallets')
-        .upsert({
-          user_id: selectedUser.id,
-          balance: newBalance,
-          currency: 'TRY',
-          type: balanceType === 'balance' ? 'main' : 'bonus'
-        }, { onConflict: 'user_id,type' });
+      // Update balance directly in profiles table (same source as other components)
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ [balanceType]: newBalance })
+        .eq('id', selectedUser.id);
+
+      if (profileError) throw profileError;
 
       // Create transaction record
-      if (!walletError) {
+      if (!profileError) {
         await supabase
           .from('wallet_transactions')
           .insert({
