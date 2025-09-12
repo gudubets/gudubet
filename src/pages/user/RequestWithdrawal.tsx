@@ -19,6 +19,7 @@ export default function RequestWithdrawal() {
   const [method, setMethod] = useState<WithdrawalMethod>('bank');
   // fields
   const [iban, setIban] = useState('');
+  const [accountHolderName, setAccountHolderName] = useState('');
   const [paparaId, setPaparaId] = useState('');
   const [phone, setPhone] = useState('');
   const [asset, setAsset] = useState('USDT');
@@ -30,16 +31,16 @@ export default function RequestWithdrawal() {
   const list = useMyWithdrawals();
   const navigate = useNavigate();
 
-    // Get user balance from profiles table (same source as main balance)
-    const { data: userBalance } = useQuery({
-      queryKey: ["user-balance"],
+    // Get user balance and profile info from profiles table
+    const { data: userProfile } = useQuery({
+      queryKey: ["user-profile"],
       queryFn: async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("Kimlik doğrulaması yapılmadı");
 
         const { data: profileData, error } = await supabase
           .from("profiles")
-          .select("balance, bonus_balance")
+          .select("balance, bonus_balance, first_name, last_name")
           .eq("id", user.id)
           .single();
 
@@ -49,11 +50,72 @@ export default function RequestWithdrawal() {
     });
 
   const submit = () => {
-    createM.mutate({ amount, method, iban, papara_id: paparaId, phone, asset, network, address, tag }, {
+    // Validasyonlar
+    if (amount <= 0) {
+      toast.error('Çekim miktarı 0\'dan büyük olmalıdır');
+      return;
+    }
+
+    // Bakiye kontrolü
+    if (!userProfile?.balance || amount > userProfile.balance) {
+      toast.error('Bakiyenizi kontrol edin. Yetersiz bakiye!');
+      return;
+    }
+
+    // IBAN kontrolleri (bank method için)
+    if (method === 'bank') {
+      if (!iban || iban.length < 26) {
+        toast.error('IBAN numaranızı kontrol edin. Geçerli bir IBAN giriniz!');
+        return;
+      }
+
+      if (!accountHolderName.trim()) {
+        toast.error('Hesap sahibinin adını soyadını giriniz');
+        return;
+      }
+
+      // İsim soyisim kontrolü
+      const userFullName = `${userProfile?.first_name || ''} ${userProfile?.last_name || ''}`.trim().toLowerCase();
+      const enteredName = accountHolderName.trim().toLowerCase();
+      
+      if (userFullName !== enteredName) {
+        toast.error('Hesap sahibinin adı soyadı, kayıtlı bilgilerinizle eşleşmiyor! Kayıtlı adınız: ' + userFullName);
+        return;
+      }
+    }
+
+    // Papara kontrolleri
+    if (method === 'papara') {
+      if (!paparaId && !phone) {
+        toast.error('Papara ID veya telefon numarası giriniz');
+        return;
+      }
+    }
+
+    // Crypto kontrolleri
+    if (method === 'crypto') {
+      if (!address.trim()) {
+        toast.error('Cüzdan adresini giriniz');
+        return;
+      }
+    }
+
+    createM.mutate({ 
+      amount, 
+      method, 
+      iban, 
+      papara_id: paparaId, 
+      phone, 
+      asset, 
+      network, 
+      address, 
+      tag 
+    }, {
       onSuccess: () => {
         toast.success('Çekim talebiniz başarıyla gönderildi');
         setAmount(0);
         setIban('');
+        setAccountHolderName('');
         setPaparaId('');
         setPhone('');
         setAddress('');
@@ -111,24 +173,24 @@ export default function RequestWithdrawal() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {userBalance && (
+            {userProfile && (
               <div className="p-4 bg-muted rounded-lg">
                  <p className="text-sm text-muted-foreground">Mevcut Bakiye</p>
-                <p className="text-2xl font-bold">₺{userBalance.balance?.toLocaleString("tr-TR") || 0}</p>
+                <p className="text-2xl font-bold">₺{userProfile.balance?.toLocaleString("tr-TR") || 0}</p>
               </div>
             )}
             
             <div>
               <Label htmlFor="amount">Miktar (TRY)</Label>
-              <Input
-                id="amount"
-                type="number" 
-                min="10"
-                max={userBalance?.balance || 0}
-                value={amount || ''} 
-                onChange={(e)=>setAmount(parseFloat(e.target.value) || 0)} 
-                placeholder="0.00"
-              />
+                <Input
+                  id="amount"
+                  type="number" 
+                  min="10"
+                  max={userProfile?.balance || 0}
+                  value={amount || ''} 
+                  onChange={(e)=>setAmount(parseFloat(e.target.value) || 0)} 
+                  placeholder="0.00"
+                />
             </div>
             
             <div>
@@ -146,14 +208,32 @@ export default function RequestWithdrawal() {
             </div>
 
             {method === 'bank' && (
-              <div>
-                <Label htmlFor="iban">IBAN (TR…)</Label>
-                <Input 
-                  id="iban"
-                  placeholder="TR00 0000 0000 0000 0000 0000 00" 
-                  value={iban} 
-                  onChange={(e)=>setIban(e.target.value)} 
-                />
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="iban">IBAN (TR…)</Label>
+                  <Input 
+                    id="iban"
+                    placeholder="TR00 0000 0000 0000 0000 0000 00" 
+                    value={iban} 
+                    onChange={(e)=>setIban(e.target.value)} 
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="accountHolder">Hesap Sahibinin Adı Soyadı</Label>
+                  <Input 
+                    id="accountHolder"
+                    placeholder="Ad Soyad" 
+                    value={accountHolderName} 
+                    onChange={(e)=>setAccountHolderName(e.target.value)} 
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    ⚠️ Hesap oluşturulurken kullanılan isim soyisim ile paranın çekileceği hesap aynı olmalıdır.
+                    <br />
+                    Kayıtlı adınız: <span className="font-medium">
+                      {userProfile?.first_name} {userProfile?.last_name}
+                    </span>
+                  </p>
+                </div>
               </div>
             )}
 
