@@ -72,11 +72,11 @@ serve(async (req) => {
       .limit(1).maybeSingle();
     if (lastRisk?.status === 'blocked') return new Response(JSON.stringify({ error: 'User blocked' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
-    // Get user profile to check for user_id
+    // Get user profile and balance from profiles table (main source of truth)
     const { data: profile, error: profileError } = await sb
       .from("profiles")
-      .select("id, user_id")
-      .eq("user_id", userId)
+      .select("id, balance")
+      .eq("id", userId) // Use direct id match, not user_id
       .single();
 
     if (profileError || !profile) {
@@ -86,22 +86,7 @@ serve(async (req) => {
       );
     }
 
-    // Get user balance from wallets
-    const { data: walletData, error: walletError } = await sb
-      .from("wallets")
-      .select("balance")
-      .eq("user_id", userId) // Use auth user id directly
-      .eq("type", "main")
-      .single();
-
-    if (walletError || !walletData) {
-      return new Response(
-        JSON.stringify({ error: "Bakiye bilgisi bulunamadı" }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const currentBalance = walletData.balance || 0;
+    const currentBalance = profile.balance || 0;
     if (currentBalance < amount) {
       return new Response(
         JSON.stringify({ error: "Yetersiz bakiye" }),
@@ -141,7 +126,7 @@ serve(async (req) => {
     const { data: wd, error: wdErr } = await sb
       .from('withdrawals')
       .insert({
-        user_id: userId, // Use auth user id directly, not profile.id
+        user_id: userId, // Use the authenticated user's ID
         amount,
         currency: body.currency ?? 'TRY',
         status: 'pending',

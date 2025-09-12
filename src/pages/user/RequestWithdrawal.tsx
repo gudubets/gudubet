@@ -65,7 +65,12 @@ export default function RequestWithdrawal() {
     // IBAN kontrolleri (bank method için)
     if (method === 'bank') {
       if (!iban || iban.length < 26) {
-        toast.error('IBAN numaranızı kontrol edin. Geçerli bir IBAN giriniz!');
+        toast.error('IBAN numaranızı kontrol edin. IBAN TR ile başlamalı ve toplam 26 karakter olmalıdır! (TR + 24 rakam)');
+        return;
+      }
+
+      if (!iban.startsWith('TR')) {
+        toast.error('IBAN TR ile başlamalıdır!');
         return;
       }
 
@@ -112,7 +117,7 @@ export default function RequestWithdrawal() {
       tag 
     }, {
       onSuccess: () => {
-        toast.success('Çekim talebiniz başarıyla gönderildi');
+        toast.success('✅ Çekim talebiniz başarıyla gönderildi! İnceleme sürecine alınmıştır.');
         setAmount(0);
         setIban('');
         setAccountHolderName('');
@@ -122,7 +127,28 @@ export default function RequestWithdrawal() {
         setTag('');
       },
       onError: (error: any) => {
-        toast.error(error?.message || 'Çekim talebi gönderilemedi');
+        console.error('Withdrawal request error:', error);
+        
+        // Daha açıklayıcı hata mesajları
+        let errorMessage = 'Çekim talebi gönderilemedi. ';
+        
+        if (error?.message) {
+          if (error.message.includes('balance')) {
+            errorMessage += 'Yetersiz bakiye!';
+          } else if (error.message.includes('iban')) {
+            errorMessage += 'IBAN formatını kontrol edin!';
+          } else if (error.message.includes('verification') || error.message.includes('kyc')) {
+            errorMessage += 'Kimlik doğrulaması gerekli!';
+          } else if (error.message.includes('limit')) {
+            errorMessage += 'Günlük/aylık limitinizi aştınız!';
+          } else {
+            errorMessage += error.message;
+          }
+        } else {
+          errorMessage += 'Bilinmeyen bir hata oluştu. Lütfen tekrar deneyin.';
+        }
+        
+        toast.error(errorMessage);
       }
     });
   };
@@ -210,12 +236,13 @@ export default function RequestWithdrawal() {
             {method === 'bank' && (
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="iban">IBAN (TR…)</Label>
+                  <Label htmlFor="iban">IBAN (TR + 24 rakam = 26 karakter)</Label>
                   <Input 
                     id="iban"
-                    placeholder="TR00 0000 0000 0000 0000 0000 00" 
+                    placeholder="TR000000000000000000000000" 
+                    maxLength={26}
                     value={iban} 
-                    onChange={(e)=>setIban(e.target.value)} 
+                    onChange={(e)=>setIban(e.target.value.toUpperCase())} 
                   />
                 </div>
                 <div>
@@ -229,9 +256,11 @@ export default function RequestWithdrawal() {
                   <p className="text-xs text-muted-foreground mt-1">
                     ⚠️ Hesap oluşturulurken kullanılan isim soyisim ile paranın çekileceği hesap aynı olmalıdır.
                     <br />
-                    Kayıtlı adınız: <span className="font-medium">
+                    📝 Kayıtlı adınız: <span className="font-medium text-primary">
                       {userProfile?.first_name} {userProfile?.last_name}
                     </span>
+                    <br />
+                    🏦 IBAN formatı: TR + 24 rakam (toplam 26 karakter)
                   </p>
                 </div>
               </div>
