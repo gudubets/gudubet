@@ -65,6 +65,21 @@ const AdminBalance = () => {
           fetchUsers();
         }
       )
+      .on(
+        'broadcast',
+        { event: 'balance_updated' },
+        (payload) => {
+          console.log('Balance broadcast received in admin:', payload);
+          // Update specific user in the list immediately
+          setUsers(prevUsers => 
+            prevUsers.map(user => 
+              user.id === payload.payload.user_id 
+                ? { ...user, balance: payload.payload.new_balance }
+                : user
+            )
+          );
+        }
+      )
       .subscribe();
 
     return () => {

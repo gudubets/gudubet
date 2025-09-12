@@ -91,6 +91,23 @@ export const useUserBalance = (user: User | null) => {
           fetchUserBalance();
         }
       )
+      .on(
+        'broadcast',
+        { event: 'balance_updated' },
+        (payload) => {
+          console.log('Balance broadcast received:', payload);
+          if (payload.payload.user_id === user.id) {
+            // Update balance immediately from broadcast
+            setBalanceData(prev => ({
+              ...prev,
+              balance: payload.payload.new_balance,
+              total_balance: payload.payload.new_balance + prev.bonus_balance,
+              loading: false,
+              error: null
+            }));
+          }
+        }
+      )
       .subscribe();
 
     return () => {
