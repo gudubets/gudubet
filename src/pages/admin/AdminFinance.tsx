@@ -300,25 +300,43 @@ const AdminFinance = () => {
         return { id, status, type };
         
       } else {
-        // Handle withdrawal status updates using edge function for proper balance deduction
-        console.log('💰 Processing withdrawal with balance deduction...');
+        // Handle withdrawal status updates with proper balance deduction
+        console.log('💰 Processing withdrawal:', { id, status, amount: transaction?.amount });
         
         if (status === 'approved') {
-          // Use edge function for approval to properly deduct balance
-          const result = await approveWithdrawMutation.mutateAsync({
-            withdrawal_id: id,
-            note: `Finans yönetiminden onaylandı - ${transaction?.amount} TRY`
+          // Use the withdraw-approve edge function directly
+          const { data, error } = await supabase.functions.invoke('withdraw-approve', {
+            body: {
+              action: 'approve',
+              withdrawal_id: id,
+              note: `Finans yönetiminden onaylandı - ${transaction?.amount} TRY`
+            }
           });
-          console.log('✅ Withdrawal approved with balance deduction:', result);
+          
+          if (error) {
+            console.error('❌ Edge function error:', error);
+            throw error;
+          }
+          
+          console.log('✅ Withdrawal approved successfully:', data);
           return { id, status: 'approved', type };
           
         } else if (status === 'rejected') {
-          // Use edge function for rejection
-          const result = await rejectWithdrawMutation.mutateAsync({
-            withdrawal_id: id,
-            note: `Finans yönetiminden reddedildi`
+          // Use the withdraw-approve edge function for rejection
+          const { data, error } = await supabase.functions.invoke('withdraw-approve', {
+            body: {
+              action: 'reject',
+              withdrawal_id: id,
+              note: `Finans yönetiminden reddedildi`
+            }
           });
-          console.log('❌ Withdrawal rejected:', result);
+          
+          if (error) {
+            console.error('❌ Edge function error:', error);
+            throw error;
+          }
+          
+          console.log('✅ Withdrawal rejected successfully:', data);
           return { id, status: 'rejected', type };
           
         } else {
