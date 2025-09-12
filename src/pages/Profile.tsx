@@ -581,14 +581,14 @@ const Profile = () => {
                   <Button 
                     className="w-full" 
                     variant="default"
-                    onClick={() => navigate('/deposit-withdrawal')}
+                    onClick={() => navigate('/user/deposit')}
                   >
                     Para Yatır
                   </Button>
                   <Button 
                     className="w-full" 
                     variant="outline"
-                    onClick={() => navigate('/deposit-withdrawal')}
+                    onClick={() => navigate('/user/withdraw')}
                   >
                     Para Çek
                   </Button>
