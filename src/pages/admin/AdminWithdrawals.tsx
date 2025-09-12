@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Check, X, Eye, AlertTriangle, Clock, History, Filter, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { logAdminActivity, ACTIVITY_TYPES } from "@/utils/adminActivityLogger";
 import { useApproveWithdrawal, useRejectWithdrawal } from "@/hooks/useWithdrawals";
 
 interface User {
@@ -103,7 +102,7 @@ export default function AdminWithdrawals() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Use the proper hooks for withdrawal actions
+  // Use edge function hooks for withdrawal approval/rejection
   const approveWithdrawalMutation = useApproveWithdrawal();
   const rejectWithdrawalMutation = useRejectWithdrawal();
 
@@ -332,12 +331,15 @@ export default function AdminWithdrawals() {
       return;
     }
 
+    console.log('Confirming review:', { reviewAction, withdrawalId: selectedWithdrawal.id, note: reviewNote.trim() });
+
     if (reviewAction === "approve") {
       approveWithdrawalMutation.mutate({
         withdrawal_id: selectedWithdrawal.id,
         note: reviewNote.trim()
       }, {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          console.log('Approval success:', data);
           toast({
             title: "Başarılı",
             description: "Para çekme talebi onaylandı ve bakiye düşürüldü",
@@ -348,6 +350,7 @@ export default function AdminWithdrawals() {
           setReviewAction(null);
         },
         onError: (error: any) => {
+          console.error('Approval error:', error);
           toast({
             title: "Hata",
             description: error.message || "Para çekme onaylanırken hata oluştu",
@@ -360,7 +363,8 @@ export default function AdminWithdrawals() {
         withdrawal_id: selectedWithdrawal.id,
         note: reviewNote.trim()
       }, {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          console.log('Rejection success:', data);
           toast({
             title: "Başarılı",
             description: "Para çekme talebi reddedildi",
@@ -371,6 +375,7 @@ export default function AdminWithdrawals() {
           setReviewAction(null);
         },
         onError: (error: any) => {
+          console.error('Rejection error:', error);
           toast({
             title: "Hata",
             description: error.message || "Para çekme reddedilirken hata oluştu",
