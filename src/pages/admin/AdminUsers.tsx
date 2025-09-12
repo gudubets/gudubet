@@ -35,6 +35,7 @@ interface User {
   last_name: string;
   email: string;
   balance: number;
+  bonus_balance: number;
   status: string;
   created_at: string;
   phone?: string;
@@ -77,11 +78,11 @@ const AdminUsers = () => {
     try {
       setLoading(true);
       
-      // Get profiles data with all necessary fields
+      // Get profiles data with all necessary fields including bonus_balance
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select(`
-          id, user_id, first_name, last_name, phone, email, balance, status, 
+          id, user_id, first_name, last_name, phone, email, balance, bonus_balance, status, 
           created_at, banned_until
         `)
         .order('created_at', { ascending: false });
@@ -96,6 +97,7 @@ const AdminUsers = () => {
         email: profile.email || '',
         phone: profile.phone,
         balance: profile.balance || 0,
+        bonus_balance: profile.bonus_balance || 0,
         status: profile.status || 'active',
         created_at: profile.created_at,
         banned_until: profile.banned_until
@@ -242,7 +244,8 @@ const AdminUsers = () => {
                   <TableHead>Ad Soyad</TableHead>
                   <TableHead>E-posta</TableHead>
                   <TableHead>Telefon</TableHead>
-                  <TableHead>Bakiye</TableHead>
+                   <TableHead>Ana Bakiye</TableHead>
+                   <TableHead>Bonus Bakiye</TableHead>
                   <TableHead>Durum</TableHead>
                   <TableHead>Kayıt Tarihi</TableHead>
                   <TableHead className="text-right">İşlemler</TableHead>
@@ -256,7 +259,8 @@ const AdminUsers = () => {
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.phone || '-'}</TableCell>
-                    <TableCell>₺{user.balance?.toLocaleString('tr-TR') || '0'}</TableCell>
+                     <TableCell>₺{user.balance?.toLocaleString('tr-TR') || '0'}</TableCell>
+                     <TableCell>₺{user.bonus_balance?.toLocaleString('tr-TR') || '0'}</TableCell>
                     <TableCell>{getStatusBadge(user.status)}</TableCell>
                     <TableCell>
                       {new Date(user.created_at).toLocaleDateString('tr-TR')}

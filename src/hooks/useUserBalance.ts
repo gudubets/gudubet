@@ -39,7 +39,7 @@ export const useUserBalance = (user: User | null) => {
         const { data: profileData, error } = await supabase
           .from('profiles')
           .select('balance, bonus_balance')
-          .eq('user_id', user.id)
+          .eq('id', user.id)
           .single();
 
         if (error) {
@@ -83,7 +83,7 @@ export const useUserBalance = (user: User | null) => {
           event: 'UPDATE',
           schema: 'public',
           table: 'profiles',
-          filter: `user_id=eq.${user.id}`
+          filter: `id=eq.${user.id}`
         },
         (payload) => {
           console.log('Profile balance updated:', payload);
