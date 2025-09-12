@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { toast } from '@/hooks/use-toast';
 import { logAdminActivity, ACTIVITY_TYPES } from '@/utils/adminActivityLogger';
+import { useApproveWithdrawal, useRejectWithdrawal } from '@/hooks/useWithdrawals';
 
 interface Transaction {
   id: string;
@@ -53,6 +54,10 @@ const AdminFinance = () => {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isCheckingAccess, setIsCheckingAccess] = useState(true);
   const queryClient = useQueryClient();
+  
+  // Add withdrawal approval hooks
+  const approveWithdrawMutation = useApproveWithdrawal();
+  const rejectWithdrawMutation = useRejectWithdrawal();
 
   // Always call all hooks first - before any conditional returns
   const { data: transactions = [], isLoading } = useQuery({
@@ -278,10 +283,11 @@ const AdminFinance = () => {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status, type }: { id: string; status: string; type: 'deposit' | 'withdraw' }) => {
-      let error;
+    mutationFn: async ({ id, status, type, transaction }: { id: string; status: string; type: 'deposit' | 'withdraw'; transaction?: Transaction }) => {
+      console.log('🔄 Updating transaction status:', { id, status, type });
       
       if (type === 'deposit') {
+        // Handle deposit status updates
         const updateResult = await supabase
           .from('payments')
           .update({ 
@@ -289,21 +295,46 @@ const AdminFinance = () => {
             processed_at: new Date().toISOString() 
           })
           .eq('id', id);
-        error = updateResult.error;
+        
+        if (updateResult.error) throw updateResult.error;
+        return { id, status, type };
+        
       } else {
-        const updateResult = await supabase
-          .from('withdrawals')
-          .update({ 
-            status: status === 'completed' ? 'approved' : status,
-            processed_at: status === 'approved' ? new Date().toISOString() : null,
-            approved_at: status === 'approved' ? new Date().toISOString() : null
-          })
-          .eq('id', id);
-        error = updateResult.error;
+        // Handle withdrawal status updates using edge function for proper balance deduction
+        console.log('💰 Processing withdrawal with balance deduction...');
+        
+        if (status === 'approved') {
+          // Use edge function for approval to properly deduct balance
+          const result = await approveWithdrawMutation.mutateAsync({
+            withdrawal_id: id,
+            note: `Finans yönetiminden onaylandı - ${transaction?.amount} TRY`
+          });
+          console.log('✅ Withdrawal approved with balance deduction:', result);
+          return { id, status: 'approved', type };
+          
+        } else if (status === 'rejected') {
+          // Use edge function for rejection
+          const result = await rejectWithdrawMutation.mutateAsync({
+            withdrawal_id: id,
+            note: `Finans yönetiminden reddedildi`
+          });
+          console.log('❌ Withdrawal rejected:', result);
+          return { id, status: 'rejected', type };
+          
+        } else {
+          // For other status updates, use direct database update
+          const updateResult = await supabase
+            .from('withdrawals')
+            .update({ 
+              status: status,
+              processed_at: new Date().toISOString()
+            })
+            .eq('id', id);
+          
+          if (updateResult.error) throw updateResult.error;
+          return { id, status, type };
+        }
       }
-      
-      if (error) throw error;
-      return { id, status, type };
     },
     onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-transactions'] });
@@ -320,7 +351,9 @@ const AdminFinance = () => {
       
       toast({
         title: "İşlem Güncellendi",
-        description: "İşlem durumu başarıyla güncellendi.",
+        description: data.type === 'withdraw' && data.status === 'approved' 
+          ? `Çekim onaylandı ve bakiyeden düşürüldü`
+          : "İşlem durumu başarıyla güncellendi.",
       });
     },
     onError: (error) => {
@@ -640,32 +673,40 @@ const AdminFinance = () => {
                     <TableCell>
                       {transaction.status === 'pending' && (
                         <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-600 border-green-200 hover:bg-green-50"
-                            onClick={() => updateStatusMutation.mutate({ 
-                              id: transaction.id, 
-                              status: 'approved',
-                              type: transaction.type
-                            })}
-                            disabled={updateStatusMutation.isPending}
-                          >
-                            Onayla
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 border-red-200 hover:bg-red-50"
-                            onClick={() => updateStatusMutation.mutate({ 
-                              id: transaction.id, 
-                              status: 'rejected',
-                              type: transaction.type
-                            })}
-                            disabled={updateStatusMutation.isPending}
-                          >
-                            Reddet
-                          </Button>
+                           <Button
+                             size="sm"
+                             variant="outline"
+                             className="text-green-600 border-green-200 hover:bg-green-50"
+                             disabled={updateStatusMutation.isPending}
+                             onClick={() => {
+                               console.log('🟢 Approving transaction:', transaction.type, transaction.id, transaction.amount);
+                               updateStatusMutation.mutate({ 
+                                 id: transaction.id, 
+                                 status: 'approved',
+                                 type: transaction.type,
+                                 transaction: transaction
+                               });
+                             }}
+                           >
+                             Onayla
+                           </Button>
+                           <Button
+                             size="sm"
+                             variant="outline"
+                             className="text-red-600 border-red-200 hover:bg-red-50"
+                             disabled={updateStatusMutation.isPending}
+                             onClick={() => {
+                               console.log('🔴 Rejecting transaction:', transaction.type, transaction.id);
+                               updateStatusMutation.mutate({ 
+                                 id: transaction.id, 
+                                 status: 'rejected',
+                                 type: transaction.type,
+                                 transaction: transaction
+                               });
+                             }}
+                           >
+                             Reddet
+                           </Button>
                         </div>
                       )}
                       {transaction.status === 'approved' && transaction.type === 'withdraw' && (
