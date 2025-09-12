@@ -58,7 +58,7 @@ const AdminFinance = () => {
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ['admin-transactions', searchTerm, typeFilter, statusFilter, dateFrom, dateTo],
     queryFn: async () => {
-      // Fetch payments (deposits)
+      // Fetch payments (deposits) - join with profiles
       let paymentsQuery = supabase
         .from('payments')
         .select(`
@@ -68,18 +68,11 @@ const AdminFinance = () => {
           status,
           payment_method,
           created_at,
-          processed_at,
-          users (
-            id,
-            username,
-            email,
-            first_name,
-            last_name
-          )
+          processed_at
         `)
         .order('created_at', { ascending: false });
 
-      // Fetch withdrawals
+      // Fetch withdrawals - join with profiles  
       let withdrawalsQuery = supabase
         .from('withdrawals')
         .select(`
@@ -87,25 +80,14 @@ const AdminFinance = () => {
           user_id,
           amount,
           status,
-          withdrawal_method,
-          account_details,
+          method,
+          payout_details,
           created_at,
-          processed_at,
-          users (
-            id,
-            username,
-            email,
-            first_name,
-            last_name
-          )
+          processed_at
         `)
         .order('created_at', { ascending: false });
 
-      // Apply filters to both queries
-      if (searchTerm) {
-        paymentsQuery = paymentsQuery.or(`users.username.ilike.%${searchTerm}%,users.email.ilike.%${searchTerm}%`);
-        withdrawalsQuery = withdrawalsQuery.or(`users.username.ilike.%${searchTerm}%,users.email.ilike.%${searchTerm}%`);
-      }
+      // Apply search filter later after joining with profiles
       
       if (statusFilter) {
         paymentsQuery = paymentsQuery.eq('status', statusFilter);
@@ -131,39 +113,101 @@ const AdminFinance = () => {
       if (paymentsResult.error) throw paymentsResult.error;
       if (withdrawalsResult.error) throw withdrawalsResult.error;
 
-      // Transform and combine data
-      const payments: Transaction[] = (paymentsResult.data || []).map((payment: any) => ({
-        id: payment.id,
-        user_id: payment.user_id,
-        type: 'deposit' as const,
-        amount: payment.amount,
-        status: payment.status,
-        payment_method: payment.payment_method,
-        created_at: payment.created_at,
-        processed_at: payment.processed_at,
-        users: payment.users
-      }));
+      // Get unique user IDs from both datasets
+      const paymentsUserIds = (paymentsResult.data || []).map((p: any) => p.user_id);
+      const withdrawalsUserIds = (withdrawalsResult.data || []).map((w: any) => w.user_id);
+      const allUserIds = [...new Set([...paymentsUserIds, ...withdrawalsUserIds])];
 
-      const withdrawals: Transaction[] = (withdrawalsResult.data || []).map((withdrawal: any) => ({
-        id: withdrawal.id,
-        user_id: withdrawal.user_id,
-        type: 'withdraw' as const,
-        amount: withdrawal.amount,
-        status: withdrawal.status,
-        payment_method: withdrawal.withdrawal_method,
-        account_details: withdrawal.account_details,
-        created_at: withdrawal.created_at,
-        processed_at: withdrawal.processed_at,
-        users: withdrawal.users
-      }));
+      // Fetch user profiles for all transactions
+      let profilesData: any[] = [];
+      if (allUserIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select(`
+            id,
+            user_id,
+            first_name,
+            last_name,
+            email
+          `)
+          .in('id', allUserIds);
+        profilesData = profiles || [];
+      }
+
+      // Create a map for quick lookup
+      const profilesMap = profilesData.reduce((acc: any, profile: any) => {
+        acc[profile.id] = profile;
+        return acc;
+      }, {});
+
+      // Transform and combine data
+      const payments: Transaction[] = (paymentsResult.data || []).map((payment: any) => {
+        const userProfile = profilesMap[payment.user_id];
+        return {
+          id: payment.id,
+          user_id: payment.user_id,
+          type: 'deposit' as const,
+          amount: payment.amount,
+          status: payment.status,
+          payment_method: payment.payment_method,
+          created_at: payment.created_at,
+          processed_at: payment.processed_at,
+          users: userProfile ? {
+            id: userProfile.id,
+            username: userProfile.email?.split('@')[0] || 'Unknown',
+            email: userProfile.email || '',
+            first_name: userProfile.first_name || '',
+            last_name: userProfile.last_name || ''
+          } : null
+        };
+      });
+
+      const withdrawals: Transaction[] = (withdrawalsResult.data || []).map((withdrawal: any) => {
+        const userProfile = profilesMap[withdrawal.user_id];
+        return {
+          id: withdrawal.id,
+          user_id: withdrawal.user_id,
+          type: 'withdraw' as const,
+          amount: withdrawal.amount,
+          status: withdrawal.status,
+          payment_method: withdrawal.method,
+          account_details: withdrawal.payout_details,
+          created_at: withdrawal.created_at,
+          processed_at: withdrawal.processed_at,
+          users: userProfile ? {
+            id: userProfile.id,
+            username: userProfile.email?.split('@')[0] || 'Unknown',
+            email: userProfile.email || '',
+            first_name: userProfile.first_name || '',
+            last_name: userProfile.last_name || ''
+          } : null
+        };
+      });
 
       // Combine and sort by date
       const allTransactions = [...payments, ...withdrawals];
       
+      // Apply search filter on combined data
+      let filteredTransactions = allTransactions;
+      
+      if (searchTerm) {
+        filteredTransactions = allTransactions.filter((t: Transaction) => {
+          const user = t.users;
+          if (!user) return false;
+          const searchLower = searchTerm.toLowerCase();
+          return (
+            user.username?.toLowerCase().includes(searchLower) ||
+            user.email?.toLowerCase().includes(searchLower) ||
+            user.first_name?.toLowerCase().includes(searchLower) ||
+            user.last_name?.toLowerCase().includes(searchLower)
+          );
+        });
+      }
+      
       // Apply type filter if specified
-      const filteredTransactions = typeFilter 
-        ? allTransactions.filter(t => t.type === typeFilter)
-        : allTransactions;
+      if (typeFilter) {
+        filteredTransactions = filteredTransactions.filter(t => t.type === typeFilter);
+      }
 
       return filteredTransactions.sort((a, b) => 
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
