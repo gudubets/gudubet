@@ -859,24 +859,15 @@ const AdminFinance = () => {
                            </Button>
                         </div>
                       )}
-                      {transaction.status === 'approved' && transaction.type === 'withdraw' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                          onClick={() => updateStatusMutation.mutate({ 
-                            id: transaction.id, 
-                            status: 'completed',
-                            type: transaction.type
-                          })}
-                          disabled={updateStatusMutation.isPending}
-                        >
-                          Tamamla
-                        </Button>
-                      )}
                       {(transaction.status === 'completed' || transaction.status === 'rejected' || 
+                        (transaction.status === 'approved' && transaction.type === 'withdraw') ||
                         (transaction.type === 'deposit' && transaction.status === 'failed')) && (
-                        <span className="text-sm text-muted-foreground">İşlem tamamlandı</span>
+                        <span className="text-sm text-muted-foreground">
+                          {transaction.status === 'approved' && transaction.type === 'withdraw' 
+                            ? 'Tamamlandı' 
+                            : 'İşlem tamamlandı'
+                          }
+                        </span>
                       )}
                     </TableCell>
                   </TableRow>
