@@ -21,7 +21,8 @@ import {
   Database,
   List,
   Plus,
-  BookOpen
+  BookOpen,
+  Landmark
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -114,6 +115,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       icon: DollarSign,
       href: '/admin/finance',
       active: location.pathname === '/admin/finance'
+    },
+    {
+      title: 'Banka Hesapları',
+      icon: Landmark,
+      href: '/admin/bank-accounts',
+      active: location.pathname === '/admin/bank-accounts'
     },
     {
       title: 'Para Çekme',
