@@ -30,22 +30,21 @@ export default function RequestWithdrawal() {
   const list = useMyWithdrawals();
   const navigate = useNavigate();
 
-    // Get user balance from wallets
+    // Get user balance from profiles table (same source as main balance)
     const { data: userBalance } = useQuery({
       queryKey: ["user-balance"],
       queryFn: async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("Kimlik doğrulaması yapılmadı");
 
-        const { data: walletData, error } = await supabase
-          .from("wallets")
-          .select("balance")
-          .eq("user_id", user.id)
-          .eq("type", "main")
+        const { data: profileData, error } = await supabase
+          .from("profiles")
+          .select("balance, bonus_balance")
+          .eq("id", user.id)
           .single();
 
         if (error) throw error;
-        return walletData;
+        return profileData;
       }
     });
 
