@@ -175,11 +175,13 @@ const AdminCRM = () => {
 
   const loadSegmentUsers = async (segmentId: string) => {
     try {
+      // Since user_segment_memberships.user_id now points to profiles.id after migration,
+      // we can join directly with profiles
       const { data, error } = await supabase
         .from('user_segment_memberships')
         .select(`
           user_id,
-          users!inner(
+          profiles:user_id (
             id,
             email,
             first_name,
@@ -193,12 +195,12 @@ const AdminCRM = () => {
       if (error) throw error;
       
       const users = data?.map(item => ({
-        id: item.users.id,
-        email: item.users.email,
-        first_name: item.users.first_name,
-        last_name: item.users.last_name,
-        status: item.users.status,
-        created_at: item.users.created_at
+        id: item.profiles?.id || '',
+        email: item.profiles?.email || '',
+        first_name: item.profiles?.first_name || '',
+        last_name: item.profiles?.last_name || '',
+        status: item.profiles?.status || '',
+        created_at: item.profiles?.created_at || ''
       })) || [];
       
       setSegmentUsers(users);

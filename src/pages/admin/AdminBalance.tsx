@@ -23,7 +23,7 @@ import {
 
 interface User {
   id: string;
-  auth_user_id: string;
+  user_id: string;
   email: string;
   first_name: string | null;
   last_name: string | null;
@@ -127,7 +127,6 @@ const AdminBalance = () => {
           phone: profile.phone,
           created_at: profile.created_at,
           user_id: profile.user_id || profile.id,
-          auth_user_id: profile.user_id || profile.id,
           balance: walletData.balance,
           bonus_balance: walletData.bonus_balance,
           email: '', // Will be filled if needed

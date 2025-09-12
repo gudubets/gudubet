@@ -273,27 +273,11 @@ const SportsBetting = () => {
         return;
       }
 
-      // Get user data
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('auth_user_id', user.id)
-        .single();
-
-      if (!userData) {
-        toast({
-          title: "Hata",
-          description: "Kullanıcı verisi bulunamadı.",
-          variant: "destructive"
-        });
-        return;
-      }
-
       // Create betslip
       const { data: betslipData, error: betslipError } = await supabase
         .from('betslips')
         .insert({
-          user_id: userData.id,
+          user_id: user.id,
           slip_type: betSlip.length === 1 ? 'single' : 'multiple',
           total_stake: parseFloat(stakeAmount),
           total_odds: totalOdds,

@@ -21,7 +21,7 @@ interface FraudAlert {
   evidence: any;
   status: 'open' | 'investigating' | 'resolved' | 'false_positive';
   created_at: string;
-  users: {
+  profiles: {
     email: string;
     first_name: string;
     last_name: string;
@@ -38,7 +38,7 @@ interface UserRiskProfile {
   payment_risk_score: number;
   velocity_risk_score: number;
   last_assessment_at: string;
-  users: {
+  profiles: {
     email: string;
     first_name: string;
     last_name: string;
@@ -85,7 +85,7 @@ export default function AdminFraudDetection() {
         .from("fraud_alerts")
         .select(`
           *,
-          users!inner(email, first_name, last_name)
+          profiles!inner(email, first_name, last_name)
         `)
         .order("created_at", { ascending: false });
 
@@ -372,16 +372,16 @@ export default function AdminFraudDetection() {
                   <TableBody>
                     {fraudAlerts.map((alert) => (
                       <TableRow key={alert.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">
-                              {alert.users.first_name} {alert.users.last_name}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {alert.users.email}
-                            </div>
-                          </div>
-                        </TableCell>
+                         <TableCell>
+                           <div>
+                             <div className="font-medium">
+                               {alert.profiles.first_name} {alert.profiles.last_name}
+                             </div>
+                             <div className="text-sm text-muted-foreground">
+                               {alert.profiles.email}
+                             </div>
+                           </div>
+                         </TableCell>
                         <TableCell>{alert.alert_type}</TableCell>
                         <TableCell>{getSeverityBadge(alert.severity)}</TableCell>
                         <TableCell className="max-w-xs truncate">{alert.description}</TableCell>
@@ -465,16 +465,16 @@ export default function AdminFraudDetection() {
                   <TableBody>
                     {riskProfiles.map((profile) => (
                       <TableRow key={profile.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">
-                              {profile.users.first_name} {profile.users.last_name}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {profile.users.email}
-                            </div>
-                          </div>
-                        </TableCell>
+                         <TableCell>
+                           <div>
+                             <div className="font-medium">
+                               {profile.profiles.first_name} {profile.profiles.last_name}
+                             </div>
+                             <div className="text-sm text-muted-foreground">
+                               {profile.profiles.email}
+                             </div>
+                           </div>
+                         </TableCell>
                         <TableCell>
                           <div className="flex items-center">
                             <span className="text-2xl font-bold mr-2">{profile.overall_risk_score}</span>

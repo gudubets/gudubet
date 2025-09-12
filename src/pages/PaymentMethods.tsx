@@ -125,18 +125,10 @@ export default function PaymentMethods() {
     queryFn: async () => {
       if (!user) return [];
 
-      const { data: userData } = await supabase
-        .from("users")
-        .select("id")
-        .eq("auth_user_id", user.id)
-        .single();
-
-      if (!userData) return [];
-
       const { data, error } = await supabase
         .from("payments")
         .select("*")
-        .eq("user_id", userData.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(10);
       
@@ -152,18 +144,10 @@ export default function PaymentMethods() {
     queryFn: async () => {
       if (!user) return [];
 
-      const { data: userData } = await supabase
-        .from("users")
-        .select("id")
-        .eq("auth_user_id", user.id)
-        .single();
-
-      if (!userData) return [];
-
       const { data, error } = await supabase
         .from("withdrawals")
         .select("*")
-        .eq("user_id", userData.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(10);
       

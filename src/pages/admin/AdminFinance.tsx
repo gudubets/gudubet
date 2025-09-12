@@ -27,7 +27,7 @@ interface Transaction {
   processed_at?: string;
   description?: string;
   account_details?: any;
-  users?: {
+  profiles?: {
     id: string;
     username: string;
     email: string;
@@ -192,7 +192,7 @@ const AdminFinance = () => {
       
       if (searchTerm) {
         filteredTransactions = allTransactions.filter((t: Transaction) => {
-          const user = t.users;
+          const user = t.profiles;
           if (!user) return false;
           const searchLower = searchTerm.toLowerCase();
           return (
@@ -605,13 +605,13 @@ const AdminFinance = () => {
                      <TableCell>
                        <div>
                          <div className="font-medium">
-                            {transaction.users?.first_name && transaction.users?.last_name 
-                              ? `${transaction.users.first_name} ${transaction.users.last_name}`
-                              : transaction.users?.username || 'Bilinmiyor'
+                            {transaction.profiles?.first_name && transaction.profiles?.last_name 
+                              ? `${transaction.profiles.first_name} ${transaction.profiles.last_name}`
+                              : transaction.profiles?.username || 'Bilinmiyor'
                             }
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {transaction.users?.email}
+                            {transaction.profiles?.email}
                           </div>
                          {transaction.account_details && (
                            <div className="text-xs text-muted-foreground mt-1">
