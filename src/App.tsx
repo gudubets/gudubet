@@ -51,6 +51,8 @@ import BonusForm from "./pages/admin/bonuses/BonusForm";
 import MyBonuses from "./pages/user/bonuses/MyBonuses";
 import BonusProgress from "./pages/user/bonuses/BonusProgress";
 import RequestWithdrawal from "./pages/user/RequestWithdrawal";
+import RequestDeposit from "./pages/user/RequestDeposit";
+import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
 import PasswordSecurity from "./pages/PasswordSecurity";
 import AdminRiskQueue from "./pages/admin/AdminRiskQueue";
 import AdminReports from "./pages/admin/AdminReports";
@@ -84,10 +86,11 @@ const App = () => {
           <Route path="/help-center" element={<HelpCenter />} />
           <Route path="/betting-rules" element={<BettingRules />} />
           <Route path="/live-support" element={<LiveSupport />} />
-          <Route path="/user/bonuses" element={<MyBonuses />} />
-          <Route path="/user/bonuses/progress" element={<BonusProgress />} />
-          <Route path="/user/withdraw" element={<RequestWithdrawal />} />
-          <Route path="/password-security" element={<PasswordSecurity />} />
+            <Route path="/user/bonuses" element={<MyBonuses />} />
+            <Route path="/user/bonuses/progress" element={<BonusProgress />} />
+            <Route path="/user/withdraw" element={<RequestWithdrawal />} />
+            <Route path="/user/deposit" element={<RequestDeposit />} />
+            <Route path="/password-security" element={<PasswordSecurity />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
@@ -103,6 +106,7 @@ const App = () => {
             <Route path="bonuses/:id/edit" element={<BonusForm />} />
             <Route path="bonuses/:id/rules" element={<BonusRulesEditor />} />
             <Route path="finance" element={<AdminFinance />} />
+            <Route path="bank-accounts" element={<AdminBankAccounts />} />
             <Route path="withdrawals" element={<AdminWithdrawals />} />
             <Route path="fraud-detection" element={<AdminFraudDetection />} />
             <Route path="balance" element={<AdminBalance />} />

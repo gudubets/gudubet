@@ -253,6 +253,39 @@ export type Database = {
           },
         ]
       }
+      bank_accounts: {
+        Row: {
+          account_holder_name: string
+          bank_name: string
+          created_at: string | null
+          iban: string
+          id: string
+          is_active: boolean | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_holder_name: string
+          bank_name: string
+          created_at?: string | null
+          iban: string
+          id?: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_holder_name?: string
+          bank_name?: string
+          created_at?: string | null
+          iban?: string
+          id?: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       betslip_items: {
         Row: {
           betslip_id: string
@@ -1074,6 +1107,56 @@ export type Database = {
           total_withdrawals?: number | null
         }
         Relationships: []
+      }
+      deposits: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          bank_account_id: string
+          created_at: string | null
+          id: string
+          reviewed_at: string | null
+          reviewer_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_account_name: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          bank_account_id: string
+          created_at?: string | null
+          id?: string
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_account_name: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          bank_account_id?: string
+          created_at?: string | null
+          id?: string
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_account_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deposits_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       device_events: {
         Row: {

@@ -63,7 +63,7 @@ const AdminFinance = () => {
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ['admin-transactions', searchTerm, typeFilter, statusFilter, dateFrom, dateTo],
     queryFn: async () => {
-      // Fetch payments (deposits) - join with profiles
+      // Fetch payments (old deposits) - join with profiles
       let paymentsQuery = supabase
         .from('payments')
         .select(`
@@ -74,6 +74,25 @@ const AdminFinance = () => {
           payment_method,
           created_at,
           processed_at
+        `)
+        .order('created_at', { ascending: false });
+
+      // Fetch new deposits from deposits table
+      let depositsQuery = supabase
+        .from('deposits')
+        .select(`
+          id,
+          user_id,
+          amount,
+          status,
+          user_account_name,
+          created_at,
+          reviewed_at,
+          bank_accounts!inner (
+            bank_name,
+            account_holder_name,
+            iban
+          )
         `)
         .order('created_at', { ascending: false });
 
@@ -96,32 +115,38 @@ const AdminFinance = () => {
       
       if (statusFilter) {
         paymentsQuery = paymentsQuery.eq('status', statusFilter);
+        depositsQuery = depositsQuery.eq('status', statusFilter);
         withdrawalsQuery = withdrawalsQuery.eq('status', statusFilter);
       }
       
       if (dateFrom) {
         paymentsQuery = paymentsQuery.gte('created_at', dateFrom.toISOString());
+        depositsQuery = depositsQuery.gte('created_at', dateFrom.toISOString());
         withdrawalsQuery = withdrawalsQuery.gte('created_at', dateFrom.toISOString());
       }
       
       if (dateTo) {
         paymentsQuery = paymentsQuery.lte('created_at', dateTo.toISOString());
+        depositsQuery = depositsQuery.lte('created_at', dateTo.toISOString());
         withdrawalsQuery = withdrawalsQuery.lte('created_at', dateTo.toISOString());
       }
 
       // Execute queries
-      const [paymentsResult, withdrawalsResult] = await Promise.all([
+      const [paymentsResult, depositsResult, withdrawalsResult] = await Promise.all([
         paymentsQuery,
+        depositsQuery,
         withdrawalsQuery
       ]);
 
       if (paymentsResult.error) throw paymentsResult.error;
+      if (depositsResult.error) throw depositsResult.error;
       if (withdrawalsResult.error) throw withdrawalsResult.error;
 
-      // Get unique user IDs from both datasets
+      // Get unique user IDs from all datasets
       const paymentsUserIds = (paymentsResult.data || []).map((p: any) => p.user_id);
+      const depositsUserIds = (depositsResult.data || []).map((d: any) => d.user_id);
       const withdrawalsUserIds = (withdrawalsResult.data || []).map((w: any) => w.user_id);
-      const allUserIds = [...new Set([...paymentsUserIds, ...withdrawalsUserIds])];
+      const allUserIds = [...new Set([...paymentsUserIds, ...depositsUserIds, ...withdrawalsUserIds])];
 
       // Fetch user profiles for all transactions
       let profilesData: any[] = [];
@@ -167,6 +192,33 @@ const AdminFinance = () => {
         };
       });
 
+      const deposits: Transaction[] = (depositsResult.data || []).map((deposit: any) => {
+        const userProfile = profilesMap[deposit.user_id];
+        return {
+          id: deposit.id,
+          user_id: deposit.user_id,
+          type: 'deposit' as const,
+          amount: deposit.amount,
+          status: deposit.status,
+          payment_method: `Bank Transfer (${deposit.bank_accounts?.bank_name})`,
+          account_details: {
+            user_account_name: deposit.user_account_name,
+            bank_name: deposit.bank_accounts?.bank_name,
+            account_holder_name: deposit.bank_accounts?.account_holder_name,
+            iban: deposit.bank_accounts?.iban
+          },
+          created_at: deposit.created_at,
+          processed_at: deposit.reviewed_at,
+          profiles: userProfile ? {
+            id: userProfile.id,
+            username: userProfile.email?.split('@')[0] || 'Unknown',
+            email: userProfile.email || '',
+            first_name: userProfile.first_name || '',
+            last_name: userProfile.last_name || ''
+          } : null
+        };
+      });
+
       const withdrawals: Transaction[] = (withdrawalsResult.data || []).map((withdrawal: any) => {
         const userProfile = profilesMap[withdrawal.user_id];
         return {
@@ -190,7 +242,7 @@ const AdminFinance = () => {
       });
 
       // Combine and sort by date
-      const allTransactions = [...payments, ...withdrawals];
+      const allTransactions = [...payments, ...deposits, ...withdrawals];
       
       // Apply search filter on combined data
       let filteredTransactions = allTransactions;
@@ -229,9 +281,16 @@ const AdminFinance = () => {
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
 
-      // Get daily payments (deposits)
+      // Get daily payments (old deposits)
       const { data: dailyPayments } = await supabase
         .from('payments')
+        .select('amount, status')
+        .gte('created_at', today.toISOString())
+        .lt('created_at', tomorrow.toISOString());
+
+      // Get daily deposits (new deposits)
+      const { data: dailyDeposits } = await supabase
+        .from('deposits')
         .select('amount, status')
         .gte('created_at', today.toISOString())
         .lt('created_at', tomorrow.toISOString());
@@ -248,21 +307,31 @@ const AdminFinance = () => {
         .from('payments')
         .select('status');
 
+      // Get all deposits status counts
+      const { data: depositsStatusCounts } = await supabase
+        .from('deposits')
+        .select('status');
+
       // Get all withdrawals status counts
       const { data: withdrawalsStatusCounts } = await supabase
         .from('withdrawals')
         .select('status');
 
-      const dailyDepositsSum = dailyPayments
+      const dailyPaymentsSum = dailyPayments
         ?.filter(t => t.status === 'completed')
+        .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+
+      const dailyDepositsSum = dailyDeposits
+        ?.filter(t => t.status === 'confirmed')
         .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
       const dailyWithdrawalsSum = dailyWithdrawals
         ?.filter(t => t.status === 'approved')
         .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
-      // Count pending, approved, and rejected across both tables
+      // Count pending, approved, and rejected across all tables
       const paymentsPending = paymentsStatusCounts?.filter(t => t.status === 'pending').length || 0;
+      const depositsPending = depositsStatusCounts?.filter(t => t.status === 'pending').length || 0;
       const withdrawalsPending = withdrawalsStatusCounts?.filter(t => t.status === 'pending').length || 0;
       
       const paymentsApproved = paymentsStatusCounts?.filter(t => t.status === 'completed').length || 0;
@@ -272,9 +341,9 @@ const AdminFinance = () => {
       const withdrawalsRejected = withdrawalsStatusCounts?.filter(t => t.status === 'rejected').length || 0;
 
       return {
-        dailyDeposits: dailyDepositsSum,
+        dailyDeposits: dailyPaymentsSum + dailyDepositsSum,
         dailyWithdrawals: dailyWithdrawalsSum,
-        pendingCount: paymentsPending + withdrawalsPending,
+        pendingCount: paymentsPending + depositsPending + withdrawalsPending,
         approvedCount: paymentsApproved + withdrawalsApproved,
         rejectedCount: paymentsRejected + withdrawalsRejected,
       } as DashboardStats;
@@ -287,16 +356,51 @@ const AdminFinance = () => {
       console.log('🔄 Updating transaction status:', { id, status, type });
       
       if (type === 'deposit') {
-        // Handle deposit status updates
-        const updateResult = await supabase
-          .from('payments')
-          .update({ 
-            status: status === 'approved' ? 'completed' : status === 'rejected' ? 'failed' : status,
-            processed_at: new Date().toISOString() 
-          })
-          .eq('id', id);
-        
-        if (updateResult.error) throw updateResult.error;
+        // Handle both old payments and new deposits
+        if (transaction?.payment_method?.includes('Bank Transfer')) {
+          // New deposit system
+          const updateResult = await supabase
+            .from('deposits')
+            .update({ 
+              status: status === 'approved' ? 'confirmed' : status === 'rejected' ? 'rejected' : status,
+              reviewed_at: new Date().toISOString(),
+              reviewer_id: (await supabase.auth.getUser()).data.user?.id
+            })
+            .eq('id', id);
+          
+          if (updateResult.error) throw updateResult.error;
+
+          // If approved, add balance to user
+          if (status === 'approved' && transaction) {
+            // Get current balance first
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('balance')
+              .eq('id', transaction.user_id)
+              .single();
+            
+            if (profile) {
+              const newBalance = (profile.balance || 0) + transaction.amount;
+              const { error: balanceError } = await supabase
+                .from('profiles')
+                .update({ balance: newBalance })
+                .eq('id', transaction.user_id);
+              
+              if (balanceError) throw balanceError;
+            }
+          }
+        } else {
+          // Old payment system
+          const updateResult = await supabase
+            .from('payments')
+            .update({ 
+              status: status === 'approved' ? 'completed' : status === 'rejected' ? 'failed' : status,
+              processed_at: new Date().toISOString() 
+            })
+            .eq('id', id);
+          
+          if (updateResult.error) throw updateResult.error;
+        }
         return { id, status, type };
         
       } else {
