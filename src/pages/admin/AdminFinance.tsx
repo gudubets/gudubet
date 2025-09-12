@@ -300,47 +300,75 @@ const AdminFinance = () => {
         return { id, status, type };
         
       } else {
-        // Handle withdrawal status updates with proper balance deduction
+        // Handle withdrawal status updates with balance deduction
         console.log('💰 Processing withdrawal:', { id, status, amount: transaction?.amount });
         
         if (status === 'approved') {
-          // Use the withdraw-approve edge function directly
-          const { data, error } = await supabase.functions.invoke('withdraw-approve', {
-            body: {
-              action: 'approve',
-              withdrawal_id: id,
-              note: `Finans yönetiminden onaylandı - ${transaction?.amount} TRY`
-            }
-          });
+          // First update withdrawal status
+          const { error: updateError } = await supabase
+            .from('withdrawals')
+            .update({ 
+              status: 'approved',
+              processed_at: new Date().toISOString(),
+              approved_at: new Date().toISOString()
+            })
+            .eq('id', id);
           
-          if (error) {
-            console.error('❌ Edge function error:', error);
-            throw error;
+          if (updateError) throw updateError;
+          
+          // Then deduct balance from profiles table
+          if (transaction?.user_id && transaction?.amount) {
+            console.log('💸 Deducting balance for user:', transaction.user_id, 'Amount:', transaction.amount);
+            
+            // Get current balance
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('balance')
+              .eq('id', transaction.user_id)
+              .single();
+            
+            if (profileError || !profile) {
+              throw new Error('User profile not found');
+            }
+            
+            const currentBalance = profile.balance || 0;
+            const newBalance = currentBalance - transaction.amount;
+            
+            if (newBalance < 0) {
+              throw new Error(`Yetersiz bakiye! Mevcut: ₺${currentBalance}, Talep: ₺${transaction.amount}`);
+            }
+            
+            // Update balance
+            const { error: balanceError } = await supabase
+              .from('profiles')
+              .update({ 
+                balance: newBalance,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', transaction.user_id);
+            
+            if (balanceError) throw balanceError;
+            
+            console.log('✅ Balance updated successfully:', { oldBalance: currentBalance, newBalance });
           }
           
-          console.log('✅ Withdrawal approved successfully:', data);
-          return { id, status: 'approved', type };
+          return { id, status: 'approved', type, amount: transaction?.amount };
           
         } else if (status === 'rejected') {
-          // Use the withdraw-approve edge function for rejection
-          const { data, error } = await supabase.functions.invoke('withdraw-approve', {
-            body: {
-              action: 'reject',
-              withdrawal_id: id,
-              note: `Finans yönetiminden reddedildi`
-            }
-          });
+          // Simple rejection - no balance changes needed
+          const updateResult = await supabase
+            .from('withdrawals')
+            .update({ 
+              status: 'rejected',
+              processed_at: new Date().toISOString()
+            })
+            .eq('id', id);
           
-          if (error) {
-            console.error('❌ Edge function error:', error);
-            throw error;
-          }
-          
-          console.log('✅ Withdrawal rejected successfully:', data);
+          if (updateResult.error) throw updateResult.error;
           return { id, status: 'rejected', type };
           
         } else {
-          // For other status updates, use direct database update
+          // For other status updates
           const updateResult = await supabase
             .from('withdrawals')
             .update({ 
@@ -370,7 +398,7 @@ const AdminFinance = () => {
       toast({
         title: "İşlem Güncellendi",
         description: data.type === 'withdraw' && data.status === 'approved' 
-          ? `Çekim onaylandı ve bakiyeden düşürüldü`
+          ? `Çekim onaylandı ve ${data.amount} TRY bakiyeden düşürüldü`
           : "İşlem durumu başarıyla güncellendi.",
       });
     },
