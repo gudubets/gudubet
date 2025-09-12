@@ -107,46 +107,57 @@ serve(async (req) => {
     if (action === 'approve') {
       console.log('Processing approval for withdrawal:', withdrawal_id, 'amount:', withdrawal.amount, 'user_id:', withdrawal.user_id);
       
-      const { data: wallet, error: walletError } = await sb
-        .from('wallets')
+      // Get current balance from profiles table (main source of truth)
+      const { data: profile, error: profileError } = await sb
+        .from('profiles')
         .select('balance')
-        .eq('user_id', withdrawal.user_id)
-        .eq('type', 'main')
+        .eq('id', withdrawal.user_id)
         .single();
 
-      console.log('Wallet query result:', { wallet, walletError });
+      console.log('Profile query result:', { profile, profileError });
 
-      if (walletError || !wallet) {
-        console.error('Wallet not found:', { walletError, user_id: withdrawal.user_id });
-        return new Response(JSON.stringify({ error: 'User wallet not found' }), { 
+      if (profileError || !profile) {
+        console.error('User profile not found:', { profileError, user_id: withdrawal.user_id });
+        return new Response(JSON.stringify({ error: 'User profile not found' }), { 
           status: 404, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         });
       }
 
-      const newBalance = (wallet.balance || 0) - withdrawal.amount;
-      console.log('Balance calculation:', { currentBalance: wallet.balance, withdrawalAmount: withdrawal.amount, newBalance });
+      const currentBalance = profile.balance || 0;
+      const newBalance = currentBalance - withdrawal.amount;
+      console.log('Balance calculation:', { currentBalance, withdrawalAmount: withdrawal.amount, newBalance });
       
       if (newBalance < 0) {
-        console.error('Insufficient balance:', { currentBalance: wallet.balance, withdrawalAmount: withdrawal.amount });
+        console.error('Insufficient balance:', { currentBalance, withdrawalAmount: withdrawal.amount });
         return new Response(JSON.stringify({ error: 'Insufficient balance' }), { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         });
       }
 
-      // Update wallet balance
-      const { error: balanceError } = await sb
+      // Update profile balance (main source of truth)
+      const { error: profileBalanceError } = await sb
+        .from('profiles')
+        .update({ balance: newBalance, updated_at: new Date().toISOString() })
+        .eq('id', withdrawal.user_id);
+
+      console.log('Profile balance update result:', { profileBalanceError, newBalance });
+
+      if (profileBalanceError) {
+        console.error('Profile balance update failed:', profileBalanceError);
+        throw profileBalanceError;
+      }
+
+      // Also update wallets table for consistency (if exists)
+      const { error: walletBalanceError } = await sb
         .from('wallets')
         .update({ balance: newBalance, updated_at: new Date().toISOString() })
         .eq('user_id', withdrawal.user_id)
         .eq('type', 'main');
 
-      console.log('Balance update result:', { balanceError, newBalance });
-
-      if (balanceError) {
-        console.error('Balance update failed:', balanceError);
-        throw balanceError;
+      if (walletBalanceError) {
+        console.log('Wallet balance update failed (non-critical):', walletBalanceError);
       }
 
       // Create wallet transaction record
@@ -155,7 +166,7 @@ serve(async (req) => {
         wallet_type: 'main',
         transaction_type: 'withdrawal',
         amount: -withdrawal.amount,
-        balance_before: wallet.balance,
+        balance_before: currentBalance,
         balance_after: newBalance,
         reference_id: withdrawal_id,
         reference_type: 'withdrawal',
