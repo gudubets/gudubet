@@ -65,7 +65,7 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData, currentUser }: U
 
   const handleDepositClick = () => {
     onClose();
-    navigate('/deposit-withdrawal');
+    navigate('/user/deposit');
   };
 
   const handleAccountClick = () => {
