@@ -4160,6 +4160,42 @@ export type Database = {
           },
         ]
       }
+      wrappers_fdw_stats: {
+        Row: {
+          bytes_in: number | null
+          bytes_out: number | null
+          create_times: number | null
+          created_at: string
+          fdw_name: string
+          metadata: Json | null
+          rows_in: number | null
+          rows_out: number | null
+          updated_at: string
+        }
+        Insert: {
+          bytes_in?: number | null
+          bytes_out?: number | null
+          create_times?: number | null
+          created_at?: string
+          fdw_name: string
+          metadata?: Json | null
+          rows_in?: number | null
+          rows_out?: number | null
+          updated_at?: string
+        }
+        Update: {
+          bytes_in?: number | null
+          bytes_out?: number | null
+          create_times?: number | null
+          created_at?: string
+          fdw_name?: string
+          metadata?: Json | null
+          rows_in?: number | null
+          rows_out?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       admin_users: {
@@ -4231,6 +4267,57 @@ export type Database = {
         Args: { p_banned_until?: string; p_role?: string; p_user: string }
         Returns: undefined
       }
+      airtable_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      airtable_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      airtable_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
+      auth0_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      auth0_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      auth0_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
+      big_query_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      big_query_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      big_query_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
       calculate_daily_metrics: {
         Args: { target_date?: string }
         Returns: undefined
@@ -4268,9 +4355,77 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      click_house_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      click_house_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      click_house_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
+      cognito_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      cognito_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      cognito_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
       current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      duckdb_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      duckdb_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      duckdb_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
+      firebase_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      firebase_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      firebase_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
       }
       fn_bonus_is_eligible: {
         Args: {
@@ -4338,6 +4493,40 @@ export type Database = {
         Args: { _admin_id: string; _permission: string }
         Returns: boolean
       }
+      hello_world_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      hello_world_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      hello_world_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
+      iceberg_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      iceberg_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      iceberg_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
       is_admin: {
         Args: { check_user_id?: string }
         Returns: boolean
@@ -4354,6 +4543,91 @@ export type Database = {
         Args: { _admin_id: string }
         Returns: boolean
       }
+      logflare_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      logflare_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      logflare_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
+      mssql_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      mssql_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      mssql_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
+      redis_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      redis_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      redis_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
+      s3_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      s3_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      s3_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
+      stripe_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      stripe_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      stripe_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
       update_user_ltv: {
         Args: { target_user_id: string }
         Returns: undefined
@@ -4361,6 +4635,23 @@ export type Database = {
       user_exists: {
         Args: { user_uuid: string }
         Returns: boolean
+      }
+      wasm_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      wasm_fdw_meta: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author: string
+          name: string
+          version: string
+          website: string
+        }[]
+      }
+      wasm_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
       }
     }
     Enums: {
