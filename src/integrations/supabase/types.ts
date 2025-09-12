@@ -2481,57 +2481,96 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          balance: number | null
           banned_until: string | null
           birth_date: string | null
+          bonus_balance: number | null
           city: string | null
           country: string | null
           created_at: string | null
+          currency: string | null
           date_of_birth: string | null
+          email: string | null
+          email_verified: boolean | null
           first_name: string | null
+          fraud_status: string | null
           id: string
+          kyc_level: Database["public"]["Enums"]["kyc_level"] | null
+          kyc_rejection_reason: string | null
+          kyc_status: string | null
+          kyc_verified_at: string | null
+          last_fraud_check: string | null
           last_name: string | null
           phone: string | null
           phone_verified: boolean | null
           postal_code: string | null
           role: string
+          status: string | null
           updated_at: string | null
           user_id: string
+          username: string | null
         }
         Insert: {
           address?: string | null
+          balance?: number | null
           banned_until?: string | null
           birth_date?: string | null
+          bonus_balance?: number | null
           city?: string | null
           country?: string | null
           created_at?: string | null
+          currency?: string | null
           date_of_birth?: string | null
+          email?: string | null
+          email_verified?: boolean | null
           first_name?: string | null
+          fraud_status?: string | null
           id?: string
+          kyc_level?: Database["public"]["Enums"]["kyc_level"] | null
+          kyc_rejection_reason?: string | null
+          kyc_status?: string | null
+          kyc_verified_at?: string | null
+          last_fraud_check?: string | null
           last_name?: string | null
           phone?: string | null
           phone_verified?: boolean | null
           postal_code?: string | null
           role?: string
+          status?: string | null
           updated_at?: string | null
           user_id: string
+          username?: string | null
         }
         Update: {
           address?: string | null
+          balance?: number | null
           banned_until?: string | null
           birth_date?: string | null
+          bonus_balance?: number | null
           city?: string | null
           country?: string | null
           created_at?: string | null
+          currency?: string | null
           date_of_birth?: string | null
+          email?: string | null
+          email_verified?: boolean | null
           first_name?: string | null
+          fraud_status?: string | null
           id?: string
+          kyc_level?: Database["public"]["Enums"]["kyc_level"] | null
+          kyc_rejection_reason?: string | null
+          kyc_status?: string | null
+          kyc_verified_at?: string | null
+          last_fraud_check?: string | null
           last_name?: string | null
           phone?: string | null
           phone_verified?: boolean | null
           postal_code?: string | null
           role?: string
+          status?: string | null
           updated_at?: string | null
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }

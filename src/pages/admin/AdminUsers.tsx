@@ -77,61 +77,31 @@ const AdminUsers = () => {
     try {
       setLoading(true);
       
-      // Get auth users first
-      const { data: authData, error: authError } = await supabase.rpc('admin_list_users', {
-        p_q: searchQuery || null,
-        p_limit: 1000,
-        p_offset: 0
-      });
-
-      if (authError) throw authError;
-
-      // Get profiles data to match with auth users
+      // Get profiles data with all necessary fields
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name, phone, created_at, banned_until')
+        .select(`
+          id, user_id, first_name, last_name, phone, email, balance, status, 
+          created_at, banned_until
+        `)
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
 
-      // Get wallet balances for all users
-      const { data: walletsData, error: walletsError } = await supabase
-        .from('wallets')
-        .select('user_id, balance')
-        .eq('type', 'main');
-
-      if (walletsError) throw walletsError;
-
-      // Create a map of profiles by user_id for quick lookup
-      const profilesMap = new Map();
-      profilesData?.forEach(profile => {
-        profilesMap.set(profile.id, profile);
-      });
-
-      // Create a map of balances by user_id for quick lookup
-      const balancesMap = new Map();
-      walletsData?.forEach(wallet => {
-        balancesMap.set(wallet.user_id, wallet.balance || 0);
-      });
+      // Transform profiles data to match User interface
+      const users = profilesData?.map(profile => ({
+        id: profile.id,
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        email: profile.email || '',
+        phone: profile.phone,
+        balance: profile.balance || 0,
+        status: profile.status || 'active',
+        created_at: profile.created_at,
+        banned_until: profile.banned_until
+      })) || [];
       
-      // Transform data to match User interface
-      const transformedUsers = authData?.map((user: any) => {
-        const profile = profilesMap.get(user.id);
-        const balance = balancesMap.get(user.id) || 0;
-        
-        return {
-          id: user.id,
-          first_name: profile?.first_name || 'İsim yok',
-          last_name: profile?.last_name || '',
-          email: user.email || '',
-          phone: profile?.phone || '',
-          balance: balance,
-          status: (profile?.banned_until && new Date(profile.banned_until) > new Date()) ? 'banned' : 'active',
-          created_at: profile?.created_at || new Date().toISOString()
-        };
-      }) || [];
-      
-      setUsers(transformedUsers);
+      setUsers(users);
     } catch (error) {
       console.error('Error loading users:', error);
       toast({

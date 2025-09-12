@@ -152,7 +152,7 @@ const AdminFinance = () => {
           payment_method: payment.payment_method,
           created_at: payment.created_at,
           processed_at: payment.processed_at,
-          users: userProfile ? {
+          profiles: userProfile ? {
             id: userProfile.id,
             username: userProfile.email?.split('@')[0] || 'Unknown',
             email: userProfile.email || '',
@@ -174,7 +174,7 @@ const AdminFinance = () => {
           account_details: withdrawal.payout_details,
           created_at: withdrawal.created_at,
           processed_at: withdrawal.processed_at,
-          users: userProfile ? {
+          profiles: userProfile ? {
             id: userProfile.id,
             username: userProfile.email?.split('@')[0] || 'Unknown',
             email: userProfile.email || '',
@@ -605,14 +605,14 @@ const AdminFinance = () => {
                      <TableCell>
                        <div>
                          <div className="font-medium">
-                           {transaction.users?.first_name && transaction.users?.last_name 
-                             ? `${transaction.users.first_name} ${transaction.users.last_name}`
-                             : transaction.users?.username || 'Bilinmiyor'
-                           }
-                         </div>
-                         <div className="text-sm text-muted-foreground">
-                           {transaction.users?.email}
-                         </div>
+                            {transaction.users?.first_name && transaction.users?.last_name 
+                              ? `${transaction.users.first_name} ${transaction.users.last_name}`
+                              : transaction.users?.username || 'Bilinmiyor'
+                            }
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {transaction.users?.email}
+                          </div>
                          {transaction.account_details && (
                            <div className="text-xs text-muted-foreground mt-1">
                              {transaction.type === 'withdraw' && transaction.account_details.iban && 

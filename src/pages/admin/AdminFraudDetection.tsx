@@ -98,7 +98,7 @@ export default function AdminFraudDetection() {
       }
 
       if (searchTerm) {
-        query = query.or(`users.email.ilike.%${searchTerm}%`);
+        query = query.or(`profiles.email.ilike.%${searchTerm}%`);
       }
 
       const { data, error } = await query;
@@ -115,7 +115,7 @@ export default function AdminFraudDetection() {
         .from("user_risk_profiles")
         .select(`
           *,
-          users!inner(email, first_name, last_name)
+          profiles!inner(email, first_name, last_name)
         `)
         .order("overall_risk_score", { ascending: false });
 
@@ -124,7 +124,7 @@ export default function AdminFraudDetection() {
       }
 
       if (searchTerm) {
-        query = query.or(`users.email.ilike.%${searchTerm}%`);
+        query = query.or(`profiles.email.ilike.%${searchTerm}%`);
       }
 
       const { data, error } = await query;

@@ -35,11 +35,12 @@ export const useUserBalance = (user: User | null) => {
       try {
         setBalanceData(prev => ({ ...prev, loading: true, error: null }));
 
-        // Get balance from wallets table instead of users table
-        const { data: walletsData, error } = await supabase
-          .from('wallets')
-          .select('balance, type')
-          .eq('user_id', user.id);
+        // Get balance from profiles table which now contains balance data
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('balance, bonus_balance')
+          .eq('user_id', user.id)
+          .single();
 
         if (error) {
           console.error('Error fetching balance:', error);
@@ -51,16 +52,8 @@ export const useUserBalance = (user: User | null) => {
           return;
         }
 
-        let mainBalance = 0;
-        let bonusBalance = 0;
-
-        walletsData?.forEach(wallet => {
-          if (wallet.type === 'main') {
-            mainBalance = wallet.balance || 0;
-          } else if (wallet.type === 'bonus') {
-            bonusBalance = wallet.balance || 0;
-          }
-        });
+        const mainBalance = profileData?.balance || 0;
+        const bonusBalance = profileData?.bonus_balance || 0;
 
         setBalanceData({
           balance: mainBalance,
@@ -81,34 +74,20 @@ export const useUserBalance = (user: User | null) => {
 
     fetchUserBalance();
 
-    // Real-time subscription for wallet updates
+    // Real-time subscription for profile balance updates
     const channel = supabase
-      .channel('user_wallet_changes')
+      .channel('user_profile_changes')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'UPDATE',
           schema: 'public',
-          table: 'wallets',
+          table: 'profiles',
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('Wallet updated:', payload);
-          // Refresh balance when wallet changes
-          fetchUserBalance();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'wallet_transactions',
-          filter: `wallet_id=eq.${user.id}` // This should match the wallet's actual ID
-        },
-        (payload) => {
-          console.log('Wallet transaction updated:', payload);
-          // Refresh balance when new transaction occurs
+          console.log('Profile balance updated:', payload);
+          // Refresh balance when profile balance changes
           fetchUserBalance();
         }
       )
