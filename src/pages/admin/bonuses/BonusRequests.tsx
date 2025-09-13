@@ -41,7 +41,7 @@ const VIP_LEVELS = {
   diamond: { label: "Diamond", color: "bg-blue-500" }
 };
 
-export default function AdminBonusRequests() {
+export default function BonusRequests() {
   const [selectedTab, setSelectedTab] = useState("pending");
   const [approveDialog, setApproveDialog] = useState<{ open: boolean; requestId?: string }>({ open: false });
   const [rejectDialog, setRejectDialog] = useState<{ open: boolean; requestId?: string }>({ open: false });
