@@ -1,9 +1,34 @@
-import { useAdminBonuses } from "../../../hooks/useBonuses";
+import { useState } from "react";
+import { useAdminBonuses, useDeleteBonus } from "../../../hooks/useBonuses";
 import { BONUS_TYPE_LABELS } from "@/lib/types/bonus";
 import { Link } from "react-router-dom";
+import { Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function BonusesList() {
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const { toast } = useToast();
   const { data, isLoading, error } = useAdminBonuses();
+  const deleteBonus = useDeleteBonus();
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Bu bonusu silmek istediğinizden emin misiniz?')) {
+      try {
+        await deleteBonus.mutateAsync(id);
+        toast({
+          title: "Başarılı",
+          description: "Bonus silindi.",
+        });
+      } catch (error) {
+        toast({
+          title: "Hata", 
+          description: "Bonus silinirken bir hata oluştu.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
   if (isLoading) return <div>Loading…</div>;
   if (error) return <div className="text-red-400">Failed to load</div>;
 
@@ -40,7 +65,18 @@ export default function BonusesList() {
                 <td className="px-4 py-2 text-center">{new Date(b.valid_from).toLocaleDateString()} → {new Date(b.valid_to).toLocaleDateString()}</td>
                 <td className="px-4 py-2 text-center">{b.is_active ? "✔" : "✖"}</td>
                 <td className="px-4 py-2 text-right">
-                  <Link to={`/admin/bonuses/${b.id}/edit`} className="rounded border border-slate-700 px-3 py-1 hover:bg-slate-900">Edit</Link>
+                  <div className="flex items-center gap-2 justify-end">
+                    <Link to={`/admin/bonuses/${b.id}/edit`} className="rounded border border-slate-700 px-3 py-1 hover:bg-slate-900">
+                      Edit
+                    </Link>
+                    <button 
+                      onClick={() => handleDelete(b.id)}
+                      className="rounded border border-red-600 px-3 py-1 text-red-400 hover:bg-red-600 hover:text-white transition-colors flex items-center gap-1"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      Sil
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
