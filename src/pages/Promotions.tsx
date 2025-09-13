@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useClaimBonus } from '@/hooks/useBonuses';
+import { useMyBonusRequests } from '@/hooks/useBonusRequests';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 import { 
@@ -45,6 +47,7 @@ interface Promotion {
   end_date: string;
   max_participants: number | null;
   current_participants: number;
+  source?: string; // 'bonus' for bonuses_new table items
 }
 
 interface UserPromotion {
@@ -63,6 +66,8 @@ const Promotions = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string>('');
   const { toast } = useToast();
+  const claimBonusMutation = useClaimBonus();
+  const { data: bonusRequests } = useMyBonusRequests();
 
   const categories = [
     { id: 'all', name: 'Tümü', icon: Zap },
@@ -253,30 +258,44 @@ const Promotions = () => {
       if (hasParticipated(promotion.id)) {
         toast({
           title: "Zaten Katıldınız",
-          description: "Bu promosyona zaten katılmışsınız.",
+          description: "Bu promosyona zaten katılmışsınız veya talebiniz beklemede.",
           variant: "destructive"
         });
         return;
       }
 
-      const { error } = await supabase
-        .from('user_promotions')
-        .insert({
-          user_id: user.id,
-          promotion_id: promotion.id,
-          status: 'pending',
-          expires_at: promotion.end_date
+      // If this is from bonuses_new table (has source), use new bonus request system
+      if (promotion.source === 'bonus') {
+        await claimBonusMutation.mutateAsync({
+          bonus_id: promotion.id,
+          deposit_amount: promotion.min_deposit || 0
+        });
+        
+        toast({
+          title: "Talep Gönderildi!",
+          description: `${promotion.title} bonus talebi gönderildi. Onay bekleniyor.`,
+        });
+      } else {
+        // Legacy promotions system
+        const { error } = await supabase
+          .from('user_promotions')
+          .insert({
+            user_id: user.id,
+            promotion_id: promotion.id,
+            status: 'pending',
+            expires_at: promotion.end_date
+          });
+
+        if (error) throw error;
+
+        toast({
+          title: "Başarılı!",
+          description: `${promotion.title} promosyonuna başarıyla katıldınız!`,
         });
 
-      if (error) throw error;
-
-      toast({
-        title: "Başarılı!",
-        description: `${promotion.title} promosyonuna başarıyla katıldınız!`,
-      });
-
-      // Refresh user promotions
-      fetchUserPromotions();
+        // Refresh user promotions
+        fetchUserPromotions();
+      }
     } catch (error) {
       console.error('Error joining promotion:', error);
       toast({
