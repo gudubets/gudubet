@@ -229,6 +229,26 @@ async function grantBonus(bonusRequest: any, supabase: any) {
 
     if (transactionError) throw transactionError;
 
+    // Update user's bonus balance in profiles table
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('bonus_balance')
+      .eq('id', bonusRequest.user_id)
+      .single();
+
+    const currentBonusBalance = currentProfile?.bonus_balance || 0;
+    const newBonusBalance = currentBonusBalance + bonusAmount;
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ bonus_balance: newBonusBalance })
+      .eq('id', bonusRequest.user_id);
+
+    if (profileError) {
+      console.error('Error updating profile bonus balance:', profileError);
+      // Don't throw error here as the bonus was already granted to wallet
+    }
+
     // Create bonus event
     await supabase
       .from('bonus_events')
