@@ -47,40 +47,31 @@ import { ManualBonusModal } from '@/components/admin/ManualBonusModal';
 interface BonusCampaign {
   id: string;
   name: string;
-  slug: string;
-  bonus_type: string;
+  code?: string;
+  type: string;
   amount_type: string;
   amount_value: number;
-  bonus_percentage?: number;
-  bonus_amount_fixed?: number;
+  max_cap?: number;
   min_deposit: number;
-  max_amount?: number;
-  wagering_requirement: number;
-  valid_days: number;
-  applicable_games: string;
-  description?: string;
-  terms_conditions?: string;
-  promotion_code?: string;
-  start_date?: string;
-  end_date?: string;
+  rollover_multiplier: number;
+  auto_grant: boolean;
+  requires_code: boolean;
+  valid_from?: string;
+  valid_to?: string;
+  max_per_user: number;
+  cooldown_hours: number;
   is_active: boolean;
-  auto_apply: boolean;
-  usage_limit_per_user: number;
-  total_max_uses?: number;
-  current_uses: number;
+  excluded_providers?: any;
   created_at: string;
-  image_url?: string;
+  updated_at: string;
+  description?: string;
 }
 
 const BONUS_TYPE_LABELS = {
-  welcome: 'Hoşgeldin',
-  deposit: 'Yatırım',
-  freebet: 'Freebet',
-  freespin: 'Free Spin',
-  cashback: 'Cashback',
-  referral: 'Arkadaşını Getir',
-  reload: 'Yeniden Yükleme',
-  vip: 'VIP'
+  FIRST_DEPOSIT: 'İlk Yatırım Bonusu',
+  RELOAD: 'Yeniden Yükle Bonusu',
+  CASHBACK: 'Kayıp Bonusu',
+  FREEBET: 'Bedava Bahis'
 };
 
 const GAME_TYPE_LABELS = {
@@ -111,7 +102,7 @@ const AdminBonuses = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('bonus_campaigns')
+        .from('bonuses_new')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -132,7 +123,7 @@ const AdminBonuses = () => {
   const toggleBonusStatus = async (bonusId: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
-        .from('bonus_campaigns')
+        .from('bonuses_new')
         .update({ is_active: !currentStatus })
         .eq('id', bonusId);
 
@@ -163,7 +154,7 @@ const AdminBonuses = () => {
 
     try {
       const { error } = await supabase
-        .from('bonus_campaigns')
+        .from('bonuses_new')
         .delete()
         .eq('id', bonusId);
 
@@ -206,9 +197,9 @@ const AdminBonuses = () => {
     const matchesSearch = 
       bonus.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       bonus.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bonus.promotion_code?.toLowerCase().includes(searchQuery.toLowerCase());
+      bonus.code?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesType = typeFilter === 'all' || bonus.bonus_type === typeFilter;
+    const matchesType = typeFilter === 'all' || bonus.type === typeFilter;
     const matchesStatus = statusFilter === 'all' || 
       (statusFilter === 'active' && bonus.is_active) ||
       (statusFilter === 'inactive' && !bonus.is_active);
@@ -222,7 +213,7 @@ const AdminBonuses = () => {
     }
     
     const now = new Date();
-    const endDate = bonus.end_date ? new Date(bonus.end_date) : null;
+    const endDate = bonus.valid_to ? new Date(bonus.valid_to) : null;
     
     if (endDate && endDate < now) {
       return <Badge variant="outline">Süresi Dolmuş</Badge>;
@@ -240,9 +231,9 @@ const AdminBonuses = () => {
 
   const exportData = () => {
     const csvContent = "data:text/csv;charset=utf-8," 
-      + "Kampanya Adı,Tür,Miktar,Min Yatırım,Çevrim Şartı,Kullanım,Durum,Oluşturma Tarihi\n"
+      + "Kampanya Adı,Tür,Miktar,Min Yatırım,Çevrim Şartı,Durum,Oluşturma Tarihi\n"
       + filteredBonuses.map(bonus => 
-          `"${bonus.name}","${BONUS_TYPE_LABELS[bonus.bonus_type as keyof typeof BONUS_TYPE_LABELS] || bonus.bonus_type}","${formatAmount(bonus)}","₺${bonus.min_deposit}","${bonus.wagering_requirement}x","${bonus.current_uses}/${bonus.total_max_uses || '∞'}","${bonus.is_active ? 'Aktif' : 'Pasif'}","${new Date(bonus.created_at).toLocaleDateString('tr-TR')}"`
+          `"${bonus.name}","${BONUS_TYPE_LABELS[bonus.type as keyof typeof BONUS_TYPE_LABELS] || bonus.type}","${formatAmount(bonus)}","₺${bonus.min_deposit}","${bonus.rollover_multiplier}x","${bonus.is_active ? 'Aktif' : 'Pasif'}","${new Date(bonus.created_at).toLocaleDateString('tr-TR')}"`
         ).join("\n");
 
     const encodedUri = encodeURI(csvContent);
@@ -258,10 +249,10 @@ const AdminBonuses = () => {
   const stats = {
     total: bonuses.length,
     active: bonuses.filter(b => b.is_active).length,
-    totalUsage: bonuses.reduce((sum, b) => sum + b.current_uses, 0),
+    totalUsage: 0, // We'll need to calculate this differently for bonuses_new
     totalValue: bonuses.reduce((sum, b) => {
       if (b.amount_type === 'fixed') {
-        return sum + (b.amount_value * b.current_uses);
+        return sum + b.amount_value;
       }
       return sum;
     }, 0)
@@ -421,79 +412,72 @@ const AdminBonuses = () => {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Kampanya</TableHead>
-                  <TableHead>Tür</TableHead>
-                  <TableHead>Miktar</TableHead>
-                  <TableHead>Min Yatırım</TableHead>
-                  <TableHead>Çevrim</TableHead>
-                  <TableHead>Geçerli Oyunlar</TableHead>
-                  <TableHead>Kullanım</TableHead>
-                  <TableHead>Durum</TableHead>
-                  <TableHead>Bitiş Tarihi</TableHead>
-                  <TableHead className="text-right">İşlemler</TableHead>
-                </TableRow>
+                 <TableRow>
+                   <TableHead>Kampanya</TableHead>
+                   <TableHead>Tür</TableHead>
+                   <TableHead>Miktar</TableHead>
+                   <TableHead>Min Yatırım</TableHead>
+                   <TableHead>Çevrim</TableHead>
+                   <TableHead>Geçerli Oyunlar</TableHead>
+                   <TableHead>Max Kullanım</TableHead>
+                   <TableHead>Durum</TableHead>
+                   <TableHead>Bitiş Tarihi</TableHead>
+                   <TableHead className="text-right">İşlemler</TableHead>
+                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredBonuses.map((bonus) => (
                   <TableRow key={bonus.id}>
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        {bonus.image_url && (
-                          <img 
-                            src={bonus.image_url} 
-                            alt={bonus.name}
-                            className="w-10 h-10 rounded object-cover"
-                          />
-                        )}
-                        <div>
-                          <div className="font-medium">{bonus.name}</div>
-                          {bonus.promotion_code && (
-                            <div className="text-sm text-muted-foreground">
-                              Kod: {bonus.promotion_code}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {BONUS_TYPE_LABELS[bonus.bonus_type as keyof typeof BONUS_TYPE_LABELS] || bonus.bonus_type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {formatAmount(bonus)}
-                      {bonus.max_amount && (
-                        <div className="text-xs text-muted-foreground">
-                          Max: ₺{(bonus.max_amount || 0).toLocaleString('tr-TR')}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>₺{(bonus.min_deposit || 0).toLocaleString('tr-TR')}</TableCell>
-                    <TableCell>{bonus.wagering_requirement}x</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">
-                        {GAME_TYPE_LABELS[bonus.applicable_games as keyof typeof GAME_TYPE_LABELS] || bonus.applicable_games}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {bonus.current_uses} / {bonus.total_max_uses || '∞'}
-                    </TableCell>
-                    <TableCell>{getStatusBadge(bonus)}</TableCell>
-                    <TableCell>
-                      {bonus.end_date ? (
-                        <div>
-                          <div className="text-sm">
-                            {new Date(bonus.end_date).toLocaleDateString('tr-TR')}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {new Date(bonus.end_date).toLocaleTimeString('tr-TR')}
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">Süresiz</span>
-                      )}
-                    </TableCell>
+                     <TableCell>
+                       <div className="flex items-center space-x-3">
+                         <div>
+                           <div className="font-medium">{bonus.name}</div>
+                           {bonus.code && (
+                             <div className="text-sm text-muted-foreground">
+                               Kod: {bonus.code}
+                             </div>
+                           )}
+                         </div>
+                       </div>
+                     </TableCell>
+                     <TableCell>
+                       <Badge variant="outline">
+                         {BONUS_TYPE_LABELS[bonus.type as keyof typeof BONUS_TYPE_LABELS] || bonus.type}
+                       </Badge>
+                     </TableCell>
+                     <TableCell className="font-medium">
+                       {formatAmount(bonus)}
+                       {bonus.max_cap && (
+                         <div className="text-xs text-muted-foreground">
+                           Max: ₺{(bonus.max_cap || 0).toLocaleString('tr-TR')}
+                         </div>
+                       )}
+                     </TableCell>
+                     <TableCell>₺{(bonus.min_deposit || 0).toLocaleString('tr-TR')}</TableCell>
+                     <TableCell>{bonus.rollover_multiplier}x</TableCell>
+                     <TableCell>
+                       <Badge variant="secondary">
+                         Tüm Oyunlar
+                       </Badge>
+                     </TableCell>
+                     <TableCell>
+                       {bonus.max_per_user} kullanım
+                     </TableCell>
+                     <TableCell>{getStatusBadge(bonus)}</TableCell>
+                     <TableCell>
+                       {bonus.valid_to ? (
+                         <div>
+                           <div className="text-sm">
+                             {new Date(bonus.valid_to).toLocaleDateString('tr-TR')}
+                           </div>
+                           <div className="text-xs text-muted-foreground">
+                             {new Date(bonus.valid_to).toLocaleTimeString('tr-TR')}
+                           </div>
+                         </div>
+                       ) : (
+                         <span className="text-muted-foreground">Süresiz</span>
+                       )}
+                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
