@@ -11,7 +11,7 @@ import { useClaimBonus } from '@/hooks/useBonuses';
 import { useMyBonusRequests } from '@/hooks/useBonusRequests';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
-import gudubetBonusImage from '@/assets/gudubet-bonus-2.png';
+import gudubetBonusImage from '@/assets/gudubet-bonus.png';
 import vipBonusImage from '@/assets/vip-bonus-new.png';
 import { 
   Gift, 
@@ -444,10 +444,12 @@ const Promotions = () => {
                             style={{backgroundImage: `url(${gudubetBonusImage})`}}
                           ></div>
                         )}
-                        <div 
-                          className="absolute inset-0 bg-cover bg-center rounded-lg" 
-                          style={{backgroundImage: `url(${vipBonusImage})`}}
-                        ></div>
+                        {promotion.category === 'vip' && (
+                          <div 
+                            className="absolute inset-0 bg-cover bg-center rounded-lg" 
+                            style={{backgroundImage: `url(${vipBonusImage})`}}
+                          ></div>
+                        )}
                         {getCategoryIcon(promotion.category)}
                         <span className="ml-2 text-sm text-muted-foreground relative z-10">
                           Promosyon Görseli
