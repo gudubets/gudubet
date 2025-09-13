@@ -178,7 +178,8 @@ const Promotions = () => {
         description: bonus.description || `${bonus.type} - ${bonus.amount_type === 'percent' ? `%${bonus.amount_value}` : `₺${bonus.amount_value}`} bonus`,
         detailed_description: bonus.description || '',
         image_url: '', // Bonuses don't have images yet
-        category: bonus.type.toLowerCase().includes('first') ? 'welcome' : 
+        category: bonus.name.toLowerCase().includes('vip') ? 'vip' :
+                 bonus.type.toLowerCase().includes('first') ? 'welcome' : 
                  bonus.type.toLowerCase().includes('reload') ? 'deposit' :
                  bonus.type.toLowerCase().includes('cashback') ? 'cashback' :
                  bonus.type.toLowerCase().includes('freebet') ? 'freebet' : 'special',
