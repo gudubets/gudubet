@@ -262,7 +262,7 @@ export const BonusList: React.FC<BonusListProps> = ({ onCreateNew, onEdit }) => 
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
                           <DropdownMenuItem onClick={() => onEdit(bonus)}>
                             <Edit className="h-4 w-4 mr-2" />
                             Düzenle
@@ -283,7 +283,7 @@ export const BonusList: React.FC<BonusListProps> = ({ onCreateNew, onEdit }) => 
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             onClick={() => setDeleteId(bonus.id)}
-                            className="text-red-600"
+                            className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Sil
