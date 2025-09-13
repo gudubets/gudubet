@@ -734,19 +734,11 @@ const Promotions = () => {
                           joinPromotion(selectedPromotion);
                           setIsDialogOpen(false);
                         }}
-                        disabled={hasParticipated(selectedPromotion.id)}
                       >
-                        {hasParticipated(selectedPromotion.id) ? (
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4" />
-                            Katıldınız
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <Gift className="w-4 h-4" />
-                            Promosyona Katıl
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2">
+                          <Gift className="w-4 h-4" />
+                          Promosyona Katıl
+                        </div>
                       </Button>
                     </div>
                   </div>
