@@ -440,12 +440,12 @@ const Promotions = () => {
                       <div className="aspect-video bg-slate-700 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
                         {promotion.category === 'welcome' && (
                           <div 
-                            className="absolute inset-0 bg-cover bg-center rounded-lg" 
+                            className="absolute inset-0 bg-contain bg-center bg-no-repeat rounded-lg" 
                             style={{backgroundImage: `url(${gudubetBonusImage})`}}
                           ></div>
                         )}
                         <div 
-                          className="absolute inset-0 bg-cover bg-center rounded-lg" 
+                          className="absolute inset-0 bg-contain bg-center bg-no-repeat rounded-lg" 
                           style={{backgroundImage: `url(${vipBonusImage})`}}
                         ></div>
                         {getCategoryIcon(promotion.category)}
