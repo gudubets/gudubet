@@ -190,7 +190,8 @@ const Promotions = () => {
         start_date: bonus.valid_from || bonus.created_at,
         end_date: bonus.valid_to || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days default
         max_participants: null,
-        current_participants: 0
+        current_participants: 0,
+        source: 'bonus' // Mark as coming from bonuses_new table
       }));
 
       // Combine both arrays
