@@ -168,6 +168,35 @@ export default function AdminFraudDetection() {
     },
   });
 
+  // Fetch login logs
+  const { data: loginLogs = [], isLoading: loginLogsLoading } = useQuery({
+    queryKey: ["admin-login-logs", searchTerm],
+    queryFn: async () => {
+      let query = supabase
+        .from("login_logs")
+        .select(`
+          id,
+          email,
+          ip_address,
+          user_agent,
+          login_method,
+          success,
+          failure_reason,
+          created_at
+        `)
+        .order("created_at", { ascending: false })
+        .limit(500);
+
+      if (searchTerm) {
+        query = query.ilike("email", `%${searchTerm}%`);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Fraud statistics
   const { data: stats } = useQuery({
     queryKey: ["fraud-stats"],
@@ -335,6 +364,7 @@ export default function AdminFraudDetection() {
             <TabsTrigger value="risk-profiles">Risk Profilleri</TabsTrigger>
             <TabsTrigger value="ip-analysis">IP Analizi</TabsTrigger>
             <TabsTrigger value="user-registration-ips">Kayıt IP Adresleri</TabsTrigger>
+            <TabsTrigger value="login-logs">Giriş Logları</TabsTrigger>
           </TabsList>
 
           {/* Fraud Alerts Tab */}
@@ -631,6 +661,86 @@ export default function AdminFraudDetection() {
                               hour: '2-digit',
                               minute: '2-digit'
                             })}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Login Logs Tab */}
+          <TabsContent value="login-logs">
+            <Card>
+              <CardHeader>
+                <CardTitle>Kullanıcı Giriş Logları</CardTitle>
+                <div className="flex gap-4">
+                  <Input
+                    placeholder="E-posta ile ara..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="max-w-sm"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>E-posta</TableHead>
+                      <TableHead>IP Adresi</TableHead>
+                      <TableHead>Giriş Yöntemi</TableHead>
+                      <TableHead>Durum</TableHead>
+                      <TableHead>Hata Nedeni</TableHead>
+                      <TableHead>Tarayıcı</TableHead>
+                      <TableHead>Tarih</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {loginLogsLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center">Yükleniyor...</TableCell>
+                      </TableRow>
+                    ) : loginLogs.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center text-muted-foreground">
+                          Giriş logu bulunmamaktadır.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      loginLogs.map((log) => (
+                        <TableRow key={log.id}>
+                          <TableCell>{log.email}</TableCell>
+                          <TableCell>
+                            <code className="bg-muted px-2 py-1 rounded text-sm">
+                              {(log.ip_address as string) || 'Bilinmiyor'}
+                            </code>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">
+                              {(log.login_method as string) === 'email_password' ? 'E-posta/Şifre' : 
+                               (log.login_method as string) === 'google' ? 'Google' : (log.login_method as string)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={(log.success as boolean) ? 'default' : 'destructive'}>
+                              {(log.success as boolean) ? 'Başarılı' : 'Başarısız'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {(log.failure_reason as string) && (
+                              <span className="text-sm text-destructive">
+                                {(log.failure_reason as string)}
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell className="max-w-xs truncate text-xs">
+                            {(log.user_agent as string)}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(log.created_at).toLocaleString('tr-TR')}
                           </TableCell>
                         </TableRow>
                       ))

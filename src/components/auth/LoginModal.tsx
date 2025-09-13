@@ -143,12 +143,37 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
+      // Get client IP address for Google login
+      let clientIP = '';
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        clientIP = ipData.ip;
+      } catch (ipError) {
+        console.error('Could not get IP address:', ipError);
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/`
         }
       });
+
+      // Log Google login attempt
+      try {
+        await supabase.from('login_logs').insert({
+          user_id: null, // Will be filled when OAuth completes
+          email: '', // Will be filled when OAuth completes
+          ip_address: clientIP || null,
+          user_agent: navigator.userAgent,
+          login_method: 'google',
+          success: !error,
+          failure_reason: error ? error.message : null
+        });
+      } catch (logError) {
+        console.error('Could not log Google login attempt:', logError);
+      }
 
       if (error) {
         toast({
@@ -179,6 +204,16 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
     setIsLoading(true);
 
     try {
+      // Get client IP address
+      let clientIP = '';
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        clientIP = ipData.ip;
+      } catch (ipError) {
+        console.error('Could not get IP address:', ipError);
+      }
+
       // Store captcha token first
       await storeCaptchaToken();
 
@@ -187,6 +222,21 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
         email: formData.email.toLowerCase(),
         password: formData.password,
       });
+
+      // Log login attempt
+      try {
+        await supabase.from('login_logs').insert({
+          user_id: data?.user?.id || null,
+          email: formData.email.toLowerCase(),
+          ip_address: clientIP || null,
+          user_agent: navigator.userAgent,
+          login_method: 'email_password',
+          success: !error,
+          failure_reason: error ? error.message : null
+        });
+      } catch (logError) {
+        console.error('Could not log login attempt:', logError);
+      }
 
       if (error) {
         let errorMessage = t('auth.login_failed');
