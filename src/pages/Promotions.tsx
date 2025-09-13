@@ -237,19 +237,10 @@ const Promotions = () => {
     ? promotions 
     : promotions.filter(promo => promo.category === selectedCategory);
 
-  // Check if user already participated in promotion
+  // Check if user already participated in promotion (allowing multiple participations)
   const hasParticipated = (promotionId: string) => {
-    console.log('🔍 Checking participation for:', promotionId);
-    console.log('📊 userPromotions:', userPromotions);
-    console.log('📊 bonusRequests:', bonusRequests);
-    
-    const inOldSystem = userPromotions.some(up => up.promotion_id === promotionId);
-    const inNewSystem = bonusRequests?.some(br => br.metadata?.bonus_id === promotionId);
-    
-    console.log('📊 inOldSystem:', inOldSystem);
-    console.log('📊 inNewSystem:', inNewSystem);
-    
-    return inOldSystem || inNewSystem;
+    // Always return false to allow multiple participation in bonuses
+    return false;
   };
 
   // Join promotion
@@ -269,16 +260,8 @@ const Promotions = () => {
         return;
       }
 
-      // Check if already participated
-      if (hasParticipated(promotion.id)) {
-        console.log('❌ User has already participated');
-        toast({
-          title: "Zaten Katıldınız",
-          description: "Bu promosyona zaten katılmışsınız veya talebiniz beklemede.",
-          variant: "destructive"
-        });
-        return;
-      }
+      // Remove participation check to allow multiple bonus requests
+      // Users can now apply for the same bonus multiple times
 
       console.log('✅ Checking promotion source...');
       // If this is from bonuses_new table (has source), use new bonus request system
@@ -550,24 +533,16 @@ const Promotions = () => {
                            </DialogTrigger>
                          </Dialog>
                         
-                        <Button 
-                          size="sm"
-                          className={`flex-1 ${hasParticipated(promotion.id) 
-                            ? 'bg-green-500/20 text-green-500 border-green-500/30 hover:bg-green-500/30' 
-                            : 'bg-primary hover:bg-primary/90'
-                          }`}
-                          onClick={() => joinPromotion(promotion)}
-                          disabled={hasParticipated(promotion.id)}
-                        >
-                          {hasParticipated(promotion.id) ? (
+                         <Button 
+                           size="sm"
+                           className="flex-1 bg-primary hover:bg-primary/90"
+                           onClick={() => joinPromotion(promotion)}
+                          >
                             <div className="flex items-center">
-                              <CheckCircle className="w-4 h-4 mr-1" />
-                              Katıldınız
+                              <Gift className="w-4 h-4 mr-1" />
+                              Katıl
                             </div>
-                          ) : (
-                            'Katıl'
-                          )}
-                        </Button>
+                         </Button>
                       </div>
                     </CardContent>
                   </Card>
