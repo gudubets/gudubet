@@ -69,9 +69,12 @@ const Promotions = () => {
     { id: 'welcome', name: 'Hoş Geldin', icon: Star },
     { id: 'deposit', name: 'Yatırım', icon: TrendingUp },
     { id: 'freebet', name: 'Freebet', icon: Zap },
+    { id: 'freespin', name: 'Free Spin', icon: Zap },
     { id: 'cashback', name: 'Cashback', icon: Percent },
     { id: 'special', name: 'Özel Gün', icon: Trophy },
     { id: 'vip', name: 'VIP', icon: Crown },
+    { id: 'firstdeposit', name: 'İlk Yatırım', icon: Gift },
+    { id: 'reload', name: 'Yeniden Yükle', icon: TrendingUp },
   ];
 
   // Countdown Timer Component
@@ -141,14 +144,50 @@ const Promotions = () => {
   const fetchPromotions = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch from promotions table
+      const { data: promotionsData, error: promotionsError } = await supabase
         .from('promotions')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setPromotions(data || []);
+      if (promotionsError) throw promotionsError;
+
+      // Fetch from bonuses_new table  
+      const { data: bonusesData, error: bonusesError } = await supabase
+        .from('bonuses_new')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (bonusesError) throw bonusesError;
+
+      // Transform bonuses to match promotion structure
+      const transformedBonuses = bonusesData?.map(bonus => ({
+        id: bonus.id,
+        title: bonus.name,
+        description: bonus.description || '',
+        detailed_description: bonus.description || '',
+        image_url: '/api/placeholder/400/250',
+        category: bonus.type.toLowerCase().replace('_', ''),
+        bonus_amount: bonus.amount_type === 'fixed' ? bonus.amount_value : null,
+        bonus_percentage: bonus.amount_type === 'percent' ? bonus.amount_value : null,
+        min_deposit: bonus.min_deposit,
+        max_bonus: bonus.max_cap,
+        wagering_requirement: bonus.rollover_multiplier,
+        promo_code: bonus.code,
+        terms_conditions: `${bonus.rollover_multiplier}x çevrim şartı vardır. Minimum yatırım: ${bonus.min_deposit} TL`,
+        start_date: bonus.valid_from || new Date().toISOString(),
+        end_date: bonus.valid_to || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        max_participants: null,
+        current_participants: 0
+      })) || [];
+
+      // Combine both data sources
+      const allPromotions = [...(promotionsData || []), ...transformedBonuses];
+      setPromotions(allPromotions);
+
     } catch (error) {
       console.error('Error fetching promotions:', error);
       toast({

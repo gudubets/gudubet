@@ -78,8 +78,8 @@ export const useAvailableBonuses = () => {
         .from("bonuses_new")
         .select("*")
         .eq("is_active", true)
-        .lte("valid_from", now)
-        .gte("valid_to", now)
+        .or(`valid_from.is.null,valid_from.lte.${now}`)
+        .or(`valid_to.is.null,valid_to.gte.${now}`)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Bonus[];
