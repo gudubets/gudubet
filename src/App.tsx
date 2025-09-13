@@ -51,7 +51,7 @@ import BonusForm from "./pages/admin/bonuses/BonusForm";
 import MyBonuses from "./pages/user/bonuses/MyBonuses";
 import BonusProgress from "./pages/user/bonuses/BonusProgress";
 import BonusRequests from "./pages/user/bonuses/BonusRequests";
-import AdminBonusRequests from "./pages/admin/AdminBonusRequests";
+import AdminBonusRequests from "./pages/admin/bonuses/BonusRequests";
 import RequestWithdrawal from "./pages/user/RequestWithdrawal";
 import RequestDeposit from "./pages/user/RequestDeposit";
 import AdminBankAccounts from "./pages/admin/AdminBankAccounts";

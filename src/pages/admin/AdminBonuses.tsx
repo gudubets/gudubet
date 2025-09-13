@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { BonusFormModal } from '@/components/admin/BonusFormModal';
-import { Plus, Edit, Trash2, Settings, Copy, Eye, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, Settings, Copy, Eye, Calendar, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Bonus {
@@ -137,10 +137,18 @@ const AdminBonuses = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Bonus Yönetimi</h1>
-        <Button onClick={handleCreate}>
-          <Plus className="w-4 h-4 mr-2" />
-          Yeni Bonus
-        </Button>
+        <div className="flex gap-2">
+          <Link to="/admin/bonuses/requests">
+            <Button variant="outline">
+              <Users className="w-4 h-4 mr-2" />
+              Bonus Talepleri
+            </Button>
+          </Link>
+          <Button onClick={handleCreate}>
+            <Plus className="w-4 h-4 mr-2" />
+            Yeni Bonus
+          </Button>
+        </div>
       </div>
 
       <Card>
