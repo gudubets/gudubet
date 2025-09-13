@@ -172,30 +172,36 @@ const Promotions = () => {
       const bonuses = bonusesResult.data || [];
 
       // Transform bonuses to match promotion structure
-      const transformedBonuses = bonuses.map(bonus => ({
-        id: bonus.id,
-        title: bonus.name,
-        description: bonus.description || `${bonus.type} - ${bonus.amount_type === 'percent' ? `%${bonus.amount_value}` : `₺${bonus.amount_value}`} bonus`,
-        detailed_description: bonus.description || '',
-        image_url: '', // Bonuses don't have images yet
-        category: bonus.name.toLowerCase().includes('vip') ? 'vip' :
-                 bonus.type.toLowerCase().includes('first') ? 'welcome' : 
-                 bonus.type.toLowerCase().includes('reload') ? 'deposit' :
-                 bonus.type.toLowerCase().includes('cashback') ? 'cashback' :
-                 bonus.type.toLowerCase().includes('freebet') ? 'freebet' : 'special',
-        bonus_amount: bonus.amount_type === 'fixed' ? bonus.amount_value : null,
-        bonus_percentage: bonus.amount_type === 'percent' ? bonus.amount_value : null,
-        min_deposit: bonus.min_deposit,
-        max_bonus: bonus.max_cap,
-        wagering_requirement: bonus.rollover_multiplier,
-        promo_code: bonus.code,
-        terms_conditions: `Çevrim şartı: ${bonus.rollover_multiplier}x. Min. yatırım: ₺${bonus.min_deposit}. ${bonus.max_cap ? `Max bonus: ₺${bonus.max_cap}` : ''}`,
-        start_date: bonus.valid_from || bonus.created_at,
-        end_date: bonus.valid_to || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days default
-        max_participants: null,
-        current_participants: 0,
-        source: 'bonus' // Mark as coming from bonuses_new table
-      }));
+      const transformedBonuses = bonuses.map(bonus => {
+        const category = bonus.name.toLowerCase().includes('vip') ? 'vip' :
+                        bonus.type.toLowerCase().includes('first') ? 'welcome' : 
+                        bonus.type.toLowerCase().includes('reload') ? 'deposit' :
+                        bonus.type.toLowerCase().includes('cashback') ? 'cashback' :
+                        bonus.type.toLowerCase().includes('freebet') ? 'freebet' : 'special';
+        
+        console.log('Bonus mapping:', { name: bonus.name, type: bonus.type, category });
+        
+        return {
+          id: bonus.id,
+          title: bonus.name,
+          description: bonus.description || `${bonus.type} - ${bonus.amount_type === 'percent' ? `%${bonus.amount_value}` : `₺${bonus.amount_value}`} bonus`,
+          detailed_description: bonus.description || '',
+          image_url: '', // Bonuses don't have images yet
+          category,
+          bonus_amount: bonus.amount_type === 'fixed' ? bonus.amount_value : null,
+          bonus_percentage: bonus.amount_type === 'percent' ? bonus.amount_value : null,
+          min_deposit: bonus.min_deposit,
+          max_bonus: bonus.max_cap,
+          wagering_requirement: bonus.rollover_multiplier,
+          promo_code: bonus.code,
+          terms_conditions: `Çevrim şartı: ${bonus.rollover_multiplier}x. Min. yatırım: ₺${bonus.min_deposit}. ${bonus.max_cap ? `Max bonus: ₺${bonus.max_cap}` : ''}`,
+          start_date: bonus.valid_from || bonus.created_at,
+          end_date: bonus.valid_to || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days default
+          max_participants: null,
+          current_participants: 0,
+          source: 'bonus' // Mark as coming from bonuses_new table
+        };
+      });
 
       // Combine both arrays
       const allPromotions = [...existingPromotions, ...transformedBonuses];
