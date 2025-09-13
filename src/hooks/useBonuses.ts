@@ -139,18 +139,28 @@ export function useClaimBonus() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (params: { bonus_id: string; deposit_amount?: number; code?: string }) => {
+      console.log('🚀 useClaimBonus başlatılıyor:', params);
+      
       // Kullanıcı ID'sini al
       const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error('Kullanıcı doğrulanamadı');
+      if (userError || !user) {
+        console.error('❌ Kullanıcı doğrulanamadı:', userError);
+        throw new Error('Kullanıcı doğrulanamadı');
+      }
+      console.log('✅ Kullanıcı doğrulandı:', user.id);
 
-      // users tablosundan user_id'yi al
+      // profiles tablosundan user bilgisini al (users yerine profiles kullan)
       const { data: userData, error: userDataError } = await supabase
-        .from('users')
+        .from('profiles')
         .select('id')
-        .eq('auth_user_id', user.id)
+        .eq('id', user.id) // auth user id ile profile id aynı
         .single();
         
-      if (userDataError || !userData) throw new Error('Kullanıcı profili bulunamadı');
+      if (userDataError || !userData) {
+        console.error('❌ Kullanıcı profili bulunamadı:', userDataError);
+        throw new Error('Kullanıcı profili bulunamadı');
+      }
+      console.log('✅ Kullanıcı profili bulundu:', userData.id);
 
       // Bonus talebi oluştur
       const bonusTypeMapping: Record<string, string> = {
@@ -167,13 +177,17 @@ export function useClaimBonus() {
         .eq('id', params.bonus_id)
         .single();
       
-      if (bonusError) throw bonusError;
+      if (bonusError) {
+        console.error('❌ Bonus bilgisi alınamadı:', bonusError);
+        throw bonusError;
+      }
+      console.log('✅ Bonus bilgisi alındı:', bonus);
 
       const bonusType = bonusTypeMapping[bonus.type] || 'deposit';
 
       // Bonus talebi oluştur
       const requestData = {
-        user_id: userData.id,
+        user_id: userData.id, // profiles tablosundan alınan ID
         bonus_type: bonusType as any,
         requested_amount: params.deposit_amount,
         deposit_amount: params.deposit_amount,
@@ -183,18 +197,30 @@ export function useClaimBonus() {
         }
       };
 
+      console.log('📝 Bonus talebi oluşturuluyor:', requestData);
+
       const { data, error } = await supabase
         .from('bonus_requests')
         .insert(requestData)
         .select()
         .single();
         
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Bonus talebi oluşturulamadı:', error);
+        throw error;
+      }
+      
+      console.log('✅ Bonus talebi oluşturuldu:', data);
       return { ok: true, request_id: data.id, status: 'pending' };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('🎉 Bonus talebi başarılı:', data);
       qc.invalidateQueries({ queryKey: ["me","bonuses"] });
       qc.invalidateQueries({ queryKey: ["my_bonus_requests"] });
+      qc.invalidateQueries({ queryKey: ["admin_bonus_requests"] });
+    },
+    onError: (error) => {
+      console.error('💥 Bonus talebi hatası:', error);
     }
   });
 }

@@ -51,11 +51,11 @@ export default function BonusRequests() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Kullanıcı bulunamadı");
 
-      // Get user profile to get user_id from users table
+      // Get user profile to get user_id from profiles table (users yerine profiles)
       const { data: profile } = await supabase
-        .from('users')
+        .from('profiles')
         .select('id')
-        .eq('auth_user_id', user.id)
+        .eq('id', user.id) // auth user id ile profile id aynı
         .single();
 
       if (!profile) throw new Error("Kullanıcı profili bulunamadı");

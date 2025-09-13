@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -67,9 +68,23 @@ const AdminBonuses = () => {
   const [rejectionReason, setRejectionReason] = useState("");
   const { toast } = useToast();
   
-  const { data: pendingRequests } = useAdminBonusRequests('pending');
+  const { data: pendingRequests, refetch: refetchRequests } = useAdminBonusRequests('pending');
   const approveRequest = useApproveBonusRequest();
   const rejectRequest = useRejectBonusRequest();
+
+  // Her 30 saniyede bir otomatik yenile
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('🔄 Admin paneli bonus talepleri yenileniyor...');
+      refetchRequests();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [refetchRequests]);
+
+  React.useEffect(() => {
+    console.log('📊 Bekleyen bonus talepleri:', pendingRequests?.length || 0);
+  }, [pendingRequests]);
 
   useEffect(() => {
     loadBonuses();
