@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAvailableBonuses, useUserBonuses, useClaimBonus } from '@/hooks/useBonuses';
+import { useMyBonusRequests } from '@/hooks/useBonusRequests';
 import { BonusCard } from '@/components/bonus/BonusCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,6 +26,7 @@ export const Bonuses: React.FC = () => {
   
   const { data: availableBonuses, isLoading: loadingAvailable } = useAvailableBonuses();
   const { data: userBonuses, isLoading: loadingUserBonuses } = useUserBonuses(user?.id);
+  const { data: bonusRequests, isLoading: loadingRequests } = useMyBonusRequests();
   const claimBonus = useClaimBonus();
 
     const handleClaimBonus = (bonusId: string, requiresCode: boolean = false) => {
@@ -72,7 +74,7 @@ export const Bonuses: React.FC = () => {
     }
   };
 
-  if (loadingAvailable || loadingUserBonuses) {
+  if (loadingAvailable || loadingUserBonuses || loadingRequests) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -85,14 +87,15 @@ export const Bonuses: React.FC = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Bonuslar</h1>
         <p className="text-muted-foreground">
-          Mevcut bonus tekliflerini görüntüleyin ve bonus geçmişinizi takip edin
+          Bonus taleplerini görüntüleyin ve talep edebileceğiniz bonusları keşfedin
         </p>
       </div>
 
       <Tabs defaultValue="available" className="space-y-6">
         <TabsList>
           <TabsTrigger value="available">Mevcut Bonuslar</TabsTrigger>
-          <TabsTrigger value="my-bonuses">Bonuslarım</TabsTrigger>
+          <TabsTrigger value="requests">Taleplerим</TabsTrigger>
+          <TabsTrigger value="my-bonuses">Aktif Bonuslar</TabsTrigger>
         </TabsList>
 
         <TabsContent value="available">
@@ -162,6 +165,89 @@ export const Bonuses: React.FC = () => {
                 </CardContent>
               </Card>
             )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="requests">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Bonus Taleplerим</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {bonusRequests?.map((request) => (
+                    <Card key={request.id} className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h3 className="font-semibold capitalize">
+                            {request.bonus_type.replace('_', ' ')} Bonusu
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(request.created_at).toLocaleDateString('tr-TR')}
+                          </p>
+                        </div>
+                        <Badge 
+                          variant={
+                            request.status === 'pending' ? 'secondary' :
+                            request.status === 'approved' ? 'default' : 'destructive'
+                          }
+                        >
+                          {request.status === 'pending' ? 'Beklemede' :
+                           request.status === 'approved' ? 'Onaylandı' : 'Reddedildi'}
+                        </Badge>
+                      </div>
+                      
+                      {request.requested_amount && (
+                        <p className="text-sm">
+                          <span className="font-medium">Talep Edilen:</span> {request.requested_amount} TL
+                        </p>
+                      )}
+                      
+                      {request.deposit_amount && (
+                        <p className="text-sm">
+                          <span className="font-medium">Yatırım Miktarı:</span> {request.deposit_amount} TL
+                        </p>
+                      )}
+                      
+                      {request.admin_note && (
+                        <div className="mt-3 p-3 bg-muted rounded-lg">
+                          <p className="text-sm">
+                            <span className="font-medium">Admin Notu:</span> {request.admin_note}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {request.rejection_reason && (
+                        <div className="mt-3 p-3 bg-destructive/10 rounded-lg">
+                          <p className="text-sm text-destructive">
+                            <span className="font-medium">Red Sebebi:</span> {request.rejection_reason}
+                          </p>
+                        </div>
+                      )}
+                    </Card>
+                  ))}
+                  
+                  {(!bonusRequests || bonusRequests.length === 0) && (
+                    <div className="text-center py-8">
+                      <Gift className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">Henüz bonus talebi yapmadınız</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Mevcut bonuslara göz atın ve talepte bulunun
+                      </p>
+                      <Button 
+                        onClick={() => {
+                          const availableTab = document.querySelector('[value="available"]') as HTMLElement;
+                          availableTab?.click();
+                        }}
+                      >
+                        Mevcut Bonuslara Bak
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 

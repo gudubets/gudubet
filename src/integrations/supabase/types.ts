@@ -4684,6 +4684,14 @@ export type Database = {
           total_pending_amount: number
         }[]
       }
+      grant_bonus_to_user: {
+        Args: {
+          p_bonus_id: string
+          p_deposit_amount?: number
+          p_user_id: string
+        }
+        Returns: Json
+      }
       has_admin_permission: {
         Args: { _admin_id: string; _permission: string }
         Returns: boolean

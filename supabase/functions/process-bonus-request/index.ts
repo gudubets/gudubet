@@ -92,8 +92,31 @@ serve(async (req) => {
         throw updateError;
       }
 
-      // Grant the bonus based on type
-      await grantBonus(bonusRequest, supabase);
+      // Grant the bonus using database function
+      if (bonusRequest.metadata?.bonus_id) {
+        const { data: grantResult, error: grantError } = await supabase.rpc(
+          'grant_bonus_to_user',
+          {
+            p_user_id: bonusRequest.user_id,
+            p_bonus_id: bonusRequest.metadata.bonus_id,
+            p_deposit_amount: bonusRequest.deposit_amount
+          }
+        );
+
+        if (grantError) {
+          console.error('Error granting bonus:', grantError);
+          throw new Error('Bonus verilirken hata oluştu');
+        }
+
+        if (grantResult?.error) {
+          throw new Error(grantResult.error);
+        }
+
+        console.log('Bonus granted successfully:', grantResult);
+      } else {
+        console.warn('No bonus_id in metadata, granting basic bonus');
+        await grantBonus(bonusRequest, supabase);
+      }
 
       // Log the approval
       await supabase
