@@ -31,35 +31,52 @@ const RecentActivityCard = () => {
         .order('created_at', { ascending: false })
         .limit(10);
 
+      // Get recent deposits (from deposits table)
+      const { data: deposits } = await supabase
+        .from('deposits')
+        .select('id, amount, created_at, user_id, status')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
       // Get recent payments
       const { data: payments } = await supabase
         .from('payments')
-        .select(`
-          id, amount, created_at, user_id,
-          profiles:user_id (first_name, last_name)
-        `)
+        .select('id, amount, created_at, user_id')
         .order('created_at', { ascending: false })
         .limit(10);
 
       // Get recent withdrawals
       const { data: withdrawals } = await supabase
         .from('withdrawals')
-        .select(`
-          id, amount, created_at, user_id,
-          profiles:user_id (first_name, last_name)
-        `)
+        .select('id, amount, created_at, user_id')
         .order('created_at', { ascending: false })
         .limit(10);
 
       // Get recent bonus requests
       const { data: bonusRequests } = await supabase
         .from('bonus_requests')
-        .select(`
-          id, bonus_type, created_at, user_id,
-          profiles:user_id (first_name, last_name)
-        `)
+        .select('id, bonus_type, created_at, user_id')
         .order('created_at', { ascending: false })
         .limit(10);
+
+      // Collect all user IDs
+      const userIds = new Set<string>();
+      deposits?.forEach(d => userIds.add(d.user_id));
+      payments?.forEach(p => userIds.add(p.user_id));
+      withdrawals?.forEach(w => userIds.add(w.user_id));
+      bonusRequests?.forEach(b => userIds.add(b.user_id));
+
+      // Get user profiles
+      const { data: userProfiles } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name')
+        .in('id', Array.from(userIds));
+
+      // Create user profiles map for easy lookup
+      const userProfilesMap = new Map();
+      userProfiles?.forEach(profile => {
+        userProfilesMap.set(profile.id, profile);
+      });
 
       // Combine all activities
       const allActivities: Activity[] = [];
@@ -80,9 +97,26 @@ const RecentActivityCard = () => {
         });
       });
 
+      // Add deposits (from deposits table)
+      deposits?.forEach(deposit => {
+        const profile = userProfilesMap.get(deposit.user_id);
+        const userName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'İsimsiz Kullanıcı' : 'İsimsiz Kullanıcı';
+        allActivities.push({
+          id: `deposit_${deposit.id}`,
+          action: `Para yatırma: ${deposit.amount} TL`,
+          user: userName,
+          time: formatDistanceToNow(new Date(deposit.created_at), { 
+            addSuffix: true,
+            locale: tr
+          }),
+          type: 'info',
+          created_at: deposit.created_at
+        });
+      });
+
       // Add payments
       payments?.forEach(payment => {
-        const profile = Array.isArray(payment.profiles) ? payment.profiles[0] : payment.profiles;
+        const profile = userProfilesMap.get(payment.user_id);
         const userName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'İsimsiz Kullanıcı' : 'İsimsiz Kullanıcı';
         allActivities.push({
           id: `payment_${payment.id}`,
@@ -99,7 +133,7 @@ const RecentActivityCard = () => {
 
       // Add withdrawals
       withdrawals?.forEach(withdrawal => {
-        const profile = Array.isArray(withdrawal.profiles) ? withdrawal.profiles[0] : withdrawal.profiles;
+        const profile = userProfilesMap.get(withdrawal.user_id);
         const userName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'İsimsiz Kullanıcı' : 'İsimsiz Kullanıcı';
         allActivities.push({
           id: `withdrawal_${withdrawal.id}`,
@@ -116,7 +150,7 @@ const RecentActivityCard = () => {
 
       // Add bonus requests
       bonusRequests?.forEach(request => {
-        const profile = Array.isArray(request.profiles) ? request.profiles[0] : request.profiles;
+        const profile = userProfilesMap.get(request.user_id);
         const userName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'İsimsiz Kullanıcı' : 'İsimsiz Kullanıcı';
         allActivities.push({
           id: `bonus_${request.id}`,
@@ -149,6 +183,25 @@ const RecentActivityCard = () => {
         event: 'INSERT', 
         schema: 'public', 
         table: 'profiles' 
+      }, () => {
+        loadActivities();
+      })
+      .subscribe();
+
+    // Subscribe to deposits
+    const depositsChannel = supabase
+      .channel('deposits_changes')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'deposits' 
+      }, () => {
+        loadActivities();
+      })
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'deposits' 
       }, () => {
         loadActivities();
       })
@@ -193,6 +246,7 @@ const RecentActivityCard = () => {
     // Cleanup function
     return () => {
       supabase.removeChannel(profilesChannel);
+      supabase.removeChannel(depositsChannel);
       supabase.removeChannel(paymentsChannel);
       supabase.removeChannel(withdrawalsChannel);
       supabase.removeChannel(bonusRequestsChannel);
