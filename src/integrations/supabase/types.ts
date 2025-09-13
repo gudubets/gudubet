@@ -4891,6 +4891,7 @@ export type Database = {
         | "bonus_forfeited"
         | "bonus_expired"
         | "manual_review_triggered"
+        | "loss_bonus_claimed"
       bonus_request_status: "pending" | "approved" | "rejected"
       bonus_request_type:
         | "birthday"
@@ -5097,6 +5098,7 @@ export const Constants = {
         "bonus_forfeited",
         "bonus_expired",
         "manual_review_triggered",
+        "loss_bonus_claimed",
       ],
       bonus_request_status: ["pending", "approved", "rejected"],
       bonus_request_type: [

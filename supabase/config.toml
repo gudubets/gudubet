@@ -1,5 +1,11 @@
 project_id = "ziiwapwvyavfakeuhvpt"
 
+[functions.calculate-loss-bonus]
+verify_jwt = true
+
+[functions.claim-loss-bonus]
+verify_jwt = true
+
 [functions.sports-proxy]
 verify_jwt = true
 
