@@ -104,6 +104,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
           icon: BookOpen,
           href: '/admin/bonuses/rules',
           active: location.pathname.includes('/admin/bonuses') && location.pathname.includes('/rules')
+        },
+        {
+          title: 'Bonus Talepleri',
+          icon: Users,
+          href: '/admin/bonuses/requests',
+          active: location.pathname === '/admin/bonuses/requests'
         }
       ]
     }
