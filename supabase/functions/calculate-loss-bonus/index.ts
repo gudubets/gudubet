@@ -53,7 +53,29 @@ serve(async (req) => {
     const totalBets = gameSessionsData?.reduce((sum, session) => sum + (session.total_bet || 0), 0) || 0;
     const totalWins = gameSessionsData?.reduce((sum, session) => sum + (session.total_win || 0), 0) || 0;
     const netResult = totalBets - totalWins;
-    const isEligible = netResult > 0 && bonusAmount > 0; // Only eligible if user has net loss
+    // Check if user has ever received a welcome bonus (first deposit bonus)  
+    const { data: firstDepositBonuses } = await supabaseClient
+      .from('bonuses_new')
+      .select('id')
+      .eq('type', 'FIRST_DEPOSIT')
+      .eq('is_active', true);
+
+    let hasWelcomeBonus = false;
+    if (firstDepositBonuses && firstDepositBonuses.length > 0) {
+      const bonusIds = firstDepositBonuses.map(b => b.id);
+      
+      const { data: welcomeBonusData } = await supabaseClient
+        .from('user_bonus_tracking')
+        .select('id')
+        .eq('user_id', userId)
+        .in('bonus_id', bonusIds)
+        .limit(1)
+        .single();
+
+      hasWelcomeBonus = !!welcomeBonusData;
+    }
+
+    const isEligible = netResult > 0 && bonusAmount > 0 && !hasWelcomeBonus; // Not eligible if user has welcome bonus
 
     // Check when user last claimed loss bonus
     const { data: lastClaimData } = await supabaseClient

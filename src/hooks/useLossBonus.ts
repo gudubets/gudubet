@@ -65,6 +65,12 @@ export const useLossBonus = (userId?: string) => {
           description: "Kazanç durumunda olduğunuzdan dolayı kayıp bonusu alamazsınız.",
           variant: "destructive"
         });
+      } else if (error.message?.includes('welcome_bonus_received')) {
+        toast({
+          title: "Kayıp Bonusu Alınamaz",
+          description: "Hoşgeldin bonusu aldığınız için kayıp bonusu alamıyorsunuz.",
+          variant: "destructive"
+        });
       } else if (error.message?.includes('already_claimed')) {
         toast({
           title: "Kayıp Bonusu Alınamaz", 

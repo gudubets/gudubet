@@ -70,6 +70,29 @@ serve(async (req) => {
       throw new Error('already_claimed');
     }
 
+    // Check if user has ever received a welcome bonus (first deposit bonus)
+    const { data: firstDepositBonuses } = await supabaseClient
+      .from('bonuses_new')
+      .select('id')
+      .eq('type', 'FIRST_DEPOSIT')
+      .eq('is_active', true);
+
+    if (firstDepositBonuses && firstDepositBonuses.length > 0) {
+      const bonusIds = firstDepositBonuses.map(b => b.id);
+      
+      const { data: welcomeBonusData } = await supabaseClient
+        .from('user_bonus_tracking')
+        .select('id')
+        .eq('user_id', userId)
+        .in('bonus_id', bonusIds)
+        .limit(1)
+        .single();
+
+      if (welcomeBonusData) {
+        throw new Error('welcome_bonus_received');
+      }
+    }
+
     const bonusPercentage = 0.20; // 20% kayıp bonusu
     const bonusAmount = Math.floor(netResult * bonusPercentage);
 
