@@ -50,6 +50,8 @@ import BonusesList from "./pages/admin/bonuses/BonusesList";
 import BonusForm from "./pages/admin/bonuses/BonusForm";
 import MyBonuses from "./pages/user/bonuses/MyBonuses";
 import BonusProgress from "./pages/user/bonuses/BonusProgress";
+import BonusRequests from "./pages/user/bonuses/BonusRequests";
+import AdminBonusRequests from "./pages/admin/AdminBonusRequests";
 import RequestWithdrawal from "./pages/user/RequestWithdrawal";
 import RequestDeposit from "./pages/user/RequestDeposit";
 import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
@@ -88,6 +90,7 @@ const App = () => {
           <Route path="/live-support" element={<LiveSupport />} />
             <Route path="/user/bonuses" element={<MyBonuses />} />
             <Route path="/user/bonuses/progress" element={<BonusProgress />} />
+            <Route path="/user/bonuses/requests" element={<BonusRequests />} />
             <Route path="/user/withdraw" element={<RequestWithdrawal />} />
             <Route path="/user/deposit" element={<RequestDeposit />} />
             <Route path="/password-security" element={<PasswordSecurity />} />
@@ -102,6 +105,7 @@ const App = () => {
             <Route path="game-providers" element={<AdminGameProviders />} />
             <Route path="bonuses/list" element={<BonusesList />} />
             <Route path="bonuses/create" element={<BonusForm />} />
+            <Route path="bonuses/requests" element={<AdminBonusRequests />} />
             <Route path="bonuses/rules" element={<BonusesList />} />
             <Route path="bonuses/:id/edit" element={<BonusForm />} />
             <Route path="bonuses/:id/rules" element={<BonusRulesEditor />} />

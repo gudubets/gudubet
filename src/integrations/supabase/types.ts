@@ -580,6 +580,57 @@ export type Database = {
           },
         ]
       }
+      bonus_requests: {
+        Row: {
+          admin_note: string | null
+          approved_at: string | null
+          approved_by: string | null
+          bonus_type: Database["public"]["Enums"]["bonus_request_type"]
+          created_at: string
+          deposit_amount: number | null
+          id: string
+          loss_amount: number | null
+          metadata: Json | null
+          rejection_reason: string | null
+          requested_amount: number | null
+          status: Database["public"]["Enums"]["bonus_request_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          bonus_type: Database["public"]["Enums"]["bonus_request_type"]
+          created_at?: string
+          deposit_amount?: number | null
+          id?: string
+          loss_amount?: number | null
+          metadata?: Json | null
+          rejection_reason?: string | null
+          requested_amount?: number | null
+          status?: Database["public"]["Enums"]["bonus_request_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          bonus_type?: Database["public"]["Enums"]["bonus_request_type"]
+          created_at?: string
+          deposit_amount?: number | null
+          id?: string
+          loss_amount?: number | null
+          metadata?: Json | null
+          rejection_reason?: string | null
+          requested_amount?: number | null
+          status?: Database["public"]["Enums"]["bonus_request_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bonus_risk_flags: {
         Row: {
           created_at: string
@@ -2599,6 +2650,7 @@ export type Database = {
           updated_at: string | null
           user_id: string
           username: string | null
+          vip_level: Database["public"]["Enums"]["vip_level"] | null
         }
         Insert: {
           address?: string | null
@@ -2630,6 +2682,7 @@ export type Database = {
           updated_at?: string | null
           user_id: string
           username?: string | null
+          vip_level?: Database["public"]["Enums"]["vip_level"] | null
         }
         Update: {
           address?: string | null
@@ -2661,6 +2714,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           username?: string | null
+          vip_level?: Database["public"]["Enums"]["vip_level"] | null
         }
         Relationships: []
       }
@@ -4461,6 +4515,18 @@ export type Database = {
         }
         Returns: number
       }
+      calculate_user_losses: {
+        Args: { p_days?: number; p_user_id: string }
+        Returns: number
+      }
+      can_request_birthday_bonus: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
+      can_request_welcome_bonus: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
       check_admin_permission: {
         Args: {
           _admin_id: string
@@ -4817,6 +4883,14 @@ export type Database = {
         | "bonus_forfeited"
         | "bonus_expired"
         | "manual_review_triggered"
+      bonus_request_status: "pending" | "approved" | "rejected"
+      bonus_request_type:
+        | "birthday"
+        | "welcome"
+        | "cashback"
+        | "freebet"
+        | "vip_platinum"
+        | "deposit"
       bonus_status_new:
         | "eligible"
         | "active"
@@ -4843,6 +4917,7 @@ export type Database = {
       risk_status: "none" | "review" | "limited" | "blocked"
       transaction_direction: "debit" | "credit"
       tx_direction: "debit" | "credit"
+      vip_level: "bronze" | "silver" | "gold" | "platinum" | "diamond"
       wallet_type: "main" | "bonus"
       withdrawal_method: "bank" | "papara" | "crypto"
       withdrawal_status:
@@ -5015,6 +5090,15 @@ export const Constants = {
         "bonus_expired",
         "manual_review_triggered",
       ],
+      bonus_request_status: ["pending", "approved", "rejected"],
+      bonus_request_type: [
+        "birthday",
+        "welcome",
+        "cashback",
+        "freebet",
+        "vip_platinum",
+        "deposit",
+      ],
       bonus_status_new: [
         "eligible",
         "active",
@@ -5044,6 +5128,7 @@ export const Constants = {
       risk_status: ["none", "review", "limited", "blocked"],
       transaction_direction: ["debit", "credit"],
       tx_direction: ["debit", "credit"],
+      vip_level: ["bronze", "silver", "gold", "platinum", "diamond"],
       wallet_type: ["main", "bonus"],
       withdrawal_method: ["bank", "papara", "crypto"],
       withdrawal_status: [
