@@ -24,9 +24,14 @@ export const BonusList: React.FC<BonusListProps> = ({ onCreateNew, onEdit }) => 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   
   const { toast } = useToast();
-  const { data: bonuses = [], isLoading } = useBonuses();
+  const { data: bonuses = [], isLoading, error } = useBonuses();
   const deleteBonus = useDeleteBonus();
   const updateBonus = useUpdateBonus();
+
+  // Debug için
+  console.log('Bonuses data:', bonuses);
+  console.log('Is loading:', isLoading);
+  console.log('Error:', error);
 
   const filteredBonuses = bonuses.filter(bonus => {
     const matchesSearch = bonus.name.toLowerCase().includes(search.toLowerCase()) ||
