@@ -70,6 +70,8 @@ const Promotions = () => {
     { id: 'deposit', name: 'Yatırım', icon: TrendingUp },
     { id: 'freebet', name: 'Freebet', icon: Zap },
     { id: 'cashback', name: 'Cashback', icon: Percent },
+    { id: 'first_deposit', name: 'İlk Yatırım', icon: Star },
+    { id: 'reload', name: 'Yeniden Yükle', icon: TrendingUp },
     { id: 'special', name: 'Özel Gün', icon: Trophy },
     { id: 'vip', name: 'VIP', icon: Crown },
   ];
@@ -141,14 +143,54 @@ const Promotions = () => {
   const fetchPromotions = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('promotions')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      
+      // Fetch both promotions and bonuses
+      const [promotionsResult, bonusesResult] = await Promise.all([
+        supabase
+          .from('promotions')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('bonuses_new')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+      ]);
 
-      if (error) throw error;
-      setPromotions(data || []);
+      if (promotionsResult.error) throw promotionsResult.error;
+      if (bonusesResult.error) throw bonusesResult.error;
+
+      const existingPromotions = promotionsResult.data || [];
+      const bonuses = bonusesResult.data || [];
+
+      // Transform bonuses to match promotion structure
+      const transformedBonuses = bonuses.map(bonus => ({
+        id: bonus.id,
+        title: bonus.name,
+        description: bonus.description || `${bonus.type} - ${bonus.amount_type === 'percent' ? `%${bonus.amount_value}` : `₺${bonus.amount_value}`} bonus`,
+        detailed_description: bonus.description || '',
+        image_url: '', // Bonuses don't have images yet
+        category: bonus.type.toLowerCase().includes('first') ? 'welcome' : 
+                 bonus.type.toLowerCase().includes('reload') ? 'deposit' :
+                 bonus.type.toLowerCase().includes('cashback') ? 'cashback' :
+                 bonus.type.toLowerCase().includes('freebet') ? 'freebet' : 'special',
+        bonus_amount: bonus.amount_type === 'fixed' ? bonus.amount_value : null,
+        bonus_percentage: bonus.amount_type === 'percent' ? bonus.amount_value : null,
+        min_deposit: bonus.min_deposit,
+        max_bonus: bonus.max_cap,
+        wagering_requirement: bonus.rollover_multiplier,
+        promo_code: bonus.code,
+        terms_conditions: `Çevrim şartı: ${bonus.rollover_multiplier}x. Min. yatırım: ₺${bonus.min_deposit}. ${bonus.max_cap ? `Max bonus: ₺${bonus.max_cap}` : ''}`,
+        start_date: bonus.valid_from || bonus.created_at,
+        end_date: bonus.valid_to || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days default
+        max_participants: null,
+        current_participants: 0
+      }));
+
+      // Combine both arrays
+      const allPromotions = [...existingPromotions, ...transformedBonuses];
+      setPromotions(allPromotions);
     } catch (error) {
       console.error('Error fetching promotions:', error);
       toast({

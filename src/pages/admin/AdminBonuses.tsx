@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { BonusFormModal } from '@/components/admin/BonusFormModal';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Settings, Copy, Eye, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Bonus {
   id: string;
@@ -18,7 +19,15 @@ interface Bonus {
   min_deposit: number;
   rollover_multiplier: number;
   is_active: boolean;
+  auto_grant: boolean;
+  requires_code: boolean;
+  max_per_user: number;
+  cooldown_hours: number;
+  valid_from?: string;
+  valid_to?: string;
+  description?: string;
   created_at: string;
+  updated_at: string;
 }
 
 const AdminBonuses = () => {
@@ -87,10 +96,37 @@ const AdminBonuses = () => {
     }
   };
 
+  const getBonusTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      'FIRST_DEPOSIT': 'İlk Yatırım',
+      'RELOAD': 'Yeniden Yükle', 
+      'CASHBACK': 'Kayıp Bonusu',
+      'FREEBET': 'Bedava Bahis'
+    };
+    return labels[type] || type;
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('tr-TR');
+  };
+
   const handleModalSave = () => {
     setShowModal(false);
     setEditingBonus(null);
     loadBonuses();
+  };
+
+  const copyBonusCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      toast({
+        title: "Kopyalandı!",
+        description: `Bonus kodu "${code}" panoya kopyalandı.`,
+      });
+    } catch (error) {
+      console.error('Copy failed:', error);
+    }
   };
 
   if (loading) {
@@ -109,33 +145,109 @@ const AdminBonuses = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Bonuslar</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Bonuslar ({bonuses.length})</CardTitle>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs">
+                Aktif: {bonuses.filter(b => b.is_active).length}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                Pasif: {bonuses.filter(b => !b.is_active).length}
+              </Badge>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {bonuses.map((bonus) => (
-              <div key={bonus.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h3 className="font-semibold">{bonus.name}</h3>
-                  <p className="text-sm text-gray-600">
-                    {bonus.type} - {bonus.amount_type === 'percent' ? `%${bonus.amount_value}` : `₺${bonus.amount_value}`}
-                  </p>
-                  {bonus.code && (
-                    <p className="text-sm text-blue-600">Kod: {bonus.code}</p>
-                  )}
+              <Card key={bonus.id} className="p-4 border-l-4 border-l-primary/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="font-semibold text-lg">{bonus.name}</h3>
+                      <Badge variant={bonus.is_active ? "default" : "secondary"}>
+                        {bonus.is_active ? 'Aktif' : 'Pasif'}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {getBonusTypeLabel(bonus.type)}
+                      </Badge>
+                      {bonus.auto_grant && (
+                        <Badge variant="outline" className="text-xs bg-green-50 text-green-600">
+                          Otomatik
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
+                      <div>
+                        <span className="font-medium">Değer: </span>
+                        {bonus.amount_type === 'percent' ? `%${bonus.amount_value}` : `₺${bonus.amount_value}`}
+                        {bonus.max_cap && ` (max ₺${bonus.max_cap})`}
+                      </div>
+                      <div>
+                        <span className="font-medium">Min. Yatırım: </span>
+                        ₺{bonus.min_deposit}
+                      </div>
+                      <div>
+                        <span className="font-medium">Çevrim: </span>
+                        {bonus.rollover_multiplier}x
+                      </div>
+                      <div>
+                        <span className="font-medium">Limit: </span>
+                        {bonus.max_per_user}/kişi
+                      </div>
+                    </div>
+
+                    {(bonus.valid_from || bonus.valid_to) && (
+                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          <span>Başlangıç: {formatDate(bonus.valid_from)}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          <span>Bitiş: {formatDate(bonus.valid_to)}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {bonus.code && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs text-muted-foreground">Kod:</span>
+                        <code className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-sm font-mono">
+                          {bonus.code}
+                        </code>
+                        <button
+                          onClick={() => copyBonusCode(bonus.code!)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <Copy className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
+
+                    {bonus.description && (
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                        {bonus.description}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Link to={`/admin/bonuses/${bonus.id}/rules`}>
+                      <Button variant="outline" size="sm" title="Kuralları Düzenle">
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(bonus)} title="Düzenle">
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleDelete(bonus.id)} title="Sil">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={bonus.is_active ? "default" : "secondary"}>
-                    {bonus.is_active ? 'Aktif' : 'Pasif'}
-                  </Badge>
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(bonus)}>
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleDelete(bonus.id)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
+              </Card>
             ))}
           </div>
 
