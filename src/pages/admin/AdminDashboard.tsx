@@ -10,6 +10,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
+import RecentActivityCard from '@/components/admin/RecentActivityCard';
 
 interface StatCard {
   title: string;
@@ -253,39 +254,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Recent Activity */}
-      <Card className="gaming-card">
-        <CardHeader>
-          <CardTitle>Son Aktiviteler</CardTitle>
-          <CardDescription>Sistemdeki son işlemler ve aktiviteler</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[
-              { action: 'Yeni kullanıcı kaydı', user: 'user@example.com', time: '2 dakika önce', type: 'success' },
-              { action: 'Para yatırma işlemi', user: 'test@example.com', time: '5 dakika önce', type: 'info' },
-              { action: 'Bahis kupon oluşturma', user: 'bettor@example.com', time: '8 dakika önce', type: 'info' },
-              { action: 'Para çekme talebi', user: 'winner@example.com', time: '12 dakika önce', type: 'warning' }
-            ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.type === 'success' ? 'bg-success' :
-                    activity.type === 'warning' ? 'bg-warning' :
-                    'bg-primary'
-                  }`} />
-                  <div>
-                    <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground">{activity.user}</p>
-                  </div>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {activity.time}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <RecentActivityCard />
     </div>
   );
 };
