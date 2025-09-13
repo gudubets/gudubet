@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, Search, Filter, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useBonuses, useDeleteBonus, useUpdateBonus } from "@/hooks/useBonuses";
@@ -256,40 +255,26 @@ export const BonusList: React.FC<BonusListProps> = ({ onCreateNew, onEdit }) => 
                     </TableCell>
                     <TableCell>{getStatusBadge(bonus)}</TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
-                          <DropdownMenuItem onClick={() => onEdit(bonus)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Düzenle
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleToggleStatus(bonus)}>
-                            {bonus.is_active ? (
-                              <>
-                                <ToggleLeft className="h-4 w-4 mr-2" />
-                                Devre Dışı Bırak
-                              </>
-                            ) : (
-                              <>
-                                <ToggleRight className="h-4 w-4 mr-2" />
-                                Etkinleştir
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            onClick={() => setDeleteId(bonus.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Sil
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center gap-2 justify-end">
+                        <Button 
+                          onClick={() => onEdit(bonus)} 
+                          variant="outline" 
+                          size="sm"
+                          className="h-8 px-3"
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button 
+                          onClick={() => setDeleteId(bonus.id)} 
+                          variant="outline" 
+                          size="sm"
+                          className="h-8 px-3 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Sil
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
