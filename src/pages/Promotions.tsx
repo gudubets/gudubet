@@ -239,11 +239,25 @@ const Promotions = () => {
 
   // Check if user already participated in promotion
   const hasParticipated = (promotionId: string) => {
-    return userPromotions.some(up => up.promotion_id === promotionId);
+    console.log('🔍 Checking participation for:', promotionId);
+    console.log('📊 userPromotions:', userPromotions);
+    console.log('📊 bonusRequests:', bonusRequests);
+    
+    const inOldSystem = userPromotions.some(up => up.promotion_id === promotionId);
+    const inNewSystem = bonusRequests?.some(br => br.metadata?.bonus_id === promotionId);
+    
+    console.log('📊 inOldSystem:', inOldSystem);
+    console.log('📊 inNewSystem:', inNewSystem);
+    
+    return inOldSystem || inNewSystem;
   };
 
   // Join promotion
   const joinPromotion = async (promotion: Promotion) => {
+    console.log('🚀 joinPromotion called with:', promotion);
+    console.log('🔍 promotion.source:', promotion.source);
+    console.log('📊 bonusRequests:', bonusRequests);
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -257,6 +271,7 @@ const Promotions = () => {
 
       // Check if already participated
       if (hasParticipated(promotion.id)) {
+        console.log('❌ User has already participated');
         toast({
           title: "Zaten Katıldınız",
           description: "Bu promosyona zaten katılmışsınız veya talebiniz beklemede.",
@@ -265,8 +280,10 @@ const Promotions = () => {
         return;
       }
 
+      console.log('✅ Checking promotion source...');
       // If this is from bonuses_new table (has source), use new bonus request system
       if (promotion.source === 'bonus') {
+        console.log('🎯 Using new bonus system');
         await claimBonusMutation.mutateAsync({
           bonus_id: promotion.id,
           deposit_amount: promotion.min_deposit || 0
@@ -277,6 +294,7 @@ const Promotions = () => {
           description: `${promotion.title} bonus talebi gönderildi. Onay bekleniyor.`,
         });
       } else {
+        console.log('⚠️ Using legacy promotion system');
         // Legacy promotions system
         const { error } = await supabase
           .from('user_promotions')
