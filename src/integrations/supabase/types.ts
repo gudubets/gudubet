@@ -2645,6 +2645,7 @@ export type Database = {
           phone: string | null
           phone_verified: boolean | null
           postal_code: string | null
+          registration_ip: unknown | null
           role: string
           status: string | null
           updated_at: string | null
@@ -2677,6 +2678,7 @@ export type Database = {
           phone?: string | null
           phone_verified?: boolean | null
           postal_code?: string | null
+          registration_ip?: unknown | null
           role?: string
           status?: string | null
           updated_at?: string | null
@@ -2709,6 +2711,7 @@ export type Database = {
           phone?: string | null
           phone_verified?: boolean | null
           postal_code?: string | null
+          registration_ip?: unknown | null
           role?: string
           status?: string | null
           updated_at?: string | null

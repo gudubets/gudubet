@@ -190,6 +190,18 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
     }
   };
 
+  // Get client IP address
+  const getClientIP = async () => {
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      return data.ip;
+    } catch (error) {
+      console.error('Error getting client IP:', error);
+      return null;
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateStep(3)) {
       return;
@@ -202,6 +214,10 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
       console.log('📧 Email:', formData.email);
       console.log('🔤 Email length:', formData.email.length);
       console.log('🌐 Email chars:', Array.from(formData.email).map(char => ({ char, code: char.charCodeAt(0) })));
+      
+      // Get client IP address
+      const clientIP = await getClientIP();
+      console.log('🌐 Client IP:', clientIP);
       
       // Clean email - remove any invisible characters
       const cleanEmail = formData.email.trim().toLowerCase().replace(/[^\x00-\x7F]/g, "");
@@ -221,7 +237,8 @@ export const RegistrationModal = ({ isOpen, onClose }: RegistrationModalProps) =
             country: formData.country,
             city: formData.city,
             address: formData.address,
-            postal_code: formData.postalCode
+            postal_code: formData.postalCode,
+            registration_ip: clientIP
           }
         }
       });

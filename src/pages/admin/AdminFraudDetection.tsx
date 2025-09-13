@@ -148,6 +148,26 @@ export default function AdminFraudDetection() {
     },
   });
 
+  // Fetch user registration IPs
+  const { data: registrationIPs = [], isLoading: registrationIPsLoading } = useQuery({
+    queryKey: ["admin-user-registration-ips", searchTerm],
+    queryFn: async () => {
+      let query = supabase
+        .from("profiles")
+        .select("id, first_name, last_name, email, registration_ip, created_at")
+        .not("registration_ip", "is", null)
+        .order("created_at", { ascending: false });
+
+      if (searchTerm) {
+        query = query.or(`email.ilike.%${searchTerm}%,first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Fraud statistics
   const { data: stats } = useQuery({
     queryKey: ["fraud-stats"],
@@ -314,6 +334,7 @@ export default function AdminFraudDetection() {
             <TabsTrigger value="alerts">Fraud Alarmları</TabsTrigger>
             <TabsTrigger value="risk-profiles">Risk Profilleri</TabsTrigger>
             <TabsTrigger value="ip-analysis">IP Analizi</TabsTrigger>
+            <TabsTrigger value="user-registration-ips">Kayıt IP Adresleri</TabsTrigger>
           </TabsList>
 
           {/* Fraud Alerts Tab */}
@@ -545,6 +566,75 @@ export default function AdminFraudDetection() {
                         </TableCell>
                       </TableRow>
                     ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* User Registration IPs Tab */}
+          <TabsContent value="user-registration-ips">
+            <Card>
+              <CardHeader>
+                <CardTitle>Kullanıcı Kayıt IP Adresleri</CardTitle>
+                <div className="flex gap-4">
+                  <Input
+                    placeholder="E-posta, ad veya soyad ile ara..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="max-w-sm"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Kullanıcı</TableHead>
+                      <TableHead>E-posta</TableHead>
+                      <TableHead>Kayıt IP Adresi</TableHead>
+                      <TableHead>Kayıt Tarihi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {registrationIPsLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center">Yükleniyor...</TableCell>
+                      </TableRow>
+                    ) : registrationIPs.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center text-muted-foreground">
+                          Kayıt IP adresi bulunan kullanıcı bulunmamaktadır.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      registrationIPs.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">
+                                {user.first_name} {user.last_name}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm text-muted-foreground">
+                              {user.email}
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-mono">{user.registration_ip as string}</TableCell>
+                          <TableCell>
+                            {new Date(user.created_at).toLocaleDateString('tr-TR', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
