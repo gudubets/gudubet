@@ -437,10 +437,12 @@ const Promotions = () => {
                       </div>
 
                       <div className="aspect-video bg-slate-700 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
-                        <div 
-                          className="absolute inset-0 bg-cover bg-center rounded-lg" 
-                          style={{backgroundImage: `url(${gudubetBonusImage})`}}
-                        ></div>
+                        {promotion.category === 'welcome' && (
+                          <div 
+                            className="absolute inset-0 bg-cover bg-center rounded-lg" 
+                            style={{backgroundImage: `url(${gudubetBonusImage})`}}
+                          ></div>
+                        )}
                         {getCategoryIcon(promotion.category)}
                         <span className="ml-2 text-sm text-muted-foreground relative z-10">
                           Promosyon Görseli
