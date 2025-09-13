@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAccess } from '@/hooks/useAdminAccess';
+import { useLossBonus } from '@/hooks/useLossBonus';
 
 interface UserBalance {
   balance: number;
@@ -43,6 +44,7 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData, currentUser }: U
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isSuperAdmin, loading: adminLoading } = useAdminAccess(currentUser);
+  const { lossBonusData, claimLossBonus, isClaimingLossBonus } = useLossBonus(currentUser?.id);
 
   const handleLogout = async () => {
     try {
@@ -81,6 +83,12 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData, currentUser }: U
   const handleAdminManagementClick = () => {
     onClose();
     navigate('/admin/management');
+  };
+
+  const handleLossBonusClick = () => {
+    if (lossBonusData?.isEligible) {
+      claimLossBonus();
+    }
   };
 
   const getUserDisplayName = () => {
@@ -145,9 +153,18 @@ const UserProfileModal = ({ isOpen, onClose, user, balanceData, currentUser }: U
           <div className="flex items-center gap-3">
             <div className="bg-slate-700 rounded-lg px-4 py-3 flex-1">
               <span className="text-white font-medium">KAYIP BONUSU</span>
+              {lossBonusData?.isEligible && (
+                <div className="text-green-400 text-sm">
+                  ₺{lossBonusData.bonusAmount} hakkınız var
+                </div>
+              )}
             </div>
-            <Button className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-3 rounded-lg">
-              KAYIP BONUSU AL
+            <Button 
+              className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-3 rounded-lg disabled:opacity-50"
+              onClick={handleLossBonusClick}
+              disabled={!lossBonusData?.isEligible || isClaimingLossBonus}
+            >
+              {isClaimingLossBonus ? 'ALIYOR...' : 'KAYIP BONUSU AL'}
             </Button>
           </div>
         </div>

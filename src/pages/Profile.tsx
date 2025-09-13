@@ -31,6 +31,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 import { useNavigate } from 'react-router-dom';
+import { useLossBonus } from '@/hooks/useLossBonus';
 
 interface Profile {
   id: string;
@@ -70,6 +71,20 @@ const Profile = () => {
   });
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  // Get the current session user for loss bonus
+  const [sessionUser, setSessionUser] = useState<any>(null);
+  const { lossBonusData, claimLossBonus, isClaimingLossBonus } = useLossBonus(sessionUser?.id);
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setSessionUser(session.user);
+      }
+    };
+    getSession();
+  }, []);
 
   useEffect(() => {
     checkUser();
@@ -624,6 +639,50 @@ const Profile = () => {
 
           {/* Bonuses Tab */}
           <TabsContent value="bonuses" className="space-y-6">
+            {/* Loss Bonus Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Gift className="w-5 h-5" />
+                  Kayıp Bonusu
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {lossBonusData?.isEligible ? (
+                  <div className="space-y-4">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center gap-3">
+                        <Gift className="w-8 h-8 text-green-600" />
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-green-800">Kayıp Bonusunuz Hazır!</h4>
+                          <p className="text-green-600 text-sm">
+                            Son 30 günde ₺{lossBonusData.totalLoss} kayıp yaşadınız. 
+                            %20 kayıp bonusu hakkınız: <strong>₺{lossBonusData.bonusAmount}</strong>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={() => claimLossBonus()}
+                      disabled={isClaimingLossBonus}
+                      className="w-full"
+                    >
+                      {isClaimingLossBonus ? 'Bonus Alınıyor...' : `₺${lossBonusData.bonusAmount} Kayıp Bonusu Al`}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Gift className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground mb-2">Kayıp bonusu hakkınız bulunmuyor</p>
+                    <p className="text-sm text-muted-foreground">
+                      Oyunlarda kayıp yaşadığınızda %20 kayıp bonusu hakkı kazanırsınız
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Active Bonuses Card */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
