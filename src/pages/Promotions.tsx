@@ -444,12 +444,10 @@ const Promotions = () => {
                             style={{backgroundImage: `url(${gudubetBonusImage})`}}
                           ></div>
                         )}
-                        {promotion.category === 'vip' && (
-                          <div 
-                            className="absolute inset-0 bg-cover bg-center rounded-lg" 
-                            style={{backgroundImage: `url(${vipBonusImage})`}}
-                          ></div>
-                        )}
+                        <div 
+                          className="absolute inset-0 bg-cover bg-center rounded-lg" 
+                          style={{backgroundImage: `url(${vipBonusImage})`}}
+                        ></div>
                         {getCategoryIcon(promotion.category)}
                         <span className="ml-2 text-sm text-muted-foreground relative z-10">
                           Promosyon Görseli
