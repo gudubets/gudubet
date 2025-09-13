@@ -188,7 +188,7 @@ export const BonusCard: React.FC<BonusCardProps> = ({
               className="flex-1"
               disabled={!bonus.is_active}
             >
-              {bonus.requires_code ? 'Kodu Gir' : 'Bonusu Al'}
+              {bonus.requires_code ? 'Kodu Gir' : 'Talep Et'}
             </Button>
           )}
           

@@ -27,25 +27,36 @@ export const Bonuses: React.FC = () => {
   const { data: userBonuses, isLoading: loadingUserBonuses } = useUserBonuses(user?.id);
   const claimBonus = useClaimBonus();
 
-  const handleClaimBonus = (bonusId: string, requiresCode: boolean = false) => {
-    if (requiresCode && !bonusCode.trim()) {
-      toast({
-        title: "Hata",
-        description: "Lütfen bonus kodunu girin",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    claimBonus.mutate({
-      bonus_id: bonusId,
-      code: requiresCode ? bonusCode : undefined
-    }, {
-      onSuccess: () => {
-        setBonusCode('');
+    const handleClaimBonus = (bonusId: string, requiresCode: boolean = false) => {
+      if (requiresCode && !bonusCode.trim()) {
+        toast({
+          title: "Hata",
+          description: "Bonus kodu gereklidir.",
+          variant: "destructive"
+        });
+        return;
       }
-    });
-  };
+
+      claimBonus.mutate({
+        bonus_id: bonusId,
+        code: requiresCode ? bonusCode : undefined
+      }, {
+        onSuccess: () => {
+          toast({
+            title: "Başarılı",
+            description: "Bonus talebi oluşturuldu. Admin onayı bekleniyor.",
+          });
+          setBonusCode('');
+        },
+        onError: (error: any) => {
+          toast({
+            title: "Hata",
+            description: error.message || "Bonus talebi oluşturulurken bir hata oluştu.",
+            variant: "destructive"
+          });
+        }
+      });
+    };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -123,7 +134,7 @@ export const Bonuses: React.FC = () => {
                       }}
                       disabled={!bonusCode.trim() || claimBonus.isPending}
                     >
-                      {claimBonus.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Kullan'}
+                      {claimBonus.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Talep Et'}
                     </Button>
                   </div>
                 </div>

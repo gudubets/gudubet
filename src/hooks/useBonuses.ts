@@ -139,12 +139,62 @@ export function useClaimBonus() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (params: { bonus_id: string; deposit_amount?: number; code?: string }) => {
-      const { data, error } = await supabase.functions.invoke("claim-bonus", { body: params });
+      // Kullanıcı ID'sini al
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error('Kullanıcı doğrulanamadı');
+
+      // users tablosundan user_id'yi al
+      const { data: userData, error: userDataError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single();
+        
+      if (userDataError || !userData) throw new Error('Kullanıcı profili bulunamadı');
+
+      // Bonus talebi oluştur
+      const bonusTypeMapping: Record<string, string> = {
+        'FIRST_DEPOSIT': 'welcome',
+        'RELOAD': 'deposit', 
+        'CASHBACK': 'cashback',
+        'FREEBET': 'freebet'
+      };
+
+      // Bonus bilgilerini al
+      const { data: bonus, error: bonusError } = await supabase
+        .from('bonuses_new')
+        .select('type')
+        .eq('id', params.bonus_id)
+        .single();
+      
+      if (bonusError) throw bonusError;
+
+      const bonusType = bonusTypeMapping[bonus.type] || 'deposit';
+
+      // Bonus talebi oluştur
+      const requestData = {
+        user_id: userData.id,
+        bonus_type: bonusType as any,
+        requested_amount: params.deposit_amount,
+        deposit_amount: params.deposit_amount,
+        metadata: {
+          bonus_id: params.bonus_id,
+          code: params.code
+        }
+      };
+
+      const { data, error } = await supabase
+        .from('bonus_requests')
+        .insert(requestData)
+        .select()
+        .single();
+        
       if (error) throw error;
-      return data as { ok: boolean; user_bonus_id: string; granted: number };
+      return { ok: true, request_id: data.id, status: 'pending' };
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["me","bonuses"] });
+      qc.invalidateQueries({ queryKey: ["my_bonus_requests"] });
     }
   });
 }

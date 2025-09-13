@@ -27,7 +27,7 @@ export default function MyBonuses() {
                 <button
                   onClick={() => claimM.mutate({ bonus_id: ub.bonus_id, deposit_amount: depositAmount || undefined, code: code || undefined })}
                   className="rounded bg-cyan-500 px-3 py-2 text-slate-900">
-                  Claim
+                  Talep Et
                 </button>
               </div>
             </div>
