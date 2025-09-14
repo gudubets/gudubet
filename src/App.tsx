@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useSendDeviceFingerprintOnMount } from './hooks/useDeviceFingerprint';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LocalizationPrompt from "@/components/LocalizationPrompt";
+import PaymentMethods from "./pages/PaymentMethods";
 import Index from "./pages/Index";
 import Casino from "./pages/Casino";
 import LiveCasino from "./pages/LiveCasino";
@@ -70,6 +72,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <LocalizationPrompt />
         <BrowserRouter>
           <Routes>
           <Route path="/" element={<Index />} />
@@ -86,8 +89,14 @@ const App = () => {
           <Route path="/responsible-gaming" element={<ResponsibleGaming />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/help-center" element={<HelpCenter />} />
-          <Route path="/betting-rules" element={<BettingRules />} />
-          <Route path="/live-support" element={<LiveSupport />} />
+           <Route path="/betting-rules" element={<BettingRules />} />
+           <Route path="/live-support" element={<LiveSupport />} />
+           <Route path="/payment-methods" element={<PaymentMethods />} />
+           <Route path="/deposit-withdrawal" element={<DepositWithdrawal />} />
+           <Route path="/slot-game/:gameId" element={<SlotGame />} />
+           <Route path="/game/:gameId" element={<Game />} />
+           <Route path="/cookie-policy" element={<CookiePolicy />} />
+           <Route path="/age-warning" element={<AgeWarning />} />
             <Route path="/user/bonuses" element={<MyBonuses />} />
             <Route path="/user/bonuses/progress" element={<BonusProgress />} />
             <Route path="/user/bonuses/requests" element={<BonusRequests />} />

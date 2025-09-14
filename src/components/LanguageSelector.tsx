@@ -2,10 +2,12 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useI18n } from '@/hooks/useI18n';
-import { Languages, Globe } from 'lucide-react';
+import { useAutoLocalization } from '@/hooks/useAutoLocalization';
+import { Languages, Globe, MapPin } from 'lucide-react';
 
 const LanguageSelector = () => {
   const { currentLanguage, changeLanguage } = useI18n();
+  const { detectionResult, locationData } = useAutoLocalization();
 
   const languages = [
     { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
@@ -20,7 +22,11 @@ const LanguageSelector = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-2">
-          <Globe className="h-4 w-4" />
+          {detectionResult?.source === 'location' ? (
+            <MapPin className="h-4 w-4" />
+          ) : (
+            <Globe className="h-4 w-4" />
+          )}
           <span className="hidden sm:inline-flex">
             {getCurrentLanguage().flag} {getCurrentLanguage().name}
           </span>
@@ -30,6 +36,14 @@ const LanguageSelector = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        {locationData && (
+          <div className="px-2 py-1 text-xs text-muted-foreground border-b">
+            {detectionResult?.source === 'location' 
+              ? `📍 ${locationData.country}${locationData.city ? `, ${locationData.city}` : ''}`
+              : `🌐 ${currentLanguage === 'tr' ? 'Tarayıcı Algılandı' : 'Browser Detected'}`
+            }
+          </div>
+        )}
         {languages.map((language) => (
           <DropdownMenuItem
             key={language.code}
@@ -38,6 +52,9 @@ const LanguageSelector = () => {
           >
             <span className="mr-2">{language.flag}</span>
             {language.name}
+            {detectionResult?.detectedLanguage === language.code && detectionResult.source !== 'saved' && (
+              <span className="ml-auto text-xs text-primary">•</span>
+            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

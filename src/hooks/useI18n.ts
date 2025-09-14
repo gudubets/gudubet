@@ -84,14 +84,54 @@ export const useI18n = () => {
     }).format(dateObj);
   }, [currentLanguage]);
 
-  // Initialize language from localStorage or browser
+  // Initialize language from localStorage, auto-detection, or browser
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language') as SupportedLanguage;
-    const browserLanguage = navigator.language.toLowerCase().startsWith('tr') ? 'tr' : 'en';
-    const initialLanguage = savedLanguage || browserLanguage;
     
-    setCurrentLanguage(initialLanguage);
-    loadTranslations(initialLanguage);
+    if (savedLanguage && (savedLanguage === 'tr' || savedLanguage === 'en')) {
+      // Use saved preference
+      setCurrentLanguage(savedLanguage);
+      loadTranslations(savedLanguage);
+    } else {
+      // Auto-detect language
+      const browserLanguages = navigator.languages || [navigator.language];
+      let detectedLanguage: SupportedLanguage = 'en'; // default
+      
+      // Check browser languages in order of preference
+      for (const lang of browserLanguages) {
+        const normalizedLang = lang.toLowerCase();
+        if (normalizedLang.startsWith('tr') || normalizedLang.includes('tr')) {
+          detectedLanguage = 'tr';
+          break;
+        }
+        if (normalizedLang.startsWith('en') || normalizedLang.includes('en')) {
+          detectedLanguage = 'en';
+          break;
+        }
+      }
+      
+      // Additional detection based on timezone for Turkish users
+      try {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (timezone.includes('Istanbul') || timezone.includes('Ankara')) {
+          detectedLanguage = 'tr';
+        }
+      } catch (error) {
+        console.warn('Timezone detection failed:', error);
+      }
+      
+      setCurrentLanguage(detectedLanguage);
+      loadTranslations(detectedLanguage);
+      
+      // Save auto-detected language
+      localStorage.setItem('language', detectedLanguage);
+      localStorage.setItem('auto-detected-language', JSON.stringify({
+        language: detectedLanguage,
+        detectedAt: new Date().toISOString(),
+        browserLanguages: browserLanguages,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      }));
+    }
   }, [loadTranslations]);
 
   return {
