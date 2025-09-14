@@ -7,177 +7,124 @@
 
 @layer base {
   :root {
-    /* Dark Gaming Theme */
-    --background: 0 0% 6%;
-    --foreground: 210 40% 98%;
-
-    --card: 0 0% 9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 0 0% 9%;
-    --popover-foreground: 210 40% 98%;
-
-    /* Orange Primary */
-    --primary: 15 100% 50%;
-    --primary-foreground: 210 40% 98%;
-
-    /* Gaming Accent Colors */
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 0 0% 12%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 142 71% 45%;
-    --accent-foreground: 210 40% 98%;
-
-    /* Success/Win Green */
-    --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
-
-    /* Danger/Loss Red */
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    /* Gold for Premium */
-    --gold: 45 100% 51%;
-    --gold-foreground: 0 0% 6%;
-
-    /* Warning Orange */
-    --warning: 15 100% 50%;
-    --warning-foreground: 0 0% 6%;
-
-    --border: 220 15% 20%;
-    --input: 220 15% 18%;
-    --ring: 217 91% 60%;
-
     --radius: 0.75rem;
-
-    /* Premium Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 45%));
-    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 28%));
-    --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 50%));
-    --gradient-card: linear-gradient(145deg, hsl(220 15% 12%), hsl(220 15% 8%));
-    --gradient-hero: linear-gradient(135deg, hsl(220 15% 8%) 0%, hsl(217 91% 20%) 100%);
-
-    /* Gaming Shadows */
-    --shadow-gaming: 0 25px 50px -12px hsl(217 91% 60% / 0.25);
-    --shadow-card: 0 10px 30px -10px hsl(220 15% 0% / 0.3);
-    --shadow-gold: 0 10px 30px -10px hsl(45 100% 51% / 0.3);
-
+    
     /* Animations */
     --transition-gaming: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --animation-glow: 0 0 20px hsl(217 91% 60% / 0.5);
-
-    /* Sidebar Gaming Theme */
-    --sidebar-background: 220 15% 8%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 220 15% 15%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 217 91% 60%;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  /* Light theme */
+  /* Light Gaming Theme */
   .light {
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
     --foreground: 220 15% 8%;
     --card: 0 0% 100%;
     --card-foreground: 220 15% 8%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 15% 8%;
+    
+    /* Keep orange primary for consistency */
     --primary: 15 100% 50%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 210 40% 94%;
     --secondary-foreground: 220 15% 8%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 142 76% 36%;
-    --accent-foreground: 210 40% 98%;
-    --success: 142 76% 36%;
-    --success-foreground: 210 40% 98%;
+    --muted: 210 40% 94%;
+    --muted-foreground: 215 16% 46%;
+    
+    /* Keep green accent */
+    --accent: 142 71% 45%;
+    --accent-foreground: 0 0% 100%;
+    
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
     --gold: 45 100% 51%;
     --gold-foreground: 220 15% 8%;
-    --warning: 25 95% 53%;
-    --warning-foreground: 220 15% 8%;
-    --border: 214 32% 91%;
+    --warning: 15 100% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --border: 214 32% 88%;
     --input: 214 32% 91%;
     --ring: 15 100% 50%;
     
-    /* Light theme gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(15 100% 50%), hsl(142 76% 36%));
-    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 28%));
+    /* Light theme gradients - keep gaming colors */
+    --gradient-primary: linear-gradient(135deg, hsl(15 100% 50%), hsl(15 100% 45%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 40%));
     --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 50%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 40% 96%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 40% 96%) 100%);
-
-    /* Light theme sidebar */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 98%) 0%, hsl(210 40% 94%) 100%);
+    
+    /* Light gaming shadows */
+    --shadow-gaming: 0 25px 50px -12px hsl(15 100% 50% / 0.2);
+    --shadow-card: 0 10px 30px -10px hsl(220 15% 0% / 0.1);
+    --shadow-gold: 0 10px 30px -10px hsl(45 100% 51% / 0.2);
+    
+    /* Light sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 15% 8%;
+    --sidebar-primary: 15 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 220 15% 8%;
+    --sidebar-border: 214 32% 88%;
     --sidebar-ring: 15 100% 50%;
   }
 
-  /* Dark theme (default gaming theme) */
-  .dark {
+  /* Dark Gaming Theme (Default) */
+  .dark, :root {
     --background: 0 0% 6%;
     --foreground: 210 40% 98%;
     --card: 0 0% 9%;
     --card-foreground: 210 40% 98%;
     --popover: 0 0% 9%;
     --popover-foreground: 210 40% 98%;
+    
+    /* Orange Primary */
     --primary: 15 100% 50%;
     --primary-foreground: 210 40% 98%;
+    
     --secondary: 0 0% 12%;
     --secondary-foreground: 210 40% 98%;
     --muted: 0 0% 12%;
     --muted-foreground: 215 20% 65%;
     --accent: 142 71% 45%;
     --accent-foreground: 210 40% 98%;
+    
+    /* Success/Win Green */
     --success: 142 71% 45%;
     --success-foreground: 210 40% 98%;
+    
+    /* Danger/Loss Red */
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
+    
+    /* Gold for Premium */
     --gold: 45 100% 51%;
     --gold-foreground: 0 0% 6%;
+    
+    /* Warning Orange */
     --warning: 15 100% 50%;
     --warning-foreground: 0 0% 6%;
+    
     --border: 220 15% 20%;
     --input: 220 15% 18%;
     --ring: 217 91% 60%;
-
-    /* Dark theme gradients */
+    
+    /* Dark gaming gradients */
     --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 45%));
     --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 28%));
     --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 50%));
     --gradient-card: linear-gradient(145deg, hsl(220 15% 12%), hsl(220 15% 8%));
     --gradient-hero: linear-gradient(135deg, hsl(220 15% 8%) 0%, hsl(217 91% 20%) 100%);
-
-    /* Dark theme sidebar */
+    
+    /* Dark gaming shadows */
+    --shadow-gaming: 0 25px 50px -12px hsl(217 91% 60% / 0.25);
+    --shadow-card: 0 10px 30px -10px hsl(220 15% 0% / 0.3);
+    --shadow-gold: 0 10px 30px -10px hsl(45 100% 51% / 0.3);
+    
+    /* Dark sidebar */
     --sidebar-background: 220 15% 8%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 217 91% 60%;

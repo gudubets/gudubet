@@ -20,7 +20,7 @@ export function ThemeToggle() {
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className="text-white hover:bg-white/10 p-2"
+      className="text-white dark:text-white light:text-foreground hover:bg-white/10 dark:hover:bg-white/10 light:hover:bg-black/10 p-2"
       aria-label="Toggle theme"
     >
       {theme === "light" ? (
