@@ -12,6 +12,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useI18n } from '@/hooks/useI18n';
 import NotificationsDropdown from '@/components/ui/notifications-dropdown';
 import LanguageSelector from '@/components/LanguageSelector';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
@@ -103,6 +104,7 @@ const Header = () => {
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-3">
+            <ThemeToggle />
             <LanguageSelector />
             {!user ? <>
                 <Button variant="outline" onClick={() => setIsLoginModalOpen(true)} className="text-black bg-white border-white hover:bg-gray-100 text-xs px-4 h-8 uppercase font-medium">

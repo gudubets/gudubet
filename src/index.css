@@ -96,7 +96,7 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  /* Light theme for admin areas if needed */
+  /* Light theme */
   .light {
     --background: 0 0% 100%;
     --foreground: 220 15% 8%;
@@ -104,7 +104,7 @@
     --card-foreground: 220 15% 8%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 15% 8%;
-    --primary: 217 91% 60%;
+    --primary: 15 100% 50%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96%;
     --secondary-foreground: 220 15% 8%;
@@ -122,7 +122,70 @@
     --warning-foreground: 220 15% 8%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
+    --ring: 15 100% 50%;
+    
+    /* Light theme gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(15 100% 50%), hsl(142 76% 36%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 28%));
+    --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 50%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 40% 96%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 40% 96%) 100%);
+
+    /* Light theme sidebar */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 15 100% 50%;
+  }
+
+  /* Dark theme (default gaming theme) */
+  .dark {
+    --background: 0 0% 6%;
+    --foreground: 210 40% 98%;
+    --card: 0 0% 9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 15 100% 50%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 142 71% 45%;
+    --accent-foreground: 210 40% 98%;
+    --success: 142 71% 45%;
+    --success-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --gold: 45 100% 51%;
+    --gold-foreground: 0 0% 6%;
+    --warning: 15 100% 50%;
+    --warning-foreground: 0 0% 6%;
+    --border: 220 15% 20%;
+    --input: 220 15% 18%;
     --ring: 217 91% 60%;
+
+    /* Dark theme gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 45%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 28%));
+    --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 50%));
+    --gradient-card: linear-gradient(145deg, hsl(220 15% 12%), hsl(220 15% 8%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 15% 8%) 0%, hsl(217 91% 20%) 100%);
+
+    /* Dark theme sidebar */
+    --sidebar-background: 220 15% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 220 15% 15%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 220 15% 20%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
