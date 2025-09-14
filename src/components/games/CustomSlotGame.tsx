@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, Zap, Gift, RotateCcw, Settings } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 interface SlotSymbol {
   id: string;
@@ -39,6 +39,7 @@ export const CustomSlotGame: React.FC = () => {
   const [autoSpin, setAutoSpin] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const spinIntervalRef = useRef<NodeJS.Timeout>();
+  const { toast } = useToast();
 
   // Initialize reels
   useEffect(() => {
@@ -99,7 +100,10 @@ export const CustomSlotGame: React.FC = () => {
     if (bonusChance < 0.1) { // 10% chance
       const spinsWon = Math.floor(Math.random() * 10) + 5;
       setFreeSpins(prev => prev + spinsWon);
-      toast.success(`🎉 ${spinsWon} Freespin Kazandınız!`);
+      toast({
+        title: "🎉 Freespin Kazandınız!",
+        description: `${spinsWon} ücretsiz çevirme hakkı kazandınız!`,
+      });
     }
   };
 
@@ -107,7 +111,11 @@ export const CustomSlotGame: React.FC = () => {
     if (isSpinning) return;
     
     if (freeSpins === 0 && balance < bet) {
-      toast.error('Yetersiz bakiye!');
+      toast({
+        title: "Yetersiz Bakiye!",
+        description: "Bahis oynamak için yeterli bakiyeniz yok.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -148,7 +156,10 @@ export const CustomSlotGame: React.FC = () => {
       if (win > 0) {
         setWinAmount(win);
         setBalance(prev => prev + win);
-        toast.success(`🎉 ${win} Puan Kazandınız!`);
+        toast({
+          title: "🎉 Kazandınız!",
+          description: `${win} puan kazandınız!`,
+        });
       }
       
       triggerFreeSpin();
@@ -182,9 +193,16 @@ export const CustomSlotGame: React.FC = () => {
     if (balance >= cost) {
       setBalance(prev => prev - cost);
       setFreeSpins(prev => prev + 10);
-      toast.success('10 Freespin satın alındı!');
+      toast({
+        title: "Freespin Satın Alındı!",
+        description: "10 ücretsiz çevirme hakkınız eklendi.",
+      });
     } else {
-      toast.error('Yetersiz bakiye!');
+      toast({
+        title: "Yetersiz Bakiye!",
+        description: "Freespin satın almak için yeterli bakiyeniz yok.",
+        variant: "destructive",
+      });
     }
   };
 

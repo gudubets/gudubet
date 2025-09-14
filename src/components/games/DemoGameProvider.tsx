@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ExternalGameFrame } from './ExternalGameFrame';
 import { CustomSlotGame } from './CustomSlotGame';
 import { Play, Star, Zap } from 'lucide-react';
@@ -273,6 +273,9 @@ export const DemoGameProvider: React.FC<DemoGameProviderProps> = ({
             <DialogTitle className="text-xl font-bold text-white">
               Gelişmiş Slot Oyunu - Freespin & Hız Kontrolü
             </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Freespin, hız kontrolü ve otomatik oyun özelliklerine sahip gelişmiş slot deneyimi
+            </DialogDescription>
           </DialogHeader>
           
           <div className="flex-1 p-6 pt-0 overflow-auto">
@@ -288,6 +291,9 @@ export const DemoGameProvider: React.FC<DemoGameProviderProps> = ({
             <DialogTitle className="text-xl font-bold text-white">
               {selectedGame?.name} - {selectedGame?.provider} Demo
             </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              {selectedGame?.provider} sağlayıcısından {selectedGame?.name} demo oyunu
+            </DialogDescription>
           </DialogHeader>
           
           <div className="flex-1 p-6 pt-0">
