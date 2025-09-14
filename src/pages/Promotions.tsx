@@ -179,8 +179,6 @@ const Promotions = () => {
                         bonus.type.toLowerCase().includes('cashback') ? 'cashback' :
                         bonus.type.toLowerCase().includes('freebet') ? 'freebet' : 'special';
         
-        console.log('Bonus mapping:', { name: bonus.name, type: bonus.type, category });
-        
         return {
           id: bonus.id,
           title: bonus.name,
