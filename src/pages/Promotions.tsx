@@ -445,14 +445,24 @@ const Promotions = () => {
                       <div className="h-40 bg-slate-700 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
                         {promotion.category === 'welcome' && (
                           <div 
-                            className="absolute inset-0 bg-cover bg-center rounded-lg" 
-                            style={{backgroundImage: `url(${gudubetBonusImage})`}}
+                            className="absolute inset-0 rounded-lg overflow-hidden" 
+                            style={{
+                              backgroundImage: `url(${gudubetBonusImage})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              backgroundRepeat: 'no-repeat'
+                            }}
                           ></div>
                         )}
                         {promotion.category === 'vip' && (
                           <div 
-                            className="absolute inset-0 bg-cover bg-center rounded-lg" 
-                            style={{backgroundImage: `url(${vipBonusImage})`}}
+                            className="absolute inset-0 rounded-lg overflow-hidden" 
+                            style={{
+                              backgroundImage: `url(${vipBonusImage})`,
+                              backgroundSize: 'cover', 
+                              backgroundPosition: 'center',
+                              backgroundRepeat: 'no-repeat'
+                            }}
                           ></div>
                         )}
                         {getCategoryIcon(promotion.category)}
@@ -590,6 +600,32 @@ const Promotions = () => {
                 {/* Left Side - Image */}
                 <div className="lg:w-1/2 w-full">
                   <div className="relative h-64 lg:h-full bg-gradient-to-br from-primary/20 via-primary/10 to-background overflow-hidden">
+                    {/* Background Image */}
+                    {selectedPromotion.category === 'welcome' && (
+                      <div 
+                        className="absolute inset-0" 
+                        style={{
+                          backgroundImage: `url(${gudubetBonusImage})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                          opacity: 0.3
+                        }}
+                      ></div>
+                    )}
+                    {selectedPromotion.category === 'vip' && (
+                      <div 
+                        className="absolute inset-0" 
+                        style={{
+                          backgroundImage: `url(${vipBonusImage})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                          opacity: 0.3
+                        }}
+                      ></div>
+                    )}
+                    
                     {/* Background Pattern */}
                     <div className="absolute inset-0 opacity-10">
                       <div className="absolute inset-0 bg-grid-pattern"></div>
