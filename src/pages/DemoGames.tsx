@@ -10,9 +10,10 @@ import { Play, Gamepad2, Trophy, Star } from 'lucide-react';
 import SEO from '@/components/SEO';
 
 const DemoGames = () => {
-  const [selectedProvider, setSelectedProvider] = useState<'NetEnt' | 'EGT' | 'Pragmatic Play' | 'all'>('all');
+  const [selectedProvider, setSelectedProvider] = useState<'NetEnt' | 'EGT' | 'Pragmatic Play' | 'Custom' | 'all'>('all');
 
   const providerStats = [
+    { name: 'Custom', count: 1, color: 'bg-gradient-to-r from-pink-600 to-purple-600' },
     { name: 'NetEnt', count: 3, color: 'bg-blue-600' },
     { name: 'EGT', count: 3, color: 'bg-purple-600' },
     { name: 'Pragmatic Play', count: 4, color: 'bg-orange-600' }
@@ -90,9 +91,12 @@ const DemoGames = () => {
           <h2 className="text-2xl font-bold text-white mb-6">Sağlayıcı Oyunları</h2>
           
           <Tabs value={selectedProvider} onValueChange={(value) => setSelectedProvider(value as any)} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-gray-900">
+            <TabsList className="grid w-full grid-cols-5 bg-gray-900">
               <TabsTrigger value="all" className="data-[state=active]:bg-orange-600">
                 Tümü
+              </TabsTrigger>
+              <TabsTrigger value="Custom" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-purple-600">
+                Gelişmiş
               </TabsTrigger>
               <TabsTrigger value="NetEnt" className="data-[state=active]:bg-blue-600">
                 NetEnt
@@ -107,6 +111,17 @@ const DemoGames = () => {
             
             <TabsContent value="all" className="mt-6">
               <DemoGameProvider selectedProvider="all" />
+            </TabsContent>
+            
+            <TabsContent value="Custom" className="mt-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-white mb-2">Gelişmiş Özellikler</h3>
+                <p className="text-gray-400 text-sm">
+                  Freespin özellikleri, hız kontrolü, otomatik oyun ve bonus satın alma seçenekleriyle 
+                  tam kontrol deneyimi sunar. %96.5 RTP ile yüksek kazanç potansiyeli.
+                </p>
+              </div>
+              <DemoGameProvider selectedProvider="Custom" />
             </TabsContent>
             
             <TabsContent value="NetEnt" className="mt-6">
