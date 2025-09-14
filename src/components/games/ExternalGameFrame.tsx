@@ -30,6 +30,9 @@ export const ExternalGameFrame: React.FC<ExternalGameFrameProps> = ({
     const iframe = iframeRef.current;
     if (!iframe) return;
 
+    setIsLoading(true);
+    setHasError(false);
+
     const handleLoad = () => {
       setIsLoading(false);
       setHasError(false);
@@ -48,9 +51,12 @@ export const ExternalGameFrame: React.FC<ExternalGameFrameProps> = ({
 
     // Timeout for loading
     const loadTimeout = setTimeout(() => {
-      if (isLoading) {
-        handleError();
-      }
+      setIsLoading(prevLoading => {
+        if (prevLoading) {
+          handleError();
+        }
+        return prevLoading;
+      });
     }, 30000); // 30 seconds timeout
 
     return () => {
@@ -58,7 +64,7 @@ export const ExternalGameFrame: React.FC<ExternalGameFrameProps> = ({
       iframe.removeEventListener('error', handleError);
       clearTimeout(loadTimeout);
     };
-  }, [gameUrl, provider, isLoading, onError]);
+  }, [gameUrl, provider, onError]);
 
   const toggleFullscreen = async () => {
     if (!containerRef.current) return;
