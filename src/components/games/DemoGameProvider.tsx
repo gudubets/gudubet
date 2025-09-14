@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ExternalGameFrame } from './ExternalGameFrame';
-import { CustomSlotGame } from './CustomSlotGame';
 import { Play, Star, Zap } from 'lucide-react';
 
 interface DemoGame {
@@ -21,18 +20,6 @@ interface DemoGame {
 
 // Demo game configurations for major providers
 const DEMO_GAMES: DemoGame[] = [
-  // Custom Enhanced Game
-  {
-    id: 'custom-enhanced-slot',
-    name: 'Gelişmiş Slot (Freespin + Hız)',
-    provider: 'Custom' as any,
-    thumbnail: 'https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=300&h=200&fit=crop',
-    demoUrl: 'custom',
-    rtp: 96.5,
-    volatility: 'high',
-    category: 'slot',
-    featured: true
-  },
   // NetEnt Games
   {
     id: 'netent-starburst',
@@ -144,7 +131,7 @@ const DEMO_GAMES: DemoGame[] = [
 ];
 
 interface DemoGameProviderProps {
-  selectedProvider?: 'NetEnt' | 'EGT' | 'Pragmatic Play' | 'Custom' | 'all';
+  selectedProvider?: 'NetEnt' | 'EGT' | 'Pragmatic Play' | 'all';
   showFeatured?: boolean;
   limit?: number;
 }
@@ -156,7 +143,6 @@ export const DemoGameProvider: React.FC<DemoGameProviderProps> = ({
 }) => {
   const [selectedGame, setSelectedGame] = useState<DemoGame | null>(null);
   const [gameDialogOpen, setGameDialogOpen] = useState(false);
-  const [showCustomGame, setShowCustomGame] = useState(false);
 
   // Filter games based on props
   let filteredGames = DEMO_GAMES;
@@ -174,12 +160,8 @@ export const DemoGameProvider: React.FC<DemoGameProviderProps> = ({
   }
 
   const handlePlayDemo = (game: DemoGame) => {
-    if (game.demoUrl === 'custom') {
-      setShowCustomGame(true);
-    } else {
-      setSelectedGame(game);
-      setGameDialogOpen(true);
-    }
+    setSelectedGame(game);
+    setGameDialogOpen(true);
   };
 
   const getVolatilityColor = (volatility: string) => {
@@ -196,7 +178,6 @@ export const DemoGameProvider: React.FC<DemoGameProviderProps> = ({
       case 'NetEnt': return 'bg-blue-600';
       case 'EGT': return 'bg-purple-600';
       case 'Pragmatic Play': return 'bg-orange-600';
-      case 'Custom': return 'bg-gradient-to-r from-pink-600 to-purple-600';
       default: return 'bg-gray-600';
     }
   };
@@ -216,10 +197,10 @@ export const DemoGameProvider: React.FC<DemoGameProviderProps> = ({
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   <Button
                     onClick={() => handlePlayDemo(game)}
-                    className={`${game.demoUrl === 'custom' ? 'bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700' : 'bg-orange-600 hover:bg-orange-700'} text-white`}
+                    className="bg-orange-600 hover:bg-orange-700 text-white"
                   >
-                    {game.demoUrl === 'custom' ? <Zap className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
-                    {game.demoUrl === 'custom' ? 'Gelişmiş Oyna' : 'Demo Oyna'}
+                    <Play className="w-4 h-4 mr-2" />
+                    Demo Oyna
                   </Button>
                 </div>
                 
@@ -256,33 +237,16 @@ export const DemoGameProvider: React.FC<DemoGameProviderProps> = ({
               
               <Button
                 onClick={() => handlePlayDemo(game)}
-                className={`w-full ${game.demoUrl === 'custom' ? 'bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700' : 'bg-orange-600 hover:bg-orange-700'} text-white`}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
               >
-                {game.demoUrl === 'custom' ? <Zap className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
-                {game.demoUrl === 'custom' ? 'Gelişmiş Oyna' : 'Demo Oyna'}
+                <Play className="w-4 h-4 mr-2" />
+                Demo Oyna
               </Button>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Custom Game Modal */}
-      <Dialog open={showCustomGame} onOpenChange={setShowCustomGame}>
-        <DialogContent className="max-w-6xl w-full h-[90vh] p-0">
-          <DialogHeader className="p-6 pb-0">
-            <DialogTitle className="text-xl font-bold text-white">
-              Gelişmiş Slot Oyunu - Freespin & Hız Kontrolü
-            </DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Freespin, hız kontrolü ve otomatik oyun özelliklerine sahip gelişmiş slot deneyimi
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="flex-1 p-6 pt-0 overflow-auto">
-            <CustomSlotGame />
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Game Dialog */}
       <Dialog open={gameDialogOpen} onOpenChange={setGameDialogOpen}>
