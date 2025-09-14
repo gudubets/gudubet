@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { ga4 } from '@/lib/ga4';
 
 interface AnalyticsEvent {
   event_name: string;
@@ -45,6 +46,7 @@ export const useAnalytics = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
+      // Track in Supabase (existing system)
       await supabase
         .from('analytics_events')
         .insert({
@@ -59,6 +61,13 @@ export const useAnalytics = () => {
           page_url: event.page_url || window.location.href,
           device_type: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'mobile' : 'desktop'
         });
+
+      // Track in GA4 (new system)
+      ga4.trackEvent({
+        action: event.event_name,
+        category: event.event_category,
+        custom_parameters: event.event_properties
+      });
     } catch (error) {
       console.error('Analytics tracking error:', error);
     }
@@ -118,12 +127,16 @@ export const useAnalytics = () => {
 
   // Track common events
   const trackPageView = useCallback((page: string) => {
+    // Track in both systems
     trackEvent({
       event_name: 'page_view',
       event_category: 'navigation',
       event_properties: { page },
       page_url: window.location.href
     });
+    
+    // GA4 specific page view
+    ga4.trackPageView();
   }, [trackEvent]);
 
   const trackUserAction = useCallback((action: string, properties?: Record<string, any>) => {
@@ -143,6 +156,13 @@ export const useAnalytics = () => {
         ...properties
       }
     });
+
+    // GA4 specific game tracking
+    if (action === 'game_start' && gameId) {
+      ga4.trackGameStart(gameId, properties?.game_type || 'unknown', properties?.provider);
+    } else if (action === 'game_end' && gameId) {
+      ga4.trackGameEnd(gameId, properties?.duration || 0, properties?.outcome);
+    }
   }, [trackEvent]);
 
   const trackTransaction = useCallback((action: string, amount?: number, currency?: string, properties?: Record<string, any>) => {
@@ -155,6 +175,15 @@ export const useAnalytics = () => {
         ...properties
       }
     });
+
+    // GA4 specific transaction tracking
+    if (action === 'deposit' && amount && currency) {
+      ga4.trackDeposit(amount, currency, properties?.method || 'unknown');
+    } else if (action === 'withdrawal' && amount && currency) {
+      ga4.trackWithdrawal(amount, currency, properties?.method || 'unknown');
+    } else if (action === 'purchase' && amount && currency) {
+      ga4.trackPurchase(properties?.transaction_id || '', amount, currency, properties?.items);
+    }
   }, [trackEvent]);
 
   return {
