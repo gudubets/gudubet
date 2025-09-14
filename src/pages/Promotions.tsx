@@ -466,9 +466,6 @@ const Promotions = () => {
                           ></div>
                         )}
                         {getCategoryIcon(promotion.category)}
-                        <span className="ml-2 text-sm text-muted-foreground relative z-10">
-                          Promosyon Görseli
-                        </span>
                       </div>
 
                       <div className="flex justify-between items-start">
