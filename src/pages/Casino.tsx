@@ -130,6 +130,26 @@ const Casino = () => {
           </div>
         </section>
 
+        {/* Demo Games Section */}
+        <section className="mb-8">
+          <Card className="bg-gradient-to-r from-orange-900/50 to-red-900/50 border-orange-500/20 mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-2">🎮 Demo Oyunlar</h2>
+                  <p className="text-gray-300">NetEnt, EGT ve Pragmatic Play oyunlarını ücretsiz deneyin</p>
+                </div>
+                <Button 
+                  onClick={() => navigate('/demo-games')}
+                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                >
+                  Tüm Demo Oyunlar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
         {/* Quick Categories */}
         <section className="mb-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

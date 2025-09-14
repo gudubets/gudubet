@@ -42,6 +42,9 @@ const Header = () => {
     name: t('casino'),
     href: '/casino'
   }, {
+    name: 'Demo Oyunlar',
+    href: '/demo-games'
+  }, {
     name: t('live_casino'),
     href: '/live-casino'
   }, {
