@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Globe, MapPin, X } from 'lucide-react';
@@ -10,13 +10,22 @@ const LocalizationPrompt = () => {
   const { detectionResult, getLocalizationSuggestion, applyAutoDetectedLanguage } = useAutoLocalization();
   const { changeLanguage, currentLanguage } = useI18n();
 
+  // Memoize the suggestion to avoid recalculation
+  const suggestion = useMemo(() => {
+    if (!detectionResult) return null;
+    return getLocalizationSuggestion();
+  }, [detectionResult, getLocalizationSuggestion]);
+
   useEffect(() => {
+    // Early return if already dismissed or no detection result
+    if (!detectionResult || localStorage.getItem('localization-prompt-dismissed')) {
+      return;
+    }
+
     // Show prompt only if language was auto-detected and different from current
     if (
-      detectionResult && 
       detectionResult.source !== 'saved' && 
-      detectionResult.detectedLanguage !== currentLanguage &&
-      !localStorage.getItem('localization-prompt-dismissed')
+      detectionResult.detectedLanguage !== currentLanguage
     ) {
       // Delay showing prompt by 2 seconds to not interrupt user
       const timer = setTimeout(() => {
@@ -38,10 +47,8 @@ const LocalizationPrompt = () => {
     localStorage.setItem('localization-prompt-dismissed', 'true');
   };
 
-  if (!showPrompt || !detectionResult) return null;
-
-  const suggestion = getLocalizationSuggestion();
-  if (!suggestion) return null;
+  // Early returns to avoid unnecessary renders
+  if (!showPrompt || !detectionResult || !suggestion) return null;
 
   return (
     <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 max-w-md mx-4">

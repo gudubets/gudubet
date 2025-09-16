@@ -32,6 +32,10 @@ async function computeDeviceFingerprint(): Promise<string> {
 
 export function useSendDeviceFingerprintOnMount() {
   useEffect(() => {
+    // Only track once per session
+    const sessionTracked = sessionStorage.getItem('device_tracked');
+    if (sessionTracked) return;
+    
     let stopped = false;
     
     const trackDevice = async () => {
@@ -40,7 +44,13 @@ export function useSendDeviceFingerprintOnMount() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const fingerprint = await computeDeviceFingerprint();
+        // Use cached fingerprint if available
+        let fingerprint = localStorage.getItem('device_fp');
+        if (!fingerprint) {
+          fingerprint = await computeDeviceFingerprint();
+          localStorage.setItem('device_fp', fingerprint);
+        }
+        
         if (stopped) return;
 
         const payload = {
@@ -57,8 +67,8 @@ export function useSendDeviceFingerprintOnMount() {
           body: payload 
         });
 
-        // Cache fingerprint locally
-        localStorage.setItem('device_fp', fingerprint);
+        // Mark as tracked for this session
+        sessionStorage.setItem('device_tracked', 'true');
         
         console.log('Device fingerprint tracked successfully');
       } catch (error) {
@@ -66,10 +76,12 @@ export function useSendDeviceFingerprintOnMount() {
       }
     };
 
-    trackDevice();
+    // Delay tracking to avoid blocking initial render
+    const timer = setTimeout(trackDevice, 1000);
     
     return () => { 
-      stopped = true; 
+      stopped = true;
+      clearTimeout(timer);
     };
   }, []);
 }

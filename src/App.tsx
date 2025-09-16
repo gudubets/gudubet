@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,9 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LocalizationPrompt from "@/components/LocalizationPrompt";
 import PaymentMethods from "./pages/PaymentMethods";
 import Index from "./pages/Index";
-import Casino from "./pages/Casino";
 import DemoGames from "./pages/DemoGames";
-import LiveCasino from "./pages/LiveCasino";
 import SportsBetting from "./pages/SportsBetting";
 import LiveBetting from "./pages/LiveBetting";
 import Promotions from "./pages/Promotions";
@@ -27,8 +25,12 @@ import LiveSupport from "./pages/LiveSupport";
 import NotFound from "./pages/NotFound";
 import SlotGame from "./pages/SlotGame";
 import DepositWithdrawal from "./pages/DepositWithdrawal";
-import AdminLayout from "./components/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
+// Lazy load heavy components
+const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const Casino = lazy(() => import("./pages/Casino"));
+const LiveCasino = lazy(() => import("./pages/LiveCasino"));
+// Regular imports for lighter components
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminUsersList from "./pages/admin/users/AdminUsersList";
 import DevicesManager from "./pages/admin/risk/DevicesManager";
@@ -62,7 +64,15 @@ import PasswordSecurity from "./pages/PasswordSecurity";
 import AdminRiskQueue from "./pages/admin/AdminRiskQueue";
 import AdminReports from "./pages/admin/AdminReports";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1,
+    },
+  },
+});
 
 const App = () => {
   // Initialize device fingerprinting for security tracking
@@ -75,11 +85,12 @@ const App = () => {
         <Sonner />
         <LocalizationPrompt />
         <BrowserRouter>
-          <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/casino" element={<Casino />} />
-          <Route path="/demo-games" element={<DemoGames />} />
-          <Route path="/live-casino" element={<LiveCasino />} />
+          <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Yükleniyor...</div>}>
+            <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/casino" element={<Casino />} />
+            <Route path="/demo-games" element={<DemoGames />} />
+            <Route path="/live-casino" element={<LiveCasino />} />
           <Route path="/sports-betting" element={<SportsBetting />} />
           <Route path="/live-betting" element={<LiveBetting />} />
           <Route path="/promotions" element={<Promotions />} />
@@ -133,10 +144,11 @@ const App = () => {
             <Route path="risk-queue" element={<AdminRiskQueue />} />
             <Route path="reports" element={<AdminReports />} />
           </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          </Suspense>
+        </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
   );
