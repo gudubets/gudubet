@@ -148,7 +148,7 @@ const LiveMatchCard: React.FC<LiveMatchCardProps> = ({
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <Users className="w-3 h-3" />
-              {match.viewers_count.toLocaleString()}
+              {match.viewers_count?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') || '0'}
             </div>
             <Button
               variant="ghost"
@@ -177,7 +177,7 @@ const LiveMatchCard: React.FC<LiveMatchCardProps> = ({
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Users className="w-3 h-3" />
-                {match.viewers_count.toLocaleString()}
+                {match.viewers_count?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') || '0'}
               </div>
               <Button 
                 variant="ghost" 

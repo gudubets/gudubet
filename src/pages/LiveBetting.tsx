@@ -243,7 +243,7 @@ const LiveBetting = () => {
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Users className="w-4 h-4" />
-                <span>{filteredMatches.reduce((sum, match) => sum + match.viewers_count, 0).toLocaleString()} izleyici</span>
+                <span>{filteredMatches.reduce((sum, match) => sum + (match.viewers_count || 0), 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')} izleyici</span>
               </div>
             </div>
           </div>

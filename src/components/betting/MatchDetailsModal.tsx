@@ -190,7 +190,7 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Users className="w-4 h-4" />
-                  <span>{match.viewers_count.toLocaleString()} izleyici</span>
+                  <span>{match.viewers_count?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') || '0'} izleyici</span>
                 </div>
               </div>
 
