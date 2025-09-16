@@ -93,10 +93,10 @@ const LiveMatchCard: React.FC<LiveMatchCardProps> = ({
               {match.league}
             </Badge>
             <div className="flex items-center gap-2">
-              <Badge variant="destructive" className="animate-pulse">
-                <Clock className="w-3 h-3 mr-1" />
-                {match.match_time || `${match.match_minute}'`}
-              </Badge>
+               <Badge variant="destructive" className="text-red-600 bg-red-50 border-red-200">
+                 <Clock className="w-3 h-3 mr-1" />
+                 {match.match_time || `${match.match_minute}'`}
+               </Badge>
               <Button 
                 variant="ghost" 
                 size="sm"
@@ -169,10 +169,10 @@ const LiveMatchCard: React.FC<LiveMatchCardProps> = ({
               <Badge variant="outline" className="text-xs">
                 {match.league}
               </Badge>
-              <Badge variant="destructive" className="animate-pulse">
-                <Clock className="w-3 h-3 mr-1" />
-                {match.match_time || `${match.match_minute}'`}
-              </Badge>
+               <Badge variant="destructive" className="text-red-600 bg-red-50 border-red-200">
+                 <Clock className="w-3 h-3 mr-1" />
+                 {match.match_time || `${match.match_minute}'`}
+               </Badge>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 text-sm text-muted-foreground">

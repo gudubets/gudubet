@@ -86,65 +86,66 @@ const LiveBetting = () => {
     { id: 'e-spor', name: 'E-Spor', icon: '🎮' },
   ];
 
-  useEffect(() => {
-    const fetchLiveMatches = async () => {
-      setLoading(true);
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockMatches: LiveMatch[] = [
-        {
-          id: '1',
-          home_team: 'Barcelona',
-          away_team: 'Real Madrid',
-          home_score: 2,
-          away_score: 1,
-          period: '2nd Half',
-          match_minute: 67,
-          match_time: '17:00',
-          sport_type: 'futbol',
-          league: 'El Clasico',
-          status: 'live',
-          viewers_count: 125000,
-          is_featured: true,
-          odds: [
-            {
-              id: '1',
-              market_type: '1X2',
-              market_name: 'Match Winner',
-              selection: '1',
-              selection_name: 'Barcelona',
-              odds_value: 2.1,
-              is_active: true
-            },
-            {
-              id: '2',
-              market_type: '1X2',
-              market_name: 'Match Winner',
-              selection: 'X',
-              selection_name: 'Draw',
-              odds_value: 3.2,
-              is_active: true
-            },
-            {
-              id: '3',
-              market_type: '1X2',
-              market_name: 'Match Winner',
-              selection: '2',
-              selection_name: 'Real Madrid',
-              odds_value: 3.5,
-              is_active: true
-            }
-          ]
-        },
-      ];
-      
-      setLiveMatches(mockMatches);
-      setLoading(false);
-    };
+   useEffect(() => {
+     const fetchLiveMatches = async () => {
+       setLoading(true);
+       
+       // Simulate API call without Promise wrapper to avoid Safari timing issues
+       setTimeout(() => {
+         const mockMatches: LiveMatch[] = [
+           {
+             id: '1',
+             home_team: 'Barcelona',
+             away_team: 'Real Madrid',
+             home_score: 2,
+             away_score: 1,
+             period: '2nd Half',
+             match_minute: 67,
+             match_time: '17:00',
+             sport_type: 'futbol',
+             league: 'El Clasico',
+             status: 'live',
+             viewers_count: 125000,
+             is_featured: true,
+             odds: [
+               {
+                 id: '1',
+                 market_type: '1X2',
+                 market_name: 'Match Winner',
+                 selection: '1',
+                 selection_name: 'Barcelona',
+                 odds_value: 2.1,
+                 is_active: true
+               },
+               {
+                 id: '2',
+                 market_type: '1X2',
+                 market_name: 'Match Winner',
+                 selection: 'X',
+                 selection_name: 'Draw',
+                 odds_value: 3.2,
+                 is_active: true
+               },
+               {
+                 id: '3',
+                 market_type: '1X2',
+                 market_name: 'Match Winner',
+                 selection: '2',
+                 selection_name: 'Real Madrid',
+                 odds_value: 3.5,
+                 is_active: true
+               }
+             ]
+           },
+         ];
+         
+         setLiveMatches(mockMatches);
+         setLoading(false);
+       }, 500);
+     };
 
-    fetchLiveMatches();
-  }, []);
+     fetchLiveMatches();
+   }, []);
 
   const filteredMatches = selectedSport === 'hepsi' 
     ? liveMatches 
@@ -233,9 +234,9 @@ const LiveBetting = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-bold">Canlı Bahisler</h1>
-                <Badge className="bg-red-500 text-white animate-pulse">
-                  🔴 CANLI
-                </Badge>
+                 <Badge className="bg-red-500 text-white">
+                   🔴 CANLI
+                 </Badge>
                 <Badge variant="secondary">
                   <Trophy className="w-3 h-3 mr-1" />
                   {liveMatches.length} Maç

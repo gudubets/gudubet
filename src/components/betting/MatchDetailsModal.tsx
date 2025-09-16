@@ -183,10 +183,10 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">{match.league}</Badge>
-                  <Badge variant="destructive" className="animate-pulse">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {match.match_time || `${match.match_minute}'`}
-                  </Badge>
+                   <Badge variant="destructive" className="text-red-600 bg-red-50 border-red-200">
+                     <Clock className="w-3 h-3 mr-1" />
+                     {match.match_time || `${match.match_minute}'`}
+                   </Badge>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Users className="w-4 h-4" />
