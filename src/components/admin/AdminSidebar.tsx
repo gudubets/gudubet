@@ -23,7 +23,8 @@ import {
   Plus,
   BookOpen,
   Landmark,
-  Star
+  Star,
+  Image
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -84,6 +85,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       icon: Star,
       href: '/admin/featured-games',
       active: location.pathname === '/admin/featured-games'
+    },
+    {
+      title: 'Site Resimleri',
+      icon: Image,
+      href: '/admin/site-images',
+      active: location.pathname === '/admin/site-images'
     }
   ];
 
