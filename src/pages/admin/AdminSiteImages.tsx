@@ -23,7 +23,8 @@ import {
   CreditCard,
   Building,
   Star,
-  LayoutGrid
+  LayoutGrid,
+  Gamepad2
 } from 'lucide-react';
 import { useSiteImages, SiteImage } from '@/hooks/useSiteImages';
 import { SiteImageUpload } from '@/components/admin/SiteImageUpload';
@@ -31,6 +32,7 @@ import { toast } from 'sonner';
 
 const CATEGORIES = [
   { value: 'hero', label: 'Hero/Banner Resimleri', icon: Camera, color: 'bg-blue-500' },
+  { value: 'games', label: 'Oyun Resimleri', icon: Gamepad2, color: 'bg-indigo-500' },
   { value: 'game_categories', label: 'Oyun Kategorileri', icon: LayoutGrid, color: 'bg-green-500' },
   { value: 'promotions', label: 'Promosyon Resimleri', icon: Star, color: 'bg-yellow-500' },
   { value: 'payment_methods', label: 'Ödeme Yöntemleri', icon: CreditCard, color: 'bg-purple-500' },
@@ -73,7 +75,7 @@ const AdminSiteImages = () => {
       await addImage(newImage);
       setIsAddDialogOpen(false);
       setNewImage({
-        category: 'hero',
+        category: 'games',
         name: '',
         description: '',
         image_url: '',
@@ -237,7 +239,7 @@ const AdminSiteImages = () => {
 
         {/* Category Tabs */}
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="all">Tümü ({images.length})</TabsTrigger>
             {CATEGORIES.map((category) => {
               const count = images.filter(img => img.category === category.value).length;
