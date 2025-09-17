@@ -18,7 +18,8 @@ import {
   XCircle,
   Search,
   Filter,
-  MessageSquare
+  MessageSquare,
+  Trash2
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
@@ -354,6 +355,47 @@ const AdminChat = () => {
       });
     }
   };
+  // Clear/Delete entire chat room
+  const clearChatRoom = async (roomId: string) => {
+    try {
+      // First, delete all messages in the room
+      const { error: messagesError } = await supabase
+        .from('chat_messages')
+        .delete()
+        .eq('chat_room_id', roomId);
+
+      if (messagesError) throw messagesError;
+
+      // Then, delete the chat room itself
+      const { error: roomError } = await supabase
+        .from('chat_rooms')
+        .delete()
+        .eq('id', roomId);
+
+      if (roomError) throw roomError;
+
+      // If this was the selected room, clear selection
+      if (selectedRoom?.id === roomId) {
+        setSelectedRoom(null);
+        setMessages([]);
+      }
+
+      loadChatRooms();
+      
+      toast({
+        title: "Başarılı",
+        description: "Chat odası tamamen silindi.",
+      });
+    } catch (error) {
+      console.error('Error clearing chat room:', error);
+      toast({
+        title: "Hata",
+        description: "Chat odası silinirken hata oluştu.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const closeChatRoom = async (roomId: string) => {
     try {
       const { error } = await supabase
@@ -726,6 +768,18 @@ const AdminChat = () => {
                         >
                           <XCircle className="w-4 h-4 mr-1" />
                           Kapat
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm('Chat odasını tamamen silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+                              clearChatRoom(selectedRoom.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Odayı Sil
                         </Button>
                       </>
                     )}
