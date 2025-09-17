@@ -239,6 +239,47 @@ export const useCasinoGames = () => {
 
   useEffect(() => {
     loadGames();
+    
+    // Real-time subscriptions for updates
+    const casinoGamesChannel = supabase
+      .channel('casino_games_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'casino_games'
+        },
+        (payload) => {
+          console.log('Casino games updated:', payload);
+          // Reload games when changes occur
+          loadGames();
+        }
+      )
+      .subscribe();
+
+    const siteImagesChannel = supabase
+      .channel('site_images_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'site_images'
+        },
+        (payload) => {
+          console.log('Site images updated:', payload);
+          // Reload games to get updated images
+          loadGames();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscriptions on unmount
+    return () => {
+      supabase.removeChannel(casinoGamesChannel);
+      supabase.removeChannel(siteImagesChannel);
+    };
   }, []);
 
   return {

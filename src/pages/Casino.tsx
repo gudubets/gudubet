@@ -250,7 +250,8 @@ const Casino = () => {
               is_new: game.is_new,
               is_popular: game.is_popular,
               play_count: game.play_count,
-              jackpot_amount: game.jackpot_amount
+              jackpot_amount: game.jackpot_amount,
+              updated_at: game.updated_at
             }))}
             loading={loading}
             onFavoriteToggle={handleFavoriteToggle}

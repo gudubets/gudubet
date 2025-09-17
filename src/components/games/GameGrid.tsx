@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Play, Heart, Star, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { addSmartCacheBuster, getPlaceholderImage } from '@/utils/imageUtils';
 
 interface Game {
   id: string;
@@ -22,6 +23,7 @@ interface Game {
   is_popular: boolean;
   play_count: number;
   jackpot_amount?: number;
+  updated_at?: string; // Add updated_at field
 }
 
 interface GameGridProps {
@@ -131,12 +133,25 @@ export const GameGrid: React.FC<GameGridProps> = ({
             <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
               {game.thumbnail_url ? (
                 <img 
-                  src={game.thumbnail_url} 
+                  src={addSmartCacheBuster(game.thumbnail_url, game.updated_at)} 
                   alt={game.name}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to placeholder if image fails to load
+                    e.currentTarget.src = getPlaceholderImage(300, 200);
+                  }}
                 />
               ) : (
-                <Play className="w-12 h-12 text-primary/60" />
+                <div 
+                  className="w-full h-full flex items-center justify-center"
+                  style={{
+                    backgroundImage: `url(${getPlaceholderImage(300, 200)})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                >
+                  <Play className="w-12 h-12 text-primary/60" />
+                </div>
               )}
             </div>
 

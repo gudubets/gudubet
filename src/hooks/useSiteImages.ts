@@ -136,6 +136,40 @@ export const useSiteImages = () => {
 
   useEffect(() => {
     loadImages();
+
+    // Real-time subscription for site images updates
+    const channel = supabase
+      .channel('site_images_realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'site_images'
+        },
+        (payload) => {
+          console.log('Site images updated:', payload);
+          
+          if (payload.eventType === 'INSERT' && payload.new) {
+            setImages(prev => [...prev, payload.new as SiteImage]);
+          } else if (payload.eventType === 'UPDATE' && payload.new) {
+            setImages(prev => prev.map(img => 
+              img.id === payload.new.id ? payload.new as SiteImage : img
+            ));
+          } else if (payload.eventType === 'DELETE' && payload.old) {
+            setImages(prev => prev.filter(img => img.id !== payload.old.id));
+          } else {
+            // Full reload for complex changes
+            loadImages();
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {
