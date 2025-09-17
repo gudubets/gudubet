@@ -262,12 +262,23 @@ const AdminChat = () => {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - daysOld);
       
-      const { error } = await supabase
+      const { data: deletedMessages, error } = await supabase
         .from('chat_messages')
         .delete()
-        .lt('created_at', cutoffDate.toISOString());
+        .lt('created_at', cutoffDate.toISOString())
+        .select('id');
 
       if (error) throw error;
+
+      const deletedCount = deletedMessages?.length || 0;
+
+      if (deletedCount === 0) {
+        toast({
+          title: "Bilgi",
+          description: `${daysOld} gün önceki mesaj bulunamadı.`,
+        });
+        return;
+      }
 
       // Add system messages to affected rooms
       const { data: affectedRooms } = await supabase
@@ -283,7 +294,7 @@ const AdminChat = () => {
               chat_room_id: room.id,
               sender_id: '00000000-0000-0000-0000-000000000000',
               sender_name: 'Sistem',
-              message: `${daysOld} gün önceki eski mesajlar temizlendi.`,
+              message: `${daysOld} gün önceki ${deletedCount} mesaj temizlendi.`,
               message_type: 'system',
               is_admin: false
             });
@@ -297,7 +308,7 @@ const AdminChat = () => {
 
       toast({
         title: "Başarılı",
-        description: `${daysOld} gün önceki mesajlar temizlendi.`,
+        description: `${daysOld} gün önceki ${deletedCount} mesaj temizlendi.`,
       });
     } catch (error) {
       console.error('Error clearing old messages:', error);
@@ -510,6 +521,14 @@ const AdminChat = () => {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => clearOldMessages(0)}
+                    className="justify-start"
+                  >
+                    Tüm eski mesajları temizle (test için)
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
