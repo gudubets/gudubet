@@ -135,7 +135,7 @@ const Footer = () => {
               <div key={`payment-${provider}-${index}`} className="flex items-center justify-center h-8 opacity-70 hover:opacity-100 transition-opacity">
                 {provider === 'PAYco' ? (
                   <img 
-                    src="public/lovable-uploads/images-2.png  
+                    src="/lovable-uploads/images-2.png" 
                     alt="PayCo" 
                     className="h-6 w-auto object-contain filter brightness-0 invert"
                   />
