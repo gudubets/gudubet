@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Plus, Edit, Trash2, Play, Eye, Star, TrendingUp, Activity, Sparkles } from 'lucide-react';
 import { useCasinoGames } from '@/hooks/useCasinoGames';
+import GameImageUpload from '@/components/admin/GameImageUpload';
 import { toast } from 'sonner';
 
 interface GameFormData {
@@ -278,6 +279,16 @@ const AdminCasinoGames = () => {
                 />
               </div>
 
+              {/* Image Upload Section */}
+              <div className="space-y-4">
+                <GameImageUpload
+                  currentImageUrl={formData.thumbnail_url}
+                  onImageUploaded={(url) => setFormData(prev => ({ ...prev, thumbnail_url: url }))}
+                  gameSlug={formData.slug}
+                  imageType="thumbnail"
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="rtp">RTP (%)</Label>
@@ -535,7 +546,6 @@ const AdminCasinoGames = () => {
           
           {/* Same form as add dialog but with update function */}
           <div className="space-y-4">
-            {/* Form fields... same as above */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="edit_name">Oyun Adı</Label>
@@ -555,8 +565,130 @@ const AdminCasinoGames = () => {
                 />
               </div>
             </div>
-            
-            {/* Add more form fields as needed... */}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit_category">Kategori</Label>
+                <Select value={formData.category_id} onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Kategori seçin" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="edit_provider">Sağlayıcı</Label>
+                <Select value={formData.provider_id} onValueChange={(value) => setFormData(prev => ({ ...prev, provider_id: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sağlayıcı seçin" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {providers.map((provider) => (
+                      <SelectItem key={provider} value={provider}>
+                        {provider}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit_description">Açıklama</Label>
+              <Textarea
+                id="edit_description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Oyun açıklaması"
+              />
+            </div>
+
+            {/* Image Upload Section */}
+            <div className="space-y-4">
+              <GameImageUpload
+                currentImageUrl={formData.thumbnail_url}
+                onImageUploaded={(url) => setFormData(prev => ({ ...prev, thumbnail_url: url }))}
+                gameSlug={formData.slug}
+                gameId={selectedGame?.id}
+                imageType="thumbnail"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit_rtp">RTP (%)</Label>
+                <Input
+                  id="edit_rtp"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={formData.rtp_percentage}
+                  onChange={(e) => setFormData(prev => ({ ...prev, rtp_percentage: parseFloat(e.target.value) || 0 }))}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit_volatility">Volatilite</Label>
+                <Select value={formData.volatility} onValueChange={(value: 'low' | 'medium' | 'high') => setFormData(prev => ({ ...prev, volatility: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Düşük</SelectItem>
+                    <SelectItem value="medium">Orta</SelectItem>
+                    <SelectItem value="high">Yüksek</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit_has_demo">Demo Modu Mevcut</Label>
+                <Switch
+                  id="edit_has_demo"
+                  checked={formData.has_demo}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, has_demo: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit_is_featured">Öne Çıkan</Label>
+                <Switch
+                  id="edit_is_featured"
+                  checked={formData.is_featured}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_featured: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit_is_new">Yeni Oyun</Label>
+                <Switch
+                  id="edit_is_new"
+                  checked={formData.is_new}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_new: checked }))}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit_is_popular">Popüler</Label>
+                <Switch
+                  id="edit_is_popular"
+                  checked={formData.is_popular}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_popular: checked }))}
+                />
+              </div>
+            </div>
           </div>
           
           <DialogFooter>

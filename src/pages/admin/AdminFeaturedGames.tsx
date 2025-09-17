@@ -5,9 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, TrendingUp, Sparkles, Search, Eye, Play, Settings } from 'lucide-react';
+import { Star, TrendingUp, Sparkles, Search, Eye, Play, Settings, Upload } from 'lucide-react';
 import { useCasinoGames } from '@/hooks/useCasinoGames';
 import { supabase } from '@/integrations/supabase/client';
+import GameImageUpload from '@/components/admin/GameImageUpload';
 import { toast } from 'sonner';
 
 const AdminFeaturedGames = () => {
