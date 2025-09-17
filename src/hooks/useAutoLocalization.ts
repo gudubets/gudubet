@@ -62,14 +62,35 @@ export const useAutoLocalization = () => {
 
   // Get user's location using IP geolocation
   const detectUserLocation = useCallback(async (): Promise<LocationData | null> => {
+    // Check cache first to avoid repeated API calls
+    const cachedLocation = sessionStorage.getItem('userLocation');
+    if (cachedLocation) {
+      try {
+        return JSON.parse(cachedLocation);
+      } catch {
+        sessionStorage.removeItem('userLocation');
+      }
+    }
+
     try {
-      // Using ipapi.co for free IP geolocation
-      const response = await fetch('https://ipapi.co/json/');
+      // Using ipapi.co for free IP geolocation with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
+      const response = await fetch('https://ipapi.co/json/', {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
       if (!response.ok) throw new Error('Failed to fetch location');
       
       const data = await response.json();
       
-      return {
+      const locationData = {
         country: data.country_name || 'Unknown',
         countryCode: data.country_code || '',
         region: data.region || '',
@@ -78,6 +99,11 @@ export const useAutoLocalization = () => {
         latitude: data.latitude || 0,
         longitude: data.longitude || 0
       };
+
+      // Cache the result for the session
+      sessionStorage.setItem('userLocation', JSON.stringify(locationData));
+      
+      return locationData;
     } catch (error) {
       console.warn('Location detection failed:', error);
       
@@ -189,6 +215,27 @@ export const useAutoLocalization = () => {
     let mounted = true;
     
     const initializeLocalization = async () => {
+      // Check if we already have a recent detection result
+      const cachedResult = localStorage.getItem('auto-localization-result');
+      if (cachedResult) {
+        try {
+          const parsed = JSON.parse(cachedResult);
+          const detectedAt = new Date(parsed.detectedAt);
+          const now = new Date();
+          const hoursDiff = (now.getTime() - detectedAt.getTime()) / (1000 * 60 * 60);
+          
+          // Use cached result if less than 24 hours old
+          if (hoursDiff < 24) {
+            if (mounted) {
+              setDetectionResult(parsed);
+            }
+            return;
+          }
+        } catch {
+          localStorage.removeItem('auto-localization-result');
+        }
+      }
+
       const result = await performAutoDetection();
       if (mounted) {
         setDetectionResult(result);
@@ -206,7 +253,7 @@ export const useAutoLocalization = () => {
     return () => {
       mounted = false;
     };
-  }, [performAutoDetection]);
+  }, []);
 
   // Get localization suggestions
   const getLocalizationSuggestion = useCallback((): string => {

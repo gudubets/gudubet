@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, Calendar, Phone } from 'lucide-react';
@@ -28,6 +28,8 @@ export const AgeVerificationModal: React.FC<AgeVerificationModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-md mx-auto bg-white border-0 p-0 overflow-hidden">
+        <DialogTitle className="sr-only">Yaş Doğrulama</DialogTitle>
+        <DialogDescription className="sr-only">18 yaş üzeri doğrulama modalı</DialogDescription>
         {/* Header */}
         <div className="bg-white p-6 border-b border-border">
           <div className="flex items-center justify-center mb-4">
