@@ -269,63 +269,65 @@ const LiveChatWidget = () => {
                   </div>
                 </div>
 
-                <ScrollArea className="flex-1 p-3">
-                  <div className="space-y-3">
-                    {messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={cn(
-                          "flex",
-                          message.message_type === 'system' ? "justify-center" : 
-                          message.is_admin ? "justify-start" : "justify-end"
-                        )}
-                      >
-                        {message.message_type === 'system' ? (
-                          <div className="bg-muted rounded-lg px-3 py-1 text-xs text-center max-w-[80%]">
-                            {message.message}
-                          </div>
-                        ) : (
-                          <div className={cn(
-                            "flex items-end space-x-2 max-w-[80%]",
-                            message.is_admin ? "flex-row" : "flex-row-reverse space-x-reverse"
-                          )}>
-                            <Avatar className="h-6 w-6">
-                              <AvatarImage src={message.sender_avatar} />
-                              <AvatarFallback className="text-xs">
-                                {message.is_admin ? 'A' : 'U'}
-                              </AvatarFallback>
-                            </Avatar>
+                <div className="flex-1 overflow-hidden">
+                  <ScrollArea className="h-full">
+                    <div className="p-3 space-y-3">
+                      {messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={cn(
+                            "flex",
+                            message.message_type === 'system' ? "justify-center" : 
+                            message.is_admin ? "justify-start" : "justify-end"
+                          )}
+                        >
+                          {message.message_type === 'system' ? (
+                            <div className="bg-muted rounded-lg px-3 py-1 text-xs text-center max-w-[80%]">
+                              {message.message}
+                            </div>
+                          ) : (
                             <div className={cn(
-                              "rounded-lg px-3 py-2 max-w-full",
-                              message.is_admin 
-                                ? "bg-muted text-foreground" 
-                                : "bg-primary text-primary-foreground"
+                              "flex items-end space-x-2 max-w-[80%]",
+                              message.is_admin ? "flex-row" : "flex-row-reverse space-x-reverse"
                             )}>
-                              <p className="text-sm">{message.message}</p>
-                              <p className="text-xs opacity-75 mt-1">
-                                {formatTime(message.created_at)}
-                              </p>
+                              <Avatar className="h-6 w-6">
+                                <AvatarImage src={message.sender_avatar} />
+                                <AvatarFallback className="text-xs">
+                                  {message.is_admin ? 'A' : 'U'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className={cn(
+                                "rounded-lg px-3 py-2 max-w-full",
+                                message.is_admin 
+                                  ? "bg-muted text-foreground" 
+                                  : "bg-primary text-primary-foreground"
+                              )}>
+                                <p className="text-sm">{message.message}</p>
+                                <p className="text-xs opacity-75 mt-1">
+                                  {formatTime(message.created_at)}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      
+                      {adminTyping && (
+                        <div className="flex justify-start">
+                          <div className="bg-muted rounded-lg px-3 py-2 text-sm">
+                            <div className="flex space-x-1">
+                              <div className="animate-bounce">•</div>
+                              <div className="animate-bounce" style={{ animationDelay: '0.1s' }}>•</div>
+                              <div className="animate-bounce" style={{ animationDelay: '0.2s' }}>•</div>
                             </div>
                           </div>
-                        )}
-                      </div>
-                    ))}
-                    
-                    {adminTyping && (
-                      <div className="flex justify-start">
-                        <div className="bg-muted rounded-lg px-3 py-2 text-sm">
-                          <div className="flex space-x-1">
-                            <div className="animate-bounce">•</div>
-                            <div className="animate-bounce" style={{ animationDelay: '0.1s' }}>•</div>
-                            <div className="animate-bounce" style={{ animationDelay: '0.2s' }}>•</div>
-                          </div>
                         </div>
-                      </div>
-                    )}
-                    
-                    <div ref={messagesEndRef} />
-                  </div>
-                </ScrollArea>
+                      )}
+                      
+                      <div ref={messagesEndRef} />
+                    </div>
+                  </ScrollArea>
+                </div>
                 
                 <div className="p-2 border-t">
                   <div className="flex space-x-2 w-full">
