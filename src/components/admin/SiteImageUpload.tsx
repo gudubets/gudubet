@@ -48,7 +48,9 @@ export const SiteImageUpload: React.FC<SiteImageUploadProps> = ({
   };
 
   const handleCropComplete = async (croppedFile: File) => {
-    setUploading(true);
+    setShowCropModal(false); // Modal'ı önce kapat
+    setSelectedFile(null);
+    setUploading(true); // Loading'i başlat
     
     try {
       // Generate unique filename
@@ -243,6 +245,7 @@ export const SiteImageUpload: React.FC<SiteImageUploadProps> = ({
         onClose={() => {
           setShowCropModal(false);
           setSelectedFile(null);
+          setUploading(false); // Loading'i de kapat
         }}
         imageFile={selectedFile}
         onCropComplete={handleCropComplete}
