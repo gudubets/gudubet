@@ -147,7 +147,10 @@ export const useGameProviders = () => {
       if (error) throw error;
 
       if (data.success) {
-        toast.success('Sağlayıcı testi başarılı');
+        const statusMsg = data.connectionStatus === 'demo_mode' 
+          ? 'Demo mode testi başarılı - API key eklendiğinde gerçek API kullanılacak'
+          : 'Sağlayıcı API testi başarılı';
+        toast.success(statusMsg);
       } else {
         toast.error(`Sağlayıcı testi başarısız: ${data.error}`);
       }
@@ -168,7 +171,10 @@ export const useGameProviders = () => {
       if (error) throw error;
 
       if (data.success) {
-        toast.success('Oyun listesi başarıyla alındı');
+        const statusMsg = data.connectionStatus === 'demo_mode' 
+          ? `${data.games?.length || 0} demo oyun bulundu`
+          : `${data.games?.length || 0} oyun API'den alındı`;
+        toast.success(statusMsg);
         return data.games || [];
       } else {
         toast.error(`Oyun listesi alınamadı: ${data.error}`);

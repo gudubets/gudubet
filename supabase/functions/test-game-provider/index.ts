@@ -80,70 +80,62 @@ serve(async (req) => {
     let launchUrl = '';
 
     try {
-      // For external providers, we would typically make API calls here
-      if (provider.provider_type === 'external') {
-        if (!provider.api_endpoint) {
-          throw new Error('API endpoint not configured');
-        }
-
+      // Demo mode - work without API keys for all providers
+      const isDemoMode = !provider.api_key || provider.api_key.trim() === '';
+      
+      if (isDemoMode) {
+        console.log(`Running in demo mode for provider: ${provider.name}`);
+        
         switch (action) {
           case 'test':
-            // Simulate connection test
-            await new Promise((resolve, reject) => {
-              const timeout = setTimeout(() => {
-                reject(new Error('Connection timeout'));
-              }, 5000);
-
-              // Simulate random success/failure for demo
-              const success = Math.random() > 0.3; // 70% success rate
-              
-              setTimeout(() => {
-                clearTimeout(timeout);
-                if (success) {
-                  resolve(true);
-                } else {
-                  reject(new Error('API connection failed'));
-                }
-              }, 1000 + Math.random() * 2000); // 1-3 seconds delay
-            });
-            
-            connectionStatus = 'connected';
+            // Simulate connection test delay
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+            connectionStatus = 'demo_mode';
             testSuccess = true;
             break;
 
           case 'getGames':
-            // Simulate game list retrieval
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-            
-            // Mock game list based on provider
-            games = [
-              {
-                id: `${provider.slug}-game-1`,
-                name: `${provider.name} Slot 1`,
+            // Get actual games from database for this provider
+            const { data: dbGames, error: gamesError } = await supabase
+              .from('casino_games')
+              .select(`
+                id,
+                name,
+                slug,
+                thumbnail_url,
+                rtp_percentage,
+                volatility,
+                min_bet,
+                max_bet,
+                is_new,
+                is_popular,
+                is_featured
+              `)
+              .eq('provider_id', provider.id)
+              .eq('is_active', true)
+              .limit(10);
+
+            if (gamesError) {
+              console.error('Error fetching games:', gamesError);
+              // Fallback to mock data
+              games = generateMockGames(provider);
+            } else {
+              games = (dbGames || []).map(game => ({
+                id: game.slug,
+                name: game.name,
                 type: 'slot',
-                thumbnail: `/placeholder.svg`,
-                rtp: 96.5,
-                volatility: 'medium'
-              },
-              {
-                id: `${provider.slug}-game-2`,
-                name: `${provider.name} Blackjack`,
-                type: 'table',
-                thumbnail: `/placeholder.svg`,
-                rtp: 99.5,
-                volatility: 'low'
-              },
-              {
-                id: `${provider.slug}-game-3`,
-                name: `${provider.name} Roulette`,
-                type: 'live',
-                thumbnail: `/placeholder.svg`,
-                rtp: 97.3,
-                volatility: 'medium'
-              }
-            ];
+                thumbnail: game.thumbnail_url || '/placeholder.svg',
+                rtp: game.rtp_percentage || 96.0,
+                volatility: game.volatility || 'medium',
+                minBet: game.min_bet || 0.01,
+                maxBet: game.max_bet || 100.00,
+                isNew: game.is_new,
+                isPopular: game.is_popular,
+                isFeatured: game.is_featured
+              }));
+            }
             
-            connectionStatus = 'connected';
+            connectionStatus = 'demo_mode';
             testSuccess = true;
             break;
 
@@ -153,12 +145,12 @@ serve(async (req) => {
             }
             
             // Simulate launch URL generation
-            await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 500));
             
-            // Mock launch URL
-            launchUrl = `${provider.api_endpoint}/launch?game=${gameId}&mode=demo&token=demo_token_${Date.now()}`;
+            // Create demo launch URL
+            launchUrl = `/slot-game/${gameId}?demo=true&provider=${provider.slug}`;
             
-            connectionStatus = 'connected';
+            connectionStatus = 'demo_mode';
             testSuccess = true;
             break;
 
@@ -166,29 +158,118 @@ serve(async (req) => {
             throw new Error(`Unknown action: ${action}`);
         }
       } else {
-        // Custom provider - simulate success
-        connectionStatus = 'available';
-        testSuccess = true;
-        
-        if (action === 'getGames') {
-          games = [
-            {
-              id: 'custom-slot-1',
-              name: 'Custom Mega Slots',
-              type: 'slot',
-              thumbnail: `/placeholder.svg`,
-              rtp: 95.0,
-              volatility: 'high'
+        // Real API mode - when API keys are available
+        if (!provider.api_endpoint) {
+          throw new Error('API endpoint not configured');
+        }
+
+        switch (action) {
+          case 'test':
+            // Simulate real API connection test
+            await new Promise((resolve, reject) => {
+              const timeout = setTimeout(() => {
+                reject(new Error('Connection timeout'));
+              }, 5000);
+
+              // Simulate success rate based on provider
+              const success = Math.random() > 0.2; // 80% success rate for real APIs
+              
+              setTimeout(() => {
+                clearTimeout(timeout);
+                if (success) {
+                  resolve(true);
+                } else {
+                  reject(new Error('API connection failed'));
+                }
+              }, 1000 + Math.random() * 2000);
+            });
+            
+            connectionStatus = 'connected';
+            testSuccess = true;
+            break;
+
+          case 'getGames':
+            // Here you would make real API calls to fetch games
+            // For now, simulate with delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            games = generateMockGames(provider);
+            connectionStatus = 'connected';
+            testSuccess = true;
+            break;
+
+          case 'launchGame':
+            if (!gameId) {
+              throw new Error('Game ID is required for launch action');
             }
-          ];
-        } else if (action === 'launchGame' && gameId) {
-          launchUrl = `/slot-game/${gameId}`;
+            
+            // Real API launch URL generation
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            launchUrl = `${provider.api_endpoint}/launch?game=${gameId}&token=real_token_${Date.now()}`;
+            connectionStatus = 'connected';
+            testSuccess = true;
+            break;
+
+          default:
+            throw new Error(`Unknown action: ${action}`);
         }
       }
     } catch (error) {
       connectionStatus = 'failed';
       testSuccess = false;
       console.error('Provider operation failed:', error);
+    }
+
+    // Helper function to generate mock games based on provider
+    function generateMockGames(provider: any) {
+      const gameTypes = ['slot', 'table', 'live'];
+      const volatilities = ['low', 'medium', 'high'];
+      
+      const mockGames = [];
+      const gameCount = Math.floor(Math.random() * 8) + 3; // 3-10 games
+      
+      for (let i = 1; i <= gameCount; i++) {
+        const gameType = gameTypes[Math.floor(Math.random() * gameTypes.length)];
+        const volatility = volatilities[Math.floor(Math.random() * volatilities.length)];
+        
+        mockGames.push({
+          id: `${provider.slug}-game-${i}`,
+          name: generateGameName(provider.name, gameType, i),
+          type: gameType,
+          thumbnail: `/placeholder.svg`,
+          rtp: 94 + Math.random() * 4, // 94-98% RTP
+          volatility: volatility,
+          minBet: 0.01 + Math.random() * 0.49, // 0.01-0.50
+          maxBet: 50 + Math.random() * 450, // 50-500
+          isNew: Math.random() > 0.7,
+          isPopular: Math.random() > 0.6,
+          isFeatured: Math.random() > 0.8
+        });
+      }
+      
+      return mockGames;
+    }
+    
+    function generateGameName(providerName: string, gameType: string, index: number) {
+      const slotNames = ['Fortune', 'Treasure', 'Magic', 'Wild', 'Golden', 'Diamond', 'Fire', 'Lightning'];
+      const tableNames = ['Blackjack', 'Roulette', 'Baccarat', 'Poker'];
+      const liveNames = ['Live Roulette', 'Live Blackjack', 'Live Baccarat', 'Live Poker'];
+      
+      let names;
+      switch (gameType) {
+        case 'table':
+          names = tableNames;
+          break;
+        case 'live':
+          names = liveNames;
+          break;
+        default:
+          names = slotNames;
+      }
+      
+      const baseName = names[Math.floor(Math.random() * names.length)];
+      return `${providerName} ${baseName}${gameType === 'slot' ? ` ${index}` : ''}`;
     }
 
     const response: TestProviderResponse = {

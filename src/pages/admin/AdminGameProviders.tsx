@@ -12,8 +12,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { Plus, Settings, TestTube, Activity, AlertTriangle, List, Play } from 'lucide-react';
+import { Plus, Settings, TestTube, Activity, AlertTriangle, List, Play, Key } from 'lucide-react';
 import { toast } from 'sonner';
+import { GameProviderStatusBadge } from '@/components/admin/GameProviderStatusBadge';
 
 interface ProviderFormData {
   name: string;
@@ -382,18 +383,23 @@ const AdminGameProviders = () => {
                     </CardDescription>
                   </div>
                 </div>
-                <Badge 
-                  variant={provider.status === 'active' ? 'default' : 
-                          provider.status === 'maintenance' ? 'secondary' : 'destructive'}
-                >
-                  {provider.status === 'active' ? 'Aktif' : 
-                   provider.status === 'maintenance' ? 'Bakımda' : 'Pasif'}
-                </Badge>
+                <GameProviderStatusBadge 
+                  status={provider.status as 'active' | 'inactive' | 'maintenance'}
+                  hasApiKey={!!(provider.api_key && provider.api_key.trim())}
+                />
               </div>
             </CardHeader>
             
             <CardContent>
-              <div className="space-y-3">
+                <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Key className="w-4 h-4" />
+                  <span className="font-medium">API Key:</span> 
+                  <span className={provider.api_key && provider.api_key.trim() ? 'text-green-600' : 'text-yellow-600'}>
+                    {provider.api_key && provider.api_key.trim() ? 'Yapılandırıldı' : 'Demo Modu'}
+                  </span>
+                </div>
+                
                 {provider.api_endpoint && (
                   <div className="text-sm text-muted-foreground truncate">
                     <span className="font-medium">API:</span> {provider.api_endpoint}
