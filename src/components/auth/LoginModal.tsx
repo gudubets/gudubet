@@ -261,6 +261,63 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
       }
 
       if (data.user) {
+        // Run fraud analysis for login
+        try {
+          const deviceFingerprint = btoa(JSON.stringify({
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: navigator.platform,
+            screen: `${screen.width}x${screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+          }));
+
+          const { data: fraudAnalysis, error: fraudError } = await supabase.functions.invoke('fraud-analysis', {
+            body: {
+              user_id: data.user.id,
+              action_type: 'login',
+              ip_address: clientIP,
+              user_agent: navigator.userAgent,
+              device_fingerprint: deviceFingerprint
+            }
+          });
+
+          if (fraudError) {
+            console.error('Fraud analysis error:', fraudError);
+          } else if (fraudAnalysis?.success) {
+            // Show VPN/Proxy warning if detected
+            if (fraudAnalysis.analysis_summary?.vpn_proxy_detected) {
+              toast({
+                title: "🛡️ Güvenlik Uyarısı",
+                description: "Hesabınız VPN veya Proxy kullanımı nedeniyle güvenlik incelemesine alınmıştır.",
+                variant: "destructive",
+                duration: 8000
+              });
+            }
+            
+            // Show velocity warning if detected
+            if (fraudAnalysis.analysis_summary?.velocity_violation) {
+              toast({
+                title: "⚠️ Hız Limiti Uyarısı",
+                description: "Çok hızlı giriş denemesi tespit edildi. Lütfen dikkatli olun.",
+                variant: "destructive",
+                duration: 6000
+              });
+            }
+
+            // Show device warning if detected
+            if (fraudAnalysis.analysis_summary?.device_suspicious) {
+              toast({
+                title: "🔍 Cihaz Uyarısı", 
+                description: "Yeni cihaz veya şüpheli cihaz aktivitesi tespit edildi.",
+                variant: "destructive",
+                duration: 6000
+              });
+            }
+          }
+        } catch (fraudAnalysisError) {
+          console.error('Fraud analysis failed:', fraudAnalysisError);
+        }
+
         // Check if user is an admin
         const { data: adminData } = await supabase
           .from('admins')

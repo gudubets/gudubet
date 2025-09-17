@@ -58,6 +58,63 @@ interface IPAnalysis {
   last_checked_at: string;
 }
 
+// VPN/Proxy Indicator Component
+const VPNProxyIndicator = ({ ipAddress }: { ipAddress: string }) => {
+  const { data: ipAnalysis } = useQuery({
+    queryKey: ["ip-analysis", ipAddress],
+    queryFn: async () => {
+      if (!ipAddress) return null;
+      const { data, error } = await supabase
+        .from("ip_analysis")
+        .select("is_vpn, is_proxy, is_tor, is_datacenter, threat_level, risk_score")
+        .eq("ip_address", ipAddress)
+        .single();
+      
+      if (error || !data) return null;
+      return data;
+    },
+    enabled: !!ipAddress,
+  });
+
+  if (!ipAnalysis) return null;
+
+  const hasRisk = ipAnalysis.is_vpn || ipAnalysis.is_proxy || ipAnalysis.is_tor || ipAnalysis.is_datacenter;
+  
+  if (!hasRisk) return null;
+
+  const getRiskIcon = () => {
+    if (ipAnalysis.is_tor) return "🧅";
+    if (ipAnalysis.is_proxy) return "🔄";
+    if (ipAnalysis.is_vpn) return "🛡️";
+    if (ipAnalysis.is_datacenter) return "🏢";
+    return "⚠️";
+  };
+
+  const getRiskText = () => {
+    const risks = [];
+    if (ipAnalysis.is_vpn) risks.push("VPN");
+    if (ipAnalysis.is_proxy) risks.push("Proxy");
+    if (ipAnalysis.is_tor) risks.push("Tor");
+    if (ipAnalysis.is_datacenter) risks.push("Datacenter");
+    return risks.join(" + ");
+  };
+
+  return (
+    <div className="flex items-center gap-1 mt-1">
+      <Badge 
+        variant={ipAnalysis.threat_level === 'critical' ? 'destructive' : 
+                ipAnalysis.threat_level === 'high' ? 'destructive' : 'secondary'}
+        className="text-xs"
+      >
+        {getRiskIcon()} {getRiskText()}
+      </Badge>
+      <span className="text-xs text-muted-foreground">
+        Risk: {ipAnalysis.risk_score}
+      </span>
+    </div>
+  );
+};
+
 export default function AdminFraudDetection() {
   const [alertStatusFilter, setAlertStatusFilter] = useState<string>("all");
   const [alertSeverityFilter, setAlertSeverityFilter] = useState<string>("all");
@@ -201,24 +258,28 @@ export default function AdminFraudDetection() {
   const { data: stats } = useQuery({
     queryKey: ["fraud-stats"],
     queryFn: async () => {
-      const [alertsResult, profilesResult, ipResult] = await Promise.all([
-        supabase.from("fraud_alerts").select("id, severity, status"),
-        supabase.from("user_risk_profiles").select("id, risk_level"),
-        supabase.from("ip_analysis").select("id, threat_level, is_vpn, is_proxy")
-      ]);
+          // Fraud statistics
+          const [alertsResult, profilesResult, ipResult] = await Promise.all([
+            supabase.from("fraud_alerts").select("id, severity, status"),
+            supabase.from("user_risk_profiles").select("id, risk_level"),
+            supabase.from("ip_analysis").select("id, threat_level, is_vpn, is_proxy, is_tor, is_datacenter")
+          ]);
 
-      const alerts = alertsResult.data || [];
-      const profiles = profilesResult.data || [];
-      const ips = ipResult.data || [];
+          const alerts = alertsResult.data || [];
+          const profiles = profilesResult.data || [];
+          const ips = ipResult.data || [];
 
-      return {
-        total_alerts: alerts.length,
-        open_alerts: alerts.filter(a => a.status === 'open').length,
-        critical_alerts: alerts.filter(a => a.severity === 'critical').length,
-        high_risk_users: profiles.filter(p => p.risk_level === 'high' || p.risk_level === 'critical').length,
-        vpn_detections: ips.filter(ip => ip.is_vpn).length,
-        proxy_detections: ips.filter(ip => ip.is_proxy).length
-      };
+          return {
+            total_alerts: alerts.length,
+            open_alerts: alerts.filter(a => a.status === 'open').length,
+            critical_alerts: alerts.filter(a => a.severity === 'critical').length,
+            high_risk_users: profiles.filter(p => p.risk_level === 'high' || p.risk_level === 'critical').length,
+            vpn_detections: ips.filter(ip => ip.is_vpn).length,
+            proxy_detections: ips.filter(ip => ip.is_proxy).length,
+            tor_detections: ips.filter(ip => ip.is_tor).length,
+            datacenter_detections: ips.filter(ip => ip.is_datacenter).length,
+            total_suspicious_ips: ips.filter(ip => ip.is_vpn || ip.is_proxy || ip.is_tor || ip.is_datacenter).length
+          };
     },
   });
 
@@ -639,30 +700,37 @@ export default function AdminFraudDetection() {
                       </TableRow>
                     ) : (
                       registrationIPs.map((user) => (
-                        <TableRow key={user.id}>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">
-                                {user.first_name} {user.last_name}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="text-sm text-muted-foreground">
-                              {user.email}
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-mono">{user.registration_ip as string}</TableCell>
-                          <TableCell>
-                            {new Date(user.created_at).toLocaleDateString('tr-TR', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </TableCell>
-                        </TableRow>
+                       <TableRow key={user.id}>
+                         <TableCell>
+                           <div>
+                             <div className="font-medium">
+                               {user.first_name} {user.last_name}
+                             </div>
+                           </div>
+                         </TableCell>
+                         <TableCell>
+                           <div className="text-sm text-muted-foreground">
+                             {user.email}
+                           </div>
+                         </TableCell>
+                         <TableCell>
+                           <div className="flex flex-col gap-1">
+                             <code className="bg-muted px-2 py-1 rounded text-sm font-mono">
+                               {user.registration_ip as string}
+                             </code>
+                             <VPNProxyIndicator ipAddress={user.registration_ip as string} />
+                           </div>
+                         </TableCell>
+                         <TableCell>
+                           {new Date(user.created_at).toLocaleDateString('tr-TR', {
+                             year: 'numeric',
+                             month: 'short',
+                             day: 'numeric',
+                             hour: '2-digit',
+                             minute: '2-digit'
+                           })}
+                         </TableCell>
+                       </TableRow>
                       ))
                     )}
                   </TableBody>
@@ -713,11 +781,13 @@ export default function AdminFraudDetection() {
                       loginLogs.map((log) => (
                         <TableRow key={log.id}>
                           <TableCell>{log.email}</TableCell>
-                          <TableCell>
-                            <code className="bg-muted px-2 py-1 rounded text-sm">
-                              {(log.ip_address as string) || 'Bilinmiyor'}
-                            </code>
-                          </TableCell>
+                           <TableCell>
+                             <code className="bg-muted px-2 py-1 rounded text-sm">
+                               {(log.ip_address as string) || 'Bilinmiyor'}
+                             </code>
+                             {/* VPN/Proxy indicator için IP analizi */}
+                             <VPNProxyIndicator ipAddress={log.ip_address as string} />
+                           </TableCell>
                           <TableCell>
                             <Badge variant="outline">
                               {(log.login_method as string) === 'email_password' ? 'E-posta/Şifre' : 

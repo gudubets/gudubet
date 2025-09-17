@@ -425,6 +425,34 @@ serve(async (req) => {
       logStep("No violations detected - user clean");
     }
 
+    // Update user risk profile
+    try {
+      const { error: riskUpdateError } = await supabase.functions.invoke('update-user-risk-profile', {
+        body: {
+          user_id,
+          fraud_analysis_result: {
+            risk_score: totalRiskScore,
+            violations,
+            analysis_summary: {
+              vpn_proxy_detected: violations.some(v => v.rule_type === "ip_analysis"),
+              velocity_violation: violations.some(v => v.rule_type === "velocity"),
+              device_suspicious: violations.some(v => v.rule_type === "device_fingerprint")
+            }
+          },
+          action_type,
+          ip_address
+        }
+      });
+
+      if (riskUpdateError) {
+        console.error("Risk profile update failed:", riskUpdateError);
+      } else {
+        logStep("Risk profile updated successfully");
+      }
+    } catch (riskError) {
+      console.error("Risk profile update error:", riskError);
+    }
+
     logStep("Fraud analysis completed", { 
       risk_score: totalRiskScore, 
       manual_review: requiresManualReview,

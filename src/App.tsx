@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LocalizationPrompt from "@/components/LocalizationPrompt";
 import UXEnhancements from "@/components/layout/UXEnhancements";
+import { VPNProxyWarning } from "@/components/ui/vpn-proxy-warning";
 import PaymentMethods from "./pages/PaymentMethods";
 import Index from "./pages/Index";
 import DemoGames from "./pages/DemoGames";
@@ -155,6 +156,7 @@ const App = () => {
           </Suspense>
         </BrowserRouter>
         <UXEnhancements />
+        <VPNProxyWarning />
     </TooltipProvider>
   </QueryClientProvider>
   );

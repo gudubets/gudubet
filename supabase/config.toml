@@ -32,3 +32,12 @@ verify_jwt = true
 
 [functions.process-game-session]
 verify_jwt = true
+
+[functions.fraud-analysis]
+verify_jwt = false
+
+[functions.update-user-risk-profile]
+verify_jwt = false
+
+[functions.device-track]
+verify_jwt = false
