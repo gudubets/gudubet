@@ -152,11 +152,12 @@ serve(async (req) => {
       .insert({
         user_id: profile.id,
         action_type: 'withdrawal_request',
-        action_details: {
+        metadata: {
           amount: amount,
           method: method,
           withdrawal_id: withdrawal.id
         },
+        amount: amount,
         ip_address: req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for') || 'unknown',
         user_agent: req.headers.get('user-agent') || 'unknown'
       })

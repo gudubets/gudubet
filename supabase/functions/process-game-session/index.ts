@@ -211,7 +211,7 @@ serve(async (req) => {
       .insert({
         user_id: profile.id,
         action_type: 'game_completed',
-        action_details: {
+        metadata: {
           game_id: game_id,
           session_id: session_id,
           bet_amount: bet_amount,
@@ -219,6 +219,7 @@ serve(async (req) => {
           net_result: win_amount - bet_amount,
           rounds_played: rounds_played
         },
+        amount: win_amount - bet_amount,
         ip_address: req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for') || 'unknown',
         user_agent: req.headers.get('user-agent') || 'unknown'
       })

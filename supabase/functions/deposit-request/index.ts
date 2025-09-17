@@ -124,11 +124,12 @@ serve(async (req) => {
       .insert({
         user_id: profile.id,
         action_type: 'deposit_request',
-        action_details: {
+        metadata: {
           amount: amount,
           payment_method: payment_method,
           deposit_id: deposit.id
         },
+        amount: amount,
         ip_address: req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for') || 'unknown',
         user_agent: req.headers.get('user-agent') || 'unknown'
       })

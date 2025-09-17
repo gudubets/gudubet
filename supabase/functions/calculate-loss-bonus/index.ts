@@ -221,12 +221,13 @@ serve(async (req) => {
       .insert({
         user_id: user_id,
         action_type: 'loss_bonus_granted',
-        action_details: {
+        metadata: {
           bonus_amount: bonus_amount,
           total_losses: totalLosses,
           bonus_percentage: bonus_percentage,
           bonus_request_id: bonusRequest.id
-        }
+        },
+        amount: bonus_amount
       })
 
     console.log(`Loss bonus granted: ${bonus_amount} to user ${user_id} for losses: ${totalLosses}`)
