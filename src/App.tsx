@@ -64,6 +64,7 @@ import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
 import PasswordSecurity from "./pages/PasswordSecurity";
 import AdminRiskQueue from "./pages/admin/AdminRiskQueue";
 import AdminReports from "./pages/admin/AdminReports";
+import AdminSiteImages from "./pages/admin/AdminSiteImages";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -145,6 +146,7 @@ const App = () => {
             <Route path="management" element={<AdminManagement />} />
             <Route path="risk-queue" element={<AdminRiskQueue />} />
             <Route path="reports" element={<AdminReports />} />
+            <Route path="site-images" element={<AdminSiteImages />} />
           </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

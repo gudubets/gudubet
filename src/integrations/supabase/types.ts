@@ -2983,6 +2983,54 @@ export type Database = {
         }
         Relationships: []
       }
+      site_images: {
+        Row: {
+          alt_text: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          image_url: string
+          is_active: boolean | null
+          metadata: Json | null
+          name: string
+          sort_order: number | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          alt_text?: string | null
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_url: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name: string
+          sort_order?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          alt_text?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name?: string
+          sort_order?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       slot_game_sessions: {
         Row: {
           created_at: string
