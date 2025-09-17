@@ -70,13 +70,7 @@ const AdminChat = () => {
       setLoading(true);
       let query = supabase
         .from('chat_rooms')
-        .select(`
-          *,
-          profiles!chat_rooms_user_id_fkey (
-            first_name,
-            last_name
-          )
-        `)
+        .select('*')
         .order('updated_at', { ascending: false });
 
       if (statusFilter !== 'all') {
@@ -91,15 +85,39 @@ const AdminChat = () => {
         query = query.ilike('subject', `%${searchTerm}%`);
       }
 
-      const { data, error } = await query;
+      const { data: roomsData, error } = await query;
 
       if (error) throw error;
-      setChatRooms((data || []).map(room => ({
-        ...room,
-        status: room.status as 'waiting' | 'active' | 'closed',
-        priority: room.priority as 'low' | 'medium' | 'high',
-        profiles: room.profiles ? (room.profiles as any) : null
-      })));
+      
+      // Get profile information separately for each room
+      const roomsWithProfiles = await Promise.all(
+        (roomsData || []).map(async (room) => {
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('first_name, last_name')
+              .eq('id', room.user_id)  // Use id instead of user_id for profiles table
+              .single();
+            
+            return {
+              ...room,
+              status: room.status as 'waiting' | 'active' | 'closed',
+              priority: room.priority as 'low' | 'medium' | 'high',
+              profiles: profile
+            };
+          } catch (profileError) {
+            console.warn('Could not load profile for user:', room.user_id);
+            return {
+              ...room,
+              status: room.status as 'waiting' | 'active' | 'closed',
+              priority: room.priority as 'low' | 'medium' | 'high',
+              profiles: null
+            };
+          }
+        })
+      );
+
+      setChatRooms(roomsWithProfiles);
     } catch (error) {
       console.error('Error loading chat rooms:', error);
       toast({
