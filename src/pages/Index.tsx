@@ -7,7 +7,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 import { RegistrationModal } from '@/components/auth/RegistrationModal';
 import { AgeVerificationModal } from '@/components/auth/AgeVerificationModal';
-import FloatingSupportButton from '@/components/ui/floating-support-button';
+
 import { useI18n } from '@/hooks/useI18n';
 import { useCasinoGames } from '@/hooks/useCasinoGames';
 import { useSiteImages } from '@/hooks/useSiteImages';
@@ -579,8 +579,6 @@ const Index = () => {
         onVerify={handleAgeVerification} 
       />
 
-      {/* Floating Support Button */}
-      <FloatingSupportButton />
     </div>;
 };
 export default Index;
