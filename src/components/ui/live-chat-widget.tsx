@@ -135,235 +135,291 @@ const LiveChatWidget = () => {
       {/* Chat Window */}
       {isOpen && (
         <Card className="fixed bottom-20 right-4 w-80 h-96 z-50 shadow-2xl border-2">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-1">
-                  <Circle className={cn("h-2 w-2", isConnected ? "fill-green-500 text-green-500" : "fill-gray-400 text-gray-400")} />
-                  <span className="font-medium text-sm">
-                    {currentLanguage === 'tr' ? 'Canlı Destek' : 'Live Support'}
-                  </span>
-                </div>
-                {onlineAdmins > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    <Users className="h-3 w-3 mr-1" />
-                    {onlineAdmins}
-                  </Badge>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsOpen(false)}
-                className="h-6 w-6 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            {currentRoom && (
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {currentRoom.subject}
-                  </p>
-                  <Badge variant={getPriorityColor(currentRoom.priority) as any} className="text-xs">
-                    {getPriorityText(currentRoom.priority)}
-                  </Badge>
-                </div>
-                <Badge variant={currentRoom.status === 'active' ? 'default' : 'secondary'} className="text-xs">
-                  {currentRoom.status === 'active' 
-                    ? (currentLanguage === 'tr' ? 'Aktif' : 'Active')
-                    : currentRoom.status === 'waiting'
-                    ? (currentLanguage === 'tr' ? 'Bekliyor' : 'Waiting')
-                    : (currentLanguage === 'tr' ? 'Kapalı' : 'Closed')
-                  }
-                </Badge>
-              </div>
-            )}
-          </CardHeader>
-
-          <Separator />
-
-          <CardContent className="p-0 h-64">
+          <CardContent className="p-0 h-full">
             {!currentRoom ? (
-              <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-                <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="font-medium mb-2">
-                  {currentLanguage === 'tr' ? 'Canlı Destek' : 'Live Support'}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {currentLanguage === 'tr' 
-                    ? 'Size nasıl yardımcı olabiliriz?' 
-                    : 'How can we help you?'}
-                </p>
-                
-                <div className="space-y-2 w-full">
-                  <Button 
-                    onClick={() => setShowStartForm(true)}
-                    className="w-full"
-                    size="sm"
-                  >
-                    {currentLanguage === 'tr' ? 'Görüşme Başlat' : 'Start Chat'}
-                  </Button>
+              <div className="h-full bg-black text-white rounded-lg overflow-hidden">
+                {/* Header */}
+                <div className="p-4 text-center border-b border-gray-800">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex-1"></div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsOpen(false)}
+                      className="h-6 w-6 p-0 text-white hover:bg-gray-800"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
                   
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Phone className="h-3 w-3 mr-1" />
-                      {currentLanguage === 'tr' ? 'Ara' : 'Call'}
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Mail className="h-3 w-3 mr-1" />
-                      {currentLanguage === 'tr' ? 'E-posta' : 'Email'}
-                    </Button>
+                  <div className="mb-4">
+                    <h1 className="text-2xl font-bold">
+                      <span className="text-white">gudu</span>
+                      <span className="text-yellow-400">bet</span>
+                    </h1>
+                  </div>
+                  
+                  <div className="text-sm text-gray-300 leading-relaxed">
+                    <p className="mb-1">Gudubet™ | En İyi Casino ve Bahis Sitesi</p>
+                    <p>Gudubet, benzersiz ve heyecan verici</p>
+                    <p>büyük ve güvenilir bir çevrimiçi kumarhane,</p>
+                    <p>spor bahis web sitesidir.</p>
                   </div>
                 </div>
                 
+                {/* Contact Form */}
+                <div className="p-4 space-y-3">
+                  <Button 
+                    onClick={() => setShowStartForm(true)}
+                    className="w-full bg-transparent border border-gray-600 text-white hover:bg-gray-800 rounded-lg py-3 text-left pl-4"
+                    variant="outline"
+                  >
+                    <span className="text-gray-400 text-sm">* İsim</span>
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => setShowStartForm(true)}
+                    className="w-full bg-transparent border border-gray-600 text-white hover:bg-gray-800 rounded-lg py-3 text-left pl-4"
+                    variant="outline"
+                  >
+                    <span className="text-gray-400 text-sm">* E-posta</span>
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => setShowStartForm(true)}
+                    className="w-full bg-transparent border border-gray-600 text-white hover:bg-gray-800 rounded-lg py-3 text-left pl-4"
+                    variant="outline"
+                  >
+                    <span className="text-gray-400 text-sm">* Telefon</span>
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => setShowStartForm(true)}
+                    className="w-full bg-transparent border border-gray-600 text-white hover:bg-gray-800 rounded-lg py-3 text-left pl-4"
+                    variant="outline"
+                  >
+                    <span className="text-gray-400 text-sm">* Yatırım Miktarı</span>
+                  </Button>
+                </div>
+                
                 {onlineAdmins > 0 && (
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {onlineAdmins} {currentLanguage === 'tr' ? 'temsilci çevrimiçi' : 'agents online'}
-                  </p>
+                  <div className="p-4 text-center">
+                    <p className="text-xs text-gray-400">
+                      {onlineAdmins} temsilci çevrimiçi
+                    </p>
+                  </div>
                 )}
               </div>
             ) : (
-              <ScrollArea className="h-full p-3">
-                <div className="space-y-3">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={cn(
-                        "flex",
-                        message.message_type === 'system' ? "justify-center" : 
-                        message.is_admin ? "justify-start" : "justify-end"
+              <div className="h-full flex flex-col">
+                <div className="p-3 border-b">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
+                        <Circle className={cn("h-2 w-2", isConnected ? "fill-green-500 text-green-500" : "fill-gray-400 text-gray-400")} />
+                        <span className="font-medium text-sm">
+                          {currentLanguage === 'tr' ? 'Canlı Destek' : 'Live Support'}
+                        </span>
+                      </div>
+                      {onlineAdmins > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Users className="h-3 w-3 mr-1" />
+                          {onlineAdmins}
+                        </Badge>
                       )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsOpen(false)}
+                      className="h-6 w-6 p-0"
                     >
-                      {message.message_type === 'system' ? (
-                        <div className="bg-muted rounded-lg px-3 py-1 text-xs text-center max-w-[80%]">
-                          {message.message}
-                        </div>
-                      ) : (
-                        <div className={cn(
-                          "flex items-end space-x-2 max-w-[80%]",
-                          message.is_admin ? "flex-row" : "flex-row-reverse space-x-reverse"
-                        )}>
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage src={message.sender_avatar} />
-                            <AvatarFallback className="text-xs">
-                              {message.is_admin ? 'A' : 'U'}
-                            </AvatarFallback>
-                          </Avatar>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {currentRoom.subject}
+                      </p>
+                      <Badge variant={getPriorityColor(currentRoom.priority) as any} className="text-xs">
+                        {getPriorityText(currentRoom.priority)}
+                      </Badge>
+                    </div>
+                    <Badge variant={currentRoom.status === 'active' ? 'default' : 'secondary'} className="text-xs">
+                      {currentRoom.status === 'active' 
+                        ? (currentLanguage === 'tr' ? 'Aktif' : 'Active')
+                        : currentRoom.status === 'waiting'
+                        ? (currentLanguage === 'tr' ? 'Bekliyor' : 'Waiting')
+                        : (currentLanguage === 'tr' ? 'Kapalı' : 'Closed')
+                      }
+                    </Badge>
+                  </div>
+                </div>
+
+                <ScrollArea className="flex-1 p-3">
+                  <div className="space-y-3">
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={cn(
+                          "flex",
+                          message.message_type === 'system' ? "justify-center" : 
+                          message.is_admin ? "justify-start" : "justify-end"
+                        )}
+                      >
+                        {message.message_type === 'system' ? (
+                          <div className="bg-muted rounded-lg px-3 py-1 text-xs text-center max-w-[80%]">
+                            {message.message}
+                          </div>
+                        ) : (
                           <div className={cn(
-                            "rounded-lg px-3 py-2 max-w-full",
-                            message.is_admin 
-                              ? "bg-muted text-foreground" 
-                              : "bg-primary text-primary-foreground"
+                            "flex items-end space-x-2 max-w-[80%]",
+                            message.is_admin ? "flex-row" : "flex-row-reverse space-x-reverse"
                           )}>
-                            <p className="text-sm">{message.message}</p>
-                            <p className="text-xs opacity-75 mt-1">
-                              {formatTime(message.created_at)}
-                            </p>
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={message.sender_avatar} />
+                              <AvatarFallback className="text-xs">
+                                {message.is_admin ? 'A' : 'U'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className={cn(
+                              "rounded-lg px-3 py-2 max-w-full",
+                              message.is_admin 
+                                ? "bg-muted text-foreground" 
+                                : "bg-primary text-primary-foreground"
+                            )}>
+                              <p className="text-sm">{message.message}</p>
+                              <p className="text-xs opacity-75 mt-1">
+                                {formatTime(message.created_at)}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    
+                    {adminTyping && (
+                      <div className="flex justify-start">
+                        <div className="bg-muted rounded-lg px-3 py-2 text-sm">
+                          <div className="flex space-x-1">
+                            <div className="animate-bounce">•</div>
+                            <div className="animate-bounce" style={{ animationDelay: '0.1s' }}>•</div>
+                            <div className="animate-bounce" style={{ animationDelay: '0.2s' }}>•</div>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
-                  
-                  {adminTyping && (
-                    <div className="flex justify-start">
-                      <div className="bg-muted rounded-lg px-3 py-2 text-sm">
-                        <div className="flex space-x-1">
-                          <div className="animate-bounce">•</div>
-                          <div className="animate-bounce" style={{ animationDelay: '0.1s' }}>•</div>
-                          <div className="animate-bounce" style={{ animationDelay: '0.2s' }}>•</div>
-                        </div>
                       </div>
-                    </div>
-                  )}
-                  
-                  <div ref={messagesEndRef} />
+                    )}
+                    
+                    <div ref={messagesEndRef} />
+                  </div>
+                </ScrollArea>
+                
+                <div className="p-2 border-t">
+                  <div className="flex space-x-2 w-full">
+                    <Input
+                      ref={inputRef}
+                      value={newMessage}
+                      onChange={(e) => handleInputChange(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder={currentLanguage === 'tr' ? 'Mesajınızı yazın...' : 'Type your message...'}
+                      className="flex-1"
+                    />
+                    <Button 
+                      onClick={handleSendMessage}
+                      disabled={!newMessage.trim()}
+                      size="sm"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </ScrollArea>
+              </div>
             )}
           </CardContent>
-
-          {currentRoom && (
-            <>
-              <Separator />
-              <CardFooter className="p-2">
-                <div className="flex space-x-2 w-full">
-                  <Input
-                    ref={inputRef}
-                    value={newMessage}
-                    onChange={(e) => handleInputChange(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder={currentLanguage === 'tr' ? 'Mesajınızı yazın...' : 'Type your message...'}
-                    className="flex-1"
-                  />
-                  <Button 
-                    onClick={handleSendMessage}
-                    disabled={!newMessage.trim()}
-                    size="sm"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardFooter>
-            </>
-          )}
         </Card>
       )}
 
       {/* Start Chat Form Dialog */}
       <Dialog open={showStartForm} onOpenChange={setShowStartForm}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-black text-white border-gray-800">
           <DialogHeader>
-            <DialogTitle>
-              {currentLanguage === 'tr' ? 'Destek Talebi Oluştur' : 'Create Support Request'}
+            <DialogTitle className="text-center">
+              <div className="mb-4">
+                <h1 className="text-2xl font-bold">
+                  <span className="text-white">gudu</span>
+                  <span className="text-yellow-400">bet</span>
+                </h1>
+              </div>
+              <div className="text-sm text-gray-300 leading-relaxed">
+                <p className="mb-1">Gudubet™ | En İyi Casino ve Bahis Sitesi</p>
+                <p>Gudubet, benzersiz ve heyecan verici</p>
+                <p>büyük ve güvenilir bir çevrimiçi kumarhane,</p>
+                <p>spor bahis web sitesidir.</p>
+              </div>
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">
-                {currentLanguage === 'tr' ? 'Konu' : 'Subject'}
-              </label>
               <Input
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder={currentLanguage === 'tr' ? 'Sorununuzu özetleyin' : 'Summarize your issue'}
+                placeholder="* İsim"
+                className="bg-transparent border-gray-600 text-white placeholder-gray-400"
               />
             </div>
             
             <div>
-              <label className="text-sm font-medium">
-                {currentLanguage === 'tr' ? 'Öncelik' : 'Priority'}
-              </label>
+              <Input
+                type="email"
+                placeholder="* E-posta"
+                className="bg-transparent border-gray-600 text-white placeholder-gray-400"
+              />
+            </div>
+            
+            <div>
+              <Input
+                type="tel"
+                placeholder="* Telefon"
+                className="bg-transparent border-gray-600 text-white placeholder-gray-400"
+              />
+            </div>
+            
+            <div>
+              <Input
+                type="number"
+                placeholder="* Yatırım Miktarı"
+                className="bg-transparent border-gray-600 text-white placeholder-gray-400"
+              />
+            </div>
+            
+            <div>
               <Select value={priority} onValueChange={(value: any) => setPriority(value)}>
-                <SelectTrigger>
-                  <SelectValue />
+                <SelectTrigger className="bg-transparent border-gray-600 text-white">
+                  <SelectValue placeholder="Öncelik Seçin" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">
-                    {currentLanguage === 'tr' ? 'Düşük' : 'Low'}
+                <SelectContent className="bg-black border-gray-800">
+                  <SelectItem value="low" className="text-white hover:bg-gray-800">
+                    Düşük Öncelik
                   </SelectItem>
-                  <SelectItem value="medium">
-                    {currentLanguage === 'tr' ? 'Orta' : 'Medium'}
+                  <SelectItem value="medium" className="text-white hover:bg-gray-800">
+                    Orta Öncelik
                   </SelectItem>
-                  <SelectItem value="high">
-                    {currentLanguage === 'tr' ? 'Yüksek' : 'High'}
+                  <SelectItem value="high" className="text-white hover:bg-gray-800">
+                    Yüksek Öncelik
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             <div>
-              <label className="text-sm font-medium">
-                {currentLanguage === 'tr' ? 'Açıklama (İsteğe bağlı)' : 'Description (Optional)'}
-              </label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder={currentLanguage === 'tr' ? 'Sorununuzu detaylı olarak açıklayın' : 'Describe your issue in detail'}
+                placeholder="Sorununuzu detaylı olarak açıklayın (isteğe bağlı)"
+                className="bg-transparent border-gray-600 text-white placeholder-gray-400"
                 rows={3}
               />
             </div>
@@ -372,16 +428,16 @@ const LiveChatWidget = () => {
               <Button
                 onClick={handleStartChat}
                 disabled={!subject.trim()}
-                className="flex-1"
+                className="flex-1 bg-yellow-400 text-black hover:bg-yellow-500"
               >
-                {currentLanguage === 'tr' ? 'Görüşme Başlat' : 'Start Chat'}
+                Görüşme Başlat
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setShowStartForm(false)}
-                className="flex-1"
+                className="flex-1 border-gray-600 text-white hover:bg-gray-800"
               >
-                {currentLanguage === 'tr' ? 'İptal' : 'Cancel'}
+                İptal
               </Button>
             </div>
           </div>

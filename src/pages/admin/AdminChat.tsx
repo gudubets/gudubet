@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   MessageCircle, 
   Send, 
@@ -16,7 +17,8 @@ import {
   CheckCircle,
   XCircle,
   Search,
-  Filter
+  Filter,
+  MessageSquare
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,7 +64,52 @@ const AdminChat = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showTemplates, setShowTemplates] = useState(false);
   const { toast } = useToast();
+
+  // Predefined message templates
+  const messageTemplates = [
+    {
+      title: "Hoşgeldin Mesajı",
+      content: "Merhaba! Gudubet'e hoş geldiniz. Size nasıl yardımcı olabilirim?"
+    },
+    {
+      title: "Bonus Bilgilendirme",
+      content: "Aktif bonuslarınız ve promosyonlarınız hakkında bilgi almak için lütfen hesap bilgilerinizi kontrol edin."
+    },
+    {
+      title: "Para Yatırma Yardımı",
+      content: "Para yatırma işlemi için hesap menüsünden 'Para Yatır' seçeneğini kullanabilirsiniz. Herhangi bir sorun yaşarsanız teknik ekibimize bildirin."
+    },
+    {
+      title: "Para Çekme Bilgisi",
+      content: "Para çekme talebiniz 24 saat içinde işleme alınacaktır. KYC doğrulama tamamlandıktan sonra işlem gerçekleşecektir."
+    },
+    {
+      title: "Teknik Sorun",
+      content: "Yaşadığınız teknik sorun için özür dileriz. Teknik ekibimiz konuyla ilgili çalışıyor. En kısa sürede çözüm sağlanacaktır."
+    },
+    {
+      title: "Hesap Doğrulama",
+      content: "Hesap doğrulama için kimlik belgesi ve adres belgesi yüklemeniz gerekmektedir. Belgeler 2-3 iş günü içinde incelenecektir."
+    },
+    {
+      title: "VIP Üyelik",
+      content: "VIP üyelik avantajları ve gereksinimler hakkında detaylı bilgi için VIP bölümünü ziyaret edebilir veya özel temsilcinizle görüşebilirsiniz."
+    },
+    {
+      title: "Güvenlik Bildirimi",
+      content: "Hesabınızın güvenliği için şifrenizi düzenli olarak değiştirin ve kimlik bilgilerinizi kimseyle paylaşmayın."
+    },
+    {
+      title: "Sorunu Çözüldü",
+      content: "Sorununuz çözüldü mü? Başka bir konuda yardıma ihtiyacınız varsa bize ulaşabilirsiniz. İyi oyunlar!"
+    },
+    {
+      title: "Görüşme Sonlandırma",
+      content: "Bu görüşmeyi sonlandırıyorum. Başka sorularınız olursa tekrar bizimle iletişime geçebilirsiniz. Teşekkürler!"
+    }
+  ];
 
   // Load chat rooms
   const loadChatRooms = async () => {
@@ -566,9 +613,52 @@ const AdminChat = () => {
                 
                 {selectedRoom.status !== 'closed' && (
                   <div className="p-4 border-t">
+                    <div className="flex gap-2 mb-2">
+                      <Popover open={showTemplates} onOpenChange={setShowTemplates}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="shrink-0"
+                          >
+                            <MessageSquare className="w-4 h-4 mr-1" />
+                            Şablonlar
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-0" align="start">
+                          <div className="p-3 border-b">
+                            <h4 className="font-medium">Hazır Mesaj Şablonları</h4>
+                            <p className="text-xs text-muted-foreground">Hızlı yanıt için şablon seçin</p>
+                          </div>
+                          <ScrollArea className="h-64">
+                            <div className="p-2">
+                              {messageTemplates.map((template, index) => (
+                                <Button
+                                  key={index}
+                                  variant="ghost"
+                                  className="w-full text-left justify-start h-auto p-2 mb-1"
+                                  onClick={() => {
+                                    setNewMessage(template.content);
+                                    setShowTemplates(false);
+                                  }}
+                                >
+                                  <div>
+                                    <div className="font-medium text-sm">{template.title}</div>
+                                    <div className="text-xs text-muted-foreground truncate">
+                                      {template.content.substring(0, 50)}...
+                                    </div>
+                                  </div>
+                                </Button>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
                     <div className="flex gap-2">
                       <Textarea
-                        placeholder="Mesajınızı yazın..."
+                        placeholder="Mesajınızı yazın veya yukarıdan şablon seçin..."
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         onKeyPress={handleKeyPress}
