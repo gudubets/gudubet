@@ -9,7 +9,8 @@ import { RegistrationModal } from '@/components/auth/RegistrationModal';
 import { AgeVerificationModal } from '@/components/auth/AgeVerificationModal';
 import FloatingSupportButton from '@/components/ui/floating-support-button';
 import { useI18n } from '@/hooks/useI18n';
-import { Send } from 'lucide-react';
+import { useCasinoGames } from '@/hooks/useCasinoGames';
+import { Send, Play, Star } from 'lucide-react';
 import treasureImage from '@/assets/treasure.png';
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -17,6 +18,14 @@ const Index = () => {
   const [showAgeVerification, setShowAgeVerification] = useState(false);
   const navigate = useNavigate();
   const { t } = useI18n();
+  const { games, loading } = useCasinoGames();
+
+  // Get random 8 games for featured section
+  const getFeaturedRandomGames = () => {
+    if (!games.length) return [];
+    const shuffled = [...games].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 8);
+  };
 
   // Check age verification status on mount
   useEffect(() => {
@@ -363,6 +372,141 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Featured Games Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-yellow-400 text-2xl font-bold flex items-center">
+                <Star className="mr-2 h-6 w-6" />
+                ÖNE ÇIKANLAR
+              </h2>
+              <Button 
+                variant="outline" 
+                className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black"
+                onClick={() => navigate('/casino')}
+              >
+                Tümünü Gör
+              </Button>
+            </div>
+            
+            <Carousel className="w-full" opts={{ align: "start", loop: true }}>
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {loading ? (
+                  // Loading skeletons
+                  Array.from({ length: 8 }, (_, i) => (
+                    <CarouselItem key={i} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
+                      <Card className="bg-gray-900 border-gray-700 overflow-hidden animate-pulse">
+                        <div className="aspect-square bg-gray-800"></div>
+                        <CardContent className="p-4">
+                          <div className="h-4 bg-gray-800 rounded mb-2"></div>
+                          <div className="h-3 bg-gray-800 rounded w-2/3"></div>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  ))
+                ) : (
+                  getFeaturedRandomGames().map((game) => (
+                    <CarouselItem key={game.id} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
+                      <Card className="bg-gray-900 border-gray-700 text-white overflow-hidden hover:border-yellow-400 transition-all duration-300 hover:transform hover:scale-105 group cursor-pointer">
+                        <div 
+                          className="relative aspect-square bg-cover bg-center bg-no-repeat overflow-hidden"
+                          style={{ 
+                            backgroundImage: game.thumbnail_url ? `url(${game.thumbnail_url})` : `linear-gradient(135deg, #1f2937, #374151)` 
+                          }}
+                          onClick={() => navigate(`/game/${game.slug}`)}
+                        >
+                          {!game.thumbnail_url && (
+                            <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-50">
+                              🎰
+                            </div>
+                          )}
+                          
+                          {/* Play overlay */}
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div className="bg-yellow-400 text-black rounded-full p-3 transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                              <Play className="h-6 w-6 fill-current" />
+                            </div>
+                          </div>
+
+                          {/* Game badges */}
+                          <div className="absolute top-2 left-2 flex flex-col gap-1">
+                            {game.is_new && (
+                              <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">YENİ</span>
+                            )}
+                            {game.is_popular && (
+                              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">POPÜLER</span>
+                            )}
+                            {game.is_featured && (
+                              <span className="bg-yellow-500 text-black text-xs px-2 py-1 rounded-full font-bold">ÖNE ÇIKAN</span>
+                            )}
+                          </div>
+
+                          {/* Jackpot indicator */}
+                          {game.jackpot_amount && game.jackpot_amount > 0 && (
+                            <div className="absolute top-2 right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                              💰 ₺{game.jackpot_amount.toLocaleString()}
+                            </div>
+                          )}
+                        </div>
+
+                        <CardContent className="p-4">
+                          <div className="mb-2">
+                            <h3 className="font-bold text-sm line-clamp-1 group-hover:text-yellow-400 transition-colors">
+                              {game.name}
+                            </h3>
+                            <p className="text-xs text-gray-400 line-clamp-1">
+                              {game.provider}
+                            </p>
+                          </div>
+
+                          {/* Game stats */}
+                          <div className="flex justify-between items-center text-xs text-gray-400">
+                            <div className="flex items-center space-x-2">
+                              {game.rtp_percentage && (
+                                <span>RTP: {game.rtp_percentage}%</span>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <span>{game.play_count}</span>
+                              <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+                              <span>oynandı</span>
+                            </div>
+                          </div>
+
+                          {/* Action buttons */}
+                          <div className="flex space-x-2 mt-3">
+                            <Button
+                              size="sm"
+                              className="flex-1 bg-yellow-400 text-black hover:bg-yellow-500 font-semibold"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/game/${game.slug}`);
+                              }}
+                            >
+                              Oyna
+                            </Button>
+                            {game.has_demo && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/demo-games?game=${game.slug}`);
+                                }}
+                              >
+                                Demo
+                              </Button>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  ))
+                )}
+              </CarouselContent>
+            </Carousel>
           </div>
 
           {/* Winners Section */}
