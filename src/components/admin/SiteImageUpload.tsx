@@ -42,7 +42,10 @@ export const SiteImageUpload: React.FC<SiteImageUploadProps> = ({
       return;
     }
 
-    // Show crop modal instead of direct upload
+    // Show loading state immediately
+    setUploading(true);
+    
+    // Show crop modal
     setSelectedFile(file);
     setShowCropModal(true);
   };
