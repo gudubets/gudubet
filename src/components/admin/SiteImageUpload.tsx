@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Loader2, Crop } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ImageCropModal } from './ImageCropModal';
 
 interface SiteImageUploadProps {
   currentImageUrl?: string;
@@ -22,6 +23,8 @@ export const SiteImageUpload: React.FC<SiteImageUploadProps> = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (file: File) => {
@@ -39,17 +42,23 @@ export const SiteImageUpload: React.FC<SiteImageUploadProps> = ({
       return;
     }
 
+    // Show crop modal instead of direct upload
+    setSelectedFile(file);
+    setShowCropModal(true);
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
     setUploading(true);
     
     try {
       // Generate unique filename
-      const fileExt = file.name.split('.').pop();
+      const fileExt = croppedFile.name.split('.').pop();
       const fileName = `${category}/${name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}.${fileExt}`;
       
       // Upload to Supabase Storage - use site-images bucket
       const { data, error } = await supabase.storage
         .from('site-images')
-        .upload(fileName, file, {
+        .upload(fileName, croppedFile, {
           cacheControl: '3600',
           upsert: true
         });
@@ -60,7 +69,7 @@ export const SiteImageUpload: React.FC<SiteImageUploadProps> = ({
           // Try uploading to game-images bucket as fallback
           const { data: gameData, error: gameError } = await supabase.storage
             .from('game-images')
-            .upload(fileName, file, {
+            .upload(fileName, croppedFile, {
               cacheControl: '3600',
               upsert: true
             });
@@ -186,14 +195,26 @@ export const SiteImageUpload: React.FC<SiteImageUploadProps> = ({
                   </p>
                 </div>
 
-                <Button
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Resim Seç
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Resim Seç
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="bg-primary/10 hover:bg-primary/20"
+                  >
+                    <Crop className="w-4 h-4 mr-2" />
+                    Kırp ve Yükle
+                  </Button>
+                </div>
               </>
             )}
           </div>
@@ -213,7 +234,20 @@ export const SiteImageUpload: React.FC<SiteImageUploadProps> = ({
         <p>• Desteklenen formatlar: PNG, JPG, JPEG, WebP</p>
         <p>• Maksimum dosya boyutu: 10MB</p>
         <p>• Kategori: {category}</p>
+        <p>• Resim seçtikten sonra kırpma ekranı açılacak</p>
       </div>
+
+      {/* Crop Modal */}
+      <ImageCropModal
+        isOpen={showCropModal}
+        onClose={() => {
+          setShowCropModal(false);
+          setSelectedFile(null);
+        }}
+        imageFile={selectedFile}
+        onCropComplete={handleCropComplete}
+        category={category}
+      />
     </div>
   );
 };
