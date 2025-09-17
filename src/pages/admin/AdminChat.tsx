@@ -256,7 +256,58 @@ const AdminChat = () => {
     }
   };
 
-  // Clear messages
+  // Clear old messages globally
+  const clearOldMessages = async (daysOld = 30) => {
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - daysOld);
+      
+      const { error } = await supabase
+        .from('chat_messages')
+        .delete()
+        .lt('created_at', cutoffDate.toISOString());
+
+      if (error) throw error;
+
+      // Add system messages to affected rooms
+      const { data: affectedRooms } = await supabase
+        .from('chat_rooms')
+        .select('id')
+        .neq('status', 'closed');
+
+      if (affectedRooms) {
+        for (const room of affectedRooms) {
+          await supabase
+            .from('chat_messages')
+            .insert({
+              chat_room_id: room.id,
+              sender_id: '00000000-0000-0000-0000-000000000000',
+              sender_name: 'Sistem',
+              message: `${daysOld} gün önceki eski mesajlar temizlendi.`,
+              message_type: 'system',
+              is_admin: false
+            });
+        }
+      }
+
+      loadChatRooms();
+      if (selectedRoom) {
+        loadMessages(selectedRoom.id);
+      }
+
+      toast({
+        title: "Başarılı",
+        description: `${daysOld} gün önceki mesajlar temizlendi.`,
+      });
+    } catch (error) {
+      console.error('Error clearing old messages:', error);
+      toast({
+        title: "Hata",
+        description: "Eski mesajlar temizlenirken hata oluştu.",
+        variant: "destructive"
+      });
+    }
+  };
   const clearMessages = async (roomId: string) => {
     try {
       const { error } = await supabase
@@ -440,6 +491,53 @@ const AdminChat = () => {
           <p className="text-muted-foreground">
             Kullanıcı destek taleplerini yönetin ve yanıtlayın
           </p>
+        </div>
+        
+        <div className="flex gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Eski Mesajları Temizle
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-3">
+                <div>
+                  <h4 className="font-medium">Eski Mesajları Temizle</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Veritabanı alanı tasarrufu için eski mesajları temizleyin
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => clearOldMessages(7)}
+                    className="justify-start"
+                  >
+                    7 gün önceki mesajları temizle
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => clearOldMessages(30)}
+                    className="justify-start"
+                  >
+                    30 gün önceki mesajları temizle
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => clearOldMessages(90)}
+                    className="justify-start"
+                  >
+                    90 gün önceki mesajları temizle
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
