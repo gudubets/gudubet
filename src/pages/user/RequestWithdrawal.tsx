@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, CreditCard, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ArrowLeft, CreditCard, Clock, CheckCircle, XCircle, AlertTriangle, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +27,7 @@ export default function RequestWithdrawal() {
   const [network, setNetwork] = useState('TRC20');
   const [address, setAddress] = useState('');
   const [tag, setTag] = useState('');
+  const [detailedError, setDetailedError] = useState<any>(null);
 
   const createM = useCreateWithdrawal();
   const list = useMyWithdrawals();
@@ -129,8 +131,9 @@ export default function RequestWithdrawal() {
       address, 
       tag 
     }, {
-      onSuccess: () => {
+      onSuccess: (data: any) => {
         toast.success('✅ Çekim talebiniz başarıyla gönderildi! İnceleme sürecine alınmıştır.');
+        setDetailedError(null);
         setAmount(0);
         setIban('');
         setAccountHolderName('');
@@ -138,30 +141,61 @@ export default function RequestWithdrawal() {
         setPhone('');
         setAddress('');
         setTag('');
+
+        // Show additional KYC info if available
+        if (data?.kyc_info && !data.kyc_info.allowed) {
+          toast.info(`KYC Bilgi: ${data.kyc_info.reason}`, {
+            description: `Günlük limit: ₺${data.kyc_info.daily_remaining}/${data.kyc_info.daily_limit} | Aylık limit: ₺${data.kyc_info.monthly_remaining}/${data.kyc_info.monthly_limit}`,
+            duration: 8000
+          });
+        }
       },
       onError: (error: any) => {
         console.error('Withdrawal request error:', error);
         
-        // Daha açıklayıcı hata mesajları
-        let errorMessage = 'Çekim talebi gönderilemedi. ';
-        
-        if (error?.message) {
-          if (error.message.includes('balance')) {
-            errorMessage += 'Yetersiz bakiye!';
-          } else if (error.message.includes('iban')) {
-            errorMessage += 'IBAN formatını kontrol edin!';
-          } else if (error.message.includes('verification') || error.message.includes('kyc')) {
-            errorMessage += 'Kimlik doğrulaması gerekli!';
-          } else if (error.message.includes('limit')) {
-            errorMessage += 'Günlük/aylık limitinizi aştınız!';
+        // Parse the error response
+        let errorData: any = {};
+        try {
+          if (typeof error === 'string') {
+            errorData = { error: error };
+          } else if (error?.message) {
+            try {
+              errorData = JSON.parse(error.message);
+            } catch {
+              errorData = { error: error.message };
+            }
           } else {
-            errorMessage += error.message;
+            errorData = error || {};
           }
-        } else {
-          errorMessage += 'Bilinmeyen bir hata oluştu. Lütfen tekrar deneyin.';
+        } catch {
+          errorData = { error: 'Bilinmeyen hata oluştu' };
+        }
+
+        // Set detailed error for Alert component
+        setDetailedError(errorData);
+        
+        // Show toast with primary error message
+        let toastMessage = 'Çekim talebi gönderilemedi';
+        
+        if (errorData.error) {
+          if (errorData.error.includes('Geçersiz miktar')) {
+            toastMessage = errorData.error;
+          } else if (errorData.error.includes('Yetersiz bakiye')) {
+            toastMessage = `Yetersiz bakiye! Mevcut: ₺${errorData.current_balance || 0}`;
+          } else if (errorData.error.includes('KYC kontrol hatası')) {
+            toastMessage = 'Kimlik doğrulama hatası - Destek ekibiyle iletişime geçin';
+          } else if (errorData.error.includes('Çekim yöntemi')) {
+            toastMessage = 'Ödeme bilgilerini kontrol edin';
+          } else if (errorData.error.includes('Profil hatası')) {
+            toastMessage = 'Hesap bilgilerinizde sorun var - Destek ekibiyle iletişime geçin';
+          } else {
+            toastMessage = errorData.error;
+          }
         }
         
-        toast.error(errorMessage);
+        toast.error(toastMessage, {
+          duration: 6000
+        });
       }
     });
   };
@@ -212,6 +246,40 @@ export default function RequestWithdrawal() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Detailed Error Display */}
+            {detailedError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Çekim Talebi Hatası</AlertTitle>
+                <AlertDescription className="mt-2 space-y-2">
+                  <div className="font-medium">
+                    {detailedError.error || 'Bilinmeyen hata oluştu'}
+                  </div>
+                  
+                  {detailedError.current_balance !== undefined && (
+                    <div className="text-sm bg-destructive/10 p-2 rounded">
+                      <strong>Bakiye Bilgisi:</strong>
+                      <br />• Mevcut bakiye: ₺{detailedError.current_balance?.toLocaleString('tr-TR')}
+                      <br />• Talep edilen: ₺{detailedError.requested_amount?.toLocaleString('tr-TR')}
+                    </div>
+                  )}
+                  
+                  {detailedError.kyc_info && (
+                    <div className="text-sm bg-blue-50 dark:bg-blue-950/20 p-2 rounded">
+                      <strong>KYC Limit Bilgisi:</strong>
+                      <br />• Sebep: {detailedError.kyc_info.reason}
+                      <br />• Günlük kalan: ₺{detailedError.kyc_info.daily_remaining?.toLocaleString('tr-TR')} / ₺{detailedError.kyc_info.daily_limit?.toLocaleString('tr-TR')}
+                      <br />• Aylık kalan: ₺{detailedError.kyc_info.monthly_remaining?.toLocaleString('tr-TR')} / ₺{detailedError.kyc_info.monthly_limit?.toLocaleString('tr-TR')}
+                    </div>
+                  )}
+                  
+                  <div className="text-xs text-muted-foreground border-t pt-2">
+                    💡 Sorun devam ederse destek ekibiyle iletişime geçin
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
             {userProfile && (
               <div className="p-4 bg-muted rounded-lg">
                  <p className="text-sm text-muted-foreground">Mevcut Bakiye</p>
