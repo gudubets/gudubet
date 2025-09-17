@@ -783,6 +783,21 @@ const AdminChat = () => {
                         </Button>
                       </>
                     )}
+                    
+                    {selectedRoom.status === 'closed' && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm('Chat odasını tamamen silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+                            clearChatRoom(selectedRoom.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Odayı Sil
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardHeader>
