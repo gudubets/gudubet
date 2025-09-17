@@ -1025,6 +1025,81 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          chat_room_id: string
+          created_at: string | null
+          id: string
+          is_admin: boolean | null
+          message: string
+          message_type: string | null
+          sender_avatar: string | null
+          sender_id: string
+          sender_name: string
+        }
+        Insert: {
+          chat_room_id: string
+          created_at?: string | null
+          id?: string
+          is_admin?: boolean | null
+          message: string
+          message_type?: string | null
+          sender_avatar?: string | null
+          sender_id: string
+          sender_name: string
+        }
+        Update: {
+          chat_room_id?: string
+          created_at?: string | null
+          id?: string
+          is_admin?: boolean | null
+          message?: string
+          message_type?: string | null
+          sender_avatar?: string | null
+          sender_id?: string
+          sender_name?: string
+        }
+        Relationships: []
+      }
+      chat_rooms: {
+        Row: {
+          admin_id: string | null
+          created_at: string | null
+          id: string
+          last_message: string | null
+          priority: string | null
+          status: string | null
+          subject: string
+          unread_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          created_at?: string | null
+          id?: string
+          last_message?: string | null
+          priority?: string | null
+          status?: string | null
+          subject: string
+          unread_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_id?: string | null
+          created_at?: string | null
+          id?: string
+          last_message?: string | null
+          priority?: string | null
+          status?: string | null
+          subject?: string
+          unread_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       competitor_analyses: {
         Row: {
           analysis_type: string
@@ -1471,6 +1546,57 @@ export type Database = {
           threshold_count?: number | null
           time_window_hours?: number | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      friend_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          receiver_id: string
+          requester_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          receiver_id: string
+          requester_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          receiver_id?: string
+          requester_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          created_at: string | null
+          friend_id: string
+          id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          friend_id: string
+          id?: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          friend_id?: string
+          id?: string
+          status?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -3379,6 +3505,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activities: {
+        Row: {
+          activity_type: string
+          content: string
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          content: string
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_behavior_logs: {
         Row: {
           action_type: string
@@ -3849,6 +4005,36 @@ export type Database = {
           },
         ]
       }
+      user_push_tokens: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          platform: string
+          token: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          token: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          token?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_risk_profiles: {
         Row: {
           assessment_history: Json | null
@@ -4024,6 +4210,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_social_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string
+          friend_count: number | null
+          id: string
+          is_online: boolean | null
+          last_seen: string | null
+          level: number | null
+          total_games: number | null
+          total_wins: number | null
+          updated_at: string | null
+          user_id: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name: string
+          friend_count?: number | null
+          id?: string
+          is_online?: boolean | null
+          last_seen?: string | null
+          level?: number | null
+          total_games?: number | null
+          total_wins?: number | null
+          updated_at?: string | null
+          user_id: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string
+          friend_count?: number | null
+          id?: string
+          is_online?: boolean | null
+          last_seen?: string | null
+          level?: number | null
+          total_games?: number | null
+          total_wins?: number | null
+          updated_at?: string | null
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
       }
       users: {
         Row: {

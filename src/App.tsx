@@ -6,6 +6,7 @@ import { useSendDeviceFingerprintOnMount } from './hooks/useDeviceFingerprint';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LocalizationPrompt from "@/components/LocalizationPrompt";
+import UXEnhancements from "@/components/layout/UXEnhancements";
 import PaymentMethods from "./pages/PaymentMethods";
 import Index from "./pages/Index";
 import DemoGames from "./pages/DemoGames";
@@ -153,6 +154,7 @@ const App = () => {
           </Routes>
           </Suspense>
         </BrowserRouter>
+        <UXEnhancements />
     </TooltipProvider>
   </QueryClientProvider>
   );
