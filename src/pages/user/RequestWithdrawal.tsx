@@ -153,48 +153,63 @@ export default function RequestWithdrawal() {
       onError: (error: any) => {
         console.error('Withdrawal request error:', error);
         
-        // Parse the error response
+        // Parse the error response more carefully
         let errorData: any = {};
+        let primaryMessage = 'Çekim talebi gönderilemedi';
+        
         try {
-          if (typeof error === 'string') {
-            errorData = { error: error };
+          // Handle different error formats
+          if (error?.context?.body) {
+            // Edge function error with context
+            errorData = error.context.body;
           } else if (error?.message) {
             try {
-              errorData = JSON.parse(error.message);
+              // Try to parse JSON from error message
+              if (error.message.includes('{')) {
+                const jsonStart = error.message.indexOf('{');
+                const jsonStr = error.message.substring(jsonStart);
+                errorData = JSON.parse(jsonStr);
+              } else {
+                errorData = { error: error.message };
+              }
             } catch {
               errorData = { error: error.message };
             }
+          } else if (typeof error === 'string') {
+            errorData = { error: error };
           } else {
-            errorData = error || {};
+            errorData = error || { error: 'Bilinmeyen hata oluştu' };
           }
-        } catch {
-          errorData = { error: 'Bilinmeyen hata oluştu' };
+        } catch (parseError) {
+          console.error('Error parsing response:', parseError);
+          errorData = { error: 'Sunucu hatası - Yanıt analiz edilemedi' };
         }
 
         // Set detailed error for Alert component
         setDetailedError(errorData);
         
-        // Show toast with primary error message
-        let toastMessage = 'Çekim talebi gönderilemedi';
-        
+        // Determine primary message based on error content
         if (errorData.error) {
           if (errorData.error.includes('Geçersiz miktar')) {
-            toastMessage = errorData.error;
+            primaryMessage = errorData.error;
           } else if (errorData.error.includes('Yetersiz bakiye')) {
-            toastMessage = `Yetersiz bakiye! Mevcut: ₺${errorData.current_balance || 0}`;
-          } else if (errorData.error.includes('KYC kontrol hatası')) {
-            toastMessage = 'Kimlik doğrulama hatası - Destek ekibiyle iletişime geçin';
+            primaryMessage = `Yetersiz bakiye! ${errorData.current_balance ? `Mevcut: ₺${errorData.current_balance}` : ''}`;
+          } else if (errorData.error.includes('KYC') || errorData.requires_kyc) {
+            primaryMessage = 'KYC doğrulama gerekiyor - Kimlik belgelerinizi yükleyin';
+          } else if (errorData.error.includes('limit aşım') || errorData.error.includes('limit exceeded')) {
+            primaryMessage = 'Çekim limitinizi aştınız - Manuel inceleme gerekiyor';
           } else if (errorData.error.includes('Çekim yöntemi')) {
-            toastMessage = 'Ödeme bilgilerini kontrol edin';
+            primaryMessage = 'Ödeme bilgilerini kontrol edin';
           } else if (errorData.error.includes('Profil hatası')) {
-            toastMessage = 'Hesap bilgilerinizde sorun var - Destek ekibiyle iletişime geçin';
+            primaryMessage = 'Hesap bilgilerinde sorun - Destek ile iletişime geçin';
           } else {
-            toastMessage = errorData.error;
+            primaryMessage = errorData.error;
           }
         }
         
-        toast.error(toastMessage, {
-          duration: 6000
+        toast.error(primaryMessage, {
+          duration: 8000,
+          description: errorData.details ? 'Detaylı bilgi için aşağıdaki hata mesajına bakın' : undefined
         });
       }
     });
@@ -253,7 +268,7 @@ export default function RequestWithdrawal() {
                 <AlertTitle>Çekim Talebi Hatası</AlertTitle>
                 <AlertDescription className="mt-2 space-y-2">
                   <div className="font-medium">
-                    {detailedError.error || 'Bilinmeyen hata oluştu'}
+                    {detailedError.error || detailedError.message || 'Bilinmeyen hata oluştu'}
                   </div>
                   
                   {detailedError.current_balance !== undefined && (
@@ -273,8 +288,24 @@ export default function RequestWithdrawal() {
                     </div>
                   )}
                   
+                  {detailedError.requires_kyc && (
+                    <div className="text-sm bg-yellow-50 dark:bg-yellow-950/20 p-2 rounded border border-yellow-200 dark:border-yellow-800">
+                      <strong>⚠️ KYC Doğrulama Gerekiyor:</strong>
+                      <br />Kimlik belgelerinizi yükleyerek hesabınızı doğrulayın
+                    </div>
+                  )}
+                  
+                  {detailedError.details && (
+                    <details className="text-xs text-muted-foreground">
+                      <summary className="cursor-pointer">Teknik Detaylar</summary>
+                      <pre className="mt-1 whitespace-pre-wrap bg-muted p-2 rounded">
+                        {JSON.stringify(detailedError.details, null, 2)}
+                      </pre>
+                    </details>
+                  )}
+                  
                   <div className="text-xs text-muted-foreground border-t pt-2">
-                    💡 Sorun devam ederse destek ekibiyle iletişime geçin
+                    💡 Sorun devam ederse <strong>Canlı Destek</strong> ile iletişime geçin
                   </div>
                 </AlertDescription>
               </Alert>

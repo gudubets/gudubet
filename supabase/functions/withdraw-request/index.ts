@@ -144,12 +144,19 @@ serve(async (req) => {
 
     console.log('KYC Check result:', kycCheck)
 
+    // Calculate fees and net amount
+    const feeRate = 0.02; // 2% fee
+    const feeAmount = amount * feeRate;
+    const netAmount = amount - feeAmount;
+
     // Create withdrawal record - the trigger will handle KYC validation
     const { data: withdrawal, error: withdrawalError } = await supabaseClient
       .from('withdrawals')
       .insert({
         user_id: profile.id,
         amount: amount,
+        net_amount: netAmount,
+        fee_amount: feeAmount,
         currency: 'TRY',
         method: method,
         payout_details: finalPayoutDetails,
@@ -160,8 +167,24 @@ serve(async (req) => {
 
     if (withdrawalError) {
       console.error('Withdrawal creation error:', withdrawalError)
+      
+      // Check if it's a KYC rejection from trigger
+      if (withdrawalError.message?.includes('KYC') || withdrawalError.message?.includes('limit')) {
+        return new Response(
+          JSON.stringify({ 
+            error: withdrawalError.message,
+            kyc_info: kycCheck,
+            requires_kyc: true
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      
       return new Response(
-        JSON.stringify({ error: 'Çekim talebi oluşturulamadı: ' + withdrawalError.message }),
+        JSON.stringify({ 
+          error: 'Çekim talebi oluşturulamadı: ' + withdrawalError.message,
+          details: withdrawalError
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -249,6 +272,8 @@ serve(async (req) => {
       success: true,
       withdrawal_id: withdrawal.id,
       amount: amount,
+      net_amount: netAmount,
+      fee_amount: feeAmount,
       status: withdrawal.status,
       message: withdrawal.requires_kyc 
         ? 'Çekim talebiniz KYC incelemesi gerektiriyor. Lütfen kimlik belgelerinizi yükleyiniz.'
@@ -256,7 +281,7 @@ serve(async (req) => {
     }
 
     // Add KYC info if limits were exceeded
-    if (!kycCheck.allowed) {
+    if (!kycCheck?.allowed) {
       responseData.kyc_info = {
         reason: kycCheck.reason,
         daily_limit: kycCheck.daily_limit,
@@ -264,6 +289,7 @@ serve(async (req) => {
         monthly_limit: kycCheck.monthly_limit,
         monthly_remaining: kycCheck.monthly_remaining
       }
+      responseData.message = 'Çekim talebiniz oluşturuldu ancak KYC limit kontrolü nedeniyle manuel inceleme gerekiyor.'
     }
 
     return new Response(
@@ -274,7 +300,11 @@ serve(async (req) => {
   } catch (error) {
     console.error('Withdrawal request error:', error)
     return new Response(
-      JSON.stringify({ error: 'Sunucu hatası oluştu' }),
+      JSON.stringify({ 
+        error: 'Sunucu hatası oluştu',
+        message: error instanceof Error ? error.message : 'Bilinmeyen hata',
+        details: error
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
