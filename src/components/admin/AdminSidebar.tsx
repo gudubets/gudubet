@@ -22,7 +22,8 @@ import {
   List,
   Plus,
   BookOpen,
-  Landmark
+  Landmark,
+  Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -77,6 +78,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       icon: Settings,
       href: '/admin/game-providers',
       active: location.pathname === '/admin/game-providers'
+    },
+    {
+      title: 'Öne Çıkanlar',
+      icon: Star,
+      href: '/admin/featured-games',
+      active: location.pathname === '/admin/featured-games'
     }
   ];
 

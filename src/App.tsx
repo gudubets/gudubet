@@ -38,6 +38,7 @@ import BonusRulesEditor from "./pages/admin/bonuses/BonusRulesEditor";
 import AdminBets from "./pages/admin/AdminBets";
 import AdminGameSessions from "./pages/admin/AdminGameSessions";
 import AdminBonuses from "./pages/admin/AdminBonuses";
+import AdminFeaturedGames from "./pages/admin/AdminFeaturedGames";
 import AdminFinance from "./pages/admin/AdminFinance";
 import AdminManagement from "./pages/admin/AdminManagement";
 import AdminBalance from "./pages/admin/AdminBalance";
@@ -125,6 +126,7 @@ const App = () => {
             <Route path="bets" element={<AdminBets />} />
             <Route path="game-sessions" element={<AdminGameSessions />} />
             <Route path="game-providers" element={<AdminGameProviders />} />
+            <Route path="featured-games" element={<AdminFeaturedGames />} />
             <Route path="bonuses/list" element={<BonusesList />} />
             <Route path="bonuses/create" element={<BonusForm />} />
             <Route path="bonuses/requests" element={<AdminBonusRequests />} />
