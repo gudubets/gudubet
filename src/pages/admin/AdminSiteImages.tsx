@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -126,8 +125,7 @@ const AdminSiteImages = () => {
   };
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
@@ -402,7 +400,6 @@ const AdminSiteImages = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </AdminLayout>
   );
 };
 
