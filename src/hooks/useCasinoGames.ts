@@ -69,22 +69,45 @@ export const useCasinoGames = () => {
 
       if (gamesError) throw gamesError;
 
+      // Load site images for game thumbnails
+      const { data: siteImages, error: imagesError } = await supabase
+        .from('site_images')
+        .select('*')
+        .eq('category', 'game-images')
+        .eq('is_active', true);
+
+      if (imagesError) {
+        console.warn('Error loading site images:', imagesError);
+      }
+
+      // Create a map of site images by name for quick lookup
+      const imageMap = new Map();
+      (siteImages || []).forEach(img => {
+        imageMap.set(img.name.toLowerCase(), img.image_url);
+      });
+
       // Transform the data to match our interface
-      const transformedGames: CasinoGame[] = (gamesData || []).map(game => ({
-        ...game,
-        category: game.casino_categories?.name || 'Unknown',
-        provider: game.game_providers?.name || 'Unknown',
-        volatility: game.volatility as string,
-        created_at: game.created_at || new Date().toISOString(),
-        updated_at: game.updated_at || new Date().toISOString(),
-        description: game.description || undefined,
-        background_url: game.background_url || undefined,
-        external_game_id: game.external_game_id || undefined,
-        game_url: game.game_url || undefined,
-        thumbnail_url: game.thumbnail_url || undefined,
-        rtp_percentage: game.rtp_percentage || undefined,
-        jackpot_amount: game.jackpot_amount || undefined
-      }));
+      const transformedGames: CasinoGame[] = (gamesData || []).map(game => {
+        // Try to find matching site image by game name
+        const matchingSiteImage = imageMap.get(game.name.toLowerCase());
+        
+        return {
+          ...game,
+          category: game.casino_categories?.name || 'Unknown',
+          provider: game.game_providers?.name || 'Unknown',
+          volatility: game.volatility as string,
+          created_at: game.created_at || new Date().toISOString(),
+          updated_at: game.updated_at || new Date().toISOString(),
+          description: game.description || undefined,
+          background_url: game.background_url || undefined,
+          external_game_id: game.external_game_id || undefined,
+          game_url: game.game_url || undefined,
+          // Use site image if available, otherwise use original thumbnail_url
+          thumbnail_url: matchingSiteImage || game.thumbnail_url || undefined,
+          rtp_percentage: game.rtp_percentage || undefined,
+          jackpot_amount: game.jackpot_amount || undefined
+        };
+      });
 
       setGames(transformedGames);
       setFilteredGames(transformedGames);
