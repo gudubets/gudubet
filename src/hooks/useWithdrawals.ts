@@ -16,7 +16,19 @@ export function useMyWithdrawals() {
 export function useCreateWithdrawal() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { amount: number; method: WithdrawalMethod; currency?: string; iban?: string; papara_id?: string; phone?: string; asset?: string; network?: string; address?: string; tag?: string; }) => {
+    mutationFn: async (payload: { 
+      amount: number; 
+      method: WithdrawalMethod; 
+      currency?: string; 
+      payout_details?: any;
+      iban?: string; 
+      papara_id?: string; 
+      phone?: string; 
+      asset?: string; 
+      network?: string; 
+      address?: string; 
+      tag?: string; 
+    }) => {
       const { data, error } = await supabase.functions.invoke('withdraw-request', { body: payload });
       if (error) throw error;
       return data as { success: boolean; withdrawal_id: string };

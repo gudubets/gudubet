@@ -39,7 +39,42 @@ serve(async (req) => {
     }
 
     // Get request data
-    const { amount, method, payout_details }: WithdrawalRequest = await req.json()
+    const requestBody = await req.json()
+    console.log('Withdrawal request received:', requestBody)
+    
+    const { amount, method, payout_details, iban, papara_id, phone, asset, network, address, tag }: any = requestBody
+
+    // Build payout_details object based on method
+    let finalPayoutDetails = payout_details;
+    
+    if (!finalPayoutDetails) {
+      switch (method) {
+        case 'bank':
+          finalPayoutDetails = {
+            iban: iban,
+            account_holder_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+          };
+          break;
+        case 'papara':
+          finalPayoutDetails = {
+            papara_id: papara_id,
+            phone: phone
+          };
+          break;
+        case 'crypto':
+          finalPayoutDetails = {
+            asset: asset,
+            network: network,
+            address: address,
+            tag: tag
+          };
+          break;
+        default:
+          finalPayoutDetails = {};
+      }
+    }
+
+    console.log('Final payout details:', finalPayoutDetails)
 
     // Validate input
     if (!amount || amount < 20 || amount > 10000) {
@@ -49,7 +84,8 @@ serve(async (req) => {
       )
     }
 
-    if (!method || !payout_details) {
+    if (!method || !finalPayoutDetails) {
+      console.error('Missing method or payout details:', { method, finalPayoutDetails })
       return new Response(
         JSON.stringify({ error: 'Çekim yöntemi ve hesap bilgileri gerekli' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -61,10 +97,18 @@ serve(async (req) => {
       .from('profiles')
       .select('id, first_name, last_name, balance, kyc_level, kyc_status')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (profileError || !profile) {
+    if (profileError) {
       console.error('Profile error:', profileError)
+      return new Response(
+        JSON.stringify({ error: 'Profil hatası: ' + profileError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!profile) {
+      console.error('Profile not found for user:', user.id)
       return new Response(
         JSON.stringify({ error: 'Kullanıcı profili bulunamadı' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -86,17 +130,19 @@ serve(async (req) => {
     // Check KYC limits using the existing function
     const { data: kycCheck, error: kycError } = await supabaseClient
       .rpc('check_kyc_withdrawal_limit', {
-        _user_id: user.id,
+        _user_id: profile.id,
         _amount: amount
       })
 
     if (kycError) {
       console.error('KYC check error:', kycError)
       return new Response(
-        JSON.stringify({ error: 'KYC kontrol hatası' }),
+        JSON.stringify({ error: 'KYC kontrol hatası: ' + kycError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    console.log('KYC Check result:', kycCheck)
 
     // Create withdrawal record - the trigger will handle KYC validation
     const { data: withdrawal, error: withdrawalError } = await supabaseClient
@@ -106,11 +152,11 @@ serve(async (req) => {
         amount: amount,
         currency: 'TRY',
         method: method,
-        payout_details: payout_details,
+        payout_details: finalPayoutDetails,
         status: 'pending'
       })
       .select()
-      .single()
+      .maybeSingle()
 
     if (withdrawalError) {
       console.error('Withdrawal creation error:', withdrawalError)
@@ -120,30 +166,65 @@ serve(async (req) => {
       )
     }
 
-    // Create pending wallet transaction (will be confirmed when withdrawal is approved)
-    const { error: walletError } = await supabaseClient
-      .from('wallet_transactions')
-      .insert({
-        wallet_id: (await supabaseClient
-          .from('wallets')
-          .select('id')
-          .eq('user_id', profile.id)
-          .eq('type', 'main')
-          .single()).data?.id,
-        direction: 'debit',
-        amount: amount,
-        ref_type: 'withdrawal_hold',
-        ref_id: withdrawal.id,
-        ledger_key: 'WITHDRAWAL_HOLD',
-        meta: {
-          withdrawal_id: withdrawal.id,
-          method: method
-        }
-      })
+    if (!withdrawal) {
+      console.error('Withdrawal not created - no data returned')
+      return new Response(
+        JSON.stringify({ error: 'Çekim talebi oluşturulamadı - veri döndürülmedi' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
-    if (walletError) {
-      console.error('Wallet transaction error:', walletError)
-      // Don't fail the request, the withdrawal was created
+    // Get or create user's main wallet
+    const { data: wallet, error: walletFindError } = await supabaseClient
+      .from('wallets')
+      .select('id')
+      .eq('user_id', profile.id)
+      .eq('type', 'main')
+      .maybeSingle()
+
+    let walletId = wallet?.id;
+    
+    if (!wallet && !walletFindError) {
+      // Create main wallet if doesn't exist
+      const { data: newWallet, error: walletCreateError } = await supabaseClient
+        .from('wallets')
+        .insert({
+          user_id: profile.id,
+          type: 'main',
+          currency: 'TRY',
+          balance: 0
+        })
+        .select('id')
+        .single()
+
+      if (walletCreateError) {
+        console.error('Wallet creation error:', walletCreateError)
+      } else {
+        walletId = newWallet?.id;
+      }
+    }
+
+    // Create wallet transaction for withdrawal hold (if wallet exists)
+    if (walletId) {
+      const { error: walletError } = await supabaseClient
+        .from('wallet_transactions')
+        .insert({
+          wallet_id: walletId,
+          direction: 'debit',
+          amount: amount,
+          ref_type: 'withdrawal_hold',
+          ref_id: withdrawal.id,
+          ledger_key: 'WITHDRAWAL_HOLD',
+          meta: {
+            withdrawal_id: withdrawal.id,
+            method: method
+          }
+        })
+
+      if (walletError) {
+        console.error('Wallet transaction error:', walletError)
+        // Don't fail the request, the withdrawal was created
+      }
     }
 
     // Log user behavior

@@ -107,7 +107,20 @@ export default function RequestWithdrawal() {
 
     createM.mutate({ 
       amount, 
-      method, 
+      method,
+      payout_details: method === 'bank' ? {
+        iban: iban,
+        account_holder_name: accountHolderName
+      } : method === 'papara' ? {
+        papara_id: paparaId,
+        phone: phone
+      } : method === 'crypto' ? {
+        asset: asset,
+        network: network,
+        address: address,
+        tag: tag
+      } : {},
+      // Also send individual fields for backward compatibility
       iban, 
       papara_id: paparaId, 
       phone, 
