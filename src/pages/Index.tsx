@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/sections/Footer';
 import { RegistrationModal } from '@/components/auth/RegistrationModal';
+import { AgeVerificationModal } from '@/components/auth/AgeVerificationModal';
 import FloatingSupportButton from '@/components/ui/floating-support-button';
 import { useI18n } from '@/hooks/useI18n';
 import { Send } from 'lucide-react';
@@ -13,10 +14,24 @@ import treasureImage from '@/assets/treasure.png';
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+  const [showAgeVerification, setShowAgeVerification] = useState(false);
   const navigate = useNavigate();
-  const {
-    t
-  } = useI18n();
+  const { t } = useI18n();
+
+  // Check age verification status on mount
+  useEffect(() => {
+    const ageVerified = localStorage.getItem('ageVerified');
+    if (!ageVerified) {
+      setShowAgeVerification(true);
+    }
+  }, []);
+
+  const handleAgeVerification = (isVerified: boolean) => {
+    if (isVerified) {
+      localStorage.setItem('ageVerified', 'true');
+      setShowAgeVerification(false);
+    }
+  };
   return <div className="min-h-screen bg-black">
       <Header />
       
@@ -398,6 +413,12 @@ const Index = () => {
 
       {/* Registration Modal */}
       <RegistrationModal isOpen={isRegistrationModalOpen} onClose={() => setIsRegistrationModalOpen(false)} />
+
+      {/* Age Verification Modal */}
+      <AgeVerificationModal 
+        isOpen={showAgeVerification} 
+        onVerify={handleAgeVerification} 
+      />
 
       {/* Floating Support Button */}
       <FloatingSupportButton />
