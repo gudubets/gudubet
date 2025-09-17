@@ -144,10 +144,9 @@ serve(async (req) => {
 
     console.log('KYC Check result:', kycCheck)
 
-    // Calculate fees and net amount
-    const feeRate = 0.02; // 2% fee
-    const feeAmount = amount * feeRate;
-    const netAmount = amount - feeAmount;
+    // No fees - full amount goes to user
+    const feeAmount = 0;
+    const netAmount = amount;
 
     // Create withdrawal record - the trigger will handle KYC validation
     const { data: withdrawal, error: withdrawalError } = await supabaseClient
