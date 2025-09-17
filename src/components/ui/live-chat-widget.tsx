@@ -13,6 +13,7 @@ import { MessageCircle, Send, X, Circle, Users, Phone, Mail } from 'lucide-react
 import { useLiveChat } from '@/hooks/useLiveChat';
 import { useI18n } from '@/hooks/useI18n';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 const LiveChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,7 +22,23 @@ const LiveChatWidget = () => {
   const [subject, setSubject] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [description, setDescription] = useState('');
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    investment: ''
+  });
+  const [formErrors, setFormErrors] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    investment: ''
+  });
+  
   const inputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const {
     currentRoom,
@@ -40,6 +57,84 @@ const LiveChatWidget = () => {
   } = useLiveChat();
 
   const { t, currentLanguage } = useI18n();
+
+  // Validation functions
+  const validateName = (name: string) => {
+    if (!name.trim()) return 'İsim gerekli';
+    if (!/^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]{2,50}$/.test(name)) {
+      return 'İsim sadece harflerden oluşmalı ve 2-50 karakter olmalı';
+    }
+    return '';
+  };
+
+  const validateEmail = (email: string) => {
+    if (!email.trim()) return 'E-posta gerekli';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return 'Geçerli bir e-posta adresi girin';
+    }
+    return '';
+  };
+
+  const validatePhone = (phone: string) => {
+    if (!phone.trim()) return 'Telefon numarası gerekli';
+    // Remove all non-digit characters
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10 || cleanPhone.length > 11) {
+      return 'Telefon numarası 10-11 haneli olmalı';
+    }
+    if (!/^[0-9]+$/.test(cleanPhone)) {
+      return 'Telefon numarası sadece rakamlardan oluşmalı';
+    }
+    return '';
+  };
+
+  const validateInvestment = (investment: string) => {
+    if (!investment.trim()) return 'Yatırım miktarı gerekli';
+    const amount = parseFloat(investment);
+    if (isNaN(amount) || amount <= 0) {
+      return 'Geçerli bir yatırım miktarı girin (pozitif sayı)';
+    }
+    if (amount < 10) {
+      return 'Minimum yatırım miktarı 10 TL olmalı';
+    }
+    return '';
+  };
+
+  const handleFormChange = (field: string, value: string) => {
+    // Format phone number input to allow only digits
+    if (field === 'phone') {
+      value = value.replace(/\D/g, '');
+    }
+    
+    // Format investment to allow only numbers and decimal point
+    if (field === 'investment') {
+      value = value.replace(/[^0-9.]/g, '');
+      // Prevent multiple decimal points
+      const parts = value.split('.');
+      if (parts.length > 2) {
+        value = parts[0] + '.' + parts.slice(1).join('');
+      }
+    }
+
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear error when user starts typing
+    if (formErrors[field as keyof typeof formErrors]) {
+      setFormErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {
+      name: validateName(formData.name),
+      email: validateEmail(formData.email),
+      phone: validatePhone(formData.phone),
+      investment: validateInvestment(formData.investment)
+    };
+
+    setFormErrors(errors);
+    return !Object.values(errors).some(error => error !== '');
+  };
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -73,14 +168,44 @@ const LiveChatWidget = () => {
   };
 
   const handleStartChat = async () => {
-    if (!subject.trim()) return;
+    // First validate all form fields
+    if (!validateForm()) {
+      toast({
+        title: "Form Hatası",
+        description: "Lütfen tüm alanları doğru şekilde doldurun.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    const room = await createChatRoom(subject, priority);
+    if (!subject.trim()) {
+      setSubject(formData.name); // Use name as subject if subject is empty
+    }
+
+    const room = await createChatRoom(subject || formData.name, priority);
     if (room) {
       setShowStartForm(false);
       setSubject('');
       setDescription('');
       setPriority('medium');
+      // Reset form data
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        investment: ''
+      });
+      setFormErrors({
+        name: '',
+        email: '',
+        phone: '',
+        investment: ''
+      });
+      
+      toast({
+        title: "Başarılı",
+        description: "Chat başlatıldı. Temsilci kısa sürede size cevap verecek.",
+      });
     }
   };
 
@@ -377,35 +502,65 @@ const LiveChatWidget = () => {
           <div className="space-y-4">
             <div>
               <Input
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
+                value={formData.name}
+                onChange={(e) => handleFormChange('name', e.target.value)}
                 placeholder="* İsim"
-                className="bg-transparent border-gray-600 text-white placeholder-gray-400"
+                className={cn(
+                  "bg-transparent border-gray-600 text-white placeholder-gray-400",
+                  formErrors.name && "border-red-500"
+                )}
               />
+              {formErrors.name && (
+                <p className="text-red-400 text-xs mt-1">{formErrors.name}</p>
+              )}
             </div>
             
             <div>
               <Input
                 type="email"
+                value={formData.email}
+                onChange={(e) => handleFormChange('email', e.target.value)}
                 placeholder="* E-posta"
-                className="bg-transparent border-gray-600 text-white placeholder-gray-400"
+                className={cn(
+                  "bg-transparent border-gray-600 text-white placeholder-gray-400",
+                  formErrors.email && "border-red-500"
+                )}
               />
+              {formErrors.email && (
+                <p className="text-red-400 text-xs mt-1">{formErrors.email}</p>
+              )}
             </div>
             
             <div>
               <Input
                 type="tel"
-                placeholder="* Telefon"
-                className="bg-transparent border-gray-600 text-white placeholder-gray-400"
+                value={formData.phone}
+                onChange={(e) => handleFormChange('phone', e.target.value)}
+                placeholder="* Telefon (örn: 5551234567)"
+                className={cn(
+                  "bg-transparent border-gray-600 text-white placeholder-gray-400",
+                  formErrors.phone && "border-red-500"
+                )}
               />
+              {formErrors.phone && (
+                <p className="text-red-400 text-xs mt-1">{formErrors.phone}</p>
+              )}
             </div>
             
             <div>
               <Input
-                type="number"
-                placeholder="* Yatırım Miktarı"
-                className="bg-transparent border-gray-600 text-white placeholder-gray-400"
+                type="text"
+                value={formData.investment}
+                onChange={(e) => handleFormChange('investment', e.target.value)}
+                placeholder="* Yatırım Miktarı (TL)"
+                className={cn(
+                  "bg-transparent border-gray-600 text-white placeholder-gray-400",
+                  formErrors.investment && "border-red-500"
+                )}
               />
+              {formErrors.investment && (
+                <p className="text-red-400 text-xs mt-1">{formErrors.investment}</p>
+              )}
             </div>
             
             <div>
@@ -440,14 +595,35 @@ const LiveChatWidget = () => {
             <div className="flex space-x-2">
               <Button
                 onClick={handleStartChat}
-                disabled={!subject.trim()}
-                className="flex-1 bg-yellow-400 text-black hover:bg-yellow-500"
+                disabled={
+                  !formData.name.trim() || 
+                  !formData.email.trim() || 
+                  !formData.phone.trim() || 
+                  !formData.investment.trim() ||
+                  Object.values(formErrors).some(error => error !== '')
+                }
+                className="flex-1 bg-yellow-400 text-black hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Görüşme Başlat
               </Button>
               <Button
                 variant="outline"
-                onClick={() => setShowStartForm(false)}
+                onClick={() => {
+                  setShowStartForm(false);
+                  // Reset form when closing
+                  setFormData({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    investment: ''
+                  });
+                  setFormErrors({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    investment: ''
+                  });
+                }}
                 className="flex-1 border-gray-600 text-white hover:bg-gray-800"
               >
                 İptal
