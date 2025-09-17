@@ -130,65 +130,71 @@ const Footer = () => {
 
         {/* Payment Providers */}
         <div className="mb-8">
-          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['PAYco', 'Banka', 'SUPER PAY', 'PEP', 'papara', 'PAY', 'bitcoin', 'Litecoin', 'ethereum'].map((provider, index) => (
-              <div key={`payment-${provider}-${index}`} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
+          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-6 mb-4 items-center">
+            {['PAYco', 'Banka', 'SUPER PAY', 'PEP', 'papara', 'PAY', 'Hey', 'bitcoin', 'Litecoin', 'ethereum', 'TRX', 'DOGE'].map((provider, index) => (
+              <div key={`payment-${provider}-${index}`} className="flex items-center justify-center h-8 opacity-70 hover:opacity-100 transition-opacity">
                 {provider === 'PAYco' ? (
                   <img 
                     src="/lovable-uploads/e3f1f323-0e0c-4976-879b-1863ddc0b0c5.png" 
                     alt="PayCo" 
-                    className="h-6 w-auto object-contain rounded"
+                    className="h-6 w-auto object-contain filter brightness-0 invert"
                   />
                 ) : provider === 'Banka' ? (
                   <img 
                     src="/lovable-uploads/d69c217a-d016-4085-a2fb-32e5edbf795a.png" 
                     alt="Banka" 
-                    className="w-full h-8 object-contain rounded"
+                    className="h-6 w-auto object-contain filter brightness-0 invert"
                   />
                 ) : provider === 'SUPER PAY' ? (
                   <img 
                     src="/lovable-uploads/4e010e53-eeae-4995-9217-4a4443b976c2.png" 
                     alt="SuperPay" 
-                    className="h-full w-full object-cover rounded"
+                    className="h-6 w-auto object-contain filter brightness-0 invert"
                   />
                 ) : provider === 'PEP' ? (
                   <img 
                     src="/lovable-uploads/8627ae24-cef8-4f70-b840-ca2efba32223.png" 
                     alt="PEP" 
-                    className="h-full w-full object-cover rounded"
+                    className="h-6 w-auto object-contain filter brightness-0 invert"
                   />
                 ) : provider === 'papara' ? (
                   <img 
                     src="/lovable-uploads/902957d9-017b-4fed-8e28-fc43872f0ac4.png" 
                     alt="Papara" 
-                    className="h-full w-full object-cover rounded"
+                    className="h-6 w-auto object-contain filter brightness-0 invert"
                   />
                 ) : provider === 'PAY' ? (
                   <img 
                     src="/lovable-uploads/1f2a654f-a8f3-4da6-91e2-50385bc78663.png" 
                     alt="PAY" 
-                    className="h-full w-auto object-contain rounded"
+                    className="h-6 w-auto object-contain filter brightness-0 invert"
                   />
+                ) : provider === 'Hey' ? (
+                  <span className="text-sm font-bold text-white">Hey</span>
                 ) : provider === 'bitcoin' ? (
                   <img 
                     src="/lovable-uploads/b309d125-4554-4c9e-b138-1e77bf9c039a.png" 
                     alt="Bitcoin" 
-                    className="h-full w-full object-cover rounded"
+                    className="h-6 w-auto object-contain filter brightness-0 invert"
                   />
                 ) : provider === 'Litecoin' ? (
                   <img 
                     src="/lovable-uploads/18eee11b-4a02-40bc-9ef7-fdcad384ea3f.png" 
                     alt="Litecoin" 
-                    className="h-full w-auto object-contain rounded"
+                    className="h-6 w-auto object-contain filter brightness-0 invert"
                   />
                 ) : provider === 'ethereum' ? (
                   <img 
                     src="/lovable-uploads/a1446f55-3168-4b98-8c46-44246d579061.png" 
                     alt="Ethereum" 
-                    className="h-full w-auto object-contain rounded"
+                    className="h-6 w-auto object-contain filter brightness-0 invert"
                   />
+                ) : provider === 'TRX' ? (
+                  <span className="text-sm font-bold text-white">TRX</span>
+                ) : provider === 'DOGE' ? (
+                  <span className="text-sm font-bold text-white">DOGE</span>
                 ) : (
-                  <span className="text-xs text-gray-300">{provider}</span>
+                  <span className="text-sm font-bold text-white">{provider}</span>
                 )}
               </div>
             ))}
@@ -197,28 +203,34 @@ const Footer = () => {
 
         {/* Game Providers - Row 1 */}
         <div className="mb-6">
-          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['GuduBet Original', 'PRAGMATIC', 'Evolution', 'PRAGMATIC LIVE', 'imaginelive', 'AMIDST', 'WAZDAN', 'DIGITAIN', 'HACKSAW', 'NOLIMIT', 'RED TIGER', 'MOD', 'SMARTSOFT'].map((provider, index) => <div key={`provider1-${provider}-${index}`} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
-                <span className="text-xs text-gray-300">{provider}</span>
-              </div>)}
+          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-6 mb-4 items-center">
+            {['GuduBet Original', 'PRAGMATIC', 'Evolution', 'PRAGMATIC LIVE', 'imaginelive', 'AMIDST', 'WAZDAN', 'DIGITAIN', 'HACKSAW', 'NOLIMIT', 'RED TIGER', 'MOD', 'SMARTSOFT'].map((provider, index) => 
+              <div key={`provider1-${provider}-${index}`} className="flex items-center justify-center h-8 opacity-60 hover:opacity-100 transition-opacity">
+                <span className="text-xs text-gray-300 font-medium">{provider}</span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Game Providers - Row 2 */}
         <div className="mb-6">
-          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['SPRIBE', 'PLAYSON', 'EGT', 'PG', 'betsolutions', 'BGAMING', 'zugi', 'RELAX', 'NETENT', 'GALAXSYS', 'BETSOFT', 'YGGDRASIL', 'BTG'].map((provider, index) => <div key={`provider2-${provider}-${index}`} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
-                <span className="text-xs text-gray-300">{provider}</span>
-              </div>)}
+          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-6 mb-4 items-center">
+            {['SPRIBE', 'PLAYSON', 'EGT', 'PG', 'betsolutions', 'BGAMING', 'zugi', 'RELAX', 'NETENT', 'GALAXSYS', 'BETSOFT', 'YGGDRASIL', 'BTG'].map((provider, index) => 
+              <div key={`provider2-${provider}-${index}`} className="flex items-center justify-center h-8 opacity-60 hover:opacity-100 transition-opacity">
+                <span className="text-xs text-gray-300 font-medium">{provider}</span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Game Providers - Row 3 */}
         <div className="mb-8">
-          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-4 mb-4">
-            {['evoplay', 'HABANERO', 'Endorphina', 'Microgaming', 'QUICKSPIN', 'Swinominator', 'IRON DOG STUDIO', 'BOOMING GAMES', 'tom horn', 'NOMATIC'].map((provider, index) => <div key={`provider3-${provider}-${index}`} className="bg-gray-800 rounded p-2 flex items-center justify-center h-10">
-                <span className="text-xs text-gray-300">{provider}</span>
-              </div>)}
+          <div className="grid grid-cols-6 md:grid-cols-10 lg:grid-cols-12 gap-6 mb-4 items-center">
+            {['evoplay', 'HABANERO', 'Endorphina', 'Microgaming', 'QUICKSPIN', 'Swinominator', 'IRON DOG STUDIO', 'BOOMING GAMES', 'tom horn', 'NOMATIC'].map((provider, index) => 
+              <div key={`provider3-${provider}-${index}`} className="flex items-center justify-center h-8 opacity-60 hover:opacity-100 transition-opacity">
+                <span className="text-xs text-gray-300 font-medium">{provider}</span>
+              </div>
+            )}
           </div>
         </div>
 
