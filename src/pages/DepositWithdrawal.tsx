@@ -53,17 +53,64 @@ const DepositWithdrawal = () => {
       return;
     }
 
+    if (!user) {
+      toast({
+        title: "Hata",
+        description: "Lütfen giriş yapınız.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
-    // TODO: Implement deposit logic
-    setTimeout(() => {
+    
+    try {
+      // Call deposit request Edge Function
+      const { data, error } = await supabase.functions.invoke('deposit-request', {
+        body: {
+          amount: parseFloat(depositAmount),
+          payment_method: paymentMethod,
+          user_account_name: `${user.user_metadata?.first_name || ''} ${user.user_metadata?.last_name || ''}`.trim()
+        }
+      });
+
+      if (error) {
+        console.error('Deposit error:', error);
+        toast({
+          title: "Hata",
+          description: error.message || "Para yatırma işlemi başarısız oldu.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (data?.error) {
+        toast({
+          title: "Hata",
+          description: data.error,
+          variant: "destructive"
+        });
+        return;
+      }
+
       toast({
         title: "İşlem Başarılı",
-        description: `₺${depositAmount} yatırma işleminiz başlatıldı.`
+        description: data?.message || `₺${depositAmount} yatırma işleminiz başlatıldı.`
       });
+      
       setDepositAmount('');
       setPaymentMethod('');
+
+    } catch (error) {
+      console.error('Deposit request error:', error);
+      toast({
+        title: "Hata",
+        description: "Sunucu hatası oluştu. Lütfen tekrar deneyin.",
+        variant: "destructive"
+      });
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   const handleWithdrawal = async () => {
@@ -76,17 +123,127 @@ const DepositWithdrawal = () => {
       return;
     }
 
+    if (!user) {
+      toast({
+        title: "Hata",
+        description: "Lütfen giriş yapınız.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Collect payout details based on method
+    const collectPayoutDetails = () => {
+      const details: any = {};
+      
+      if (withdrawalMethod === 'iban') {
+        const bankName = (document.getElementById('bankName') as HTMLInputElement)?.value;
+        const iban = (document.getElementById('iban') as HTMLInputElement)?.value;
+        const accountHolder = (document.getElementById('accountHolder') as HTMLInputElement)?.value;
+        
+        if (!bankName || !iban || !accountHolder) {
+          throw new Error('Banka bilgileri eksik');
+        }
+        
+        details.bank_name = bankName;
+        details.iban = iban;
+        details.account_holder = accountHolder;
+      } else if (withdrawalMethod === 'papara') {
+        const paparaNumber = (document.getElementById('paparaNumber') as HTMLInputElement)?.value;
+        const paparaName = (document.getElementById('paparaName') as HTMLInputElement)?.value;
+        
+        if (!paparaNumber || !paparaName) {
+          throw new Error('Papara bilgileri eksik');
+        }
+        
+        details.papara_id = paparaNumber;
+        details.account_holder = paparaName;
+      } else if (withdrawalMethod?.startsWith('crypto-')) {
+        const walletAddress = (document.getElementById('walletAddress') as HTMLInputElement)?.value;
+        const networkType = (document.querySelector('#networkType') as HTMLSelectElement)?.value;
+        
+        if (!walletAddress || !networkType) {
+          throw new Error('Cüzdan bilgileri eksik');
+        }
+        
+        details.address = walletAddress;
+        details.network = networkType;
+        details.asset = withdrawalMethod.replace('crypto-', '').toUpperCase();
+        
+        if (withdrawalMethod === 'crypto-other') {
+          const cryptoType = (document.getElementById('cryptoType') as HTMLInputElement)?.value;
+          if (!cryptoType) {
+            throw new Error('Kripto para türü belirtilmeli');
+          }
+          details.asset = cryptoType.toUpperCase();
+        }
+      }
+      
+      return details;
+    };
+
     setLoading(true);
-    // TODO: Implement withdrawal logic
-    setTimeout(() => {
+    
+    try {
+      const payoutDetails = collectPayoutDetails();
+      
+      // Call withdrawal request Edge Function
+      const { data, error } = await supabase.functions.invoke('withdraw-request', {
+        body: {
+          amount: parseFloat(withdrawalAmount),
+          method: withdrawalMethod,
+          payout_details: payoutDetails
+        }
+      });
+
+      if (error) {
+        console.error('Withdrawal error:', error);
+        toast({
+          title: "Hata",
+          description: error.message || "Para çekme işlemi başarısız oldu.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (data?.error) {
+        toast({
+          title: "Hata",
+          description: data.error,
+          variant: "destructive"
+        });
+        return;
+      }
+
       toast({
         title: "İşlem Başarılı",
-        description: `₺${withdrawalAmount} çekme talebiniz alındı.`
+        description: data?.message || `₺${withdrawalAmount} çekme talebiniz alındı.`
       });
+      
+      // Show KYC info if needed
+      if (data?.kyc_info) {
+        setTimeout(() => {
+          toast({
+            title: "KYC Bilgileri",
+            description: `Günlük limit: ₺${data.kyc_info.daily_remaining} kaldı, Aylık limit: ₺${data.kyc_info.monthly_remaining} kaldı`,
+            variant: "default"
+          });
+        }, 2000);
+      }
+      
       setWithdrawalAmount('');
       setWithdrawalMethod('');
+
+    } catch (error: any) {
+      console.error('Withdrawal request error:', error);
+      toast({
+        title: "Hata",
+        description: error.message || "Sunucu hatası oluştu. Lütfen tekrar deneyin.",
+        variant: "destructive"
+      });
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   const quickAmounts = [50, 100, 250, 500, 1000, 2500];

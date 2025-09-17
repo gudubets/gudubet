@@ -1,53 +1,15 @@
-// deno-lint-ignore-file no-explicit-any
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-type Method = 'bank' | 'papara' | 'crypto';
-
-type ReqBody = {
-  amount: number;
-  method: Method; // 'bank' | 'papara' | 'crypto'
-  currency?: string;
-  // bank
-  iban?: string;
-  // papara
-  papara_id?: string; // numeric id
-  phone?: string;     // +90...
-  // crypto
-  asset?: string;     // BTC, ETH, USDT
-  network?: string;   // BTC, ETH, TRC20, BEP20, SOL, MATIC
-  address?: string;
-  tag?: string;       // memo/tag optional
-};
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-const sUrl = Deno.env.get('SUPABASE_URL')!;
-const sKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const sb = createClient(sUrl, sKey, { auth: { persistSession: false } });
-
-async function getUserId(req: Request) {
-  const auth = req.headers.get('authorization');
-  if (!auth) return null;
-  const token = auth.replace(/^Bearer\s+/i, '');
-  const { data, error } = await sb.auth.getUser(token);
-  if (error || !data?.user) return null;
-  return data.user.id as string;
 }
 
-function isTRIBAN(v?: string) {
-  return !!v && /^TR\d{24}$/i.test(v.replace(/\s+/g,''));
-}
-
-function isPhone(v?: string) {
-  return !!v && /^\+?[0-9]{10,14}$/.test(v);
-}
-
-function isPaparaId(v?: string) {
-  return !!v && /^[0-9]{6,12}$/.test(v);
+interface WithdrawalRequest {
+  amount: number;
+  method: string;
+  payout_details: any;
 }
 
 serve(async (req) => {
@@ -57,101 +19,181 @@ serve(async (req) => {
   }
 
   try {
-    if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405, headers: corsHeaders });
-    const userId = await getUserId(req);
-    if (!userId) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    // Initialize Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
-    const body = await req.json() as ReqBody;
-    const amount = Number(body.amount || 0);
-    if (!amount || amount <= 0) return new Response(JSON.stringify({ error: 'Invalid amount' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    // Get user from request
+    const authHeader = req.headers.get('Authorization')!
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
 
-    // risk: blocked kullanıcı çekim açamaz
-    const { data: lastRisk } = await sb
-      .from('risk_flags').select('status')
-      .eq('user_id', userId).order('created_at', { ascending: false })
-      .limit(1).maybeSingle();
-    if (lastRisk?.status === 'blocked') return new Response(JSON.stringify({ error: 'User blocked' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (authError || !user) {
+      console.error('Auth error:', authError)
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
-    // Get user profile and balance from profiles table (main source of truth)
-    const { data: profile, error: profileError } = await sb
-      .from("profiles")
-      .select("id, balance")
-      .eq("id", userId) // Use direct id match, not user_id
-      .single();
+    // Get request data
+    const { amount, method, payout_details }: WithdrawalRequest = await req.json()
+
+    // Validate input
+    if (!amount || amount < 20 || amount > 10000) {
+      return new Response(
+        JSON.stringify({ error: 'Geçersiz miktar. Min: ₺20, Max: ₺10,000' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!method || !payout_details) {
+      return new Response(
+        JSON.stringify({ error: 'Çekim yöntemi ve hesap bilgileri gerekli' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Get user profile and balance
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('id, first_name, last_name, balance, kyc_level, kyc_status')
+      .eq('id', user.id)
+      .single()
 
     if (profileError || !profile) {
+      console.error('Profile error:', profileError)
       return new Response(
-        JSON.stringify({ error: "Kullanıcı profili bulunamadı" }),
+        JSON.stringify({ error: 'Kullanıcı profili bulunamadı' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      )
     }
 
-    const currentBalance = profile.balance || 0;
-    if (currentBalance < amount) {
+    // Check balance
+    if (profile.balance < amount) {
       return new Response(
-        JSON.stringify({ error: "Yetersiz bakiye" }),
+        JSON.stringify({ 
+          error: 'Yetersiz bakiye',
+          current_balance: profile.balance,
+          requested_amount: amount
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      )
     }
 
-    // method-specific validation + payout_details
-    let payout: Record<string, any> = {};
-    if (body.method === 'bank') {
-      if (!isTRIBAN(body.iban)) return new Response(JSON.stringify({ error: 'Invalid IBAN' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      payout = { method: 'bank', iban: body.iban?.replace(/\s+/g,'').toUpperCase() };
-    } else if (body.method === 'papara') {
-      if (!(isPaparaId(body.papara_id) || isPhone(body.phone))) {
-        return new Response(JSON.stringify({ error: 'Papara id or phone required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      }
-      payout = { method: 'papara', papara_id: body.papara_id ?? null, phone: body.phone ?? null };
-    } else if (body.method === 'crypto') {
-      const allowedAssets = ['BTC','ETH','USDT'];
-      const allowedNetworks = ['BTC','ETH','TRC20','BEP20','SOL','MATIC'];
-      if (!body.asset || !allowedAssets.includes(body.asset.toUpperCase()))
-        return new Response(JSON.stringify({ error: 'Unsupported asset' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      if (!body.network || !allowedNetworks.includes(body.network.toUpperCase()))
-        return new Response(JSON.stringify({ error: 'Unsupported network' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      if (!body.address || body.address.length < 10)
-        return new Response(JSON.stringify({ error: 'Invalid address' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      payout = { method: 'crypto', asset: body.asset.toUpperCase(), network: body.network.toUpperCase(), address: body.address, tag: body.tag ?? null };
-    } else {
-      return new Response(JSON.stringify({ error: 'Unsupported method' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    // Check KYC limits using the existing function
+    const { data: kycCheck, error: kycError } = await supabaseClient
+      .rpc('check_kyc_withdrawal_limit', {
+        _user_id: user.id,
+        _amount: amount
+      })
+
+    if (kycError) {
+      console.error('KYC check error:', kycError)
+      return new Response(
+        JSON.stringify({ error: 'KYC kontrol hatası' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
-    // Calculate fees (simple 2% fee for now)
-    const feeAmount = amount * 0.02;
-    const netAmount = amount - feeAmount;
-
-    // talep oluştur
-    const { data: wd, error: wdErr } = await sb
+    // Create withdrawal record - the trigger will handle KYC validation
+    const { data: withdrawal, error: withdrawalError } = await supabaseClient
       .from('withdrawals')
       .insert({
-        user_id: userId, // Use the authenticated user's ID
-        amount,
-        currency: body.currency ?? 'TRY',
-        status: 'pending',
-        method: body.method,
-        payout_details: payout,
-        network: payout.network ?? null,
-        asset: payout.asset ?? null,
-        fee: feeAmount,
-        net_amount: netAmount
+        user_id: profile.id,
+        amount: amount,
+        currency: 'TRY',
+        method: method,
+        payout_details: payout_details,
+        status: 'pending'
       })
-      .select('*').single();
-    if (wdErr) throw wdErr;
+      .select()
+      .single()
 
-    await sb.from('audit_logs').insert({
-      actor_type: 'user', actor_id: userId, action: 'withdraw_request',
-      entity_type: 'withdrawal', entity_id: wd.id, meta: { method: body.method, payout }
-    });
+    if (withdrawalError) {
+      console.error('Withdrawal creation error:', withdrawalError)
+      return new Response(
+        JSON.stringify({ error: 'Çekim talebi oluşturulamadı: ' + withdrawalError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      withdrawal_id: wd.id,
-      message: "Çekim talebiniz başarıyla oluşturuldu"
-    }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-  } catch (e) {
-    console.error(e);
-    return new Response(JSON.stringify({ error: 'Server Error' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    // Create pending wallet transaction (will be confirmed when withdrawal is approved)
+    const { error: walletError } = await supabaseClient
+      .from('wallet_transactions')
+      .insert({
+        wallet_id: (await supabaseClient
+          .from('wallets')
+          .select('id')
+          .eq('user_id', profile.id)
+          .eq('type', 'main')
+          .single()).data?.id,
+        direction: 'debit',
+        amount: amount,
+        ref_type: 'withdrawal_hold',
+        ref_id: withdrawal.id,
+        ledger_key: 'WITHDRAWAL_HOLD',
+        meta: {
+          withdrawal_id: withdrawal.id,
+          method: method
+        }
+      })
+
+    if (walletError) {
+      console.error('Wallet transaction error:', walletError)
+      // Don't fail the request, the withdrawal was created
+    }
+
+    // Log user behavior
+    await supabaseClient
+      .from('user_behavior_logs')
+      .insert({
+        user_id: profile.id,
+        action_type: 'withdrawal_request',
+        action_details: {
+          amount: amount,
+          method: method,
+          withdrawal_id: withdrawal.id
+        },
+        ip_address: req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for') || 'unknown',
+        user_agent: req.headers.get('user-agent') || 'unknown'
+      })
+
+    console.log(`Withdrawal request created: ${withdrawal.id} for user ${user.id}, amount: ${amount}`)
+
+    const responseData: any = {
+      success: true,
+      withdrawal_id: withdrawal.id,
+      amount: amount,
+      status: withdrawal.status,
+      message: withdrawal.requires_kyc 
+        ? 'Çekim talebiniz KYC incelemesi gerektiriyor. Lütfen kimlik belgelerinizi yükleyiniz.'
+        : 'Çekim talebiniz başarıyla oluşturuldu. İnceleme süreci 1-24 saat sürebilir.'
+    }
+
+    // Add KYC info if limits were exceeded
+    if (!kycCheck.allowed) {
+      responseData.kyc_info = {
+        reason: kycCheck.reason,
+        daily_limit: kycCheck.daily_limit,
+        daily_remaining: kycCheck.daily_remaining,
+        monthly_limit: kycCheck.monthly_limit,
+        monthly_remaining: kycCheck.monthly_remaining
+      }
+    }
+
+    return new Response(
+      JSON.stringify(responseData),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+
+  } catch (error) {
+    console.error('Withdrawal request error:', error)
+    return new Response(
+      JSON.stringify({ error: 'Sunucu hatası oluştu' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   }
-});
+})

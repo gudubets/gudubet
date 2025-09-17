@@ -6,6 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface DepositRequest {
+  amount: number;
+  payment_method: string;
+  bank_account_id?: string;
+  user_account_name?: string;
+  payment_details?: any;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -13,163 +21,136 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
+    // Initialize Supabase client
+    const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Get user from request
+    const authHeader = req.headers.get('Authorization')!
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
+
     if (authError || !user) {
+      console.error('Auth error:', authError)
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    const { amount, user_account_name, bank_account_id } = await req.json()
+    // Get request data
+    const { amount, payment_method, bank_account_id, user_account_name, payment_details }: DepositRequest = await req.json()
 
     // Validate input
-    if (!amount || !user_account_name || !bank_account_id) {
+    if (!amount || amount < 10 || amount > 50000) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify({ error: 'Geçersiz miktar. Min: ₺10, Max: ₺50,000' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    if (amount <= 0) {
+    if (!payment_method) {
       return new Response(
-        JSON.stringify({ error: 'Amount must be greater than 0' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify({ error: 'Ödeme yöntemi gerekli' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Get user profile to get user_id
-    const { data: profile, error: profileError } = await supabase
+    // Get user profile
+    const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
-      .select('*')
+      .select('id, first_name, last_name, kyc_level')
       .eq('id', user.id)
       .single()
 
     if (profileError || !profile) {
+      console.error('Profile error:', profileError)
       return new Response(
-        JSON.stringify({ error: 'User profile not found' }),
-        { 
-          status: 404, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify({ error: 'Kullanıcı profili bulunamadı' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Get user record from users table
-    const { data: userRecord, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('auth_user_id', user.id)
-      .single()
-
-    if (userError || !userRecord) {
-      return new Response(
-        JSON.stringify({ error: 'User record not found' }),
-        { 
-          status: 404, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-
-    // Verify bank account exists
-    const { data: bankAccount, error: bankError } = await supabase
-      .from('bank_accounts')
-      .select('*')
-      .eq('id', bank_account_id)
-      .eq('is_active', true)
-      .single()
-
-    if (bankError || !bankAccount) {
-      return new Response(
-        JSON.stringify({ error: 'Bank account not found or inactive' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-
-    // Create deposit request
-    const { data: deposit, error: depositError } = await supabase
+    // Create deposit record
+    const { data: deposit, error: depositError } = await supabaseClient
       .from('deposits')
       .insert({
-        user_id: userRecord.id,
+        user_id: profile.id,
         amount: amount,
-        user_account_name: user_account_name,
         bank_account_id: bank_account_id,
+        user_account_name: user_account_name || `${profile.first_name} ${profile.last_name}`,
         status: 'pending'
       })
       .select()
       .single()
 
     if (depositError) {
-      console.error('Error creating deposit:', depositError)
+      console.error('Deposit creation error:', depositError)
       return new Response(
-        JSON.stringify({ error: depositError.message }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify({ error: 'Para yatırma talebi oluşturulamadı' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Log admin activity
-    await supabase
-      .from('admin_activities')
+    // Create payment record for tracking
+    const { data: payment, error: paymentError } = await supabaseClient
+      .from('payments')
       .insert({
-        admin_id: user.id,
-        action_type: 'deposit_requested',
-        description: `New deposit request: ${amount} TRY`,
-        target_type: 'deposit',
-        target_id: deposit.id,
+        user_id: profile.id,
+        amount: amount,
+        currency: 'TRY',
+        payment_method: payment_method,
+        status: 'pending',
+        transaction_type: 'deposit',
+        reference_id: deposit.id,
         metadata: {
-          amount: amount,
-          user_account_name: user_account_name,
-          bank_account_id: bank_account_id
+          deposit_id: deposit.id,
+          payment_details: payment_details
         }
       })
+      .select()
+      .single()
+
+    if (paymentError) {
+      console.error('Payment creation error:', paymentError)
+      // Don't fail the request, just log the error
+    }
+
+    // Log user behavior
+    await supabaseClient
+      .from('user_behavior_logs')
+      .insert({
+        user_id: profile.id,
+        action_type: 'deposit_request',
+        action_details: {
+          amount: amount,
+          payment_method: payment_method,
+          deposit_id: deposit.id
+        },
+        ip_address: req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for') || 'unknown',
+        user_agent: req.headers.get('user-agent') || 'unknown'
+      })
+
+    console.log(`Deposit request created: ${deposit.id} for user ${user.id}, amount: ${amount}`)
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         deposit_id: deposit.id,
-        bank_account: bankAccount
+        amount: amount,
+        status: 'pending',
+        message: 'Para yatırma talebiniz başarıyla oluşturuldu. İnceleme süreci 5-10 dakika sürebilir.'
       }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Error in deposit-request function:', error)
+    console.error('Deposit request error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ error: 'Sunucu hatası oluştu' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })
