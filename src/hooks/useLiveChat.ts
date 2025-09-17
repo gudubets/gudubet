@@ -62,20 +62,34 @@ export const useLiveChat = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Create mock room until database types are updated
-      const roomId = `room_${Date.now()}`;
-      const room: ChatRoom = {
-        id: roomId,
-        user_id: user.id,
-        subject,
-        priority,
-        status: 'waiting',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        unread_count: 0
+      // Create real chat room in database
+      const { data: room, error } = await supabase
+        .from('chat_rooms')
+        .insert({
+          user_id: user.id,
+          subject,
+          priority,
+          status: 'waiting'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const chatRoom: ChatRoom = {
+        id: room.id,
+        user_id: room.user_id,
+        admin_id: room.admin_id,
+        subject: room.subject,
+        priority: room.priority as 'low' | 'medium' | 'high',
+        status: room.status as 'waiting' | 'active' | 'closed',
+        created_at: room.created_at,
+        updated_at: room.updated_at,
+        last_message: room.last_message,
+        unread_count: room.unread_count
       };
       
-      setCurrentRoom(room);
+      setCurrentRoom(chatRoom);
       await sendSystemMessage('Destek talebiniz oluşturuldu. Bir temsilcimiz en kısa sürede sizinle iletişime geçecek.');
       
       toast({
@@ -83,7 +97,7 @@ export const useLiveChat = () => {
         description: "Bir temsilcimiz en kısa sürede sizinle iletişime geçecek.",
       });
 
-      return room;
+      return chatRoom;
     } catch (error) {
       console.error('Error creating chat room:', error);
       toast({
@@ -121,21 +135,17 @@ export const useLiveChat = () => {
     if (!currentRoom) return;
 
     try {
-      // For now, use mock messages until database types are updated
-      const mockMessages: ChatMessage[] = [
-        {
-          id: '1',
-          chat_room_id: currentRoom.id,
-          sender_id: '00000000-0000-0000-0000-000000000000',
-          sender_name: 'Sistem',
-          message: 'Destek talebiniz oluşturuldu. Bir temsilcimiz en kısa sürede sizinle iletişime geçecek.',
-          message_type: 'system',
-          created_at: new Date().toISOString(),
-          is_admin: false
-        }
-      ];
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('chat_room_id', currentRoom.id)
+        .order('created_at', { ascending: true });
 
-      setMessages(mockMessages);
+      if (error) throw error;
+      setMessages((data || []).map(msg => ({
+        ...msg,
+        message_type: msg.message_type as 'text' | 'image' | 'system'
+      })));
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -144,11 +154,24 @@ export const useLiveChat = () => {
   const setupRealtimeSubscription = () => {
     if (!currentRoom) return;
 
-    // Mock setup for now
-    setIsConnected(true);
-    console.log('Real-time subscription would be set up for room:', currentRoom.id);
+    const channel = supabase
+      .channel(`chat_room_${currentRoom.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `chat_room_id=eq.${currentRoom.id}`
+        },
+        () => {
+          loadMessages();
+        }
+      )
+      .subscribe();
 
-    return null;
+    setIsConnected(true);
+    return channel;
   };
 
   const sendMessage = async (message: string) => {
@@ -158,38 +181,34 @@ export const useLiveChat = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Create new message locally until database is ready
-      const newMessage: ChatMessage = {
-        id: Date.now().toString(),
-        chat_room_id: currentRoom.id,
-        sender_id: user.id,
-        sender_name: 'Kullanıcı',
-        message: message.trim(),
-        message_type: 'text',
-        created_at: new Date().toISOString(),
-        is_admin: false
-      };
+      // Send message to database
+      const { error } = await supabase
+        .from('chat_messages')
+        .insert({
+          chat_room_id: currentRoom.id,
+          sender_id: user.id,
+          sender_name: 'Kullanıcı',
+          message: message.trim(),
+          message_type: 'text',
+          is_admin: false
+        });
 
-      setMessages(prev => [...prev, newMessage]);
+      if (error) throw error;
+
+      // Update room's last message
+      await supabase
+        .from('chat_rooms')
+        .update({ 
+          last_message: message.trim(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', currentRoom.id);
 
       // Stop typing indicator
       stopTyping();
 
-      // Simulate admin response after 2 seconds
-      setTimeout(() => {
-        const adminResponse: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          chat_room_id: currentRoom.id,
-          sender_id: 'admin',
-          sender_name: 'Destek Temsilcisi',
-          message: 'Mesajınızı aldık. Size yardımcı olmaya çalışıyoruz.',
-          message_type: 'text',
-          created_at: new Date().toISOString(),
-          is_admin: true
-        };
-
-        setMessages(prev => [...prev, adminResponse]);
-      }, 2000);
+      // Reload messages
+      loadMessages();
 
     } catch (error) {
       console.error('Error sending message:', error);
@@ -205,18 +224,19 @@ export const useLiveChat = () => {
     if (!currentRoom) return;
 
     try {
-      const systemMessage: ChatMessage = {
-        id: Date.now().toString(),
-        chat_room_id: currentRoom.id,
-        sender_id: '00000000-0000-0000-0000-000000000000',
-        sender_name: 'Sistem',
-        message,
-        message_type: 'system',
-        created_at: new Date().toISOString(),
-        is_admin: false
-      };
+      const { error } = await supabase
+        .from('chat_messages')
+        .insert({
+          chat_room_id: currentRoom.id,
+          sender_id: '00000000-0000-0000-0000-000000000000',
+          sender_name: 'Sistem',
+          message,
+          message_type: 'system',
+          is_admin: false
+        });
 
-      setMessages(prev => [...prev, systemMessage]);
+      if (error) throw error;
+      loadMessages();
     } catch (error) {
       console.error('Error sending system message:', error);
     }

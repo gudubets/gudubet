@@ -67,6 +67,7 @@ import PasswordSecurity from "./pages/PasswordSecurity";
 import AdminRiskQueue from "./pages/admin/AdminRiskQueue";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminSiteImages from "./pages/admin/AdminSiteImages";
+import AdminChat from "./pages/admin/AdminChat";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -149,6 +150,7 @@ const App = () => {
             <Route path="risk-queue" element={<AdminRiskQueue />} />
             <Route path="reports" element={<AdminReports />} />
             <Route path="site-images" element={<AdminSiteImages />} />
+            <Route path="chat" element={<AdminChat />} />
           </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

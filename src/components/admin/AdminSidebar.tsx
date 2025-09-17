@@ -24,7 +24,8 @@ import {
   BookOpen,
   Landmark,
   Star,
-  Image
+  Image,
+  MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -91,6 +92,12 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
       icon: Image,
       href: '/admin/site-images',
       active: location.pathname === '/admin/site-images'
+    },
+    {
+      title: 'Canlı Chat',
+      icon: MessageCircle,
+      href: '/admin/chat',
+      active: location.pathname === '/admin/chat'
     }
   ];
 
