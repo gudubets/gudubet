@@ -126,7 +126,7 @@ export const GameGrid: React.FC<GameGridProps> = ({
           key={game.id} 
           className={`overflow-hidden group hover:shadow-lg transition-all duration-300 ${viewMode === 'list' ? 'flex' : ''}`}
         >
-          <div className={`relative ${viewMode === 'list' ? 'w-48 flex-shrink-0' : 'aspect-video'}`}>
+          <div className={`relative ${viewMode === 'list' ? 'w-48 flex-shrink-0' : 'h-64'}`}>
             {/* Game Thumbnail */}
             <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
               {game.thumbnail_url ? (
