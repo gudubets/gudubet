@@ -228,14 +228,25 @@ const LiveChatWidget = () => {
                         </Badge>
                       )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsOpen(false)}
-                      className="h-6 w-6 p-0"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={closeChat}
+                        className="h-6 w-6 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                        title={currentLanguage === 'tr' ? 'Görüşmeyi Sonlandır' : 'End Chat'}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsOpen(false)}
+                        className="h-6 w-6 p-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   
                   <div className="flex items-center justify-between mt-2">
