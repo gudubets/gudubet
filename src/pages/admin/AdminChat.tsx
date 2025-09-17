@@ -65,6 +65,8 @@ const AdminChat = () => {
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showTemplates, setShowTemplates] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [userTyping, setUserTyping] = useState(false);
   const { toast } = useToast();
 
   // Predefined message templates
@@ -254,7 +256,42 @@ const AdminChat = () => {
     }
   };
 
-  // Close chat room
+  // Clear messages
+  const clearMessages = async (roomId: string) => {
+    try {
+      const { error } = await supabase
+        .from('chat_messages')
+        .delete()
+        .eq('chat_room_id', roomId);
+
+      if (error) throw error;
+
+      // Add system message
+      await supabase
+        .from('chat_messages')
+        .insert({
+          chat_room_id: roomId,
+          sender_id: '00000000-0000-0000-0000-000000000000',
+          sender_name: 'Sistem',
+          message: 'Mesajlar admin tarafından temizlendi.',
+          message_type: 'system',
+          is_admin: false
+        });
+
+      loadMessages(roomId);
+      toast({
+        title: "Başarılı",
+        description: "Mesajlar temizlendi.",
+      });
+    } catch (error) {
+      console.error('Error clearing messages:', error);
+      toast({
+        title: "Hata",
+        description: "Mesajlar temizlenirken hata oluştu.",
+        variant: "destructive"
+      });
+    }
+  };
   const closeChatRoom = async (roomId: string) => {
     try {
       const { error } = await supabase
@@ -375,6 +412,11 @@ const AdminChat = () => {
         (payload) => {
           if (selectedRoom && payload.new?.chat_room_id === selectedRoom.id) {
             loadMessages(selectedRoom.id);
+            // Simulate user typing when they send a message
+            if (!payload.new?.is_admin) {
+              setUserTyping(true);
+              setTimeout(() => setUserTyping(false), 2000);
+            }
           }
         }
       )
@@ -551,14 +593,24 @@ const AdminChat = () => {
                     </Badge>
                     
                     {selectedRoom.status !== 'closed' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => closeChatRoom(selectedRoom.id)}
-                      >
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Kapat
-                      </Button>
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => clearMessages(selectedRoom.id)}
+                        >
+                          <MessageSquare className="w-4 h-4 mr-1" />
+                          Temizle
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => closeChatRoom(selectedRoom.id)}
+                        >
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Kapat
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -607,8 +659,26 @@ const AdminChat = () => {
                           </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                        ))}
+                        
+                        {userTyping && (
+                          <div className="flex justify-start">
+                            <div className="bg-muted rounded-lg px-3 py-2 text-sm max-w-[70%]">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Avatar className="w-6 h-6">
+                                  <AvatarFallback className="text-xs">U</AvatarFallback>
+                                </Avatar>
+                                <span className="text-xs font-medium">Kullanıcı yazıyor...</span>
+                              </div>
+                              <div className="flex space-x-1">
+                                <div className="animate-bounce">•</div>
+                                <div className="animate-bounce" style={{ animationDelay: '0.1s' }}>•</div>
+                                <div className="animate-bounce" style={{ animationDelay: '0.2s' }}>•</div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                 </ScrollArea>
                 
                 {selectedRoom.status !== 'closed' && (

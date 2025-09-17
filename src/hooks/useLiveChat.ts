@@ -46,8 +46,15 @@ export const useLiveChat = () => {
   useEffect(() => {
     if (currentRoom) {
       loadMessages();
+      const channel = setupRealtimeSubscription();
       setIsConnected(true);
       markMessagesAsRead();
+      
+      return () => {
+        if (channel) {
+          supabase.removeChannel(channel);
+        }
+      };
     }
 
     return () => {
@@ -164,7 +171,24 @@ export const useLiveChat = () => {
           table: 'chat_messages',
           filter: `chat_room_id=eq.${currentRoom.id}`
         },
+        (payload) => {
+          loadMessages();
+          // Show admin typing indicator
+          if (payload.new?.is_admin) {
+            setAdminTyping(false);
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'chat_rooms',
+          filter: `id=eq.${currentRoom.id}`
+        },
         () => {
+          // Reload room data when status changes
           loadMessages();
         }
       )
@@ -314,6 +338,24 @@ export const useLiveChat = () => {
     }
   };
 
+  const clearMessages = async () => {
+    if (!currentRoom) return;
+    
+    try {
+      const { error } = await supabase
+        .from('chat_messages')
+        .delete()
+        .eq('chat_room_id', currentRoom.id);
+      
+      if (error) throw error;
+      
+      setMessages([]);
+      await sendSystemMessage('Mesajlar temizlendi.');
+    } catch (error) {
+      console.error('Error clearing messages:', error);
+    }
+  };
+
   return {
     currentRoom,
     messages,
@@ -328,6 +370,8 @@ export const useLiveChat = () => {
     startTyping,
     stopTyping,
     closeChat,
-    leaveRoom
+    leaveRoom,
+    clearMessages,
+    setupRealtimeSubscription
   };
 };
