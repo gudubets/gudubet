@@ -10,6 +10,8 @@ import { AgeVerificationModal } from '@/components/auth/AgeVerificationModal';
 import FloatingSupportButton from '@/components/ui/floating-support-button';
 import { useI18n } from '@/hooks/useI18n';
 import { useCasinoGames } from '@/hooks/useCasinoGames';
+import { useSiteImages } from '@/hooks/useSiteImages';
+import { addSmartCacheBuster, getPlaceholderImage } from '@/utils/imageUtils';
 import { Send, Play, Star } from 'lucide-react';
 import treasureImage from '@/assets/treasure.png';
 const Index = () => {
@@ -19,6 +21,16 @@ const Index = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
   const { games, loading } = useCasinoGames();
+  const { images, getImageByName } = useSiteImages();
+
+  // Get site images with fallbacks
+  const getHeroImage = (imageName: string, fallback: string) => {
+    const siteImage = getImageByName(imageName, 'hero');
+    if (siteImage?.image_url) {
+      return addSmartCacheBuster(siteImage.image_url, siteImage.updated_at);
+    }
+    return fallback;
+  };
 
   // Get random 8 games for featured section
   const getFeaturedRandomGames = () => {
@@ -66,12 +78,15 @@ const Index = () => {
                   
                   <div className="relative z-10 h-full w-full cursor-pointer" onClick={() => setIsRegistrationModalOpen(true)}>
                     <img 
-                      src="/lovable-uploads/ea4401d0-dccf-4923-b1f3-c6fe9f5412a8.png" 
+                      src={getHeroImage('welcome-bonus', '/lovable-uploads/ea4401d0-dccf-4923-b1f3-c6fe9f5412a8.png')} 
                       alt="Gudubet Hoşgeldin Bonusu 500 TL" 
                       className="w-full h-full object-cover"
                       style={{ 
                         imageRendering: 'crisp-edges',
                         objectPosition: 'center top'
+                      }}
+                      onError={(e) => {
+                        e.currentTarget.src = getPlaceholderImage(800, 400);
                       }}
                     />
                   </div>
