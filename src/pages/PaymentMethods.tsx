@@ -659,7 +659,7 @@ export default function PaymentMethods() {
                         </div>
                           {withdrawal.net_amount && (
                             <div className="text-xs text-muted-foreground">
-                              Net: ₺{withdrawal.net_amount.toLocaleString()} (Fee: ₺{withdrawal.fee_amount.toLocaleString()})
+                              Çekilen: ₺{withdrawal.amount.toLocaleString()} (Ücretsiz ✨)
                             </div>
                           )}
                         </div>

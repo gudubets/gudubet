@@ -275,8 +275,8 @@ export default function AdminWithdrawals() {
         `${w.user?.first_name || ""} ${w.user?.last_name || ""}`.trim(),
         w.user?.email || "",
         w.amount,
-        w.net_amount || 0,
-        w.fee_amount || 0,
+        w.amount, // No fees - net amount equals gross amount
+        0, // No fees
         w.status,
         w.risk_score,
         w.admin_note || ""
@@ -564,7 +564,7 @@ export default function AdminWithdrawals() {
                             ₺{withdrawal.amount.toLocaleString("tr-TR")}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            Net: ₺{withdrawal.net_amount?.toLocaleString("tr-TR")}
+                            Çekilen: ₺{withdrawal.amount.toLocaleString("tr-TR")} (Ücretsiz ✨)
                           </div>
                         </div>
                       </TableCell>
@@ -597,12 +597,8 @@ export default function AdminWithdrawals() {
                                     <p>₺{withdrawal.amount.toLocaleString("tr-TR")}</p>
                                   </div>
                                   <div>
-                                    <label className="text-sm font-medium">Net Miktar</label>
-                                    <p>₺{withdrawal.net_amount?.toLocaleString("tr-TR")}</p>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium">Ücret</label>
-                                    <p>₺{withdrawal.fee_amount?.toLocaleString("tr-TR")}</p>
+                                    <label className="text-sm font-medium">Çekilen Miktar</label>
+                                    <p>₺{withdrawal.amount.toLocaleString("tr-TR")} (Ücretsiz ✨)</p>
                                   </div>
                                   <div>
                                     <label className="text-sm font-medium">Risk Skoru</label>

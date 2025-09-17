@@ -215,8 +215,8 @@ export default function RequestWithdrawal() {
     });
   };
 
-  const calculateFee = (amount: number) => amount * 0.02;
-  const calculateNet = (amount: number) => amount - calculateFee(amount);
+  // Fee calculations removed - no more withdrawal fees
+  const calculateNet = (amount: number) => amount;
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -458,14 +458,13 @@ export default function RequestWithdrawal() {
                   <span>Çekim Miktarı:</span>
                   <span className="font-medium">₺{amount.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>İşlem Ücreti (2%):</span>
-                  <span>-₺{calculateFee(amount).toFixed(2)}</span>
+                <div className="flex justify-between font-bold border-t pt-2 text-green-600">
+                  <span>Çekilen Tutar:</span>
+                  <span>₺{amount.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between font-bold border-t pt-2">
-                  <span>Net Tutar:</span>
-                  <span className="text-primary">₺{calculateNet(amount).toFixed(2)}</span>
-                </div>
+                <p className="text-xs text-green-600 text-center mt-2">
+                  ✨ İşlem ücreti alınmamaktadır
+                </p>
               </div>
             )}
 
