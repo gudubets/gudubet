@@ -8,10 +8,8 @@ const corsHeaders = {
 
 interface DepositRequest {
   amount: number;
-  payment_method: string;
-  bank_account_id?: string;
-  user_account_name?: string;
-  payment_details?: any;
+  bank_account_id: string;
+  user_account_name: string;
 }
 
 serve(async (req) => {
@@ -41,7 +39,7 @@ serve(async (req) => {
     }
 
     // Get request data
-    const { amount, payment_method, bank_account_id, user_account_name, payment_details }: DepositRequest = await req.json()
+    const { amount, bank_account_id, user_account_name }: DepositRequest = await req.json()
 
     // Validate input
     if (!amount || amount < 10 || amount > 50000) {
@@ -51,9 +49,16 @@ serve(async (req) => {
       )
     }
 
-    if (!payment_method) {
+    if (!bank_account_id) {
       return new Response(
-        JSON.stringify({ error: 'Ödeme yöntemi gerekli' }),
+        JSON.stringify({ error: 'Banka hesabı seçimi gerekli' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!user_account_name) {
+      return new Response(
+        JSON.stringify({ error: 'Hesap sahibi adı gerekli' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -101,13 +106,13 @@ serve(async (req) => {
         user_id: profile.id,
         amount: amount,
         currency: 'TRY',
-        payment_method: payment_method,
+        payment_method: 'bank_transfer',
         status: 'pending',
         transaction_type: 'deposit',
         reference_id: deposit.id,
         metadata: {
           deposit_id: deposit.id,
-          payment_details: payment_details
+          bank_account_id: bank_account_id
         }
       })
       .select()
@@ -126,7 +131,7 @@ serve(async (req) => {
         action_type: 'deposit_request',
         metadata: {
           amount: amount,
-          payment_method: payment_method,
+          bank_account_id: bank_account_id,
           deposit_id: deposit.id
         },
         amount: amount,
