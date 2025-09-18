@@ -1,5 +1,8 @@
 project_id = "ziiwapwvyavfakeuhvpt"
 
+[functions.cache-demo]
+verify_jwt = false
+
 [functions.calculate-loss-bonus]
 verify_jwt = true
 
