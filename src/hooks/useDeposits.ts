@@ -20,7 +20,7 @@ export function useMyDeposits() {
     queryKey: ['me', 'deposits'],
     queryFn: async (): Promise<Deposit[]> => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) return [];
 
       const { data, error } = await supabase
         .from('deposits')
@@ -31,7 +31,10 @@ export function useMyDeposits() {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Deposits error:', error);
+        return [];
+      }
       return data as any[];
     },
     refetchInterval: 30000, // Refetch every 30 seconds

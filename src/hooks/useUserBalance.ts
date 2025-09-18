@@ -40,7 +40,7 @@ export const useUserBalance = (user: User | null) => {
           .from('profiles')
           .select('balance, bonus_balance')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching balance:', error);
@@ -49,6 +49,18 @@ export const useUserBalance = (user: User | null) => {
             loading: false,
             error: error.message
           }));
+          return;
+        }
+
+        if (!profileData) {
+          // No profile found, set zero balances
+          setBalanceData({
+            balance: 0,
+            bonus_balance: 0,
+            total_balance: 0,
+            loading: false,
+            error: null
+          });
           return;
         }
 
