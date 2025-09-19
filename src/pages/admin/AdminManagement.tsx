@@ -48,6 +48,8 @@ interface AdminActivity {
   created_at: string;
   admin?: {
     email: string;
+    first_name?: string;
+    last_name?: string;
   };
 }
 
@@ -142,19 +144,33 @@ const AdminManagement = () => {
   const { data: activities = [], isLoading: activitiesLoading } = useQuery({
     queryKey: ['admin-activities'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get admin activities
+      const { data: activitiesData, error: activitiesError } = await supabase
         .from('admin_activities')
-        .select(`
-          *,
-          admin:admins!admin_activities_admin_id_fkey(email)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
       
-      if (error) throw error;
-      return data.map(activity => ({
+      if (activitiesError) throw activitiesError;
+
+      // Get unique admin IDs
+      const adminIds = [...new Set(activitiesData.map(a => a.admin_id))];
+
+      // Get admin profiles
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, email')
+        .in('id', adminIds);
+
+      if (profilesError) throw profilesError;
+
+      // Map profiles by ID for quick lookup
+      const profilesMap = new Map(profilesData.map(p => [p.id, p]));
+
+      // Combine data
+      return activitiesData.map(activity => ({
         ...activity,
-        admin: activity.admin ? { email: activity.admin.email } : null
+        admin: profilesMap.get(activity.admin_id) || null
       })) as AdminActivity[];
     },
   });
@@ -695,7 +711,15 @@ const AdminManagement = () => {
                     filteredActivities.map((activity) => (
                       <TableRow key={activity.id}>
                         <TableCell className="font-medium">
-                          {activity.admin?.email || 'Bilinmeyen Admin'}
+                          {activity.admin 
+                            ? `${activity.admin.first_name || ''} ${activity.admin.last_name || ''}`.trim() || activity.admin.email
+                            : 'Sistem Aktivitesi'
+                          }
+                          {activity.admin?.email && (
+                            <div className="text-sm text-muted-foreground">
+                              {activity.admin.email}
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell>
                           {getActivityTypeBadge(activity.action_type)}

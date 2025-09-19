@@ -11,9 +11,10 @@ interface AdminActivity {
   target_type?: string;
   metadata?: any;
   created_at: string;
-  admins?: {
+  profiles?: {
     email: string;
-    role_type: string;
+    first_name?: string;
+    last_name?: string;
   };
 }
 
@@ -27,20 +28,34 @@ export const useAdminNotifications = () => {
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ['admin-activities'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get admin activities
+      const { data: activitiesData, error: activitiesError } = await supabase
         .from('admin_activities')
-        .select(`
-          *,
-          admins (
-            email,
-            role_type
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
-      return data as AdminActivity[];
+      if (activitiesError) throw activitiesError;
+
+      // Get unique admin IDs
+      const adminIds = [...new Set(activitiesData.map(a => a.admin_id))];
+
+      // Get admin profiles
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, email')
+        .in('id', adminIds);
+
+      if (profilesError) throw profilesError;
+
+      // Map profiles by ID for quick lookup
+      const profilesMap = new Map(profilesData.map(p => [p.id, p]));
+
+      // Combine data
+      return activitiesData.map(activity => ({
+        ...activity,
+        profiles: profilesMap.get(activity.admin_id) || null
+      })) as AdminActivity[];
     },
     refetchInterval: 30000, // 30 saniyede bir güncelle
   });
@@ -65,23 +80,25 @@ export const useAdminNotifications = () => {
 
   // Format activity description
   const formatActivity = (activity: AdminActivity): string => {
-    const adminEmail = activity.admins?.email || 'Sistem';
+    const adminName = activity.profiles 
+      ? `${activity.profiles.first_name || ''} ${activity.profiles.last_name || ''}`.trim() || activity.profiles.email
+      : 'Sistem';
     
     switch (activity.action_type) {
       case 'user_created':
-        return `${adminEmail} yeni kullanıcı oluşturdu`;
+        return `${adminName} yeni kullanıcı oluşturdu`;
       case 'user_updated':
-        return `${adminEmail} kullanıcı bilgilerini güncelledi`;
+        return `${adminName} kullanıcı bilgilerini güncelledi`;
       case 'transaction_approved':
-        return `${adminEmail} işlemi onayladı`;
+        return `${adminName} işlemi onayladı`;
       case 'transaction_rejected':
-        return `${adminEmail} işlemi reddetti`;
+        return `${adminName} işlemi reddetti`;
       case 'bonus_created':
-        return `${adminEmail} yeni bonus kampanyası oluşturdu`;
+        return `${adminName} yeni bonus kampanyası oluşturdu`;
       case 'admin_created':
-        return `${adminEmail} yeni admin oluşturdu`;
+        return `${adminName} yeni admin oluşturdu`;
       case 'permission_updated':
-        return `${adminEmail} admin yetkilerini güncelledi`;
+        return `${adminName} admin yetkilerini güncelledi`;
       default:
         return activity.description;
     }
